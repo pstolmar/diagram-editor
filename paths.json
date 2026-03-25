@@ -1,8 +1,9 @@
 {
   "mappings": [
-    "/content/aem-boilerplate/:/"
+    "/content/diagram-editor/:/",
+    "/content/diagram-editor/configuration:/.helix/config.json"
   ],
   "includes": [
-    "/content/aem-boilerplate/"
+    "/content/diagram-editor/"
   ]
 }
