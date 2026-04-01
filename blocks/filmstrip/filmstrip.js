@@ -1,5 +1,112 @@
 // filmstrip block — cellulose film aesthetic horizontal scroll loop
 // AEM EDS block: receives a table with image rows, renders as looping filmstrip
+//
+// URL demo params:
+//   ?demo=approval  — stops scroll, shows ✓/✗ per frame
+//                     dispatches filmstrip:approve / filmstrip:reject events
+//                     corkboard listens and reveals or stamps the corresponding polaroid
+
+function ripFrame(frameEl, idx) {
+  const rect = frameEl.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+  const tearY = 0.51; // 51% down
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `position:fixed;top:${rect.top}px;left:${rect.left}px;width:${w}px;height:${h}px;pointer-events:none;z-index:9999;overflow:hidden;border-radius:2px;`;
+
+  const topClip = `polygon(0 0,100% 0,100% ${tearY * 100}%,0 ${tearY * 100}%)`;
+  const botClip = `polygon(0 ${tearY * 100}%,100% ${tearY * 100}%,100% 100%,0 100%)`;
+
+  [topClip, botClip].forEach((clip, i) => {
+    const half = document.createElement('div');
+    half.style.cssText = `position:absolute;inset:0;overflow:hidden;clip-path:${clip};`;
+    const origImg = frameEl.querySelector('img');
+    if (origImg) {
+      const img = origImg.cloneNode(true);
+      img.style.cssText = `width:${w}px;height:${h}px;object-fit:cover;position:absolute;top:0;left:0;filter:sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9);`;
+      half.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'filmstrip-img-placeholder';
+      ph.style.cssText = `width:${w}px;height:${h}px;position:absolute;top:0;left:0;`;
+      half.appendChild(ph);
+    }
+    overlay.appendChild(half);
+
+    const target = i === 0
+      ? { transform: `translate(-${w * 0.32}px,-${h * 0.6}px) rotate(-13deg)`, opacity: 0 }
+      : { transform: `translate(${w * 0.28}px,${h * 0.6}px) rotate(11deg)`, opacity: 0 };
+    half.animate([{ transform: 'translate(0,0) rotate(0deg)', opacity: 1 }, target], {
+      duration: 520, easing: 'cubic-bezier(0.55,0,1,0.45)', fill: 'forwards',
+    });
+  });
+
+  document.body.appendChild(overlay);
+  frameEl.style.visibility = 'hidden';
+
+  setTimeout(() => {
+    overlay.remove();
+    frameEl.style.visibility = '';
+    frameEl.classList.add('filmstrip-rejected');
+    frameEl.querySelector('.filmstrip-approval-bar')?.remove();
+    document.dispatchEvent(new CustomEvent('filmstrip:reject', { detail: { index: idx } }));
+  }, 510);
+}
+
+function approveFrame(frameEl, idx) {
+  frameEl.classList.add('filmstrip-approved');
+  frameEl.querySelector('.filmstrip-approval-bar')?.remove();
+
+  const badge = document.createElement('div');
+  badge.className = 'filmstrip-approved-badge';
+  badge.textContent = '✓ APPROVED';
+  frameEl.appendChild(badge);
+
+  document.dispatchEvent(new CustomEvent('filmstrip:approve', { detail: { index: idx } }));
+}
+
+function initApprovalMode(block, frames, strip) {
+  strip.style.animationPlayState = 'paused';
+  block.classList.add('approval-mode');
+
+  // Keep only original frames (remove loop duplicates)
+  const allFrameEls = [...strip.querySelectorAll('.filmstrip-frame')];
+  allFrameEls.slice(frames.length).forEach((el) => el.remove());
+
+  allFrameEls.slice(0, frames.length).forEach((frameEl, idx) => {
+    const bar = document.createElement('div');
+    bar.className = 'filmstrip-approval-bar';
+
+    const rejectBtn = document.createElement('button');
+    rejectBtn.className = 'filmstrip-btn filmstrip-btn-reject';
+    rejectBtn.setAttribute('aria-label', 'Reject');
+    rejectBtn.textContent = '✗';
+
+    const approveBtn = document.createElement('button');
+    approveBtn.className = 'filmstrip-btn filmstrip-btn-approve';
+    approveBtn.setAttribute('aria-label', 'Approve');
+    approveBtn.textContent = '✓';
+
+    rejectBtn.addEventListener('click', () => {
+      if (frameEl.dataset.acted) return;
+      frameEl.dataset.acted = '1';
+      ripFrame(frameEl, idx);
+    });
+
+    approveBtn.addEventListener('click', () => {
+      if (frameEl.dataset.acted) return;
+      frameEl.dataset.acted = '1';
+      approveFrame(frameEl, idx);
+    });
+
+    bar.append(rejectBtn, approveBtn);
+    frameEl.appendChild(bar);
+  });
+
+  // Signal corkboard to enter approval-pending state
+  document.dispatchEvent(new CustomEvent('filmstrip:approvalmode'));
+}
 
 export default function decorate(block) {
   // Collect all images + optional captions from block rows
@@ -17,19 +124,17 @@ export default function decorate(block) {
     });
   });
 
-  // Need at least 1 frame; duplicate set for seamless loop
   if (!frames.length) {
     block.textContent = '';
     return;
   }
 
-  // Build DOM
   block.textContent = '';
 
   const strip = document.createElement('div');
   strip.className = 'filmstrip-track';
 
-  // Render frames twice (original + clone) for seamless CSS loop
+  // Render frames twice for seamless CSS loop
   [frames, frames].forEach((set, setIdx) => {
     set.forEach((frame, idx) => {
       const el = document.createElement('div');
@@ -60,7 +165,6 @@ export default function decorate(block) {
     });
   });
 
-  // Vignettes
   const vigLeft = document.createElement('div');
   vigLeft.className = 'filmstrip-vignette filmstrip-vignette-left';
   const vigRight = document.createElement('div');
@@ -70,8 +174,13 @@ export default function decorate(block) {
   block.appendChild(strip);
   block.appendChild(vigRight);
 
-  // Adjust animation duration based on frame count (more frames = slower)
   const baseDuration = 28;
   const duration = Math.max(baseDuration, frames.length * 4.5);
   strip.style.animationDuration = `${duration}s`;
+
+  // Demo URL param: approval mode
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('demo') === 'approval') {
+    initApprovalMode(block, frames, strip);
+  }
 }

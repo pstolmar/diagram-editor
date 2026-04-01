@@ -330,6 +330,40 @@ body.polaroid-has-zoom .polaroid-photo:not(.zoomed) {
   opacity: 0;
 }
 
+/* ── APPROVAL MODE STATES ── */
+
+/* Dim all pending photos when filmstrip approval mode activates */
+.polaroid-photo.approval-pending .polaroid-photo-inner {
+  filter: grayscale(1) contrast(1.1) brightness(0.5) sepia(0.1);
+  transition: filter 0.6s ease;
+}
+
+/* Rejection stamp */
+.polaroid-photo.rejected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, transparent 30%, rgba(180, 0, 0, 0.12) 31%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' stroke='rgba(200,30,30,0.65)' stroke-width='5' fill='none'/%3E%3Cline x1='22' y1='22' x2='78' y2='78' stroke='rgba(200,30,30,0.65)' stroke-width='5'/%3E%3C/svg%3E") no-repeat center / 70%;
+  z-index: 5;
+  animation: stampDown 0.22s cubic-bezier(0.22, 0, 0.4, 1) both;
+}
+
+@keyframes stampDown {
+  0%   { transform: scale(2.2) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(0.92) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes stampDown {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+  }
+}
+
 /* Dust puff */
 .polaroid-photo.falling::after {
   content: '';

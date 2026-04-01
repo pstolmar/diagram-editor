@@ -19,6 +19,12 @@
     ]
   },
   {
+    "id": "card-reveal-hero",
+    "components": [
+      "card-reveal-hero-tab"
+    ]
+  },
+  {
     "id": "cards",
     "components": [
       "card"

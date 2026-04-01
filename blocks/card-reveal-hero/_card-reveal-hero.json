@@ -1,0 +1,156 @@
+{
+  "definitions": [
+    {
+      "title": "Card Reveal Hero",
+      "id": "card-reveal-hero",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Card Reveal Hero",
+              "model": "card-reveal-hero",
+              "filter": "card-reveal-hero"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Card Reveal Hero Tab",
+      "id": "card-reveal-hero-tab",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Card Reveal Hero Tab",
+              "model": "card-reveal-hero-tab"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "card-reveal-hero",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "tabStyle",
+          "label": "Tab Style",
+          "value": "pill",
+          "options": [
+            { "name": "Pill (rounded)", "value": "pill" },
+            { "name": "Underline", "value": "underline" },
+            { "name": "Card", "value": "card" }
+          ]
+        },
+        {
+          "component": "number",
+          "valueType": "number",
+          "name": "defaultTab",
+          "label": "Default Active Tab (0-based)",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "card-reveal-hero-tab",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "icon",
+          "label": "Tab Icon (emoji or symbol)",
+          "value": "◈"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "label",
+          "label": "Tab Label",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Panel Heading",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "bodyText",
+          "label": "Body Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "ctaLabel",
+          "label": "CTA Button Label",
+          "value": "Learn More"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "ctaHref",
+          "label": "CTA URL",
+          "value": "#"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "panelImage",
+          "label": "Main Panel Image",
+          "multi": false
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "popupImage",
+          "label": "Popup Card Image",
+          "multi": false
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "animationPreset",
+          "label": "Popup Animation",
+          "value": "bounce",
+          "options": [
+            { "name": "Spring Bounce", "value": "bounce" },
+            { "name": "Slide from Right", "value": "slide-right" },
+            { "name": "Drop from Camera", "value": "drop-camera" },
+            { "name": "Flip In", "value": "flip" }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "celebrationVariant",
+          "label": "Celebration Effect",
+          "value": "none",
+          "options": [
+            { "name": "None", "value": "none" },
+            { "name": "Sparkler", "value": "sparkler" },
+            { "name": "Confetti", "value": "confetti" },
+            { "name": "Balloons", "value": "balloons" }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "card-reveal-hero",
+      "components": [
+        "card-reveal-hero-tab"
+      ]
+    }
+  ]
+}

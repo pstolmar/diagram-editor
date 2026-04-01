@@ -295,6 +295,31 @@ export default function decorate(block) {
   agentBtn.addEventListener('click', runGovernanceAgent);
   agentBar.appendChild(agentBtn);
 
+  // Filmstrip approval mode bridge
+  // filmstrip:approvalmode → dim all photos, hide governance button
+  // filmstrip:approve { index } → color-reveal that photo + sparkler
+  // filmstrip:reject  { index } → stamp that photo rejected, keep gray
+  document.addEventListener('filmstrip:approvalmode', () => {
+    agentBar.style.display = 'none';
+    [...grid.querySelectorAll('.polaroid-photo')].forEach((p) => {
+      p.classList.add('approval-pending');
+    });
+  });
+
+  document.addEventListener('filmstrip:approve', (e) => {
+    const photo = [...grid.querySelectorAll('.polaroid-photo')][e.detail.index];
+    if (!photo) return;
+    photo.classList.remove('approval-pending', 'aged', 'faded', 'cracked');
+    photo.classList.add('revealed');
+    import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(photo));
+  });
+
+  document.addEventListener('filmstrip:reject', (e) => {
+    const photo = [...grid.querySelectorAll('.polaroid-photo')][e.detail.index];
+    if (!photo) return;
+    photo.classList.add('rejected');
+  });
+
   board.appendChild(label);
   board.appendChild(agentBar);
   board.appendChild(grid);
