@@ -30,20 +30,22 @@ function parseTabs(block) {
     const cells = [...row.children];
     const t = (i) => cells[i]?.textContent.trim() || '';
     const imgSrc = (i) => cells[i]?.querySelector('img')?.src || cells[i]?.textContent.trim() || '';
-    const href = (i) => cells[i]?.querySelector('a')?.href || cells[i]?.textContent.trim() || '#';
     const validPresets = Object.keys(ANIMATION_PRESETS);
     const validCelebrations = ['sparkler', 'confetti', 'balloons', 'none'];
+    // ctaHref: separate field (cell 5) when authored via JCR model;
+    // fall back to <a> href in cell 4 for EDS document authoring
+    const ctaHref = t(5) || cells[4]?.querySelector('a')?.href || '#';
     return {
       icon: t(0),
       label: t(1),
       heading: t(2),
       bodyText: t(3),
       ctaLabel: t(4),
-      ctaHref: href(4),
-      panelImage: imgSrc(5),
-      popupImage: imgSrc(6),
-      animationPreset: validPresets.includes(t(7)) ? t(7) : 'bounce',
-      celebrationVariant: validCelebrations.includes(t(8)) ? t(8) : 'none',
+      ctaHref,
+      panelImage: imgSrc(6),
+      popupImage: imgSrc(7),
+      animationPreset: validPresets.includes(t(8)) ? t(8) : 'bounce',
+      celebrationVariant: validCelebrations.includes(t(9)) ? t(9) : 'none',
     };
   });
 }
