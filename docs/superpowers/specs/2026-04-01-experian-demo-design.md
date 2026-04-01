@@ -1,122 +1,149 @@
 # Experian AEM Innovations Demo — Design Spec
 _Adobe Day — AEM Innovations Technical Deep Dive (B2B group, 30 min)_
-_Date: 2026-04-01_
+_Date: 2026-04-01 | Last revised: 2026-04-01 (post critical-pass)_
 
 ---
 
-## Context
+## Strategic Frame
 
-30-minute technical deep dive for a B2B Experian audience (architects, senior developers, marketing engineers). Goal: visually memorable, technically credible, story-driven. The core pain point FluffyJaws confirmed: **authoring flexibility without layout chaos** — marketers want to experiment with layouts but developers can't babysit every page.
+**What we are proving:**
+> AEM as a cloud-native, governed experience + asset platform that integrates with creative tooling, external systems, and emerging agent workflows — without sacrificing compliance or requiring a single power-user hero.
 
-Demo repo: `diagram-editor` branch `mermaid-editor`, deployed on AEM EDS.
+Every demo moment must reinforce at least one of:
+- Governance at scale (not just flexibility)
+- Cloud-native differences vs. on-prem
+- Integration realism (not mock magic)
+- Reduced single-admin dependency
+- Credible, auditable extensibility via APIs and agents
+
+**We are not demoing features. We are walking through an ecosystem moment that feels like Experian.**
+
+---
+
+## Confirmed Pain Points (from Experian support tickets + account context)
+
+These are real signals. Reference them explicitly where relevant — it lands as "they did their homework."
+
+| Source | Pain | Product answer in demo |
+|---|---|---|
+| E-001946285 (Nov 2025) | "What chars are allowed in DAM filenames? Does AEM auto-sanitize?" — wanting hard rules, not tribal knowledge | AEM Governance Agent: naming policies enforced at upload |
+| E-001289681 (Jul 2024) | 2-month OOTB sitemap escalation; needed undocumented `excludePath`. Gana Natarajan (Sr. Dir. Engineering) personally on thread | Sites Optimizer + LLM Optimizer |
+| E-002109203 (Feb 2026) | "2 months into CJA contract, still no data — business critical." Blocked by sandbox/API auth | AEP Agents (Data Insights Agent), paved onboarding patterns |
+| Account context | Reliance on one AEM power user/admin. Governance gaps + authoring flexibility simultaneously missing. | Governance Agent + UE governed dropdowns |
+| Account context | 32 countries, multi-product (Financial, Consumer, Health, Auto, Marketing). Need consistency at scale without developer bottleneck. | XF + MSM + UE layout governance |
+| Account context | Multiple in-flight RFPs: Marketo, AJO, RTCDP. Goal to unify Adobe stack and contracts. | OneAdobe close |
+| Slack (migration scoping) | ~17k Experian URLs crawled by Aemy, 14k on WordPress blogs — migration may be in scope | EDS incremental adoption + Edge publish moment |
+
+**DSAT flags on multiple support cases.** Their threshold for friction is low. The demo should feel polished and practiced, not exploratory.
+
+---
+
+## Single Cohesive Storyline
+
+**"One Experian campaign asset → DAM governance → governed authoring → global reuse → AI discoverability"**
+
+Works for B2B + B2C, agency + internal teams, Assets + Sites + Edge Delivery, Creative Cloud + APIs + Agents.
 
 ---
 
 ## Demo Arc (30 min)
 
-| Min | Segment | Hook |
-|-----|---------|------|
-| 0–3 | **Open cold on the filmstrip block scrolling** — "This is a page. I didn't write any CSS today." | Show the visual impact first, explain nothing. |
-| 3–8 | **Authoring flexibility story** — UE layout dropdown, governed options. Live edit a section layout, save, reload. | "Your team did this in 45 seconds. No dev." |
-| 8–14 | **Corkboard → floor flip** — scroll past the polaroid wall, watch photos fall onto the wood floor. Hover/click reveals. | Pure CSS 3D + IntersectionObserver, 100 Lighthouse. |
-| 14–20 | **Assets deep dive** — rendition switcher (smart-crop, mono, web-optimized, fisheye). Mermaid diagram generated, uploaded to AEM with custom metadata + workflow trigger. | Shows AEM Assets API + agent-authored content. |
-| 20–26 | **FluffyJaws live A2A** — ask a question in voice mode, watch it auto-route to AEM Data Advisory Agent, get a live answer about the demo environment. | The routing moment IS the demo. Pre-baked fallback ready. |
-| 26–30 | **Q&A** | Buffer built in. |
+| Min | Beat | What you show | What they feel |
+|---|---|---|---|
+| 0–2 | **Cold open — visual hook** | Filmstrip block running. Experian-flavored content (credit score card imagery, product campaign frames, NOT generic photos). Pause. "This page was authored by a marketing manager in 45 seconds. No dev ticket filed." | Immediate curiosity. Recalibrate expectations. |
+| 2–6 | **Governance anchor** | DAM upload → Governance Agent catches naming/metadata policy violation → author fixes → approved → asset transitions mono → color. "You told us you needed hard rules, not one person who knows the rules." | "They did their homework" |
+| 6–12 | **Authoring flexibility with guardrails** | UE layout dropdown (governed options, not freeform). Live section change, save, reload. Then: XF + MSM — fix one Experience Fragment, watch it propagate across a 32-country hierarchy except one intentional break. Narrate: "Scale globally without losing control." | "This is actually what we need" |
+| 12–16 | **Corkboard moment — governance made visible** | Corkboard wall = pending campaign assets (all monochrome = not yet approved). Run "Governance Agent" button → assets color-reveal one by one → scroll past → photos fall onto published page (perspective floor flip). The visual effect IS the governance story. | Visual memory anchor + "I get it" |
+| 16–20 | **Sites Optimizer + LLM Optimizer** | Surface 3 real Experian.com issues (SEO gaps, LLM discoverability). Optionally reference their sitemap escalation if room has technical people. "No more magic incantations." | Operational trust |
+| 20–24 | **BYO agents — grounded version** | Mermaid flow diagram: Campaign Brief → DAM Ingest → Governance Check → Author → Publish → EDS Edge → AEP Event → CJA Dashboard. Rendered in Experian brand colors. "This is something your team builds and embeds in AEM. Auditable. Event-driven. Not black-box AI." AEP Agents (Data Insights Agent) for the CJA onboarding pain. | Credibly extensible, not scary |
+| 24–27 | **OneAdobe close** | Map: AEM + Workfront + Express + AJO + Marketo + RTCDP. "One platform budget conversation." Reference their unification goal explicitly. Point to follow-up recording for depth. | Strategic alignment |
+| 27–30 | **FluffyJaws A2A live** | Ask an Experian-specific question in voice mode. Watch it auto-route to AEM Data Advisory Agent. The routing moment IS the demo. Pre-baked fallback ready if network/MCP unstable. | Exclamation mark close |
+
+---
+
+## Visual Design: Reframing What We Built
+
+### The Metaphor Fix
+
+The polaroid/corkboard aesthetic is **not wrong because it's visual** — it's wrong without business meaning attached. Fix: the polaroids ARE the Experian campaign assets, monochrome = awaiting governance approval. The Governance Agent run triggers the mono→color reveal. The wall→floor perspective flip = approved assets landing in the live published experience.
+
+Same code. New story container.
+
+### Filmstrip — Content Swap Required
+
+Replace gradient placeholder frames with **Experian-flavored financial services content**:
+- Credit score card / eligibility check mockup imagery
+- B2B API documentation screenshot
+- Product comparison hero image
+- Campaign landing page still
+
+Same CSS, same JS. Just update the authored content. The filmstrip stops being "brand photography archive" and becomes the demo page's visual entry moment.
 
 ---
 
 ## Block 1: `filmstrip`
 
-**Visual:** Horizontal band scrolling sideways as the page loads/scrolls. Cellulose film aesthetic. Sprocket holes top and bottom. Photos in frames with sepia/flicker filter. Experian navy background.
+**Visual:** Horizontal scrolling band. Financial services content frames. Experian navy background. Entry moment for the demo page — establishes "this is a well-crafted page" before the narrative begins.
 
-**Implementation:**
-- CSS `@keyframes filmRoll` on a wide inner container: `translateX(0) → translateX(-50%)`  
-- Duplicated set of frames for seamless loop  
-- Sprocket holes: `repeating-radial-gradient` on `::before`/`::after` pseudo-elements  
-- Flicker: fast `@keyframes flicker` alternating `brightness(0.88)` / `brightness(1.0)` at 0.08s intervals  
-- Images: CSS filter `sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9)` (the "polaroid" filter from asset-gallery)  
-- Filmstrip filter: `saturate(0.3) contrast(1.4) brightness(0.85) sepia(0.3)` on hover  
-- `prefers-reduced-motion`: pause animation  
+**Implementation:** ✅ Built — `blocks/filmstrip/filmstrip.js`, `blocks/filmstrip/filmstrip.css`
 
-**AEM authoring:** Block takes a list of images. No required metadata beyond `src` + `alt`.
-
-**Files:** `blocks/filmstrip/filmstrip.js`, `blocks/filmstrip/filmstrip.css`
+**Content swap needed:** Replace placeholder gradients with Experian-context imagery in the authored block table.
 
 ---
 
 ## Block 2: `polaroid-corkboard`
 
-**Visual:** A corkboard (dark mahogany `#4a2810`) covered in B&W/faded polaroid photos. As the user scrolls past, photos peel off and fall onto a wood-grain floor below — the perspective flips 90° so the "wall" becomes the "floor."
+**Visual:** Corkboard wall (dark mahogany `#4a2810`) with monochrome campaign asset "photos" (= assets pending governance approval). Governance Agent trigger button → assets reveal color one by one. Scroll past → perspective flip (wall → floor), photos fall onto published page surface.
 
-### Photo states
-- **Default:** high-contrast monochrome (`grayscale(1) contrast(1.3) brightness(0.85)`), slightly aged  
-- Some photos: sepia + cracked overlay via `::before` pseudo-element  
-- **`ix="hover-reveal"`:** `mouseenter` → adds `.revealed` → full color; `mouseleave` → restore mono  
-- **`ix="click-zoom"`:** `click` → adds `.zoomed` → `scale(2.4) translateZ(0) z-index:20`; click again restores  
-- **`ix="both"`:** hover reveals color AND click zooms  
-- `body.has-zoom`: non-zoomed polaroids dim to `opacity: 0.4`  
+**New element needed:** "Run Governance Agent" button that iterates through `.polaroid-photo` elements, adds `.revealed` with staggered 200ms delays, plays sparkler fx on the first one.
 
-### Fall animation
-Triggered by `IntersectionObserver` when the scene exits the viewport (user scrolls past).  
+**Implementation:** ✅ Built — `blocks/polaroid-corkboard/polaroid-corkboard.js`, `blocks/polaroid-corkboard/polaroid-corkboard.css`
 
-```
-fall-stamp-cw / fall-stamp-ccw (mirrored for visual variety)
-Duration: 1.4s  cubic-bezier(.38, 0, .78, .3)  -- gravitational
+**Pending:** Add governance trigger button to the JS. Wire `fireSparkler` from `scripts/fx-canvas.js` on first reveal.
 
-0%:    base position, pin present
-5%:    pin pops: translateY(-6px) rotate(±1.5deg)
-12%:   slight bounce down
-38%:   CSS filter transitions to none (color reveals mid-fall)
-68%:   rotateX(-82deg) — stamp away from camera
-85%:   rotateX(-88deg) translateY(240px) scale(0.88)
-100%:  rotateX(-90deg) translateY(290px) scale(0.85) opacity:0
-```
+### Photo states (unchanged from prototype)
+- `aged` — `grayscale(1) contrast(1.22) brightness(.72) sepia(.15)` — pending approval
+- `faded` — `grayscale(.82)...` — older asset, low priority
+- `cracked` — `grayscale(1) contrast(1.38) brightness(.64)` — compliance risk
 
-Dust puff: `.polaroid.falling::after` — `radial-gradient(circle, rgba(180,160,130,.45) 0%, transparent 70%)` expanding from `0 0` to `180px 60px` at 88% of the fall animation.
+### Fall animation (unchanged)
+`fall-stamp-cw / fall-stamp-ccw` — 1.15s cubic-bezier(.38,0,.78,.3) gravitational  
+Color reveals at 38% keyframe (mid-fall). Dust puff at 88% delay.
 
-### Perspective scene
-```css
-.scene-root {
-  perspective: 950px;
-  perspective-origin: 50% -10%;
-}
-.scene-root.tipped .scene-plane {
-  transform: rotateX(75deg);
-  transform-style: preserve-3d;
-}
-.corkboard { background: #4a2810 + noise texture }
-.scene-root.tipped .corkboard { opacity: 0.15; transition: opacity 1.1s ease .25s; }
-.wood-floor {
-  background: repeating-linear-gradient(...)  /* grain */
-  opacity: 0;
-  transition: opacity 1.2s ease .4s;
-}
-.scene-root.tipped .wood-floor { opacity: 1; }
-```
+### Perspective scene (unchanged)
+Cork fades to opacity 0.15, wood floor fades in, scene rotates `rotateX(75deg)`.
 
 ### URL demo params
-- `?demo=corkboard` → `scrollIntoView()` the scene  
-- `?demo=fallen` → trigger tip + fall immediately (for live demo jump)  
-- `?demo=home` → redirect to old brainstorm full-concept mockup  
-
-**Files:** `blocks/polaroid-corkboard/polaroid-corkboard.js`, `blocks/polaroid-corkboard/polaroid-corkboard.css`
-
-**Reference prototype:** `tools/polaroid-mockup.html` — complete working prototype, use as direct implementation reference.
+- `?demo=corkboard` → scrollIntoView
+- `?demo=fallen` → trigger tip + fall immediately
+- `?demo=governance` → NEW: scroll to corkboard AND auto-run governance reveal sequence
 
 ---
 
 ## Block 3: `card-reveal-hero` (port from mermaid-rde-tools)
 
-Tabbed hero with Experian navy/teal/magenta branding. Tabs trigger sparkle/confetti/balloons via `scripts/fx-canvas.js`.  
-Source: `/Users/pstolmar/dev/aio/aio-aem-helpers/mermaid-upload-to-aem/mermaid-rde-tools/blocks/card-reveal-hero/`
+Tabbed hero with Experian palette. Used on demo page opener (above filmstrip) or as the OneAdobe closer page hero.  
+Source: `mermaid-rde-tools/blocks/card-reveal-hero/`  
+**Status:** Not yet ported.
 
-**Files:** `blocks/card-reveal-hero/` (port + adapt Experian palette)
+---
+
+## Block 4: Mermaid Diagram — Campaign Pipeline
+
+Use existing `blocks/diagram-editor/` to render a Mermaid flowchart showing the Experian campaign pipeline:
+
+```
+Campaign Brief → DAM Ingest → Governance Check → Author (UE) → Publish → EDS Edge → AEP Event → CJA Dashboard
+```
+
+Styled in Experian navy + teal via Mermaid `%%{init: { 'theme': 'base', 'themeVariables': { ... } } }%%`.  
+**Purpose:** This IS the "BYO agents" demo moment. Not live coding. Not MCP spelunking.
 
 ---
 
 ## Shared Utilities
 
-- **`scripts/fx-canvas.js`** — zero-dep canvas particle system. Already copied from mermaid-rde-tools. Exports: `fireSparkler(el)`, `fireConfetti()`, `fireBalloons()`, `clearFx()`.  
+- **`scripts/fx-canvas.js`** ✅ Copied. `fireSparkler(el)`, `fireConfetti()`, `fireBalloons()`, `clearFx()`.
 - **Experian CSS vars** (add to `styles/styles.css`):
   ```css
   --color-experian-navy: #194088;
@@ -130,48 +157,70 @@ Source: `/Users/pstolmar/dev/aio/aio-aem-helpers/mermaid-upload-to-aem/mermaid-r
 
 ## Authoring Flexibility Story
 
-**The pitch:** UE gives authors a layout dropdown (`layout: 2-col | 3-col | hero | split`) that maps to CSS classes. Authors can change the layout of any section without touching code. The block governs _which_ options exist — no infinite freeform, no layout chaos.
+**The pitch (governance-first framing):** The dropdown doesn't just enable choices — it constrains them to approved options. An author can't accidentally create a layout that breaks brand or accessibility. The power user who currently holds this knowledge in their head has been replaced by a model definition in `models/`.
 
-**Demo:** Live in Universal Editor: open a section, change layout from `2-col` to `hero`, save, see the page update. Then show the model JSON in `models/` to explain how the dropdown options are defined.
+**Demo:** UE → section → layout dropdown (governed) → change → save → reload. Then show `models/` JSON to explain the constraint mechanism.
 
-**No new block needed** — demo using an existing `columns` block variant or a simple `layout-section` block with a `layout` model field.
+**No new block needed** — use an existing `columns` block variant with a `layout` model field.
 
 ---
 
-## ORB (Back Pocket)
+## What to REFER (not demo live)
 
-Not centerpiece. If the audience is receptive and time allows (last 5 min), activate the ORB Sidekick plugin to overlay mock AEM integrations (Analytics badges, Workfront status, Firefly buttons) on a live page.
+Frame these as: "We've recorded a 6-minute technical follow-up so we don't burn live time."
+- Cloud Manager internals
+- Full EDS blocks migration philosophy
+- Asset Compute / Photoshop API depth
+- Workfront workflow deep-dive
+- Extended AEP/CJA integration setup
 
-Design spec: `docs/ORB.md`  
-Source to generalize: `wm-extras.js` (67KB) from `eds-agents-demo` live branch `aem-20260317-1803`.  
-Build separately from this demo sprint.
+---
+
+## What to SKIP entirely
+
+- Marketing personalization features
+- Flashy AI effects with no business meaning
+- Cloud Manager spelunking
+- Anything that feels like "AI hacking"
+- Tool bragging (Fusion, Walnut, etc.)
+
+---
+
+## ORB (Back Pocket — Separate Sprint)
+
+Not in the 30-min structure. If time + audience receptivity: activate post-Q&A as a bonus.  
+Design spec: `docs/ORB.md`
 
 ---
 
 ## FluffyJaws Closer
 
-Voice mode. Ask a live question about the demo environment. Let FluffyJaws auto-route to AEM Data Advisory Agent — the routing moment is the demo, not just the answer.
+Voice mode. Pre-stage a question that is Experian-specific (reference one of their products or markets — not generic AEM question). The routing to AEM Data Advisory Agent IS the moment.
 
-**Fallback:** Pre-baked screenshot of A2A routing + answer available if voice/MCP is unstable.
+**Fallback:** Pre-baked screenshot of A2A routing output. Still shows the concept clearly.
 
-**Key note:** When FluffyJaws (or any AEM agent) says "core components," correct to "blocks" or "reusable block components" for this audience. "Core Components" = old WCM Java/HTL world.
+**Terminology guard:** If FluffyJaws says "core components" during the demo, correct live: "in the EDS/crosswalk world we call those blocks" — shows you know the space.
 
 ---
 
 ## Performance Constraints
 
-- All animations: `prefers-reduced-motion` respected  
-- Canvas effects: lazy-loaded on `requestIdleCallback`, non-blocking, run after LCP  
-- No npm bundles, no CDN imports beyond Mermaid (already in diagram-editor)  
-- Target: 100 Lighthouse on all demo pages  
+- All animations: `prefers-reduced-motion` respected
+- Canvas effects: lazy-loaded on `requestIdleCallback`, non-blocking, run after LCP
+- No npm bundles, no CDN imports beyond Mermaid
+- Target: 100 Lighthouse on all demo pages
 
 ---
 
-## Build Order
+## Build Order (updated)
 
-1. `blocks/filmstrip/` — CSS-only scroll animation, no JS required for basic version  
-2. `blocks/polaroid-corkboard/` — JS + CSS, use `tools/polaroid-mockup.html` as reference  
-3. Port `card-reveal-hero` with Experian palette  
-4. Wire Experian CSS vars into `styles/styles.css`  
-5. Build demo page content in AEM (or static HTML page for preview)  
-6. ORB — separate sprint  
+1. ✅ `blocks/filmstrip/` — built
+2. ✅ `blocks/polaroid-corkboard/` — built
+3. **Add "Run Governance Agent" trigger to polaroid-corkboard** — button that reveals photos with stagger + sparkler fx
+4. **Swap filmstrip content** — Experian-context financial services frames (can do with authored block content, no code change)
+5. Wire Experian CSS vars into `styles/styles.css`
+6. Port `card-reveal-hero` with Experian palette
+7. Build demo page (filmstrip → governance anchor → UE story → corkboard → diagram → closer)
+8. Mermaid campaign pipeline diagram
+9. Sites Optimizer moment (screenshots + walkthrough if no live ASO access)
+10. ORB — separate sprint
