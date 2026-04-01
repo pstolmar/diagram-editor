@@ -180,6 +180,25 @@
     ]
   },
   {
+    "id": "filmstrip-frame",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "caption",
+        "label": "Caption",
+        "value": ""
+      }
+    ]
+  },
+  {
     "id": "fragment",
     "fields": [
       {
@@ -212,6 +231,67 @@
         "value": "",
         "label": "Text",
         "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "polaroid-photo",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "caption",
+        "label": "Caption",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "state",
+        "label": "Photo State",
+        "value": "aged",
+        "options": [
+          {
+            "name": "Aged (high contrast mono)",
+            "value": "aged"
+          },
+          {
+            "name": "Faded (soft mono)",
+            "value": "faded"
+          },
+          {
+            "name": "Cracked (damaged mono)",
+            "value": "cracked"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "interaction",
+        "label": "Interaction",
+        "value": "both",
+        "options": [
+          {
+            "name": "Hover reveals color",
+            "value": "hover-reveal"
+          },
+          {
+            "name": "Click zooms toward camera",
+            "value": "click-zoom"
+          },
+          {
+            "name": "Both",
+            "value": "both"
+          }
+        ]
       }
     ]
   }
