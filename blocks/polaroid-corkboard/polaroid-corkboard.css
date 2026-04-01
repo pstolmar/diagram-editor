@@ -77,6 +77,84 @@
   white-space: nowrap;
 }
 
+/* ── GOVERNANCE AGENT BAR ── */
+.polaroid-corkboard-agent-bar {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 20px;
+  position: relative;
+  z-index: 5;
+}
+
+.polaroid-corkboard-agent-btn {
+  background: rgba(5, 13, 31, 0.82);
+  border: 1.5px solid rgba(69, 194, 194, 0.55);
+  color: rgba(69, 194, 194, 0.95);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 9px 22px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.polaroid-corkboard-agent-btn:hover:not(:disabled) {
+  background: rgba(69, 194, 194, 0.14);
+  border-color: rgba(69, 194, 194, 0.9);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.polaroid-corkboard-agent-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.polaroid-corkboard-agent-btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.polaroid-corkboard-agent-btn.pcb-agent-done {
+  border-color: rgba(69, 194, 194, 0.8);
+  color: #45c2c2;
+  opacity: 1;
+}
+
+.pcb-agent-icon {
+  font-size: 14px;
+  line-height: 1;
+  animation: pcb-icon-spin 3s linear infinite;
+}
+
+.polaroid-corkboard-agent-btn:disabled .pcb-agent-icon {
+  animation: pcb-icon-pulse 0.6s ease-in-out infinite;
+}
+
+.polaroid-corkboard-agent-btn.pcb-agent-done .pcb-agent-icon {
+  animation: none;
+}
+
+@keyframes pcb-icon-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pcb-icon-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pcb-agent-icon {
+    animation: none;
+  }
+}
+
 /* ── PHOTO GRID ── */
 .polaroid-corkboard-grid {
   display: flex;

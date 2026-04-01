@@ -198,7 +198,7 @@ function tipScene(sceneEl) {
   setTimeout(() => dropPhotos(sceneEl), 450);
 }
 
-function resetScene(sceneEl, originalData) {
+function resetScene(sceneEl, originalData, onReset) {
   sceneEl.classList.remove('tipped');
   sceneEl.querySelectorAll('.polaroid-photo').forEach((p, i) => {
     p.classList.remove('falling', 'revealed', 'zoomed');
@@ -210,6 +210,7 @@ function resetScene(sceneEl, originalData) {
     if (d.ix === 'hover-reveal') p.classList.add('hover-zoom');
   });
   document.body.classList.remove('polaroid-has-zoom');
+  if (onReset) onReset();
 }
 
 export default function decorate(block) {
@@ -253,7 +254,49 @@ export default function decorate(block) {
     grid.appendChild(buildPhoto(data, idx));
   });
 
+  // Governance Agent trigger button
+  const agentBar = document.createElement('div');
+  agentBar.className = 'polaroid-corkboard-agent-bar';
+
+  const agentBtn = document.createElement('button');
+  agentBtn.className = 'polaroid-corkboard-agent-btn';
+  agentBtn.innerHTML = '<span class="pcb-agent-icon">◈</span> Run Governance Agent';
+
+  let agentRan = false;
+
+  function runGovernanceAgent() {
+    if (agentRan) return;
+    agentRan = true;
+    agentBtn.disabled = true;
+    agentBtn.textContent = 'Reviewing assets…';
+
+    const allPols = [...grid.querySelectorAll('.polaroid-photo')];
+
+    allPols.forEach((p, i) => {
+      setTimeout(() => {
+        p.classList.remove('aged', 'faded', 'cracked');
+        p.classList.add('revealed');
+
+        // Sparkler on first approval, confetti on last
+        if (i === 0) {
+          import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(p));
+        }
+        if (i === allPols.length - 1) {
+          setTimeout(() => {
+            import('../../scripts/fx-canvas.js').then(({ fireConfetti }) => fireConfetti());
+            agentBtn.textContent = '✓ All assets approved';
+            agentBtn.classList.add('pcb-agent-done');
+          }, 300);
+        }
+      }, i * 220);
+    });
+  }
+
+  agentBtn.addEventListener('click', runGovernanceAgent);
+  agentBar.appendChild(agentBtn);
+
   board.appendChild(label);
+  board.appendChild(agentBar);
   board.appendChild(grid);
   plane.appendChild(board);
 
@@ -272,7 +315,12 @@ export default function decorate(block) {
       }
       if (tipped && entry.isIntersecting && entry.intersectionRatio > 0.5) {
         tipped = false;
-        resetScene(block, photos);
+        resetScene(block, photos, () => {
+          agentRan = false;
+          agentBtn.disabled = false;
+          agentBtn.classList.remove('pcb-agent-done');
+          agentBtn.innerHTML = '<span class="pcb-agent-icon">◈</span> Run Governance Agent';
+        });
       }
     },
     { threshold: [0, 0.5] },
@@ -290,6 +338,12 @@ export default function decorate(block) {
       block.scrollIntoView();
       tipped = true;
       tipScene(block);
+    }, 200);
+  }
+  if (demo === 'governance') {
+    setTimeout(() => {
+      block.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(runGovernanceAgent, 800);
     }, 200);
   }
 }
