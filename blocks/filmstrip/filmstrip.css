@@ -1,0 +1,229 @@
+/* filmstrip block — cellulose film aesthetic, horizontal scroll loop */
+
+.filmstrip {
+  --sprocket-size: 14px;
+  --sprocket-gap: 22px;
+  --frame-width: 260px;
+  --frame-height: 180px;
+  --strip-bg: #050d1f;
+  --strip-accent: #194088;
+  --sprocket-color: rgba(255, 255, 255, 0.18);
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--strip-bg);
+  padding: 0;
+  user-select: none;
+}
+
+/* Sprocket holes — top and bottom rows */
+.filmstrip::before,
+.filmstrip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--sprocket-size);
+  background-image: repeating-radial-gradient(
+    circle at center,
+    var(--sprocket-color) 0,
+    var(--sprocket-color) calc(var(--sprocket-size) * 0.38),
+    transparent calc(var(--sprocket-size) * 0.38)
+  );
+  background-size: var(--sprocket-gap) var(--sprocket-size);
+  background-repeat: repeat-x;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.filmstrip::before {
+  top: 6px;
+}
+
+.filmstrip::after {
+  bottom: 6px;
+}
+
+/* Edge fade vignettes */
+.filmstrip-vignette {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.filmstrip-vignette-left {
+  left: 0;
+  background: linear-gradient(to right, var(--strip-bg) 0%, transparent 100%);
+}
+
+.filmstrip-vignette-right {
+  right: 0;
+  background: linear-gradient(to left, var(--strip-bg) 0%, transparent 100%);
+}
+
+/* Scrolling track */
+.filmstrip-track {
+  display: flex;
+  align-items: center;
+  padding: calc(var(--sprocket-size) + 12px) 12px;
+  width: max-content;
+  animation: filmRoll 28s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filmstrip-track {
+    animation: none;
+  }
+}
+
+@keyframes filmRoll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Flicker overlay — simulates lamp variation */
+.filmstrip-track::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  animation: filmFlicker 0.09s steps(1) infinite;
+  background: transparent;
+}
+
+@keyframes filmFlicker {
+  0%   { background: rgba(255, 255, 255, 0.0); }
+  14%  { background: rgba(255, 255, 255, 0.025); }
+  28%  { background: rgba(0, 0, 0, 0.03); }
+  57%  { background: rgba(255, 255, 255, 0.015); }
+  71%  { background: rgba(0, 0, 0, 0.02); }
+  100% { background: rgba(255, 255, 255, 0.0); }
+}
+
+/* Individual frame */
+.filmstrip-frame {
+  flex-shrink: 0;
+  width: var(--frame-width);
+  height: var(--frame-height);
+  margin: 0 8px;
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  background: #111;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.filmstrip-frame:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Frame number badge */
+.filmstrip-frame::before {
+  content: attr(data-frame);
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.4);
+  z-index: 2;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+/* Frame number at bottom-right */
+.filmstrip-frame::after {
+  content: attr(data-code);
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.3);
+  z-index: 2;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+}
+
+/* Image inside frame */
+.filmstrip-frame img,
+.filmstrip-frame .filmstrip-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9);
+  transition: filter 0.5s ease;
+  animation: filmFramePulse 0.09s steps(1) infinite;
+}
+
+@keyframes filmFramePulse {
+  0%   { filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9); }
+  33%  { filter: sepia(0.4) saturate(0.75) brightness(1.07) contrast(0.92); }
+  66%  { filter: sepia(0.42) saturate(0.82) brightness(1.18) contrast(0.88); }
+  100% { filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filmstrip-frame img,
+  .filmstrip-frame .filmstrip-img {
+    animation: none;
+  }
+}
+
+.filmstrip-frame:hover img,
+.filmstrip-frame:hover .filmstrip-img {
+  filter: saturate(0.3) contrast(1.4) brightness(0.85) sepia(0.3);
+  animation: none;
+}
+
+/* CSS gradient placeholder when no image src */
+.filmstrip-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    #1a2a4a 0%,
+    #194088 30%,
+    #2d5f8a 50%,
+    #45c2c2 70%,
+    #194088 85%,
+    #050d1f 100%
+  );
+  filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9);
+}
+
+/* Caption overlay on hover */
+.filmstrip-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(5, 13, 31, 0.85) 0%, transparent 100%);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  padding: 18px 8px 8px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.filmstrip-frame:hover .filmstrip-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Pause on hover — entire strip */
+.filmstrip:hover .filmstrip-track {
+  animation-play-state: paused;
+}
