@@ -229,21 +229,8 @@
 }
 
 /* ── APPROVAL MODE ── */
-.filmstrip.approval-mode .filmstrip-track {
-  animation-play-state: paused;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100%;
-  padding: 24px 20px 32px;
-  gap: 14px;
-}
 
-.filmstrip.approval-mode .filmstrip-frame {
-  cursor: default;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-/* Approval action bar */
+/* Approval action bar — hidden until frame is hovered */
 .filmstrip-approval-bar {
   position: absolute;
   bottom: 0;
@@ -256,6 +243,15 @@
   padding: 22px 8px 10px;
   background: linear-gradient(to top, rgba(5, 13, 31, 0.92) 0%, transparent 100%);
   z-index: 5;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+/* Show bar (and re-enable clicks) when hovering the frame */
+.filmstrip-frame:hover .filmstrip-approval-bar {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .filmstrip-btn {

@@ -6,7 +6,7 @@
 //                     dispatches filmstrip:approve / filmstrip:reject events
 //                     corkboard listens and reveals or stamps the corresponding polaroid
 
-function ripFrame(frameEl, idx) {
+function ripFrame(frameEl, idx, primary = true) {
   const rect = frameEl.getBoundingClientRect();
   const w = rect.width;
   const h = rect.height;
@@ -50,11 +50,11 @@ function ripFrame(frameEl, idx) {
     frameEl.style.visibility = '';
     frameEl.classList.add('filmstrip-rejected');
     frameEl.querySelector('.filmstrip-approval-bar')?.remove();
-    document.dispatchEvent(new CustomEvent('filmstrip:reject', { detail: { index: idx } }));
+    if (primary) document.dispatchEvent(new CustomEvent('filmstrip:reject', { detail: { index: idx } }));
   }, 510);
 }
 
-function approveFrame(frameEl, idx) {
+function approveFrame(frameEl, idx, primary = true) {
   frameEl.classList.add('filmstrip-approved');
   frameEl.querySelector('.filmstrip-approval-bar')?.remove();
 
@@ -63,18 +63,21 @@ function approveFrame(frameEl, idx) {
   badge.textContent = '✓ APPROVED';
   frameEl.appendChild(badge);
 
-  document.dispatchEvent(new CustomEvent('filmstrip:approve', { detail: { index: idx } }));
+  if (primary) document.dispatchEvent(new CustomEvent('filmstrip:approve', { detail: { index: idx } }));
 }
 
 function initApprovalMode(block, frames, strip) {
-  strip.style.animationPlayState = 'paused';
   block.classList.add('approval-mode');
 
-  // Keep only original frames (remove loop duplicates)
-  const allFrameEls = [...strip.querySelectorAll('.filmstrip-frame')];
-  allFrameEls.slice(frames.length).forEach((el) => el.remove());
+  // Add buttons to ALL frame elements (originals + loop clones).
+  // Both sets share the same logical index (mod frames.length) so a decision
+  // on either set marks its twin too and fires the corkboard event once.
+  const acted = new Set();
 
-  allFrameEls.slice(0, frames.length).forEach((frameEl, idx) => {
+  [...strip.querySelectorAll('.filmstrip-frame')].forEach((frameEl, pos) => {
+    const idx = pos % frames.length;
+    frameEl.dataset.frameIdx = idx;
+
     const bar = document.createElement('div');
     bar.className = 'filmstrip-approval-bar';
 
@@ -89,22 +92,24 @@ function initApprovalMode(block, frames, strip) {
     approveBtn.textContent = '✓';
 
     rejectBtn.addEventListener('click', () => {
-      if (frameEl.dataset.acted) return;
-      frameEl.dataset.acted = '1';
-      ripFrame(frameEl, idx);
+      if (acted.has(idx)) return;
+      acted.add(idx);
+      // Mark all frames with the same logical index
+      [...strip.querySelectorAll(`[data-frame-idx="${idx}"]`)]
+        .forEach((el) => ripFrame(el, idx, el === frameEl));
     });
 
     approveBtn.addEventListener('click', () => {
-      if (frameEl.dataset.acted) return;
-      frameEl.dataset.acted = '1';
-      approveFrame(frameEl, idx);
+      if (acted.has(idx)) return;
+      acted.add(idx);
+      [...strip.querySelectorAll(`[data-frame-idx="${idx}"]`)]
+        .forEach((el) => approveFrame(el, idx, el === frameEl));
     });
 
     bar.append(rejectBtn, approveBtn);
     frameEl.appendChild(bar);
   });
 
-  // Signal corkboard to enter approval-pending state
   document.dispatchEvent(new CustomEvent('filmstrip:approvalmode'));
 }
 
