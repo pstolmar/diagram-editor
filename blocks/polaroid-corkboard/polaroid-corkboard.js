@@ -1,11 +1,6 @@
 // polaroid-corkboard block
 // AEM EDS block: table rows = polaroid photos
 // Row columns: image | caption | state (aged/faded/cracked) | interaction (hover/click/both)
-//
-// Interaction types:
-//   hover-reveal  — mouseenter reveals color, mouseleave restores mono; subtle zoom on hover
-//   click-zoom    — click zooms toward camera; click again dismisses
-//   both          — hover reveals AND click zooms
 
 const MONO_FILTER = {
   aged: 'grayscale(1) contrast(1.22) brightness(.72) sepia(.15)',
@@ -13,7 +8,6 @@ const MONO_FILTER = {
   cracked: 'grayscale(1) contrast(1.38) brightness(.64)',
 };
 
-// Default photos if no block content — demo fallback
 const DEFAULT_PHOTOS = [
   {
     caption: 'Campaign 01 · 2024', state: 'aged', rot: -4, sw: 3.8, sd: 0, mt: 0, ix: 'both', bg: '#1a4a8a', ac: '#45c2c2', ic: '◈',
@@ -39,8 +33,7 @@ function parseBoardData(block) {
   const photos = [];
   const rows = [...block.children];
 
-  // First row may be a label row (single cell, no image)
-  let labelText = 'Archive · Brand Photography';
+  let labelText = 'Campaign Assets · Pending Governance';
   let startRow = 0;
 
   if (rows.length > 0) {
@@ -58,13 +51,10 @@ function parseBoardData(block) {
     const caption = cells[1] ? cells[1].textContent.trim() : '';
     const state = (cells[2] ? cells[2].textContent.trim() : 'aged') || 'aged';
     const ix = (cells[3] ? cells[3].textContent.trim() : 'both') || 'both';
-
-    // Deterministic rotation from index: varies between -7 and +7
     const rot = ((i * 37 + 11) % 15) - 7;
     const sw = 3.5 + (i % 5) * 0.22;
     const sd = -(i % 7) * 0.31;
     const mt = i % 3 === 0 ? 0 : ((i % 5) - 2) * 9;
-
     photos.push({
       img, caption, state, ix, rot, sw, sd, mt,
     });
@@ -82,8 +72,8 @@ function buildPhoto(data, idx) {
   const stateClass = ['aged', 'faded', 'cracked'].includes(state) ? state : 'aged';
   pol.className = `polaroid-photo ${stateClass} swaying`;
   if (ix === 'hover-reveal' || ix === 'both') pol.classList.add('hover-reveal');
-  if (ix === 'click-zoom' || ix === 'both') pol.classList.add('click-zoom');
   if (ix === 'hover-reveal') pol.classList.add('hover-zoom');
+  pol.dataset.photoIdx = idx;
 
   const mono = MONO_FILTER[stateClass] || MONO_FILTER.aged;
   const fallAnim = rot >= 0 ? 'polaroid-fall-cw' : 'polaroid-fall-ccw';
@@ -102,7 +92,6 @@ function buildPhoto(data, idx) {
     mt ? `margin-top:${mt}px` : '',
   ].filter(Boolean).join(';');
 
-  // Photo area
   const imgWrap = document.createElement('div');
   imgWrap.className = 'polaroid-photo-img-wrap';
 
@@ -114,7 +103,6 @@ function buildPhoto(data, idx) {
     pic.loading = 'lazy';
     inner.appendChild(pic);
   } else {
-    // CSS gradient placeholder (demo fallback)
     const defaults = DEFAULT_PHOTOS[idx % DEFAULT_PHOTOS.length];
     const ph = document.createElement('div');
     ph.className = 'polaroid-photo-img-placeholder';
@@ -136,44 +124,229 @@ function buildPhoto(data, idx) {
   return pol;
 }
 
-function wireInteractions(grid, originalData) {
-  const allPhotos = () => [...grid.querySelectorAll('.polaroid-photo')];
+// ── ZOOM PORTAL ──
+// All photos (any state, including rejected/pending) zoom to center on click.
+// Portal is a direct child of body, escaping all transform/overflow contexts.
+function wireZoom(grid, approvalActed) {
+  const portal = document.createElement('div');
+  portal.className = 'pcb-zoom-portal';
+  document.body.appendChild(portal);
 
-  // Hover reveal
-  grid.querySelectorAll('.polaroid-photo.hover-reveal').forEach((p, i) => {
-    const state = originalData[i] ? originalData[i].state : 'aged';
-    p.addEventListener('mouseenter', () => {
-      p.classList.remove('aged', 'faded', 'cracked');
-      p.classList.add('revealed');
-    });
-    p.addEventListener('mouseleave', () => {
-      if (!p.classList.contains('zoomed')) {
-        p.classList.remove('revealed');
-        p.classList.add(state);
-      }
-    });
-  });
-
-  // Click zoom
-  grid.querySelectorAll('.polaroid-photo.click-zoom').forEach((p) => {
-    p.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isZoomed = p.classList.contains('zoomed');
-      allPhotos().forEach((q) => q.classList.remove('zoomed'));
-      document.body.classList.remove('polaroid-has-zoom');
-      if (!isZoomed) {
-        p.classList.remove('aged', 'faded', 'cracked');
-        p.classList.add('revealed', 'zoomed');
-        document.body.classList.add('polaroid-has-zoom');
-      }
-    });
-  });
-
-  // Dismiss zoom on body click
-  document.addEventListener('click', () => {
-    allPhotos().forEach((p) => p.classList.remove('zoomed'));
+  function closeZoom() {
+    portal.innerHTML = '';
+    portal.classList.remove('active');
     document.body.classList.remove('polaroid-has-zoom');
+  }
+
+  grid.querySelectorAll('.polaroid-photo').forEach((photoEl) => {
+    photoEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (portal.classList.contains('active')) {
+        closeZoom();
+        return;
+      }
+
+      const idx = parseInt(photoEl.dataset.photoIdx, 10);
+      const inApproval = document.body.classList.contains('pcb-approval-mode');
+      const alreadyActed = approvalActed && approvalActed.has(idx);
+
+      // Clone photo into portal
+      const clone = photoEl.cloneNode(true);
+      clone.classList.remove('swaying', 'falling', 'hover-zoom', 'approval-pending');
+      clone.style.cssText = [
+        '--base-r:rotate(0deg)',
+        '--sway-a:rotate(0deg)',
+        '--sway-b:rotate(0deg)',
+        'animation:none',
+        'transform:none',
+        'margin:0',
+        'cursor:default',
+        'width:260px',
+      ].join(';');
+
+      // Show approval buttons in zoom if in approval mode and not yet decided
+      if (inApproval && !alreadyActed) {
+        const bar = document.createElement('div');
+        bar.className = 'filmstrip-approval-bar pcb-zoom-approval-bar';
+        bar.style.cssText = 'opacity:1;pointer-events:auto;';
+
+        const rejectBtn = document.createElement('button');
+        rejectBtn.className = 'filmstrip-btn filmstrip-btn-reject';
+        rejectBtn.setAttribute('aria-label', 'Reject');
+        rejectBtn.textContent = '✗';
+
+        const approveBtn = document.createElement('button');
+        approveBtn.className = 'filmstrip-btn filmstrip-btn-approve';
+        approveBtn.setAttribute('aria-label', 'Approve');
+        approveBtn.textContent = '✓';
+
+        rejectBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          if (approvalActed && approvalActed.has(idx)) return;
+          if (approvalActed) approvalActed.add(idx);
+          // Trigger on all filmstrip frames with this index
+          document.querySelectorAll(`.filmstrip-frame[data-frame-idx="${idx}"]`)
+            .forEach((f, fi) => {
+              const btn = f.querySelector('.filmstrip-btn-reject');
+              if (btn && fi === 0) btn.click();
+            });
+          // Directly stamp the polaroid too (in case filmstrip event already fired)
+          photoEl.classList.add('rejected');
+          closeZoom();
+        });
+
+        approveBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          if (approvalActed && approvalActed.has(idx)) return;
+          if (approvalActed) approvalActed.add(idx);
+          document.querySelectorAll(`.filmstrip-frame[data-frame-idx="${idx}"]`)
+            .forEach((f, fi) => {
+              const btn = f.querySelector('.filmstrip-btn-approve');
+              if (btn && fi === 0) btn.click();
+            });
+          photoEl.classList.remove('aged', 'faded', 'cracked', 'approval-pending');
+          photoEl.classList.add('revealed');
+          import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(photoEl));
+          closeZoom();
+        });
+
+        bar.append(rejectBtn, approveBtn);
+        clone.appendChild(bar);
+      }
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'pcb-zoom-backdrop';
+      backdrop.addEventListener('click', closeZoom);
+
+      portal.innerHTML = '';
+      portal.appendChild(backdrop);
+      portal.appendChild(clone);
+      portal.classList.add('active');
+      document.body.classList.add('polaroid-has-zoom');
+    });
   });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeZoom();
+  });
+}
+
+// ── GOVERNANCE AGENT CHAT ──
+function buildChat(board, grid, agentBtn, agentRanRef) {
+  const allPols = () => [...grid.querySelectorAll('.polaroid-photo')];
+
+  function runWithChat() {
+    if (agentRanRef.ran) return;
+    agentRanRef.ran = true; // eslint-disable-line no-param-reassign
+    agentBtn.disabled = true;
+
+    const pending = allPols().filter((p) => !p.classList.contains('rejected'));
+    const rejectedCount = allPols().length - pending.length;
+
+    // Build chat window
+    const chat = document.createElement('div');
+    chat.className = 'pcb-governance-chat';
+    chat.innerHTML = `
+      <div class="pcb-chat-header">
+        <span>◈ Governance Agent</span>
+        <button class="pcb-chat-close" aria-label="Close">✕</button>
+      </div>
+      <div class="pcb-chat-body"></div>
+      <div class="pcb-chat-input-row">
+        <span class="pcb-chat-prompt">&gt;&nbsp;</span>
+        <span class="pcb-chat-input-text"></span>
+        <span class="pcb-chat-cursor"></span>
+      </div>`;
+    board.appendChild(chat);
+
+    const chatBody = chat.querySelector('.pcb-chat-body');
+    const inputText = chat.querySelector('.pcb-chat-input-text');
+    const cursor = chat.querySelector('.pcb-chat-cursor');
+
+    chat.querySelector('.pcb-chat-close').addEventListener('click', () => {
+      chat.remove();
+      agentBtn.textContent = pending.length > 0 ? '✓ Assets approved' : '✓ All assets approved';
+      agentBtn.classList.add('pcb-agent-done');
+    });
+
+    function addLine(text, cls, delay) {
+      setTimeout(() => {
+        const line = document.createElement('div');
+        line.className = `pcb-chat-line pcb-chat-line-${cls}`;
+        line.textContent = text;
+        chatBody.appendChild(line);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }, delay);
+    }
+
+    // Agent intro lines
+    addLine('[Agent]: Initiating governance review…', 'agent', 300);
+    addLine(`[Agent]: ${allPols().length} campaign assets in queue.`, 'agent', 700);
+    if (rejectedCount > 0) {
+      addLine(
+        `[Agent]: ${rejectedCount} asset${rejectedCount > 1 ? 's' : ''} already rejected by reviewer.`,
+        'agent',
+        1100,
+      );
+    }
+    const pendingDelay = rejectedCount > 0 ? 1500 : 1100;
+    addLine(
+      `[Agent]: ${pending.length} asset${pending.length !== 1 ? 's' : ''} pending. Awaiting command.`,
+      'agent',
+      pendingDelay,
+    );
+
+    // Typewriter for user command
+    const command = pending.length < allPols().length ? 'Approve remaining' : 'Ok';
+    const typeDelay = pendingDelay + 600;
+    let charIdx = 0;
+
+    // Start typewriter after intro lines
+    setTimeout(() => {
+      cursor.style.display = 'inline-block';
+      charIdx = 0;
+      inputText.textContent = '';
+      const ti = setInterval(() => {
+        if (charIdx >= command.length) {
+          clearInterval(ti);
+          cursor.style.display = 'none';
+          setTimeout(() => {
+            addLine(`[You]: ${command}`, 'user', 0);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            addLine('[Agent]: Confirmed. Processing assets…', 'agent', 350);
+
+            pending.forEach((p, i) => {
+              const captionEl = p.querySelector('.polaroid-photo-caption');
+              const label = captionEl ? captionEl.textContent : `Asset ${i + 1}`;
+              setTimeout(() => {
+                p.classList.remove('aged', 'faded', 'cracked', 'approval-pending');
+                p.classList.add('revealed');
+                addLine(`[Agent]: ✓ ${label}`, 'success', 0);
+                chatBody.scrollTop = chatBody.scrollHeight;
+                if (i === 0) {
+                  import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(p));
+                }
+                if (i === pending.length - 1) {
+                  setTimeout(() => {
+                    addLine('[Agent]: All pending assets approved.', 'agent', 0);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    import('../../scripts/fx-canvas.js').then(({ fireConfetti }) => fireConfetti());
+                    agentBtn.textContent = '✓ All pending assets approved';
+                    agentBtn.classList.add('pcb-agent-done');
+                  }, 300);
+                }
+              }, 600 + i * 220);
+            });
+          }, 250);
+          return;
+        }
+        inputText.textContent += command[charIdx];
+        charIdx += 1;
+      }, 90);
+    }, typeDelay);
+  }
+
+  return runWithChat;
 }
 
 function dropPhotos(sceneEl) {
@@ -201,22 +374,20 @@ function tipScene(sceneEl) {
 function resetScene(sceneEl, originalData, onReset) {
   sceneEl.classList.remove('tipped');
   sceneEl.querySelectorAll('.polaroid-photo').forEach((p, i) => {
-    p.classList.remove('falling', 'revealed', 'zoomed');
+    p.classList.remove('falling', 'revealed', 'zoomed', 'rejected', 'approval-pending');
     const d = originalData[i];
     if (!d) return;
     p.classList.add(d.state, 'swaying');
     if (d.ix === 'hover-reveal' || d.ix === 'both') p.classList.add('hover-reveal');
-    if (d.ix === 'click-zoom' || d.ix === 'both') p.classList.add('click-zoom');
     if (d.ix === 'hover-reveal') p.classList.add('hover-zoom');
   });
-  document.body.classList.remove('polaroid-has-zoom');
+  document.body.classList.remove('polaroid-has-zoom', 'pcb-approval-mode');
   if (onReset) onReset();
 }
 
 export default function decorate(block) {
   const { labelText, photos: parsedPhotos } = parseBoardData(block);
 
-  // Use default data if no photos authored
   const photos = parsedPhotos.length ? parsedPhotos : DEFAULT_PHOTOS.map((d) => ({
     img: null,
     caption: d.caption,
@@ -228,18 +399,14 @@ export default function decorate(block) {
     mt: d.mt,
   }));
 
-  // Clear block content
   block.textContent = '';
 
-  // Floor
   const floor = document.createElement('div');
   floor.className = 'polaroid-corkboard-floor';
 
-  // 3-D plane
   const plane = document.createElement('div');
   plane.className = 'polaroid-corkboard-plane';
 
-  // Cork board
   const board = document.createElement('div');
   board.className = 'polaroid-corkboard-board';
 
@@ -250,11 +417,9 @@ export default function decorate(block) {
   const grid = document.createElement('div');
   grid.className = 'polaroid-corkboard-grid';
 
-  photos.forEach((data, idx) => {
-    grid.appendChild(buildPhoto(data, idx));
-  });
+  photos.forEach((data, idx) => grid.appendChild(buildPhoto(data, idx)));
 
-  // Governance Agent trigger button
+  // Governance agent bar
   const agentBar = document.createElement('div');
   agentBar.className = 'polaroid-corkboard-agent-bar';
 
@@ -262,45 +427,18 @@ export default function decorate(block) {
   agentBtn.className = 'polaroid-corkboard-agent-btn';
   agentBtn.innerHTML = '<span class="pcb-agent-icon">◈</span> Run Governance Agent';
 
-  let agentRan = false;
-
-  function runGovernanceAgent() {
-    if (agentRan) return;
-    agentRan = true;
-    agentBtn.disabled = true;
-    agentBtn.textContent = 'Reviewing assets…';
-
-    const allPols = [...grid.querySelectorAll('.polaroid-photo')];
-
-    allPols.forEach((p, i) => {
-      setTimeout(() => {
-        p.classList.remove('aged', 'faded', 'cracked');
-        p.classList.add('revealed');
-
-        // Sparkler on first approval, confetti on last
-        if (i === 0) {
-          import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(p));
-        }
-        if (i === allPols.length - 1) {
-          setTimeout(() => {
-            import('../../scripts/fx-canvas.js').then(({ fireConfetti }) => fireConfetti());
-            agentBtn.textContent = '✓ All assets approved';
-            agentBtn.classList.add('pcb-agent-done');
-          }, 300);
-        }
-      }, i * 220);
-    });
-  }
+  const agentRanRef = { ran: false };
+  const runGovernanceAgent = buildChat(board, grid, agentBtn, agentRanRef);
 
   agentBtn.addEventListener('click', runGovernanceAgent);
   agentBar.appendChild(agentBtn);
 
   // Filmstrip approval mode bridge
-  // filmstrip:approvalmode → dim all photos, hide governance button
-  // filmstrip:approve { index } → color-reveal that photo + sparkler
-  // filmstrip:reject  { index } → stamp that photo rejected, keep gray
+  const approvalActed = new Set();
+
   document.addEventListener('filmstrip:approvalmode', () => {
     agentBar.style.display = 'none';
+    document.body.classList.add('pcb-approval-mode');
     [...grid.querySelectorAll('.polaroid-photo')].forEach((p) => {
       p.classList.add('approval-pending');
     });
@@ -309,6 +447,7 @@ export default function decorate(block) {
   document.addEventListener('filmstrip:approve', (e) => {
     const photo = [...grid.querySelectorAll('.polaroid-photo')][e.detail.index];
     if (!photo) return;
+    approvalActed.add(e.detail.index);
     photo.classList.remove('approval-pending', 'aged', 'faded', 'cracked');
     photo.classList.add('revealed');
     import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(photo));
@@ -317,6 +456,7 @@ export default function decorate(block) {
   document.addEventListener('filmstrip:reject', (e) => {
     const photo = [...grid.querySelectorAll('.polaroid-photo')][e.detail.index];
     if (!photo) return;
+    approvalActed.add(e.detail.index);
     photo.classList.add('rejected');
   });
 
@@ -324,11 +464,27 @@ export default function decorate(block) {
   board.appendChild(agentBar);
   board.appendChild(grid);
   plane.appendChild(board);
-
   block.appendChild(floor);
   block.appendChild(plane);
 
-  wireInteractions(grid, photos);
+  // Hover-reveal (not in approval mode)
+  grid.querySelectorAll('.polaroid-photo.hover-reveal').forEach((p, i) => {
+    const state = photos[i] ? photos[i].state : 'aged';
+    p.addEventListener('mouseenter', () => {
+      if (p.classList.contains('approval-pending') || p.classList.contains('rejected')) return;
+      p.classList.remove('aged', 'faded', 'cracked');
+      p.classList.add('revealed');
+    });
+    p.addEventListener('mouseleave', () => {
+      if (!p.classList.contains('zoomed')) {
+        p.classList.remove('revealed');
+        p.classList.add(state);
+      }
+    });
+  });
+
+  // Zoom — all photos, body portal
+  wireZoom(grid, approvalActed);
 
   // Scroll-triggered tip + drop
   let tipped = false;
@@ -340,11 +496,13 @@ export default function decorate(block) {
       }
       if (tipped && entry.isIntersecting && entry.intersectionRatio > 0.5) {
         tipped = false;
+        agentRanRef.ran = false; // eslint-disable-line no-param-reassign
         resetScene(block, photos, () => {
-          agentRan = false;
           agentBtn.disabled = false;
           agentBtn.classList.remove('pcb-agent-done');
           agentBtn.innerHTML = '<span class="pcb-agent-icon">◈</span> Run Governance Agent';
+          agentBar.style.display = '';
+          block.querySelector('.pcb-governance-chat')?.remove();
         });
       }
     },
@@ -359,11 +517,7 @@ export default function decorate(block) {
     setTimeout(() => block.scrollIntoView({ behavior: 'smooth' }), 100);
   }
   if (demo === 'fallen') {
-    setTimeout(() => {
-      block.scrollIntoView();
-      tipped = true;
-      tipScene(block);
-    }, 200);
+    setTimeout(() => { block.scrollIntoView(); tipped = true; tipScene(block); }, 200);
   }
   if (demo === 'governance') {
     setTimeout(() => {
