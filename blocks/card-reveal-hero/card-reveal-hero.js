@@ -63,9 +63,20 @@ function buildNav(tabs, config) {
   return nav;
 }
 
-function buildPanel(tab) {
+function applyUeAttrs(el, attrs) {
+  if (!attrs?.resource) return;
+  el.dataset.aueResource = attrs.resource;
+  el.dataset.aueType = attrs.type || 'component';
+  el.dataset.aueModel = attrs.model || 'card-reveal-hero-tab';
+  if (attrs.label) el.dataset.aueLabel = attrs.label;
+  if (attrs.prop) el.dataset.aueProp = attrs.prop;
+  if (attrs.behavior) el.dataset.aueBehavior = attrs.behavior;
+}
+
+function buildPanel(tab, ueAttrs) {
   const panel = document.createElement('div');
   panel.className = 'crh-panel';
+  applyUeAttrs(panel, ueAttrs);
 
   const left = document.createElement('div');
   left.className = 'crh-panel-left';
@@ -152,23 +163,13 @@ export default function decorate(block) {
 
   const nav = buildNav(tabs, { ...config, defaultTab: activeIdx });
 
-  // Re-apply per-tab UE instrumentation to nav buttons so UE can select each item
-  nav.querySelectorAll('.crh-tab').forEach((btn, i) => {
-    const attrs = itemAttrs[i];
-    if (attrs?.resource) {
-      btn.dataset.aueResource = attrs.resource;
-      btn.dataset.aueType = attrs.type;
-      btn.dataset.aueModel = attrs.model;
-      if (attrs.label) btn.dataset.aueLabel = attrs.label;
-      if (attrs.prop) btn.dataset.aueProp = attrs.prop;
-      if (attrs.behavior) btn.dataset.aueBehavior = attrs.behavior;
-    }
-  });
+  // Also stamp UE attrs on nav buttons as a secondary click target
+  nav.querySelectorAll('.crh-tab').forEach((btn, i) => applyUeAttrs(btn, itemAttrs[i]));
 
   const panelContainer = document.createElement('div');
   panelContainer.className = 'crh-panel-container';
 
-  let currentPanel = buildPanel(tabs[activeIdx]);
+  let currentPanel = buildPanel(tabs[activeIdx], itemAttrs[activeIdx]);
   panelContainer.appendChild(currentPanel);
   block.append(nav, panelContainer);
 
@@ -187,7 +188,7 @@ export default function decorate(block) {
     btn.classList.add('crh-tab-active');
 
     currentPanel.remove();
-    currentPanel = buildPanel(tabs[idx]);
+    currentPanel = buildPanel(tabs[idx], itemAttrs[idx]);
     panelContainer.appendChild(currentPanel);
 
     const popup = currentPanel.querySelector('.crh-popup');
