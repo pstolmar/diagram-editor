@@ -146,6 +146,12 @@ export default function decorate(block) {
       el.className = 'filmstrip-frame';
       el.dataset.frame = String(frame.index).padStart(3, '0');
       el.dataset.code = `EXP-${String((setIdx * set.length + idx + 1) * 7 + 13).padStart(4, '0')}`;
+      el.dataset.frameIdx = String(idx);
+
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.filmstrip-approval-bar')) return;
+        document.dispatchEvent(new CustomEvent('filmstrip:frameclick', { detail: { index: idx } }));
+      });
 
       if (frame.src) {
         const img = document.createElement('img');

@@ -127,6 +127,48 @@ function buildPhoto(data, idx) {
 // ── ZOOM PORTAL ──
 // All photos (any state, including rejected/pending) zoom to center on click.
 // Portal is a direct child of body, escaping all transform/overflow contexts.
+
+function buildZoomApprovalBar(idx, approvalActed, photoEl, closePortal) {
+  const bar = document.createElement('div');
+  bar.className = 'filmstrip-approval-bar pcb-zoom-approval-bar';
+  bar.style.cssText = 'opacity:1;pointer-events:auto;';
+
+  const rejectBtn = document.createElement('button');
+  rejectBtn.className = 'filmstrip-btn filmstrip-btn-reject';
+  rejectBtn.setAttribute('aria-label', 'Reject');
+  rejectBtn.textContent = '✗';
+
+  const approveBtn = document.createElement('button');
+  approveBtn.className = 'filmstrip-btn filmstrip-btn-approve';
+  approveBtn.setAttribute('aria-label', 'Approve');
+  approveBtn.textContent = '✓';
+
+  rejectBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    if (approvalActed && approvalActed.has(idx)) return;
+    if (approvalActed) approvalActed.add(idx);
+    document.querySelectorAll(`.filmstrip-frame[data-frame-idx="${idx}"]`)
+      .forEach((f, fi) => { if (fi === 0) f.querySelector('.filmstrip-btn-reject')?.click(); });
+    photoEl.classList.add('rejected');
+    closePortal();
+  });
+
+  approveBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    if (approvalActed && approvalActed.has(idx)) return;
+    if (approvalActed) approvalActed.add(idx);
+    document.querySelectorAll(`.filmstrip-frame[data-frame-idx="${idx}"]`)
+      .forEach((f, fi) => { if (fi === 0) f.querySelector('.filmstrip-btn-approve')?.click(); });
+    photoEl.classList.remove('aged', 'faded', 'cracked', 'approval-pending');
+    photoEl.classList.add('revealed');
+    import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(photoEl));
+    closePortal();
+  });
+
+  bar.append(rejectBtn, approveBtn);
+  return bar;
+}
+
 function wireZoom(grid, approvalActed) {
   const portal = document.createElement('div');
   portal.className = 'pcb-zoom-portal';
@@ -150,7 +192,6 @@ function wireZoom(grid, approvalActed) {
       const inApproval = document.body.classList.contains('pcb-approval-mode');
       const alreadyActed = approvalActed && approvalActed.has(idx);
 
-      // Clone photo into portal
       const clone = photoEl.cloneNode(true);
       clone.classList.remove('swaying', 'falling', 'hover-zoom', 'approval-pending');
       clone.style.cssText = [
@@ -161,57 +202,10 @@ function wireZoom(grid, approvalActed) {
         'transform:none',
         'margin:0',
         'cursor:default',
-        'width:260px',
       ].join(';');
 
-      // Show approval buttons in zoom if in approval mode and not yet decided
       if (inApproval && !alreadyActed) {
-        const bar = document.createElement('div');
-        bar.className = 'filmstrip-approval-bar pcb-zoom-approval-bar';
-        bar.style.cssText = 'opacity:1;pointer-events:auto;';
-
-        const rejectBtn = document.createElement('button');
-        rejectBtn.className = 'filmstrip-btn filmstrip-btn-reject';
-        rejectBtn.setAttribute('aria-label', 'Reject');
-        rejectBtn.textContent = '✗';
-
-        const approveBtn = document.createElement('button');
-        approveBtn.className = 'filmstrip-btn filmstrip-btn-approve';
-        approveBtn.setAttribute('aria-label', 'Approve');
-        approveBtn.textContent = '✓';
-
-        rejectBtn.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          if (approvalActed && approvalActed.has(idx)) return;
-          if (approvalActed) approvalActed.add(idx);
-          // Trigger on all filmstrip frames with this index
-          document.querySelectorAll(`.filmstrip-frame[data-frame-idx="${idx}"]`)
-            .forEach((f, fi) => {
-              const btn = f.querySelector('.filmstrip-btn-reject');
-              if (btn && fi === 0) btn.click();
-            });
-          // Directly stamp the polaroid too (in case filmstrip event already fired)
-          photoEl.classList.add('rejected');
-          closeZoom();
-        });
-
-        approveBtn.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          if (approvalActed && approvalActed.has(idx)) return;
-          if (approvalActed) approvalActed.add(idx);
-          document.querySelectorAll(`.filmstrip-frame[data-frame-idx="${idx}"]`)
-            .forEach((f, fi) => {
-              const btn = f.querySelector('.filmstrip-btn-approve');
-              if (btn && fi === 0) btn.click();
-            });
-          photoEl.classList.remove('aged', 'faded', 'cracked', 'approval-pending');
-          photoEl.classList.add('revealed');
-          import('../../scripts/fx-canvas.js').then(({ fireSparkler }) => fireSparkler(photoEl));
-          closeZoom();
-        });
-
-        bar.append(rejectBtn, approveBtn);
-        clone.appendChild(bar);
+        clone.appendChild(buildZoomApprovalBar(idx, approvalActed, photoEl, closeZoom));
       }
 
       const backdrop = document.createElement('div');
@@ -229,6 +223,8 @@ function wireZoom(grid, approvalActed) {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeZoom();
   });
+
+  return { portal, closeZoom };
 }
 
 // ── GOVERNANCE AGENT CHAT ──
@@ -484,7 +480,72 @@ export default function decorate(block) {
   });
 
   // Zoom — all photos, body portal
-  wireZoom(grid, approvalActed);
+  const { portal: zoomPortal, closeZoom } = wireZoom(grid, approvalActed);
+
+  // Filmstrip frame click → side-by-side comparison in zoom portal
+  document.addEventListener('filmstrip:frameclick', (e) => {
+    const idx = e.detail.index;
+    const photoEl = [...grid.querySelectorAll('.polaroid-photo')][idx];
+    if (!photoEl) return;
+    const filmFrame = document.querySelector(`.filmstrip-frame[data-frame-idx="${idx}"]`);
+
+    closeZoom();
+
+    const inApproval = document.body.classList.contains('pcb-approval-mode');
+    const alreadyActed = approvalActed.has(idx);
+
+    // Build side-by-side panel
+    const panel = document.createElement('div');
+    panel.className = 'pcb-compare-panel';
+
+    // Left: film negative
+    const filmSide = document.createElement('div');
+    filmSide.className = 'pcb-compare-film';
+    const filmImg = filmFrame ? filmFrame.querySelector('img') : null;
+    if (filmImg) {
+      filmSide.appendChild(filmImg.cloneNode(true));
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'filmstrip-img-placeholder';
+      filmSide.appendChild(ph);
+    }
+    const filmLabel = document.createElement('div');
+    filmLabel.className = 'pcb-compare-film-label';
+    filmLabel.textContent = 'ORIGINAL NEGATIVE';
+    filmSide.appendChild(filmLabel);
+
+    // Right: polaroid (enlarged)
+    const polSide = document.createElement('div');
+    polSide.className = 'pcb-compare-pol';
+    const clone = photoEl.cloneNode(true);
+    clone.classList.remove('swaying', 'falling', 'hover-zoom', 'approval-pending');
+    clone.style.cssText = [
+      '--base-r:rotate(0deg)',
+      '--sway-a:rotate(0deg)',
+      '--sway-b:rotate(0deg)',
+      'animation:none',
+      'transform:none',
+      'margin:0',
+      'cursor:default',
+    ].join(';');
+    polSide.appendChild(clone);
+
+    if (inApproval && !alreadyActed) {
+      panel.appendChild(buildZoomApprovalBar(idx, approvalActed, photoEl, closeZoom));
+    }
+
+    panel.append(filmSide, polSide);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'pcb-zoom-backdrop';
+    backdrop.addEventListener('click', closeZoom);
+
+    zoomPortal.innerHTML = '';
+    zoomPortal.appendChild(backdrop);
+    zoomPortal.appendChild(panel);
+    zoomPortal.classList.add('active');
+    document.body.classList.add('polaroid-has-zoom');
+  });
 
   // Scroll-triggered tip + drop
   let tipped = false;

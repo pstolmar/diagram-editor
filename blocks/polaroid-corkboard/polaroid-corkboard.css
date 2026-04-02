@@ -487,19 +487,20 @@ body.polaroid-has-zoom .polaroid-photo:not(.zoomed) {
   cursor: zoom-out;
 }
 
+/* Single-photo zoom — "examine closely" size */
 body .pcb-zoom-portal.active .polaroid-photo {
   position: relative;
   z-index: 1;
   transform: none !important;
   animation: none !important;
-  width: 260px;
+  width: 440px;
   cursor: default;
   margin: 0;
 }
 
 .pcb-zoom-portal.active .polaroid-photo-img-wrap {
-  width: 244px;
-  height: 220px;
+  width: 426px;
+  height: 384px;
 }
 
 .pcb-zoom-portal.active .filmstrip-approval-bar {
@@ -507,11 +508,59 @@ body .pcb-zoom-portal.active .polaroid-photo {
   pointer-events: auto !important;
 }
 
+/* ── COMPARISON PANEL (filmstrip click) ── */
+.pcb-compare-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+/* Film negative side */
+.pcb-compare-film {
+  width: 280px;
+  background: #050d1f;
+  border: 2px solid rgb(255 255 255 / 14%);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pcb-compare-film img,
+.pcb-compare-film .filmstrip-img-placeholder {
+  width: 100%;
+  height: 270px;
+  object-fit: cover;
+  display: block;
+  filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9);
+}
+
+.pcb-compare-film-label {
+  padding: 6px 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: rgb(255 255 255 / 35%);
+  text-align: center;
+}
+
+/* Polaroid side in comparison — smaller than single zoom */
+body .pcb-zoom-portal.active .pcb-compare-pol .polaroid-photo {
+  width: 290px;
+}
+
+.pcb-zoom-portal.active .pcb-compare-pol .polaroid-photo-img-wrap {
+  width: 276px;
+  height: 250px;
+}
+
 /* ── GOVERNANCE CHAT ── */
 .pcb-governance-chat {
   position: absolute;
   bottom: 60px;
-  right: 24px;
+  right: 52px;
   width: 320px;
   background: rgb(5 13 31 / 96%);
   border: 1.5px solid rgb(69 194 194 / 55%);
