@@ -150,7 +150,11 @@ export default function decorate(block) {
   const blockResource = block.dataset.aueResource;
   const blockModel = block.dataset.aueModel || 'card-reveal-hero';
 
-  const activeIdx = Math.min(Math.max(0, config.defaultTab), tabs.length - 1);
+  // Restore previously active tab if decorate() was re-run by UE after a property save.
+  // block.dataset survives block.innerHTML = '' (innerHTML only wipes children).
+  const storedIdx = parseInt(block.dataset.crhActive || '', 10);
+  const defaultIdx = Number.isNaN(storedIdx) ? config.defaultTab : storedIdx;
+  const activeIdx = Math.min(Math.max(0, defaultIdx), tabs.length - 1);
   block.innerHTML = '';
 
   // Re-apply container UE attrs (innerHTML wipe removes dataset too)
@@ -162,9 +166,7 @@ export default function decorate(block) {
   }
 
   const nav = buildNav(tabs, { ...config, defaultTab: activeIdx });
-
-  // Also stamp UE attrs on nav buttons as a secondary click target
-  nav.querySelectorAll('.crh-tab').forEach((btn, i) => applyUeAttrs(btn, itemAttrs[i]));
+  // No UE attrs on nav buttons — lets clicks pass through to our handler in author mode.
 
   const panelContainer = document.createElement('div');
   panelContainer.className = 'crh-panel-container';
@@ -184,6 +186,7 @@ export default function decorate(block) {
     if (!btn || btn.classList.contains('crh-tab-active')) return;
     const idx = parseInt(btn.dataset.index, 10);
 
+    block.dataset.crhActive = idx; // survives re-decoration on UE property save
     nav.querySelectorAll('.crh-tab').forEach((t) => t.classList.remove('crh-tab-active'));
     btn.classList.add('crh-tab-active');
 
