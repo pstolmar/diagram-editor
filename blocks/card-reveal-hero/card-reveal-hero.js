@@ -10,10 +10,10 @@
 // celebrationVariant: sparkler | confetti | balloons | none
 
 const ANIMATION_PRESETS = {
-  bounce: 'animation: crhSpringIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both',
-  'slide-right': 'animation: crhSlideRight 0.4s ease-out both',
-  'drop-camera': 'animation: crhDropCamera 0.6s cubic-bezier(0.22,1,0.36,1) both',
-  flip: 'animation: crhFlip 0.45s ease-out both',
+  bounce: 'animation: crh-spring-in 0.55s cubic-bezier(0.34,1.56,0.64,1) both',
+  'slide-right': 'animation: crh-slide-right 0.4s ease-out both',
+  'drop-camera': 'animation: crh-drop-camera 0.6s cubic-bezier(0.22,1,0.36,1) both',
+  flip: 'animation: crh-flip 0.45s ease-out both',
 };
 
 function parseConfig(block) {
@@ -52,12 +52,12 @@ function parseTabs(block) {
 
 function buildNav(tabs, config) {
   const nav = document.createElement('nav');
-  nav.className = `crh-tabs crh-tabs--${config.tabStyle}`;
+  nav.className = `crh-tabs crh-tabs-${config.tabStyle}`;
   tabs.forEach((tab, i) => {
     const btn = document.createElement('button');
-    btn.className = `crh-tab${i === config.defaultTab ? ' crh-tab--active' : ''}`;
+    btn.className = `crh-tab${i === config.defaultTab ? ' crh-tab-active' : ''}`;
     btn.dataset.index = i;
-    btn.innerHTML = `<span class="crh-tab__icon">${tab.icon}</span><span class="crh-tab__label">${tab.label}</span>`;
+    btn.innerHTML = `<span class="crh-tab-icon">${tab.icon}</span><span class="crh-tab-label">${tab.label}</span>`;
     nav.appendChild(btn);
   });
   return nav;
@@ -68,14 +68,14 @@ function buildPanel(tab) {
   panel.className = 'crh-panel';
 
   const left = document.createElement('div');
-  left.className = 'crh-panel__left';
+  left.className = 'crh-panel-left';
   left.innerHTML = `
     <h2 class="crh-heading">${tab.heading}</h2>
     <p class="crh-body">${tab.bodyText}</p>
     <a class="crh-cta" href="${tab.ctaHref}">${tab.ctaLabel}</a>`;
 
   const right = document.createElement('div');
-  right.className = 'crh-panel__right';
+  right.className = 'crh-panel-right';
 
   const mainPanel = document.createElement('div');
   mainPanel.className = 'crh-main-panel';
@@ -85,7 +85,7 @@ function buildPanel(tab) {
     img.alt = tab.label;
     mainPanel.appendChild(img);
   } else {
-    mainPanel.innerHTML = `<div class="crh-main-panel__placeholder"><span>${tab.label}</span></div>`;
+    mainPanel.innerHTML = `<div class="crh-main-panel-placeholder"><span>${tab.label}</span></div>`;
   }
 
   const popup = document.createElement('div');
@@ -96,7 +96,7 @@ function buildPanel(tab) {
     img.alt = `${tab.label} card`;
     popup.appendChild(img);
   } else {
-    popup.innerHTML = '<div class="crh-popup__placeholder"></div>';
+    popup.innerHTML = '<div class="crh-popup-placeholder"></div>';
   }
 
   right.append(mainPanel, popup);
@@ -144,11 +144,11 @@ export default function decorate(block) {
 
   nav.addEventListener('click', (e) => {
     const btn = e.target.closest('.crh-tab');
-    if (!btn || btn.classList.contains('crh-tab--active')) return;
+    if (!btn || btn.classList.contains('crh-tab-active')) return;
     const idx = parseInt(btn.dataset.index, 10);
 
-    nav.querySelectorAll('.crh-tab').forEach((t) => t.classList.remove('crh-tab--active'));
-    btn.classList.add('crh-tab--active');
+    nav.querySelectorAll('.crh-tab').forEach((t) => t.classList.remove('crh-tab-active'));
+    btn.classList.add('crh-tab-active');
 
     currentPanel.remove();
     currentPanel = buildPanel(tabs[idx]);

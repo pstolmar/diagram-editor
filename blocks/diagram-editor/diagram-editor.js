@@ -3,14 +3,14 @@
 const MERMAID_ESM = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 
 async function loadMermaid() {
-  if (window.__diagramMermaid) {
-    return window.__diagramMermaid;
+  if (window.diagramMermaid) {
+    return window.diagramMermaid;
   }
   const mod = await import(MERMAID_ESM);
   // basic safe defaults; you can enrich with theme/palette later
   mod.default.initialize({ startOnLoad: false });
-  window.__diagramMermaid = mod.default;
-  return window.__diagramMermaid;
+  window.diagramMermaid = mod.default;
+  return window.diagramMermaid;
 }
 
 /**
@@ -52,7 +52,7 @@ export default async function decorate(block) {
     // Dispatch a custom event for instrumentation
     block.dispatchEvent(new CustomEvent('diagram:render', {
       bubbles: true,
-      detail: { engine: 'mermaid', id: diagramId }
+      detail: { engine: 'mermaid', id: diagramId },
     }));
   } catch (e) {
     console.error('[diagram-editor] Failed to render mermaid diagram', e);
@@ -60,7 +60,7 @@ export default async function decorate(block) {
 
     block.dispatchEvent(new CustomEvent('diagram:error', {
       bubbles: true,
-      detail: { error: e }
+      detail: { error: e },
     }));
   }
 

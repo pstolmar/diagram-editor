@@ -180,13 +180,6 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "icon",
-        "label": "Tab Icon (emoji or symbol)",
-        "value": "◈"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
         "name": "label",
         "label": "Tab Label",
         "value": ""
@@ -201,62 +194,9 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "bodyText",
+        "name": "body",
         "label": "Body Text",
         "value": ""
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "ctaLabel",
-        "label": "CTA Button Label",
-        "value": "Learn More"
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "ctaHref",
-        "label": "CTA URL",
-        "value": "#"
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "panelImage",
-        "label": "Main Panel Image",
-        "multi": false
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "popupImage",
-        "label": "Popup Card Image",
-        "multi": false
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "animationPreset",
-        "label": "Popup Animation",
-        "value": "bounce",
-        "options": [
-          {
-            "name": "Spring Bounce",
-            "value": "bounce"
-          },
-          {
-            "name": "Slide from Right",
-            "value": "slide-right"
-          },
-          {
-            "name": "Drop from Camera",
-            "value": "drop-camera"
-          },
-          {
-            "name": "Flip In",
-            "value": "flip"
-          }
-        ]
       },
       {
         "component": "select",

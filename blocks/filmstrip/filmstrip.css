@@ -7,7 +7,7 @@
   --frame-height: 180px;
   --strip-bg: #050d1f;
   --strip-accent: #194088;
-  --sprocket-color: rgba(255, 255, 255, 0.18);
+  --sprocket-color: rgb(255 255 255 / 18%);
 
   position: relative;
   width: 100%;
@@ -71,7 +71,7 @@
   align-items: center;
   padding: calc(var(--sprocket-size) + 12px) 12px;
   width: max-content;
-  animation: filmRoll 28s linear infinite;
+  animation: film-roll 28s linear infinite;
   will-change: transform;
 }
 
@@ -81,7 +81,7 @@
   }
 }
 
-@keyframes filmRoll {
+@keyframes film-roll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
@@ -93,17 +93,17 @@
   inset: 0;
   pointer-events: none;
   z-index: 4;
-  animation: filmFlicker 0.09s steps(1) infinite;
+  animation: film-flicker 0.09s steps(1) infinite;
   background: transparent;
 }
 
-@keyframes filmFlicker {
-  0%   { background: rgba(255, 255, 255, 0.0); }
-  14%  { background: rgba(255, 255, 255, 0.025); }
-  28%  { background: rgba(0, 0, 0, 0.03); }
-  57%  { background: rgba(255, 255, 255, 0.015); }
-  71%  { background: rgba(0, 0, 0, 0.02); }
-  100% { background: rgba(255, 255, 255, 0.0); }
+@keyframes film-flicker {
+  0% { background: rgb(255 255 255 / 0%); }
+  14% { background: rgb(255 255 255 / 2.5%); }
+  28% { background: rgb(0 0 0 / 3%); }
+  57% { background: rgb(255 255 255 / 1.5%); }
+  71% { background: rgb(0 0 0 / 2%); }
+  100% { background: rgb(255 255 255 / 0%); }
 }
 
 /* Individual frame */
@@ -113,7 +113,7 @@
   height: var(--frame-height);
   margin: 0 8px;
   position: relative;
-  border: 2px solid rgba(255, 255, 255, 0.12);
+  border: 2px solid rgb(255 255 255 / 12%);
   border-radius: 2px;
   overflow: hidden;
   background: #111;
@@ -122,7 +122,7 @@
 }
 
 .filmstrip-frame:hover {
-  border-color: rgba(255, 255, 255, 0.45);
+  border-color: rgb(255 255 255 / 45%);
 }
 
 /* Frame number badge */
@@ -133,7 +133,7 @@
   left: 6px;
   font-family: 'Courier New', monospace;
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgb(255 255 255 / 40%);
   z-index: 2;
   letter-spacing: 0.05em;
   pointer-events: none;
@@ -147,7 +147,7 @@
   right: 6px;
   font-family: 'Courier New', monospace;
   font-size: 8px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgb(255 255 255 / 30%);
   z-index: 2;
   letter-spacing: 0.12em;
   pointer-events: none;
@@ -162,13 +162,13 @@
   display: block;
   filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9);
   transition: filter 0.5s ease;
-  animation: filmFramePulse 0.09s steps(1) infinite;
+  animation: film-frame-pulse 0.09s steps(1) infinite;
 }
 
-@keyframes filmFramePulse {
-  0%   { filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9); }
-  33%  { filter: sepia(0.4) saturate(0.75) brightness(1.07) contrast(0.92); }
-  66%  { filter: sepia(0.42) saturate(0.82) brightness(1.18) contrast(0.88); }
+@keyframes film-frame-pulse {
+  0% { filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9); }
+  33% { filter: sepia(0.4) saturate(0.75) brightness(1.07) contrast(0.92); }
+  66% { filter: sepia(0.42) saturate(0.82) brightness(1.18) contrast(0.88); }
   100% { filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9); }
 }
 
@@ -207,8 +207,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(5, 13, 31, 0.85) 0%, transparent 100%);
-  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(to top, rgb(5 13 31 / 85%) 0%, transparent 100%);
+  color: rgb(255 255 255 / 90%);
   font-size: 11px;
   font-family: 'Courier New', monospace;
   padding: 18px 8px 8px;
@@ -241,7 +241,7 @@
   align-items: center;
   gap: 18px;
   padding: 22px 8px 10px;
-  background: linear-gradient(to top, rgba(5, 13, 31, 0.92) 0%, transparent 100%);
+  background: linear-gradient(to top, rgb(5 13 31 / 92%) 0%, transparent 100%);
   z-index: 5;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -274,25 +274,25 @@
 }
 
 .filmstrip-btn-reject {
-  background: rgba(180, 0, 0, 0.18);
-  border-color: rgba(220, 60, 60, 0.65);
+  background: rgb(180 0 0 / 18%);
+  border-color: rgb(220 60 60 / 65%);
   color: #ff7070;
 }
 
 .filmstrip-btn-reject:hover {
-  background: rgba(220, 50, 50, 0.32);
-  box-shadow: 0 0 10px rgba(220, 50, 50, 0.4);
+  background: rgb(220 50 50 / 32%);
+  box-shadow: 0 0 10px rgb(220 50 50 / 40%);
 }
 
 .filmstrip-btn-approve {
-  background: rgba(0, 130, 80, 0.18);
-  border-color: rgba(69, 194, 160, 0.65);
+  background: rgb(0 130 80 / 18%);
+  border-color: rgb(69 194 160 / 65%);
   color: #45c2a0;
 }
 
 .filmstrip-btn-approve:hover {
-  background: rgba(69, 194, 160, 0.28);
-  box-shadow: 0 0 10px rgba(69, 194, 160, 0.4);
+  background: rgb(69 194 160 / 28%);
+  box-shadow: 0 0 10px rgb(69 194 160 / 40%);
 }
 
 /* Post-decision frame states */
@@ -302,8 +302,8 @@
 }
 
 .filmstrip-frame.filmstrip-approved {
-  border-color: rgba(69, 194, 160, 0.8);
-  box-shadow: 0 0 18px rgba(69, 194, 160, 0.35);
+  border-color: rgb(69 194 160 / 80%);
+  box-shadow: 0 0 18px rgb(69 194 160 / 35%);
   pointer-events: none;
 }
 
@@ -313,7 +313,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(69, 194, 160, 0.18);
+  background: rgb(69 194 160 / 18%);
   color: #45c2c2;
   font-family: 'Courier New', monospace;
   font-size: 12px;
