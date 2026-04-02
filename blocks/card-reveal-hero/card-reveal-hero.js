@@ -166,7 +166,7 @@ export default function decorate(block) {
   }
 
   const nav = buildNav(tabs, { ...config, defaultTab: activeIdx });
-  // No UE attrs on nav buttons — lets clicks pass through to our handler in author mode.
+  nav.querySelectorAll('.crh-tab').forEach((btn, i) => applyUeAttrs(btn, itemAttrs[i]));
 
   const panelContainer = document.createElement('div');
   panelContainer.className = 'crh-panel-container';
