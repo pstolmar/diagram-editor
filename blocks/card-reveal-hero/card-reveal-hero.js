@@ -125,10 +125,46 @@ export default function decorate(block) {
   const tabs = parseTabs(block);
   if (!tabs.length) return;
 
+  // Capture UE instrumentation attrs from original tab rows before wiping DOM
+  const itemAttrs = [...block.children].slice(1).map((row) => ({
+    resource: row.dataset.aueResource,
+    type: row.dataset.aueType || 'component',
+    model: row.dataset.aueModel || 'card-reveal-hero-tab',
+    label: row.dataset.aueLabel,
+    prop: row.dataset.aueProp,
+    behavior: row.dataset.aueBehavior,
+  }));
+
+  // Also capture container-level UE attrs
+  const blockResource = block.dataset.aueResource;
+  const blockModel = block.dataset.aueModel || 'card-reveal-hero';
+
   const activeIdx = Math.min(Math.max(0, config.defaultTab), tabs.length - 1);
   block.innerHTML = '';
 
+  // Re-apply container UE attrs (innerHTML wipe removes dataset too)
+  if (blockResource) {
+    block.dataset.aueResource = blockResource;
+    block.dataset.aueModel = blockModel;
+    block.dataset.aueType = 'component';
+    block.dataset.aueBehavior = 'component';
+  }
+
   const nav = buildNav(tabs, { ...config, defaultTab: activeIdx });
+
+  // Re-apply per-tab UE instrumentation to nav buttons so UE can select each item
+  nav.querySelectorAll('.crh-tab').forEach((btn, i) => {
+    const attrs = itemAttrs[i];
+    if (attrs?.resource) {
+      btn.dataset.aueResource = attrs.resource;
+      btn.dataset.aueType = attrs.type;
+      btn.dataset.aueModel = attrs.model;
+      if (attrs.label) btn.dataset.aueLabel = attrs.label;
+      if (attrs.prop) btn.dataset.aueProp = attrs.prop;
+      if (attrs.behavior) btn.dataset.aueBehavior = attrs.behavior;
+    }
+  });
+
   const panelContainer = document.createElement('div');
   panelContainer.className = 'crh-panel-container';
 
