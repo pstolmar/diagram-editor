@@ -49,11 +49,19 @@
           ]
         },
         {
-          "component": "number",
-          "valueType": "number",
+          "component": "select",
+          "valueType": "string",
           "name": "defaultTab",
-          "label": "Default Active Tab (0-based)",
-          "value": 0
+          "label": "Active Tab",
+          "value": "0",
+          "options": [
+            { "name": "Tab 1", "value": "0" },
+            { "name": "Tab 2", "value": "1" },
+            { "name": "Tab 3", "value": "2" },
+            { "name": "Tab 4", "value": "3" },
+            { "name": "Tab 5", "value": "4" },
+            { "name": "Tab 6", "value": "5" }
+          ]
         }
       ]
     },
