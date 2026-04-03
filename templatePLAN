@@ -1,0 +1,21 @@
+# PLAN.md
+
+## Task
+Short human summary of the goal.
+
+## Constraints
+- Max LLM spend: $2
+- Deadline: today
+- Environments: EDS dev only (no stage/prod)
+
+## Phases
+1. Clarify requirements
+2. Adjust block code
+3. Add Playwright coverage
+4. Demo capture
+
+## Status
+- [ ] Planned
+- [ ] Executing
+- [ ] Ready for review
+
