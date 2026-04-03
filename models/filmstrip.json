@@ -1,0 +1,27 @@
+{
+  "definitions": [
+    {
+      "title": "Filmstrip",
+      "id": "filmstrip",
+      "fields": []
+    },
+    {
+      "title": "Filmstrip Item",
+      "id": "filmstrip-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "richtext",
+          "name": "caption",
+          "label": "Caption"
+        }
+      ]
+    }
+  ]
+}

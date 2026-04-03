@@ -1,330 +1,79 @@
-/* filmstrip block — cellulose film aesthetic, horizontal scroll loop */
-
 .filmstrip {
-  --sprocket-size: 14px;
-  --sprocket-gap: 22px;
-  --frame-width: 260px;
-  --frame-height: 180px;
-  --strip-bg: #050d1f;
-  --strip-accent: #194088;
-  --sprocket-color: rgb(255 255 255 / 18%);
-
   position: relative;
-  width: 100%;
-  overflow: hidden;
-  background: var(--strip-bg);
-  padding: 0;
-  user-select: none;
-}
-
-/* Sprocket holes — top and bottom rows */
-.filmstrip::before,
-.filmstrip::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: var(--sprocket-size);
-  background-image: repeating-radial-gradient(
-    circle at center,
-    var(--sprocket-color) 0,
-    var(--sprocket-color) calc(var(--sprocket-size) * 0.38),
-    transparent calc(var(--sprocket-size) * 0.38)
-  );
-  background-size: var(--sprocket-gap) var(--sprocket-size);
-  background-repeat: repeat-x;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.filmstrip::before {
-  top: 6px;
-}
-
-.filmstrip::after {
-  bottom: 6px;
-}
-
-/* Edge fade vignettes */
-.filmstrip-vignette {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 120px;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.filmstrip-vignette-left {
-  left: 0;
-  background: linear-gradient(to right, var(--strip-bg) 0%, transparent 100%);
-}
-
-.filmstrip-vignette-right {
-  right: 0;
-  background: linear-gradient(to left, var(--strip-bg) 0%, transparent 100%);
-}
-
-/* Scrolling track */
-.filmstrip-track {
   display: flex;
   align-items: center;
-  padding: calc(var(--sprocket-size) + 12px) 12px;
-  width: max-content;
-  animation: film-roll 28s linear infinite;
+  gap: 0.5rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+.filmstrip-viewport {
+  overflow: hidden;
+  flex: 1;
+}
+
+.filmstrip-track {
+  display: flex;
+  transition: transform 0.4s ease;
   will-change: transform;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .filmstrip-track {
-    animation: none;
-  }
+.filmstrip-slide {
+  flex: 0 0 100%;
+  box-sizing: border-box;
+  padding: 0 1rem;
+  text-align: center;
 }
 
-@keyframes film-roll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.filmstrip-figure {
+  margin: 0;
+  line-height: 0;
 }
 
-/* Flicker overlay — simulates lamp variation */
-.filmstrip-track::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 4;
-  animation: film-flicker 0.09s steps(1) infinite;
-  background: transparent;
-}
-
-@keyframes film-flicker {
-  0% { background: rgb(255 255 255 / 0%); }
-  14% { background: rgb(255 255 255 / 2.5%); }
-  28% { background: rgb(0 0 0 / 3%); }
-  57% { background: rgb(255 255 255 / 1.5%); }
-  71% { background: rgb(0 0 0 / 2%); }
-  100% { background: rgb(255 255 255 / 0%); }
-}
-
-/* Individual frame */
-.filmstrip-frame {
-  flex-shrink: 0;
-  width: var(--frame-width);
-  height: var(--frame-height);
-  margin: 0 8px;
-  position: relative;
-  border: 2px solid rgb(255 255 255 / 12%);
-  border-radius: 2px;
-  overflow: hidden;
-  background: #111;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-}
-
-.filmstrip-frame:hover {
-  border-color: rgb(255 255 255 / 45%);
-}
-
-/* Frame number badge */
-.filmstrip-frame::before {
-  content: attr(data-frame);
-  position: absolute;
-  top: 4px;
-  left: 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 9px;
-  color: rgb(255 255 255 / 40%);
-  z-index: 2;
-  letter-spacing: 0.05em;
-  pointer-events: none;
-}
-
-/* Frame number at bottom-right */
-.filmstrip-frame::after {
-  content: attr(data-code);
-  position: absolute;
-  bottom: 4px;
-  right: 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 8px;
-  color: rgb(255 255 255 / 30%);
-  z-index: 2;
-  letter-spacing: 0.12em;
-  pointer-events: none;
-}
-
-/* Image inside frame */
-.filmstrip-frame img,
-.filmstrip-frame .filmstrip-img {
+.filmstrip-figure img,
+.filmstrip-figure picture {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: cover;
-  display: block;
-  filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9);
-  transition: filter 0.5s ease;
-  animation: film-frame-pulse 0.09s steps(1) infinite;
+  border-radius: 4px;
 }
 
-@keyframes film-frame-pulse {
-  0% { filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9); }
-  33% { filter: sepia(0.4) saturate(0.75) brightness(1.07) contrast(0.92); }
-  66% { filter: sepia(0.42) saturate(0.82) brightness(1.18) contrast(0.88); }
-  100% { filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .filmstrip-frame img,
-  .filmstrip-frame .filmstrip-img {
-    animation: none;
-  }
-}
-
-.filmstrip-frame:hover img,
-.filmstrip-frame:hover .filmstrip-img {
-  filter: saturate(0.3) contrast(1.4) brightness(0.85) sepia(0.3);
-  animation: none;
-}
-
-/* CSS gradient placeholder when no image src */
-.filmstrip-img-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    135deg,
-    #1a2a4a 0%,
-    #194088 30%,
-    #2d5f8a 50%,
-    #45c2c2 70%,
-    #194088 85%,
-    #050d1f 100%
-  );
-  filter: sepia(0.4) saturate(0.8) brightness(1.15) contrast(0.9);
-}
-
-/* Caption overlay on hover */
 .filmstrip-caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgb(5 13 31 / 85%) 0%, transparent 100%);
-  color: rgb(255 255 255 / 90%);
-  font-size: 11px;
-  font-family: 'Courier New', monospace;
-  padding: 18px 8px 8px;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-}
-
-.filmstrip-frame:hover .filmstrip-caption {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Pause on hover — entire strip */
-.filmstrip:hover .filmstrip-track {
-  animation-play-state: paused;
-}
-
-/* ── APPROVAL MODE ── */
-
-/* Approval action bar — hidden until frame is hovered */
-.filmstrip-approval-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 18px;
-  padding: 22px 8px 10px;
-  background: linear-gradient(to top, rgb(5 13 31 / 92%) 0%, transparent 100%);
-  z-index: 5;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-
-/* Show bar (and re-enable clicks) when hovering the frame */
-.filmstrip-frame:hover .filmstrip-approval-bar {
-  opacity: 1;
-  pointer-events: auto;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-color, #333);
 }
 
 .filmstrip-btn {
-  width: 38px;
-  height: 38px;
+  background: var(--link-color, #0070f3);
+  color: #fff;
+  border: none;
   border-radius: 50%;
-  border: 2px solid;
-  font-size: 17px;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-  font-family: system-ui, sans-serif;
+  transition: background 0.2s;
 }
 
 .filmstrip-btn:hover {
-  transform: scale(1.18);
+  background: var(--link-hover-color, #005bb5);
 }
 
-.filmstrip-btn-reject {
-  background: rgb(180 0 0 / 18%);
-  border-color: rgb(220 60 60 / 65%);
-  color: #ff7070;
+.filmstrip-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.filmstrip-btn-reject:hover {
-  background: rgb(220 50 50 / 32%);
-  box-shadow: 0 0 10px rgb(220 50 50 / 40%);
-}
-
-.filmstrip-btn-approve {
-  background: rgb(0 130 80 / 18%);
-  border-color: rgb(69 194 160 / 65%);
-  color: #45c2a0;
-}
-
-.filmstrip-btn-approve:hover {
-  background: rgb(69 194 160 / 28%);
-  box-shadow: 0 0 10px rgb(69 194 160 / 40%);
-}
-
-/* Post-decision frame states */
-.filmstrip-frame.filmstrip-rejected {
-  opacity: 0.12;
-  pointer-events: none;
-}
-
-.filmstrip-frame.filmstrip-approved {
-  border-color: rgb(69 194 160 / 80%);
-  box-shadow: 0 0 18px rgb(69 194 160 / 35%);
-  pointer-events: none;
-}
-
-.filmstrip-approved-badge {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgb(69 194 160 / 18%);
-  color: #45c2c2;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  font-weight: bold;
-  z-index: 4;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
+@media (width <= 600px) {
   .filmstrip-btn {
-    transition: none;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.2rem;
   }
 }

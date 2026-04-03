@@ -1,0 +1,64 @@
+.corkboard {
+  container-type: inline-size;
+}
+
+.corkboard-board {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.corkboard-card {
+  background: var(--background-color, #fff);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s;
+}
+
+.corkboard-card:focus-within {
+  outline: 2px solid var(--link-color, #0070f3);
+  outline-offset: 2px;
+}
+
+.corkboard-card:hover {
+  box-shadow: 0 4px 16px rgb(0 0 0 / 18%);
+}
+
+.corkboard-figure {
+  margin: 0;
+  line-height: 0;
+}
+
+.corkboard-figure img,
+.corkboard-figure picture {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.corkboard-body {
+  padding: 1rem;
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-color, #333);
+}
+
+.corkboard-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--overlay-background-color, #eee);
+  font-size: 0.8rem;
+  color: var(--secondary-text-color, #666);
+}
+
+@container (max-width: 480px) {
+  .corkboard-board {
+    grid-template-columns: 1fr;
+  }
+}

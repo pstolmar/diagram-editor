@@ -1,0 +1,8 @@
+{
+  "filters": [
+    {
+      "id": "filmstrip",
+      "components": ["filmstrip-item"]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "definitions": [
+    {
+      "title": "Corkboard",
+      "id": "corkboard",
+      "fields": []
+    },
+    {
+      "title": "Corkboard Card",
+      "id": "corkboard-card",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "richtext",
+          "name": "body",
+          "label": "Body"
+        },
+        {
+          "component": "richtext",
+          "name": "footer",
+          "label": "Footer"
+        }
+      ]
+    }
+  ]
+}

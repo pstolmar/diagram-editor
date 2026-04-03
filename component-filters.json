@@ -46,6 +46,12 @@
     ]
   },
   {
+    "id": "corkboard",
+    "components": [
+      "corkboard-card"
+    ]
+  },
+  {
     "id": "filmstrip",
     "components": [
       "filmstrip-frame"

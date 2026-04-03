@@ -1,0 +1,94 @@
+```json
+{
+  "id": "cleanup_filmstrip_corkboard",
+  "kind": "eds_aem_job",
+  "constraints": {
+    "stopOnError": false,
+    "maxRuntimeSeconds": 900
+  },
+  "phases": [
+    {
+      "name": "Auto-fix JS lint",
+      "steps": [
+        {
+          "name": "eslint_fix_filmstrip",
+          "tool": "bash",
+          "description": "Auto-fix ESLint issues in filmstrip block",
+          "args": {
+            "command": "npx eslint blocks/filmstrip/filmstrip.js --fix"
+          }
+        },
+        {
+          "name": "eslint_fix_corkboard",
+          "tool": "bash",
+          "description": "Auto-fix ESLint issues in corkboard block",
+          "args": {
+            "command": "npx eslint blocks/corkboard/*.js --fix"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auto-fix CSS lint",
+      "steps": [
+        {
+          "name": "stylelint_fix_filmstrip",
+          "tool": "bash",
+          "description": "Auto-fix Stylelint issues in filmstrip CSS",
+          "args": {
+            "command": "npx stylelint blocks/filmstrip/filmstrip.css --fix"
+          }
+        },
+        {
+          "name": "stylelint_fix_corkboard",
+          "tool": "bash",
+          "description": "Auto-fix Stylelint issues in corkboard CSS",
+          "args": {
+            "command": "npx stylelint blocks/corkboard/*.css --fix"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verify lint",
+      "steps": [
+        {
+          "name": "lint_check",
+          "tool": "eds.lint",
+          "description": "Run full lint suite to confirm no remaining errors"
+        }
+      ]
+    },
+    {
+      "name": "Build JSON models",
+      "steps": [
+        {
+          "name": "build_json",
+          "tool": "eds.buildJson",
+          "description": "Merge component model JSON files after any model changes"
+        }
+      ]
+    },
+    {
+      "name": "Run tests",
+      "steps": [
+        {
+          "name": "playwright_tests",
+          "tool": "playwright.test",
+          "description": "Run Playwright tests to verify blocks render correctly"
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "steps": [
+        {
+          "name": "done",
+          "tool": "log",
+          "description": "Filmstrip and corkboard blocks cleaned up: JS + CSS lint fixed, JSON rebuilt, tests verified."
+        }
+      ]
+    }
+  ]
+}
+```
