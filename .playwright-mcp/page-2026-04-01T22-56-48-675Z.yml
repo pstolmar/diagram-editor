@@ -1,0 +1,24 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]
+  - main [ref=e3]:
+    - img "Skyline with filmstrip negative effect." [ref=e7]
+    - generic [ref=e11]:
+      - generic [ref=e12] [cursor=pointer]:
+        - text: "001"
+        - text: EXP-0020
+      - generic [ref=e14] [cursor=pointer]:
+        - text: "002"
+        - text: EXP-0027
+      - generic [ref=e16] [cursor=pointer]:
+        - text: "003"
+        - text: EXP-0034
+      - generic [ref=e18] [cursor=pointer]:
+        - text: "001"
+        - text: EXP-0041
+      - generic [ref=e20] [cursor=pointer]:
+        - text: "002"
+        - text: EXP-0048
+      - generic [ref=e22] [cursor=pointer]:
+        - text: "003"
+        - text: EXP-0055
+  - contentinfo

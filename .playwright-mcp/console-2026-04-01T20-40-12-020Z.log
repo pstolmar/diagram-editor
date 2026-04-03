@@ -1,0 +1,8 @@
+[     189ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://main--diagram-editor--pstolmar.aem.live/footer.plain.html:0
+[     189ms] [ERROR] failed to load module for footer TypeError: Cannot read properties of null (reading 'firstElementChild')
+    at Module.decorate (https://main--diagram-editor--pstolmar.aem.live/blocks/footer/footer.js:17:19)
+    at async https://main--diagram-editor--pstolmar.aem.live/scripts/aem.js:588:15 @ https://main--diagram-editor--pstolmar.aem.live/scripts/aem.js:591
+[     189ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://main--diagram-editor--pstolmar.aem.live/nav.plain.html:0
+[     189ms] [ERROR] failed to load module for header TypeError: Cannot read properties of null (reading 'firstElementChild')
+    at Module.decorate (https://main--diagram-editor--pstolmar.aem.live/blocks/header/header.js:120:19)
+    at async https://main--diagram-editor--pstolmar.aem.live/scripts/aem.js:588:15 @ https://main--diagram-editor--pstolmar.aem.live/scripts/aem.js:591

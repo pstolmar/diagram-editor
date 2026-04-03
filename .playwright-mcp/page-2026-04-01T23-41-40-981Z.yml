@@ -1,0 +1,15 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - heading "Universal Editor Demo" [level=1] [ref=e23]
+  - contentinfo [ref=e24]:
+    - paragraph [ref=e29]: Copyright © 2021 Adobe. All rights reserved.

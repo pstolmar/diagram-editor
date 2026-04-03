@@ -1,0 +1,7 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]
+  - main [ref=e3]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: Test demo text component
+      - paragraph [ref=e7]: "1"
+  - contentinfo [ref=e8]

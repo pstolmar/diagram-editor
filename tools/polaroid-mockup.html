@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experian Demo — Visual Prototype</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d0d0d; font-family: Georgia, serif; overflow-x: hidden; }
+
+/* ═══ FILMSTRIP ═══ */
+.filmstrip-section {
+  height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  background: #080808; overflow: hidden;
+}
+.strip-label {
+  font-family: 'Courier New', monospace; font-size: 10px;
+  letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.22);
+}
+.filmstrip-wrap { position: relative; overflow: hidden; width: 100%; }
+.filmstrip {
+  background: #0e0400; padding: 15px 0; display: flex; gap: 0;
+  animation: filmroll 13s linear infinite; width: max-content; position: relative;
+}
+.filmstrip::before, .filmstrip::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 15px;
+  background-image: repeating-radial-gradient(circle at center, #000 0 5px, transparent 5px 40px);
+  background-size: 40px 15px; z-index: 2;
+}
+.filmstrip::before { top: 0; }
+.filmstrip::after  { bottom: 0; }
+@keyframes filmroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+.frame {
+  width: 220px; height: 164px; margin: 0 4px;
+  border: 3px solid #1e0800; flex-shrink: 0; overflow: hidden; position: relative;
+  animation: flicker var(--fd,2.4s) ease-in-out infinite;
+  animation-delay: var(--fo,0s);
+}
+.frame::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0,0,0,.1) 2px 4px);
+}
+@keyframes flicker {
+  0%,45%,55%,75%,80%,100% { filter: sepia(45%) contrast(1.1) brightness(.88) }
+  50%  { filter: sepia(45%) contrast(1.1) brightness(.58) }
+  78%  { filter: sepia(45%) contrast(1.1) brightness(.45) }
+}
+.frame-inner {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:38px; color:rgba(255,255,255,.18);
+}
+
+/* ═══ PERSPECTIVE SCENE ═══ */
+.scene-root {
+  height: 100vh; perspective: 950px; perspective-origin: 50% -10%;
+  overflow: hidden; position: relative;
+}
+/* Wood floor — fades in, cork fades out on tip */
+.wood-floor {
+  position: absolute; inset: 0; opacity: 0; pointer-events: none;
+  transition: opacity 1.1s ease .25s;
+  background-color: #3d2008;
+  background-image:
+    repeating-linear-gradient(91deg, transparent 0, transparent 20px, rgba(0,0,0,.05) 20px, rgba(0,0,0,.05) 21px),
+    repeating-linear-gradient(89deg, rgba(255,255,255,.025) 0, rgba(255,255,255,.025) 10px, transparent 10px, transparent 28px),
+    repeating-linear-gradient(180deg, transparent 0, transparent 55px, rgba(0,0,0,.04) 55px, rgba(0,0,0,.04) 56px);
+}
+.scene-root.tipped .wood-floor { opacity: 1; }
+
+/* 3-D plane */
+.scene-plane {
+  width: 100%; height: 100%; transform-style: preserve-3d;
+  transform-origin: center bottom;
+  transition: transform 1.35s cubic-bezier(.58,0,.38,1);
+  position: relative;
+}
+.scene-root.tipped .scene-plane { transform: rotateX(75deg); }
+
+/* Cork board — fades out as wood appears */
+.corkboard {
+  width:100%; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding: 52px 20px 36px;
+  background-color: #4a2810;
+  background-image:
+    radial-gradient(ellipse at 16% 26%, rgba(80,45,15,.8) 0, transparent 46%),
+    radial-gradient(ellipse at 84% 70%, rgba(55,28,6,.8) 0, transparent 46%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='1' cy='1' r='.55' fill='rgba(0,0,0,.1)'/%3E%3Ccircle cx='3' cy='3' r='.55' fill='rgba(0,0,0,.08)'/%3E%3C/svg%3E");
+  transition: opacity 1.1s ease .25s;
+  position: relative;
+}
+.scene-root.tipped .corkboard { opacity: 0.15; }
+.board-label {
+  position:absolute; top:18px; left:50%; transform:translateX(-50%);
+  font-family:sans-serif; font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(255,255,255,.32); white-space:nowrap;
+}
+
+/* ═══ POLAROIDS ═══ */
+.polaroid-grid { display:flex; flex-wrap:wrap; justify-content:center; max-width:860px; }
+
+.polaroid {
+  background: #f8f6f0;
+  padding: 9px 9px 32px;
+  box-shadow: 2px 5px 18px rgba(0,0,0,.6), 0 1px 3px rgba(0,0,0,.2);
+  margin: 10px; position: relative;
+  animation: sway var(--sw,3.8s) ease-in-out infinite var(--sd,0s);
+  transform-origin: top center;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+/* Pin */
+.polaroid::before {
+  content:''; position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+  width:14px; height:14px; border-radius:50%;
+  background:radial-gradient(circle at 35% 32%, #f05, #900);
+  box-shadow:0 2px 5px rgba(0,0,0,.55); z-index:3;
+  transition:transform .18s ease, opacity .18s ease;
+}
+@keyframes sway {
+  0%,100% { transform:var(--base-r) }
+  33%      { transform:var(--sway-a) translateY(-2px) }
+  66%      { transform:var(--sway-b) translateY(2px) }
+}
+
+/* Hover zoom (edge/discovery polaroids) */
+.polaroid.hover-zoom:hover { transform:var(--base-r) scale(1.08); box-shadow:4px 8px 28px rgba(0,0,0,.7); }
+
+/* Click zoom toward camera */
+.polaroid.click-zoom.zoomed {
+  transform:scale(2.4) translateZ(0) !important;
+  z-index:20;
+  box-shadow:0 20px 80px rgba(0,0,0,.9);
+  animation:none !important;
+}
+
+/* Fall + stamp animation */
+@keyframes fall-stamp-cw {
+  0%   { transform:var(--base-r); filter:var(--mono); opacity:1; }
+  12%  { transform:rotate(calc(var(--rot) + 1.5deg)) translateY(-10px); filter:var(--mono); }
+  38%  { transform:rotate(calc(var(--rot) + 4deg)) translateY(160px); filter:var(--color); }
+  68%  { transform:rotate(calc(var(--rot) + 5deg)) translateY(240px) rotateX(-8deg); filter:var(--color); opacity:1; }
+  85%  { transform:rotateX(-82deg) translateY(270px) scale(.9); filter:var(--color); opacity:.9; }
+  100% { transform:rotateX(-90deg) translateY(290px) scale(.85); filter:var(--color); opacity:0; }
+}
+@keyframes fall-stamp-ccw {
+  0%   { transform:var(--base-r); filter:var(--mono); opacity:1; }
+  12%  { transform:rotate(calc(var(--rot) - 1.5deg)) translateY(-10px); filter:var(--mono); }
+  38%  { transform:rotate(calc(var(--rot) - 4deg)) translateY(160px); filter:var(--color); }
+  68%  { transform:rotate(calc(var(--rot) - 5deg)) translateY(240px) rotateX(-8deg); filter:var(--color); opacity:1; }
+  85%  { transform:rotateX(-82deg) translateY(270px) scale(.9); filter:var(--color); opacity:.9; }
+  100% { transform:rotateX(-90deg) translateY(290px) scale(.85); filter:var(--color); opacity:0; }
+}
+.polaroid.falling {
+  animation: var(--fall-anim,fall-stamp-cw) 1.15s cubic-bezier(.38,0,.78,.3) forwards !important;
+  animation-delay: var(--fall-delay,0s) !important;
+  pointer-events:none;
+  transform-style:preserve-3d;
+}
+.polaroid.falling::before { transform:translateX(-50%) translateY(-12px) scale(0); opacity:0; }
+
+/* Dust puff — ::after on falling polaroid */
+.polaroid.falling::after {
+  content:''; position:absolute; bottom:-8px; left:50%; transform:translateX(-50%);
+  width:0; height:0; border-radius:50%;
+  background:radial-gradient(circle, rgba(200,170,120,.55) 0%, transparent 70%);
+  animation:dust-puff 0.5s ease-out 0.88s forwards;
+  pointer-events:none;
+}
+@keyframes dust-puff {
+  0%   { width:0; height:0; opacity:.8; }
+  60%  { width:120px; height:30px; opacity:.6; }
+  100% { width:200px; height:50px; opacity:0; }
+}
+
+/* Image area */
+.pimg { width:200px; height:188px; overflow:hidden; position:relative; }
+.pimg-inner {
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  font-size:52px; transition:filter 1.1s ease;
+}
+.polaroid.aged    .pimg-inner { filter:grayscale(1) contrast(1.22) brightness(.72) sepia(.15); }
+.polaroid.faded   .pimg-inner { filter:grayscale(.82) contrast(.9) brightness(1.04) sepia(.28) saturate(.28); }
+.polaroid.cracked .pimg-inner { filter:grayscale(1) contrast(1.38) brightness(.64); }
+.polaroid.revealed .pimg-inner { filter:none; }
+/* Crack overlay */
+.polaroid.cracked .pimg::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 188'%3E%3Cpath d='M58 0 L72 38 L52 58 L78 98 L63 140 L83 188' stroke='rgba(255,255,255,.18)' stroke-width='1.5' fill='none'/%3E%3Cpath d='M118 8 L108 52 L132 72 L112 118 L128 188' stroke='rgba(255,255,255,.11)' stroke-width='1' fill='none'/%3E%3C/svg%3E") no-repeat center/cover;
+}
+.pcap {
+  text-align:center; margin-top:7px;
+  font-family:'Courier New',monospace; font-size:11px; color:#555; letter-spacing:.02em;
+}
+
+/* Hint bar */
+.hint {
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  background:rgba(0,0,0,.72); color:rgba(255,255,255,.8);
+  font-family:sans-serif; font-size:12px; letter-spacing:.05em;
+  padding:8px 18px; border-radius:20px; pointer-events:none; z-index:100;
+  transition:opacity .4s;
+}
+
+/* Dismiss zoomed on body click */
+body.has-zoom .polaroid:not(.zoomed) { opacity:.4; transition:opacity .3s; }
+</style>
+</head>
+<body>
+
+<!-- FILMSTRIP SECTION -->
+<section class="filmstrip-section">
+  <div class="strip-label">Experian · Brand Assets · 2026</div>
+  <div class="filmstrip-wrap"><div class="filmstrip" id="fs"></div></div>
+  <div class="strip-label">↓ scroll</div>
+</section>
+
+<!-- PERSPECTIVE SCENE -->
+<div class="scene-root" id="scene">
+  <div class="wood-floor"></div>
+  <div class="scene-plane">
+    <div class="corkboard" id="corkboard">
+      <div class="board-label">Experian Archive · Brand Photography</div>
+      <div class="polaroid-grid" id="grid"></div>
+    </div>
+  </div>
+</div>
+
+<div style="height:80vh; background:#0d0d0d; display:flex; align-items:center; justify-content:center;">
+  <span style="font-family:sans-serif; font-size:13px; color:rgba(255,255,255,.25); letter-spacing:.08em;">scroll back up to reset</span>
+</div>
+
+<div class="hint" id="hint">↓ scroll past the filmstrip</div>
+
+<script>
+/* ── DATA ── */
+const FRAME_DATA = [
+  {bg:'#194088',ac:'#45c2c2',ic:'◈'},{bg:'#c1188b',ac:'#194088',ic:'◉'},
+  {bg:'#45c2c2',ac:'#c1188b',ic:'◎'},{bg:'#050d1f',ac:'#45c2c2',ic:'◈'},
+  {bg:'#2c3039',ac:'#194088',ic:'✦'},{bg:'#194088',ac:'#c1188b',ic:'◉'},
+  {bg:'#45c2c2',ac:'#050d1f',ic:'◎'},
+];
+
+// interaction: 'hover-reveal' | 'click-zoom' | 'both'
+// edge=hover, center=click, corners=both
+const POLS = [
+  {l:'Campaign 01 · 2024', bg:'#1a4a8a',ac:'#45c2c2',ic:'◈', st:'aged',    rot:-4, sw:3.8,sd:0,    mt:0,   ix:'both'},
+  {l:'Brand Shoot 12',     bg:'#8a1a5a',ac:'#c1188b',ic:'◉', st:'faded',   rot: 2, sw:4.2,sd:-1.1,  mt:0,   ix:'click-zoom'},
+  {l:'Event 2023 ✦',       bg:'#1a5a3a',ac:'#45c2c2',ic:'✦', st:'cracked', rot:-1, sw:3.1,sd:-0.7,  mt:-18, ix:'hover-reveal'},
+  {l:'Partner Day · Q3',   bg:'#5a3a10',ac:'#e8a020',ic:'◈', st:'aged',    rot: 5, sw:4.5,sd:-2.0,  mt:8,   ix:'hover-reveal'},
+  {l:'Leadership Summit',  bg:'#1a1a7a',ac:'#7788dd',ic:'◎', st:'faded',   rot:-6, sw:3.6,sd:-0.3,  mt:-8,  ix:'click-zoom'},
+  {l:'Innovation Lab',     bg:'#5a1a1a',ac:'#c1188b',ic:'◉', st:'aged',    rot: 3, sw:4.0,sd:-1.8,  mt:0,   ix:'both'},
+];
+
+const monoFilter = {
+  aged:    'grayscale(1) contrast(1.22) brightness(.72) sepia(.15)',
+  faded:   'grayscale(.82) contrast(.9) brightness(1.04) sepia(.28) saturate(.28)',
+  cracked: 'grayscale(1) contrast(1.38) brightness(.64)',
+};
+
+/* ── BUILD FILMSTRIP ── */
+const fs = document.getElementById('fs');
+[...FRAME_DATA, ...FRAME_DATA].forEach((f,i) => {
+  const frame = document.createElement('div');
+  frame.className = 'frame';
+  frame.style.cssText = `--fd:${2.1+(i%7)*0.28}s;--fo:${(i%7)*0.22}s`;
+  const inner = document.createElement('div');
+  inner.className = 'frame-inner';
+  inner.style.background = `linear-gradient(135deg,${f.bg},${f.ac}66)`;
+  inner.textContent = f.ic;
+  frame.appendChild(inner); fs.appendChild(frame);
+});
+
+/* ── BUILD POLAROIDS ── */
+const grid = document.getElementById('grid');
+POLS.forEach((p,i) => {
+  const pol = document.createElement('div');
+  pol.className = `polaroid ${p.st} swaying`;
+  if (p.ix === 'hover-reveal' || p.ix === 'both') pol.classList.add('hover-reveal');
+  if (p.ix === 'click-zoom' || p.ix === 'both') pol.classList.add('click-zoom');
+  if (p.ix === 'hover-reveal') pol.classList.add('hover-zoom');
+
+  pol.style.cssText = [
+    `--base-r:rotate(${p.rot}deg)`,
+    `--sway-a:rotate(${p.rot-1.5}deg)`,
+    `--sway-b:rotate(${p.rot+1.5}deg)`,
+    `--rot:${p.rot}deg`,
+    `--sw:${p.sw}s`, `--sd:${p.sd}s`,
+    `--fall-anim:${p.rot>=0?'fall-stamp-cw':'fall-stamp-ccw'}`,
+    `--fall-delay:${i*0.14}s`,
+    `--mono:${monoFilter[p.st]}`,
+    `--color:none`,
+    p.mt ? `margin-top:${p.mt}px` : '',
+  ].filter(Boolean).join(';');
+
+  pol.innerHTML = `
+    <div class="pimg">
+      <div class="pimg-inner" style="background:linear-gradient(135deg,${p.bg} 0%,${p.ac}55 100%)">${p.ic}</div>
+    </div>
+    <div class="pcap">${p.l}</div>`;
+  grid.appendChild(pol);
+});
+
+/* ── INTERACTIONS ── */
+const allPols = () => [...document.querySelectorAll('.polaroid')];
+
+// Hover reveal (color on hover)
+document.querySelectorAll('.polaroid.hover-reveal').forEach(p => {
+  const orig = POLS[[...document.querySelectorAll('.polaroid')].indexOf(p)].st;
+  p.addEventListener('mouseenter', () => { p.classList.remove('aged','faded','cracked'); p.classList.add('revealed'); });
+  p.addEventListener('mouseleave', () => { if (!p.classList.contains('zoomed')) { p.classList.remove('revealed'); p.classList.add(orig); } });
+});
+
+// Click zoom toward camera
+document.querySelectorAll('.polaroid.click-zoom').forEach(p => {
+  p.addEventListener('click', e => {
+    e.stopPropagation();
+    const isZoomed = p.classList.contains('zoomed');
+    allPols().forEach(q => { q.classList.remove('zoomed'); });
+    document.body.classList.remove('has-zoom');
+    if (!isZoomed) {
+      p.classList.remove('aged','faded','cracked'); p.classList.add('revealed','zoomed');
+      document.body.classList.add('has-zoom');
+    }
+  });
+});
+
+// Click anywhere else to dismiss zoom
+document.body.addEventListener('click', () => {
+  allPols().forEach(p => p.classList.remove('zoomed'));
+  document.body.classList.remove('has-zoom');
+});
+
+/* ── SCROLL / SCENE TIP ── */
+const scene = document.getElementById('scene');
+const hint = document.getElementById('hint');
+let tipped = false, fell = false;
+
+window.addEventListener('scroll', () => {
+  hint.style.opacity = window.scrollY > 60 ? '0' : '1';
+  const sb = scene.getBoundingClientRect().bottom;
+  if (!tipped && sb < -80) tipScene();
+  if (tipped && window.scrollY < 40) resetScene();
+}, { passive: true });
+
+function tipScene() {
+  if (tipped) return; tipped = true;
+  scene.classList.add('tipped');
+  setTimeout(dropPolaroids, 450);
+}
+
+function dropPolaroids() {
+  if (fell) return; fell = true;
+  allPols().forEach(p => {
+    p.classList.remove('aged','faded','cracked','swaying','revealed','hover-reveal','click-zoom','hover-zoom','zoomed');
+    p.classList.add('falling');
+  });
+}
+
+function resetScene() {
+  tipped = false; fell = false;
+  scene.classList.remove('tipped');
+  allPols().forEach((p,i) => {
+    p.classList.remove('falling','revealed','zoomed');
+    const d = POLS[i];
+    p.classList.add(d.st,'swaying');
+    if (d.ix==='hover-reveal'||d.ix==='both') p.classList.add('hover-reveal');
+    if (d.ix==='click-zoom'||d.ix==='both') p.classList.add('click-zoom');
+    if (d.ix==='hover-reveal') p.classList.add('hover-zoom');
+  });
+  document.body.classList.remove('has-zoom');
+}
+
+/* ── DEMO QUERY PARAMS ── */
+const dp = new URLSearchParams(location.search).get('demo');
+if (dp === 'corkboard' || dp === 'new') {
+  scene.scrollIntoView();
+}
+if (dp === 'fallen') {
+  scene.scrollIntoView();
+  setTimeout(() => { scene.classList.add('tipped'); setTimeout(dropPolaroids, 500); }, 200);
+}
+if (dp === 'home') {
+  // Redirect to the original brainstorm concept
+  window.location.href = '/Users/pstolmar/dev/eds/diagram-editor/.superpowers/brainstorm/85356-1775059731/content/full-concept.html';
+}
+</script>
+</body>
+</html>

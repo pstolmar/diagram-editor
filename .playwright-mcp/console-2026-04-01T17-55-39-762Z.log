@@ -1,0 +1,12 @@
+[     490ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/220x160/194088/fff?text=+:0
+[     497ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/220x160/45c2c2/fff?text=+:0
+[     497ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/220x160/c1188b/fff?text=+:0
+[     497ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/220x160/050d1f/fff?text=+:0
+[     498ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/220x160/2c3039/fff?text=+:0
+[     498ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/200x190/1a2a4a/89a?text=+:0
+[     588ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/200x190/4a1a3a/c89?text=+:0
+[     596ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/200x190/1a3a1a/8c8?text=+:0
+[     614ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/200x190/3a2a1a/a98?text=+:0
+[     623ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/200x190/1a1a3a/99c?text=+:0
+[     623ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://via.placeholder.com/200x190/2a1a1a/c88?text=+:0
+[     625ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:7743/favicon.ico:0

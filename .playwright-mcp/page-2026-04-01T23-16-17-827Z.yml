@@ -1,0 +1,55 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - paragraph [ref=e23]:
+        - img "Skyline with filmstrip negative effect." [ref=e25]
+      - heading "AEM UE EDS Crosswalk Components" [level=1] [ref=e26]
+    - generic [ref=e30]:
+      - generic [ref=e31] [cursor=pointer]:
+        - text: "001"
+        - generic: Credit Score Intelligence · Experian
+        - text: EXP-0020
+      - generic [ref=e32] [cursor=pointer]:
+        - text: "002"
+        - generic: B2B API Platform · Developer Docs
+        - text: EXP-0027
+      - generic [ref=e33] [cursor=pointer]:
+        - text: "003"
+        - generic: Financial Health · Consumer Products
+        - text: EXP-0034
+      - generic [ref=e34] [cursor=pointer]:
+        - text: "001"
+        - generic: Credit Score Intelligence · Experian
+        - text: EXP-0041
+      - generic [ref=e35] [cursor=pointer]:
+        - text: "002"
+        - generic: B2B API Platform · Developer Docs
+        - text: EXP-0048
+      - generic [ref=e36] [cursor=pointer]:
+        - text: "003"
+        - generic: Financial Health · Consumer Products
+        - text: EXP-0055
+    - generic [ref=e41]:
+      - generic [ref=e42]: Archive · Brand Photography
+      - button "◈ Run Governance Agent" [ref=e44] [cursor=pointer]:
+        - generic [ref=e45]: ◈
+        - text: Run Governance Agent
+      - generic [ref=e46]:
+        - generic [ref=e50]: Campaign 01 · Credit 2024
+        - generic [ref=e54]: Brand Shoot · Financial
+        - generic [ref=e58]: Event 2023 · Partner Day
+        - generic [ref=e62]: Q3 Campaign · Auto
+        - generic [ref=e66]: Leadership Summit
+        - generic [ref=e70]: Health Division · Global
+  - contentinfo [ref=e71]:
+    - paragraph [ref=e76]: Copyright © 2021 Adobe. All rights reserved.

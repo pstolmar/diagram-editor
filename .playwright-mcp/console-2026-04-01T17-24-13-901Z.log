@@ -1,0 +1,4 @@
+[     350ms] [ERROR] Failed to load resource: net::ERR_UNKNOWN_URL_SCHEME @ about:error:0
+[     389ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://aem-20260317-1803--eds-agents-demo--pstolmar.aem.page/content/wm-eds/2/main-nav.plain.html:0
+[     470ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://aem-20260317-1803--eds-agents-demo--pstolmar.aem.page/content/wm-eds/2/footer.plain.html:0
+[     486ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://aem-20260317-1803--eds-agents-demo--pstolmar.aem.page/content/content/wm-eds/2/footer.plain.html:0

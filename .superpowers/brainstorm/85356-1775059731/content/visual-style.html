@@ -1,0 +1,78 @@
+<h2>What visual direction feels right for this demo?</h2>
+<p class="subtitle">This is a B2B technical deep dive audience — but "stunning" is the bar. Which aesthetic direction should define all three components?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="dark-editorial" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a0f;padding:20px;min-height:180px;display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#e03,#f80);"></div>
+        <div>
+          <div style="background:#fff;height:8px;width:120px;border-radius:4px;opacity:.9;margin-bottom:4px;"></div>
+          <div style="background:#fff;height:6px;width:80px;border-radius:4px;opacity:.4;"></div>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,.1);">
+        <div style="background:linear-gradient(90deg,#e03,#f80);height:3px;width:60%;border-radius:2px;margin-bottom:10px;"></div>
+        <div style="background:rgba(255,255,255,.6);height:7px;border-radius:3px;width:85%;margin-bottom:6px;"></div>
+        <div style="background:rgba(255,255,255,.3);height:7px;border-radius:3px;width:65%;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;">
+          <div style="background:linear-gradient(135deg,#e03,#f80);border-radius:20px;padding:4px 14px;font-size:11px;color:#fff;font-weight:600;font-family:sans-serif;">Explore</div>
+          <div style="border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:11px;color:rgba(255,255,255,.6);font-family:sans-serif;">Learn more</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Dark Editorial</h3>
+      <p>Deep dark backgrounds, bold red/orange Adobe gradient accents, dramatic full-bleed imagery. Feels premium, conference-stage worthy. Image rendition effects (monochrome, fisheye) pop against dark.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="clean-enterprise" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f5f5;padding:20px;min-height:180px;display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div style="width:40px;height:12px;background:#fa0f00;border-radius:2px;"></div>
+        <div style="background:#222;height:8px;width:100px;border-radius:4px;"></div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 20px rgba(0,0,0,.08);border:1px solid #e8e8e8;">
+        <div style="display:flex;gap:12px;margin-bottom:10px;">
+          <div style="width:60px;height:60px;border-radius:8px;background:linear-gradient(135deg,#fa0f00,#ff6b35);flex-shrink:0;"></div>
+          <div>
+            <div style="background:#1a1a1a;height:8px;border-radius:4px;width:90px;margin-bottom:6px;"></div>
+            <div style="background:#888;height:6px;border-radius:4px;width:120px;margin-bottom:4px;"></div>
+            <div style="background:#ccc;height:6px;border-radius:4px;width:80px;"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <div style="background:#fa0f00;border-radius:4px;padding:4px 14px;font-size:11px;color:#fff;font-weight:600;font-family:sans-serif;">View asset</div>
+          <div style="background:#f0f0f0;border-radius:4px;padding:4px 14px;font-size:11px;color:#444;font-family:sans-serif;">Edit in Express</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Clean Enterprise</h3>
+      <p>White backgrounds, Adobe red accents, crisp card layouts. Professional, approachable, readable at a distance. Matches what teams see in the actual AEM admin UI.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="bold-split" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fff;padding:0;min-height:180px;overflow:hidden;border-radius:8px 8px 0 0;display:flex;">
+      <div style="background:linear-gradient(160deg,#fa0f00 0%,#1a0533 100%);width:45%;padding:16px;display:flex;flex-direction:column;justify-content:flex-end;">
+        <div style="background:rgba(255,255,255,.15);height:6px;border-radius:3px;width:80%;margin-bottom:5px;"></div>
+        <div style="background:rgba(255,255,255,.08);height:6px;border-radius:3px;width:60%;margin-bottom:12px;"></div>
+        <div style="background:#fff;border-radius:20px;padding:4px 12px;font-size:10px;color:#fa0f00;font-weight:700;font-family:sans-serif;display:inline-block;width:fit-content;">LAUNCH</div>
+      </div>
+      <div style="flex:1;padding:16px;display:flex;flex-direction:column;justify-content:center;gap:8px;">
+        <div style="background:#111;height:7px;border-radius:4px;width:90%;"></div>
+        <div style="background:#555;height:6px;border-radius:4px;width:75%;"></div>
+        <div style="background:#ccc;height:6px;border-radius:4px;width:60%;"></div>
+        <div style="margin-top:6px;background:#fa0f00;height:2px;width:40px;border-radius:2px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Bold Split-Screen</h3>
+      <p>Dramatic left/right panel splits — deep color or image on one side, content on the other. Great for storytelling and "before/after" moments. Each component tells a story.</p>
+    </div>
+  </div>
+
+</div>

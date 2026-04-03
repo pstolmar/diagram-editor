@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]: Experian · Brand Assets · 2026
+    - generic [ref=e5]:
+      - generic [ref=e7]: ◈
+      - generic [ref=e9]: ◉
+      - generic [ref=e11]: ◎
+      - generic [ref=e13]: ◈
+      - generic [ref=e15]: ✦
+      - generic [ref=e17]: ◉
+      - generic [ref=e19]: ◎
+      - generic [ref=e21]: ◈
+      - generic [ref=e23]: ◉
+      - generic [ref=e25]: ◎
+      - generic [ref=e27]: ◈
+      - generic [ref=e29]: ✦
+      - generic [ref=e31]: ◉
+      - generic [ref=e33]: ◎
+    - generic [ref=e34]: ↓ scroll
+  - generic [ref=e38]:
+    - generic [ref=e39]: Experian Archive · Brand Photography
+    - generic [ref=e40]:
+      - generic [ref=e41] [cursor=pointer]:
+        - generic [ref=e43]: ◈
+        - generic [ref=e44]: Campaign 01 · 2024
+      - generic [ref=e45] [cursor=pointer]:
+        - generic [ref=e47]: ◉
+        - generic [ref=e48]: Brand Shoot 12
+      - generic [ref=e49] [cursor=pointer]:
+        - generic [ref=e51]: ✦
+        - generic [ref=e52]: Event 2023 ✦
+      - generic [ref=e53] [cursor=pointer]:
+        - generic [ref=e55]: ◈
+        - generic [ref=e56]: Partner Day · Q3
+      - generic [ref=e57] [cursor=pointer]:
+        - generic [ref=e59]: ◎
+        - generic [ref=e60]: Leadership Summit
+      - generic [ref=e61] [cursor=pointer]:
+        - generic [ref=e63]: ◉
+        - generic [ref=e64]: Innovation Lab
+  - generic [ref=e66]: scroll back up to reset
+  - generic: ↓ scroll to tip the board

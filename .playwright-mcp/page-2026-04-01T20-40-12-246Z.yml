@@ -1,0 +1,6 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]
+  - main [ref=e3]:
+    - paragraph [ref=e6]:
+      - img "Skyline with filmstrip negative effect." [ref=e8]
+  - contentinfo

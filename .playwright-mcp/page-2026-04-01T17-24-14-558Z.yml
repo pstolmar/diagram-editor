@@ -1,0 +1,463 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Walmart" [ref=e9] [cursor=pointer]:
+          - /url: /
+      - list [ref=e12]:
+        - listitem [ref=e13]:
+          - paragraph [ref=e14]:
+            - link "About" [ref=e15] [cursor=pointer]:
+              - /url: /about
+        - listitem [ref=e16]:
+          - paragraph [ref=e17]:
+            - link "Purpose" [ref=e18] [cursor=pointer]:
+              - /url: /purpose
+        - listitem [ref=e19]:
+          - paragraph [ref=e20]:
+            - link "News" [ref=e21] [cursor=pointer]:
+              - /url: /newsroom
+        - listitem [ref=e22]:
+          - paragraph [ref=e23]:
+            - link "Investors" [ref=e24] [cursor=pointer]:
+              - /url: /esginvestors
+        - listitem [ref=e25] [cursor=pointer]:
+          - paragraph [ref=e26]: Suppliers
+        - listitem [ref=e27]:
+          - paragraph [ref=e28]:
+            - link "Careers" [ref=e29] [cursor=pointer]:
+              - /url: /careers
+        - listitem [ref=e30]:
+          - paragraph [ref=e31]:
+            - link "Ask Walmart" [ref=e32] [cursor=pointer]:
+              - /url: /wm-eds/2/askwalmart/askwalmart
+  - main [ref=e33]:
+    - generic [ref=e35]:
+      - heading "Media Library" [level=1] [ref=e36]
+      - generic [ref=e37]: 📖 1 min read
+      - paragraph [ref=e38]: Looking for a specific asset? Enter a keyword to refine your results.
+      - paragraph
+      - generic [ref=e39]:
+        - img [ref=e40]
+        - textbox "Search with AI — try \"blue corporate images\" or \"holiday\"..." [ref=e43]
+        - img [ref=e45]
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]: "Colors:"
+          - button "Blue" [ref=e50] [cursor=pointer]
+          - button "Yellow" [ref=e51] [cursor=pointer]
+          - button "Green" [ref=e52] [cursor=pointer]
+          - button "Red" [ref=e53] [cursor=pointer]
+          - button "Pink" [ref=e54] [cursor=pointer]
+          - button "Black" [ref=e55] [cursor=pointer]
+          - button "Purple" [ref=e56] [cursor=pointer]
+        - generic [ref=e57]:
+          - generic [ref=e58]: "Smart Tags:"
+          - button "Corporate" [ref=e59] [cursor=pointer]
+          - button "Leadership" [ref=e60] [cursor=pointer]
+          - button "Community" [ref=e61] [cursor=pointer]
+          - button "Retail" [ref=e62] [cursor=pointer]
+          - button "Sustainability" [ref=e63] [cursor=pointer]
+          - button "Holiday" [ref=e64] [cursor=pointer]
+    - generic [ref=e65]:
+      - button "All" [ref=e66] [cursor=pointer]
+      - button "Images" [ref=e67] [cursor=pointer]
+      - button "Galleries" [ref=e68] [cursor=pointer]
+      - button "Videos" [ref=e69] [cursor=pointer]
+      - button "A/B Test" [ref=e70] [cursor=pointer]:
+        - img [ref=e71]
+        - text: A/B Test
+    - generic [ref=e75]:
+      - heading "Images" [level=2] [ref=e77]
+      - list [ref=e80]:
+        - listitem [ref=e81]:
+          - generic [ref=e82]:
+            - 'img "Walmart Back-to-School: First-day fashion" [ref=e84]'
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+              - button "Quick View":
+                - img
+              - button "Download":
+                - img
+              - button "Use On Page":
+                - img
+            - generic: Expired
+            - button "CR" [ref=e85] [cursor=pointer]:
+              - img [ref=e86]
+              - generic [ref=e88]: CR
+          - generic [ref=e89]:
+            - paragraph [ref=e90]: "Walmart Back-to-School: First-day fashion"
+            - button "Review Status" [ref=e91] [cursor=pointer]:
+              - img [ref=e92]
+              - text: Review Status
+            - button "Content Fragment" [ref=e97] [cursor=pointer]:
+              - img [ref=e98]
+              - text: Content Fragment
+            - button "Firefly" [ref=e101] [cursor=pointer]:
+              - img [ref=e102]
+              - text: Firefly
+            - button "Request" [ref=e104] [cursor=pointer]:
+              - img [ref=e105]
+              - text: Request
+        - listitem [ref=e109]:
+          - generic [ref=e110]:
+            - img "Merry Like This Kevin" [ref=e112]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+              - button "Quick View":
+                - img
+              - button "Download":
+                - img
+              - button "Use On Page":
+                - img
+            - generic: New
+            - button "CR" [ref=e113] [cursor=pointer]:
+              - img [ref=e114]
+              - generic [ref=e116]: CR
+          - generic [ref=e117]:
+            - paragraph [ref=e118]: Merry Like This Kevin
+            - button "Review Status" [ref=e119] [cursor=pointer]:
+              - img [ref=e120]
+              - text: Review Status
+            - button "Content Fragment" [ref=e125] [cursor=pointer]:
+              - img [ref=e126]
+              - text: Content Fragment
+            - button "Firefly" [ref=e129] [cursor=pointer]:
+              - img [ref=e130]
+              - text: Firefly
+            - button "Request" [ref=e132] [cursor=pointer]:
+              - img [ref=e133]
+              - text: Request
+        - listitem [ref=e137]:
+          - generic [ref=e138]:
+            - img "A volunteer with the Saint Bernard Project delivers water to community members." [ref=e140]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+              - button "Quick View":
+                - img
+              - button "Download":
+                - img
+              - button "Use On Page":
+                - img
+            - img [ref=e143] [cursor=pointer]
+          - generic [ref=e146]:
+            - paragraph [ref=e147]: A volunteer with the Saint Bernard Project delivers water to community members.
+            - button "Review Status" [ref=e148] [cursor=pointer]:
+              - img [ref=e149]
+              - text: Review Status
+            - button "Content Fragment" [ref=e154] [cursor=pointer]:
+              - img [ref=e155]
+              - text: Content Fragment
+            - button "Firefly" [ref=e158] [cursor=pointer]:
+              - img [ref=e159]
+              - text: Firefly
+            - button "Request" [ref=e161] [cursor=pointer]:
+              - img [ref=e162]
+              - text: Request
+        - listitem [ref=e166]:
+          - generic [ref=e167]:
+            - img "Associates in Store - Thumbnail" [ref=e169]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+              - button "Quick View":
+                - img
+              - button "Download":
+                - img
+              - button "Use On Page":
+                - img
+            - generic: Expiring Soon
+            - button "CR" [ref=e170] [cursor=pointer]:
+              - img [ref=e171]
+              - generic [ref=e173]: CR
+          - generic [ref=e174]:
+            - paragraph [ref=e175]: Associates in Store - Thumbnail
+            - button "Review Status" [ref=e176] [cursor=pointer]:
+              - img [ref=e177]
+              - text: Review Status
+            - button "Content Fragment" [ref=e182] [cursor=pointer]:
+              - img [ref=e183]
+              - text: Content Fragment
+            - button "Firefly" [ref=e186] [cursor=pointer]:
+              - img [ref=e187]
+              - text: Firefly
+            - button "Request" [ref=e189] [cursor=pointer]:
+              - img [ref=e190]
+              - text: Request
+        - listitem [ref=e194]:
+          - generic [ref=e195]:
+            - img "Chris Nicholas" [ref=e197]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+              - button "Quick View":
+                - img
+              - button "Download":
+                - img
+              - button "Use On Page":
+                - img
+            - generic: New
+            - button "CR" [ref=e198] [cursor=pointer]:
+              - img [ref=e199]
+              - generic [ref=e201]: CR
+          - generic [ref=e202]:
+            - paragraph [ref=e203]: Chris Nicholas
+            - button "Review Status" [ref=e204] [cursor=pointer]:
+              - img [ref=e205]
+              - text: Review Status
+            - button "Content Fragment" [ref=e210] [cursor=pointer]:
+              - img [ref=e211]
+              - text: Content Fragment
+            - button "Firefly" [ref=e214] [cursor=pointer]:
+              - img [ref=e215]
+              - text: Firefly
+            - button "Request" [ref=e217] [cursor=pointer]:
+              - img [ref=e218]
+              - text: Request
+        - listitem [ref=e222]:
+          - generic [ref=e223]:
+            - paragraph [ref=e224]:
+              - img "Sam's Club Bentonville" [ref=e225]
+            - generic [ref=e226]:
+              - generic: MISSING
+              - generic: Asset unavailable — 404
+            - generic [ref=e227]:
+              - button "Open in Content Hub" [ref=e228] [cursor=pointer]:
+                - img [ref=e229]
+              - button "Smart Crop" [ref=e232] [cursor=pointer]:
+                - img [ref=e233]
+              - button "Edit in Adobe Express" [ref=e235] [cursor=pointer]:
+                - img [ref=e236]
+              - button "Find Similar" [ref=e239] [cursor=pointer]:
+                - img [ref=e240]
+              - button "Quick View" [ref=e244] [cursor=pointer]:
+                - img [ref=e245]
+              - button "Download" [ref=e248] [cursor=pointer]:
+                - img [ref=e249]
+              - button "Use On Page" [ref=e252] [cursor=pointer]:
+                - img [ref=e253]
+            - img [ref=e259] [cursor=pointer]
+            - text: MISSING
+          - generic [ref=e262]:
+            - paragraph [ref=e263]: Sam's Club Bentonville
+            - button "Review Status" [ref=e264] [cursor=pointer]:
+              - img [ref=e265]
+              - text: Review Status
+            - button "Content Fragment" [ref=e270] [cursor=pointer]:
+              - img [ref=e271]
+              - text: Content Fragment
+            - button "Firefly" [ref=e274] [cursor=pointer]:
+              - img [ref=e275]
+              - text: Firefly
+            - button "Request" [ref=e277] [cursor=pointer]:
+              - img [ref=e278]
+              - text: Request
+    - generic [ref=e282]:
+      - heading "Galleries" [level=2] [ref=e284]
+      - list [ref=e287]:
+        - listitem [ref=e288]:
+          - generic [ref=e289]:
+            - img "Patrick Mahomes, Becky G and Barbie Inspire New Ways to Shop" [ref=e291]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+            - generic: New
+          - generic [ref=e292]:
+            - paragraph [ref=e293]:
+              - strong [ref=e294]: Patrick Mahomes, Becky G and Barbie Inspire New Ways to Shop
+            - paragraph [ref=e295]: 10 Assets
+        - listitem [ref=e296]:
+          - generic [ref=e297]:
+            - img "Custom Care for HIV Community" [ref=e299]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+            - img [ref=e302] [cursor=pointer]
+          - generic [ref=e305]:
+            - paragraph [ref=e306]:
+              - strong [ref=e307]: Custom Care for HIV Community
+            - paragraph [ref=e308]: 4 Assets
+        - listitem [ref=e309]:
+          - generic [ref=e310]:
+            - img "Walmart Connect Partner Lab" [ref=e312]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+          - generic [ref=e313]:
+            - paragraph [ref=e314]:
+              - strong [ref=e315]: Walmart Connect Partner Lab
+            - paragraph [ref=e316]: 5 Assets
+        - listitem [ref=e317]:
+          - generic [ref=e318]:
+            - img "Disaster Relief" [ref=e320]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+            - generic: Expiring Soon
+          - generic [ref=e321]:
+            - paragraph [ref=e322]:
+              - strong [ref=e323]: Disaster Relief
+            - paragraph [ref=e324]: 28 Assets
+        - listitem [ref=e325]:
+          - generic [ref=e326]:
+            - img "Walmart International" [ref=e328]
+            - generic:
+              - button "Open in Content Hub":
+                - img
+              - button "Smart Crop":
+                - img
+              - button "Edit in Adobe Express":
+                - img
+              - button "Find Similar":
+                - img
+          - generic [ref=e329]:
+            - paragraph [ref=e330]:
+              - strong [ref=e331]: Walmart International
+            - paragraph [ref=e332]: 20 Assets
+    - generic [ref=e333]:
+      - heading "Videos (41)" [level=2] [ref=e335]
+      - generic [ref=e338]:
+        - generic [ref=e339]:
+          - generic [ref=e340]:
+            - img "Walmart's Global Security Operations Center B-Roll" [ref=e341]
+            - img [ref=e344] [cursor=pointer]
+            - button [ref=e346] [cursor=pointer]:
+              - img [ref=e347]
+            - button [ref=e349] [cursor=pointer]:
+              - img [ref=e350]
+          - generic [ref=e352]:
+            - generic [ref=e353]: Walmart's Global Security Operations Center B-Roll
+            - button "Download" [ref=e354] [cursor=pointer]:
+              - img [ref=e355]
+              - text: Download
+        - generic [ref=e358]:
+          - img "Walmart's Global Security Operations Center B-Roll" [ref=e360] [cursor=pointer]
+          - img "Walmart National Indigenous History Month - Local Artist Collaboration" [ref=e362] [cursor=pointer]
+          - 'img "Yo Pertenezco Video: Estrellita Estrada" [ref=e364] [cursor=pointer]'
+          - 'img "B-Roll: Walmart Automated Perishable Distribution Center in Wellford, SC" [ref=e366] [cursor=pointer]'
+          - img "Doug McMillon Executive Message Belonging" [ref=e368] [cursor=pointer]
+          - img "Walmart Community Recycling Unit" [ref=e370] [cursor=pointer]
+  - contentinfo [ref=e371]:
+    - generic [ref=e374]:
+      - paragraph [ref=e375]: Copyright © 2026 Walmart Inc. All rights reserved.
+      - paragraph [ref=e376]:
+        - link "Privacy & Security" [ref=e377] [cursor=pointer]:
+          - /url: https://corporate.walmart.com/privacy-security
+        - text: /
+        - link "California Supply Chain Act" [ref=e378] [cursor=pointer]:
+          - /url: https://corporate.walmart.com/california-supply-chain-act
+        - text: /
+        - link "Terms of Use" [ref=e379] [cursor=pointer]:
+          - /url: https://corporate.walmart.com/terms-of-use
+        - text: /
+        - link "Do Not Sell or Share My Personal Information" [ref=e380] [cursor=pointer]:
+          - /url: https://corporate.walmart.com/privacy-security/do-not-sell-my-personal-information
+  - button "Configure AEM Features" [ref=e381] [cursor=pointer]:
+    - img [ref=e382]
+  - generic:
+    - generic:
+      - strong: AEM Feature Toggles
+      - text: Select features to preview
+    - generic:
+      - generic:
+        - checkbox "AI Search Smart tags, colors & people search" [checked]
+        - generic:
+          - generic: AI Search
+          - generic: Smart tags, colors & people search
+      - generic:
+        - checkbox "Dynamic Media Smart crop & renditions" [checked]
+        - generic:
+          - generic: Dynamic Media
+          - generic: Smart crop & renditions
+      - generic:
+        - checkbox "Workfront Review & approval panel" [checked]
+        - generic:
+          - generic: Workfront
+          - generic: Review & approval panel
+      - generic:
+        - checkbox "Analytics Engagement dashboard" [checked]
+        - generic:
+          - generic: Analytics
+          - generic: Engagement dashboard
+      - generic:
+        - checkbox "Content Fragment CF model editor" [checked]
+        - generic:
+          - generic: Content Fragment
+          - generic: CF model editor
+      - generic:
+        - checkbox "Firefly Generative fill overlay" [checked]
+        - generic:
+          - generic: Firefly
+          - generic: Generative fill overlay
+      - generic:
+        - checkbox "AEM Forms Asset request forms" [checked]
+        - generic:
+          - generic: AEM Forms
+          - generic: Asset request forms
+      - generic:
+        - checkbox "A/B Test Experiment configurator" [checked]
+        - generic:
+          - generic: A/B Test
+          - generic: Experiment configurator
+    - generic:
+      - button "Apply"
+      - button "Clear All"
+  - button "Toggle Analytics Overlay" [ref=e385] [cursor=pointer]:
+    - img [ref=e386]

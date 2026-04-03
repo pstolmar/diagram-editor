@@ -1,0 +1,46 @@
+- generic [ref=e6]:
+  - complementary [ref=e7]:
+    - generic [ref=e10]: Sign in to access the Experience Cloud for your organization.
+  - generic [ref=e12]:
+    - main [ref=e16]:
+      - generic [ref=e18]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - img "Information"
+            - generic [ref=e24]: Do you usually sign in with Facebook, Google or Apple? Enter your email below and we'll help you sign in.
+          - button "Close" [ref=e26] [cursor=pointer]: ×
+        - generic [ref=e27]:
+          - generic [ref=e29]:
+            - img [ref=e30]
+            - generic [ref=e31]: Experience Cloud
+          - generic [ref=e32]:
+            - heading "Sign in" [level=1] [ref=e34]
+            - generic [ref=e36]:
+              - generic [ref=e37]:
+                - paragraph [ref=e38]:
+                  - text: New user?
+                  - link "Create an account" [ref=e39] [cursor=pointer]
+                - generic [ref=e40]:
+                  - generic [ref=e42]: Email address
+                  - textbox "Email address" [active] [ref=e46]
+              - button "Continue" [ref=e50] [cursor=pointer]
+            - list [ref=e52]:
+              - listitem [ref=e53]:
+                - link "Get help signing in" [ref=e54] [cursor=pointer]
+    - button "Contact us" [ref=e55] [cursor=pointer]
+  - complementary:
+    - link "Stock The Licensing Project" [ref=e56] [cursor=pointer]:
+      - /url: https://stock.adobe.com/ro/contributor/207275860/thelicensingproject?as_channel=adobe_com&as_source=susi&as_campclass=brand&as_campaign=stock_images&as_audience=users&as_content=contributor_page
+      - generic [ref=e57]:
+        - img "Stock" [ref=e59]
+        - text: The Licensing Project
+  - generic [ref=e60]:
+    - generic [ref=e61]: Copyright © 2025 Adobe. All rights reserved.
+    - link "Terms of Use" [ref=e62] [cursor=pointer]
+    - link "Cookie preferences" [ref=e63] [cursor=pointer]:
+      - /url: "#CookiePreferences"
+    - link "Privacy" [ref=e64] [cursor=pointer]:
+      - /url: https://www.adobe.com/go/privacy_policy_linkfree_en
+    - link "Do not sell or share my personal information" [ref=e65] [cursor=pointer]:
+      - /url: https://www.adobe.com/privacy/us-rights-linkfree.html

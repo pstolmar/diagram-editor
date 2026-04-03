@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Components — Full Concept</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0f0f1a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ─── PAGE WRAPPER ─── */
+.page { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+.page-title { font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 8px; }
+.page-heading { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.page-sub { font-size: 13px; color: rgba(255,255,255,.45); margin-bottom: 40px; line-height: 1.6; }
+
+/* ─── COMPONENT CARD WRAPPER ─── */
+.demo-component {
+  background: #12121f;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255,255,255,.07);
+  position: relative;
+}
+.demo-label {
+  position: absolute; top: 16px; left: 20px; z-index: 10;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(8px);
+  border-radius: 20px; padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+.authoring-badge {
+  position: absolute; top: 16px; right: 20px; z-index: 10;
+  font-size: 9px; font-weight: 600; letter-spacing: .08em;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(8px);
+  border-radius: 20px; padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.5);
+}
+
+/* ═══════════════════════════════
+   COMPONENT 1: TABBED HERO
+   ═══════════════════════════════ */
+.tabbed-hero {
+  background: #194088;
+  min-height: 380px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dot grid */
+.tabbed-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* Animated glow orb */
+.hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,100% { opacity: .3; transform: scale(1); }
+  50% { opacity: .55; transform: scale(1.2); }
+}
+
+/* Sparkle canvas overlay hint */
+.sparkle-hint {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+  animation: scan 2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scan {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* Sparkle dots */
+.sparkle {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  animation: sparkle-pop 1.8s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes sparkle-pop {
+  0% { opacity: 0; transform: scale(0) translateY(0); }
+  30% { opacity: 1; transform: scale(1) translateY(-6px); }
+  100% { opacity: 0; transform: scale(0.5) translateY(-20px); }
+}
+
+/* Tab bar */
+.hero-tabs {
+  position: relative; z-index: 2;
+  display: flex; gap: 0;
+  padding: 20px 24px 0;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+.hero-tab {
+  padding: 10px 20px;
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,.5);
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: all .2s;
+  position: relative;
+  letter-spacing: .02em;
+}
+.hero-tab.active {
+  color: #fff;
+  background: rgba(255,255,255,.08);
+}
+.hero-tab.active::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+  background: var(--tab-accent, #c1188b);
+  border-radius: 2px 2px 0 0;
+}
+.hero-tab:nth-child(1) { --tab-accent: #c1188b; }
+.hero-tab:nth-child(2) { --tab-accent: #00d4c8; }
+.hero-tab:nth-child(3) { --tab-accent: #7b2dff; }
+
+/* Hero content */
+.hero-content {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 32px; padding: 32px 24px;
+  align-items: center;
+}
+.hero-text {}
+.hero-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--tab-accent, #c1188b); margin-bottom: 10px;
+}
+.hero-h1 {
+  font-size: 32px; font-weight: 800; line-height: 1.1; margin-bottom: 14px;
+  letter-spacing: -.02em;
+}
+.hero-h1 span { color: var(--tab-accent, #c1188b); }
+.hero-body {
+  font-size: 14px; color: rgba(255,255,255,.65); line-height: 1.65; margin-bottom: 20px;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--tab-accent, #c1188b);
+  color: #fff; font-weight: 700; font-size: 13px;
+  border-radius: 6px; padding: 10px 22px;
+  letter-spacing: .02em;
+}
+.hero-cta-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,.55); font-size: 13px; margin-left: 16px;
+}
+
+/* Hero visual panel */
+.hero-visual {
+  position: relative;
+  height: 180px;
+  background: rgba(255,255,255,.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.hero-visual-inner {
+  text-align: center;
+}
+.hero-visual-icon {
+  font-size: 36px; margin-bottom: 8px; display: block;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.hero-visual-label {
+  font-size: 11px; color: rgba(255,255,255,.4); letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* Effect label */
+.effect-indicator {
+  position: absolute; bottom: 8px; right: 10px;
+  font-size: 9px; color: rgba(255,255,255,.35);
+  font-family: monospace; letter-spacing: .08em;
+}
+
+/* Author fields note */
+.author-fields {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 12px 24px;
+  background: rgba(0,0,0,.2);
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.author-field {
+  font-size: 9px; font-weight: 600; letter-spacing: .08em;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 4px; padding: 3px 8px;
+  color: rgba(255,255,255,.5);
+}
+.author-field.highlight { background: rgba(193,24,139,.12); border-color: rgba(193,24,139,.3); color: #c1188b; }
+
+/* ═══════════════════════════════
+   COMPONENT 2: ASSET GALLERY
+   ═══════════════════════════════ */
+.asset-gallery {
+  background: linear-gradient(160deg, #0a1e0e 0%, #091a28 100%);
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+  min-height: 300px;
+}
+.asset-gallery::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(0,212,200,.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.gallery-glow {
+  position: absolute; top: -60px; right: -60px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: #00d4c8; filter: blur(80px); opacity: .12;
+  pointer-events: none;
+}
+.section-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+  margin-bottom: 6px; position: relative; z-index: 1;
+}
+.section-title {
+  font-size: 24px; font-weight: 800; letter-spacing: -.02em;
+  margin-bottom: 6px; position: relative; z-index: 1;
+}
+.section-body {
+  font-size: 13px; color: rgba(255,255,255,.5); line-height: 1.6;
+  margin-bottom: 24px; max-width: 480px; position: relative; z-index: 1;
+}
+
+.asset-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; position: relative; z-index: 1;
+}
+.asset-card {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid rgba(0,212,200,.15);
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+.asset-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,212,200,.15); }
+.asset-thumb {
+  height: 90px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.asset-thumb::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,.5));
+}
+.rendition-tag {
+  position: absolute; bottom: 6px; left: 6px; z-index: 1;
+  font-size: 8px; font-weight: 700; letter-spacing: .08em;
+  background: #00d4c8; color: #050d1f;
+  border-radius: 3px; padding: 2px 5px;
+}
+.asset-info { padding: 8px 10px; }
+.asset-name { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+.asset-meta { font-size: 9px; color: rgba(255,255,255,.35); font-family: monospace; }
+
+.rendition-controls {
+  display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;
+  position: relative; z-index: 1;
+}
+.rendition-btn {
+  padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  letter-spacing: .05em; cursor: pointer;
+  border: 1px solid rgba(0,212,200,.3);
+  background: rgba(0,212,200,.08); color: #00d4c8;
+  transition: all .15s;
+}
+.rendition-btn.active {
+  background: #00d4c8; color: #050d1f;
+  box-shadow: 0 0 12px rgba(0,212,200,.4);
+}
+
+/* ═══════════════════════════════
+   COMPONENT 3: CREATIVE LAUNCH
+   ═══════════════════════════════ */
+.creative-launch {
+  background: linear-gradient(160deg, #0d0620 0%, #150a30 100%);
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+  min-height: 300px;
+}
+.creative-launch::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(123,45,255,.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.cl-glow-1 {
+  position: absolute; top: -40px; left: -40px;
+  width: 250px; height: 250px; border-radius: 50%;
+  background: #7b2dff; filter: blur(70px); opacity: .15;
+  pointer-events: none;
+}
+.cl-glow-2 {
+  position: absolute; bottom: -40px; right: 0;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: #ff2d7b; filter: blur(70px); opacity: .12;
+  pointer-events: none;
+}
+
+.creative-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 32px; align-items: center; position: relative; z-index: 1;
+}
+
+.express-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(123,45,255,.25);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(123,45,255,.1);
+}
+.express-card-header {
+  background: linear-gradient(135deg, rgba(123,45,255,.2), rgba(255,45,123,.1));
+  padding: 24px;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 140px;
+  position: relative;
+  overflow: hidden;
+}
+.express-card-header::before {
+  content: '✦';
+  position: absolute;
+  font-size: 200px; opacity: .03;
+  top: -60px; right: -40px;
+  color: #fff;
+}
+
+/* Confetti dots (static preview of effect) */
+.confetti-preview {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.confetti-dot {
+  position: absolute; border-radius: 2px;
+  animation: confetti-fall 2s linear infinite;
+  opacity: 0;
+}
+@keyframes confetti-fall {
+  0% { opacity: 0; transform: translateY(-10px) rotate(0deg); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(120px) rotate(360deg); }
+}
+
+.express-logo-large {
+  font-size: 48px; font-weight: 900;
+  background: linear-gradient(135deg, #7b2dff, #ff2d7b);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  position: relative; z-index: 1;
+}
+.express-card-body { padding: 16px 20px; }
+.express-card-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.express-card-sub { font-size: 12px; color: rgba(255,255,255,.45); margin-bottom: 14px; line-height: 1.5; }
+.express-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #7b2dff, #ff2d7b);
+  border: none; border-radius: 8px; padding: 10px;
+  color: #fff; font-weight: 700; font-size: 13px;
+  cursor: pointer; letter-spacing: .03em;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.confetti-label {
+  font-size: 9px; color: rgba(255,255,255,.3);
+  text-align: center; margin-top: 6px; font-family: monospace;
+}
+
+.creative-text { }
+.ai-steps {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+}
+.ai-steps::before {
+  content: '';
+  position: absolute; left: 13px; top: 24px; bottom: 24px; width: 1px;
+  background: linear-gradient(to bottom, rgba(123,45,255,.5), rgba(255,45,123,.2));
+}
+.ai-step {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 8px 0;
+  animation: step-in 0.4s ease both;
+}
+.ai-step:nth-child(1) { animation-delay: 0s; }
+.ai-step:nth-child(2) { animation-delay: .15s; }
+.ai-step:nth-child(3) { animation-delay: .3s; }
+.ai-step:nth-child(4) { animation-delay: .45s; }
+@keyframes step-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.step-dot {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #7b2dff, rgba(123,45,255,.3));
+  border: 1px solid rgba(123,45,255,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; position: relative; z-index: 1;
+}
+.step-content {}
+.step-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.step-desc { font-size: 11px; color: rgba(255,255,255,.4); line-height: 1.5; }
+
+/* ─── INSIGHTS BANNER ─── */
+.insights-banner {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 32px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.insight-icon { font-size: 18px; margin-top: 2px; }
+.insight-text { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.6; }
+.insight-text strong { color: rgba(255,255,255,.8); }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-title">AEM Innovations Technical Deep Dive — Demo Page Design</div>
+  <div class="page-heading">Three Components, One Narrative</div>
+  <div class="page-sub">Experian-style navy base · per-component accent · authorable animated effects · 100 Lighthouse</div>
+
+  <!-- Experian context -->
+  <div class="insights-banner">
+    <div class="insight-icon">💡</div>
+    <div class="insight-text">
+      <strong>Why this resonates for Experian:</strong> They run 5 product ecosystems across 32 countries — credit, identity, business, automotive, marketing. Their pain: getting high-fidelity campaign pages live fast at scale without developer bottleneck, while maintaining brand consistency and performance. These three components directly demo that: author complex effects in UE → publish to EDS → 100 Lighthouse.
+    </div>
+  </div>
+
+  <!-- ── COMPONENT 1: TABBED HERO ── -->
+  <div class="demo-component">
+    <div class="demo-label" style="color:#c1188b;">Component 1 · Tabbed Hero</div>
+    <div class="authoring-badge">✦ sparkles + fireworks on load</div>
+
+    <div class="tabbed-hero" style="--tab-accent:#c1188b;">
+      <!-- Glow orb -->
+      <div class="hero-glow" style="width:400px;height:400px;background:#194088;top:-100px;left:-100px;"></div>
+      <div class="hero-glow" style="width:200px;height:200px;background:#c1188b;top:20%;right:10%;animation-delay:1.5s;"></div>
+
+      <!-- Sparkle dots (representative) -->
+      <div class="sparkle" style="top:15%;left:20%;animation-delay:0s;"></div>
+      <div class="sparkle" style="top:30%;left:55%;animation-delay:.4s;"></div>
+      <div class="sparkle" style="top:60%;left:80%;animation-delay:.8s;"></div>
+      <div class="sparkle" style="top:70%;left:35%;animation-delay:1.2s;"></div>
+      <div class="sparkle" style="top:25%;left:75%;animation-delay:1.6s;"></div>
+      <div class="sparkle-hint"></div>
+
+      <!-- Tab bar -->
+      <div class="hero-tabs">
+        <div class="hero-tab active" style="--tab-accent:#c1188b;">Assets & DAM</div>
+        <div class="hero-tab" style="--tab-accent:#00d4c8;">Creative Cloud</div>
+        <div class="hero-tab" style="--tab-accent:#7b2dff;">Agentic AI</div>
+      </div>
+
+      <!-- Content -->
+      <div class="hero-content">
+        <div class="hero-text">
+          <div class="hero-eyebrow" style="color:#c1188b;">AEM Assets · Delivery API</div>
+          <div class="hero-h1">Smart assets,<br><span style="color:#c1188b;">live renditions.</span></div>
+          <div class="hero-body">Pull from AEM Assets, apply fisheyeglass, monochrome, or smart-crop renditions on the fly. Same asset. Any output. Authored in minutes.</div>
+          <div>
+            <span class="hero-cta" style="background:#c1188b;">Explore renditions</span>
+            <span class="hero-cta-secondary">Watch demo →</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-visual-inner">
+            <span class="hero-visual-icon">🖼️</span>
+            <div class="hero-visual-label">AEM Asset Preview</div>
+          </div>
+          <div class="effect-indicator">effect: sparkles · on: load</div>
+        </div>
+      </div>
+
+      <div class="author-fields">
+        <div class="author-field highlight">tab.label</div>
+        <div class="author-field highlight">tab.accentColor</div>
+        <div class="author-field highlight">tab.effect ← sparkles | fireworks | confetti | none</div>
+        <div class="author-field">tab.heading</div>
+        <div class="author-field">tab.body</div>
+        <div class="author-field">tab.ctaLabel</div>
+        <div class="author-field">tab.ctaUrl</div>
+        <div class="author-field">tab.assetRef</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMPONENT 2: ASSET GALLERY ── -->
+  <div class="demo-component">
+    <div class="demo-label" style="color:#00d4c8;">Component 2 · Asset Intelligence Gallery</div>
+    <div class="authoring-badge">✦ shimmer reveal on rendition switch</div>
+
+    <div class="asset-gallery">
+      <div class="gallery-glow"></div>
+      <div class="section-eyebrow" style="color:#00d4c8;">AEM Assets Delivery API</div>
+      <div class="section-title">Every rendition, instantly.</div>
+      <div class="section-body">Author picks assets and which renditions to expose. Visitors switch between them live. Zero performance cost — all via URL parameter API.</div>
+
+      <div class="asset-grid">
+        <div class="asset-card">
+          <div class="asset-thumb" style="background:linear-gradient(135deg,#0d2e2c,#0a4a47);">
+            🏙️
+            <div class="rendition-tag">ORIGINAL</div>
+          </div>
+          <div class="asset-info">
+            <div class="asset-name">city-skyline.jpg</div>
+            <div class="asset-meta">delivery-api / original</div>
+          </div>
+        </div>
+        <div class="asset-card" style="border-color:rgba(0,212,200,.4);box-shadow:0 0 16px rgba(0,212,200,.15);">
+          <div class="asset-thumb" style="background:linear-gradient(135deg,#1a1a1a,#333);filter:grayscale(1);">
+            🏙️
+            <div class="rendition-tag" style="background:#00d4c8;">MONO</div>
+          </div>
+          <div class="asset-info">
+            <div class="asset-name">city-skyline.jpg</div>
+            <div class="asset-meta">renditions / monochrome</div>
+          </div>
+        </div>
+        <div class="asset-card">
+          <div class="asset-thumb" style="background:linear-gradient(135deg,#0d2e2c,#0a4a47);transform:perspective(200px) rotateY(5deg);">
+            🏙️
+            <div class="rendition-tag">FISHEYE</div>
+          </div>
+          <div class="asset-info">
+            <div class="asset-name">city-skyline.jpg</div>
+            <div class="asset-meta">renditions / fisheyeglass</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rendition-controls">
+        <div class="rendition-btn active">Original</div>
+        <div class="rendition-btn">Monochrome</div>
+        <div class="rendition-btn">Fisheye</div>
+        <div class="rendition-btn">Smart Crop</div>
+        <div class="rendition-btn">Web Optimized</div>
+      </div>
+
+      <div class="author-fields" style="background:transparent;padding:12px 0 0;border-top:1px solid rgba(0,212,200,.1);margin-top:16px;">
+        <div class="author-field" style="background:rgba(0,212,200,.08);border-color:rgba(0,212,200,.25);color:#00d4c8;">assetRefs (multi)</div>
+        <div class="author-field" style="background:rgba(0,212,200,.08);border-color:rgba(0,212,200,.25);color:#00d4c8;">enabledRenditions</div>
+        <div class="author-field">sectionTitle</div>
+        <div class="author-field">sectionBody</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMPONENT 3: CREATIVE LAUNCH ── -->
+  <div class="demo-component">
+    <div class="demo-label" style="color:#a06bff;">Component 3 · Express Creative Launch</div>
+    <div class="authoring-badge">🎊 confetti on Express launch</div>
+
+    <div class="creative-launch">
+      <div class="cl-glow-1"></div>
+      <div class="cl-glow-2"></div>
+
+      <div class="creative-layout">
+        <div>
+          <div class="section-eyebrow" style="color:#a06bff;">Adobe Express · Creative Cloud</div>
+          <div class="section-title">From AEM to creative<br>in one click.</div>
+          <div class="section-body">Author configures the campaign asset and Express template in UE. Visitors click to open Express with asset preloaded — ready to remix, personalize, and share.</div>
+
+          <div class="ai-steps">
+            <div class="ai-step">
+              <div class="step-dot">1</div>
+              <div class="step-content">
+                <div class="step-title">Author picks asset + Express template in UE</div>
+                <div class="step-desc">Reference picker pulls from AEM Assets DAM</div>
+              </div>
+            </div>
+            <div class="ai-step">
+              <div class="step-dot">2</div>
+              <div class="step-content">
+                <div class="step-title">EDS block renders campaign card</div>
+                <div class="step-desc">100 Lighthouse — zero runtime overhead</div>
+              </div>
+            </div>
+            <div class="ai-step">
+              <div class="step-dot">3</div>
+              <div class="step-content">
+                <div class="step-title">Visitor clicks → Express opens pre-loaded</div>
+                <div class="step-desc">Asset + template context passed via deep link</div>
+              </div>
+            </div>
+            <div class="ai-step">
+              <div class="step-dot" style="background:linear-gradient(135deg,#ff2d7b,rgba(255,45,123,.3));">🎊</div>
+              <div class="step-content">
+                <div class="step-title">Confetti fires on launch</div>
+                <div class="step-desc">canvas-confetti · 7KB · lazy loaded · authored: on/off</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="express-card">
+            <div class="express-card-header">
+              <!-- Confetti preview dots -->
+              <div class="confetti-preview">
+                <div class="confetti-dot" style="width:6px;height:10px;background:#7b2dff;top:0;left:20%;animation-delay:0s;"></div>
+                <div class="confetti-dot" style="width:8px;height:6px;background:#ff2d7b;top:0;left:40%;animation-delay:.3s;"></div>
+                <div class="confetti-dot" style="width:5px;height:8px;background:#00d4c8;top:0;left:60%;animation-delay:.6s;"></div>
+                <div class="confetti-dot" style="width:7px;height:5px;background:#ffb800;top:0;left:75%;animation-delay:.9s;"></div>
+                <div class="confetti-dot" style="width:4px;height:9px;background:#7b2dff;top:0;left:85%;animation-delay:1.2s;"></div>
+              </div>
+              <div class="express-logo-large">Xd</div>
+            </div>
+            <div class="express-card-body">
+              <div class="express-card-title">Summer Campaign 2026</div>
+              <div class="express-card-sub">Brand-approved template · Prefilled with your AEM asset · Ready to personalize</div>
+              <button class="express-btn">✦ Edit in Adobe Express</button>
+              <div class="confetti-label">→ triggers confetti + opens Express deep link</div>
+            </div>
+          </div>
+
+          <div class="author-fields" style="background:transparent;padding:12px 0 0;border-top:1px solid rgba(123,45,255,.1);margin-top:12px;">
+            <div class="author-field" style="background:rgba(123,45,255,.1);border-color:rgba(123,45,255,.3);color:#a06bff;">assetRef</div>
+            <div class="author-field" style="background:rgba(123,45,255,.1);border-color:rgba(123,45,255,.3);color:#a06bff;">expressTemplateUrl</div>
+            <div class="author-field" style="background:rgba(123,45,255,.1);border-color:rgba(123,45,255,.3);color:#a06bff;">confetti ← on/off</div>
+            <div class="author-field">cardTitle</div>
+            <div class="author-field">ctaLabel</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
