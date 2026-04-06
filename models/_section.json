@@ -50,7 +50,14 @@
         "hero",
         "cards",
         "columns",
-        "fragment"
+        "fragment",
+        "card-reveal-hero",
+        "filmstrip",
+        "corkboard",
+        "polaroid-corkboard",
+        "image-compare",
+        "metrics-grid",
+        "callout-panel"
       ]
     }
   ]
