@@ -13,6 +13,13 @@ if [ ! -f "$PLAN_FILE" ]; then
 fi
 
 PLAN=$(cat "$PLAN_FILE")
+PLAN_LINES=$(wc -l < "$PLAN_FILE")
+
+# Extract MISER level
+MISER_LEVEL=0
+if echo "$MARKERS" | grep -qE '\[MISER=([0-9]+)\]'; then
+  MISER_LEVEL=$(echo "$MARKERS" | grep -oE '\[MISER=([0-9]+)\]' | grep -oE '[0-9]+')
+fi
 
 # Extract special markers
 DEPLOY=0
@@ -41,6 +48,43 @@ fi
 YOLO_NOTE=""
 if [ "$YOLO" -eq 1 ]; then
   YOLO_NOTE="Skip screenshots and video steps."
+fi
+
+# ── route_task: recommend model tier based on PLAN.md and MISER level ──────────
+route_task() {
+  local tier="sonnet"
+  local reason="default"
+
+  if [ "$MISER_LEVEL" -eq 11 ]; then
+    tier="haiku"; reason="MISER=11"
+  elif [ "$MISER_LEVEL" -ge 8 ]; then
+    tier="haiku"; reason="MISER>=8"
+  elif echo "$PLAN" | grep -qE '\b(DECISION|DESIGN|ARCHITECTURE|BLOCKED)\b'; then
+    tier="sonnet"; reason="plan contains DECISION/DESIGN/ARCHITECTURE/BLOCKED"
+  elif [ "$PLAN_LINES" -gt 60 ]; then
+    tier="sonnet"; reason="plan > 60 lines"
+  elif [ "$MISER_LEVEL" -ge 5 ]; then
+    tier="haiku"; reason="MISER>=5"
+  fi
+
+  echo "$tier|$reason"
+}
+
+ROUTE=$(route_task)
+ROUTE_TIER="${ROUTE%|*}"
+ROUTE_REASON="${ROUTE#*|}"
+echo "🔀 routing: $ROUTE_TIER (reason: $ROUTE_REASON)"
+
+# Select model flag
+MODEL_FLAG=""
+if [ "$ROUTE_TIER" = "haiku" ]; then
+  MODEL_FLAG="--model claude-haiku-4-5-20251001"
+fi
+
+# Permission mode: high MISER = acceptEdits (fewer prompts, faster); low = default (safer)
+PERM_MODE="acceptEdits"
+if [ "$MISER_LEVEL" -le 3 ]; then
+  PERM_MODE="default"
 fi
 
 # Build prompt: markers + PLAN.md content + codebase hints
@@ -72,7 +116,61 @@ echo "🚀 tokenmiser: dispatching to claude -p (markers: ${MARKERS:-none})"
 echo "   Plan: $(head -3 "$PLAN_FILE" | tail -1)"
 echo ""
 
-echo "$PROMPT" | claude -p
+# Capture output to temp file for token extraction
+TMPOUT=$(mktemp)
+# shellcheck disable=SC2086
+echo "$PROMPT" | claude -p --permission-mode "$PERM_MODE" \
+  --output-format stream-json --verbose $MODEL_FLAG 2>&1 | tee "$TMPOUT"
+
+# ── Token usage summary ──────────────────────────────────────────────────────
+if command -v jq &>/dev/null; then
+  # Extract modelUsage from the stream-json output (last occurrence)
+  INPUT_TOKENS=$(grep '"modelUsage"' "$TMPOUT" | tail -1 | jq -r '.modelUsage.inputTokens // 0' 2>/dev/null || echo 0)
+  OUTPUT_TOKENS=$(grep '"modelUsage"' "$TMPOUT" | tail -1 | jq -r '.modelUsage.outputTokens // 0' 2>/dev/null || echo 0)
+  CACHE_READ=$(grep '"modelUsage"' "$TMPOUT" | tail -1 | jq -r '.modelUsage.cacheReadTokens // 0' 2>/dev/null || echo 0)
+  CACHE_WRITE=$(grep '"modelUsage"' "$TMPOUT" | tail -1 | jq -r '.modelUsage.cacheWriteTokens // 0' 2>/dev/null || echo 0)
+
+  if [ "$INPUT_TOKENS" -gt 0 ] || [ "$OUTPUT_TOKENS" -gt 0 ]; then
+    GROUNDTRUTH=~/bin/groundtruth
+    if [ -x "$GROUNDTRUTH" ]; then
+      COST_IN=$("$GROUNDTRUTH" math eval "3 * $INPUT_TOKENS / 1000000" 2>/dev/null || echo "?")
+      COST_OUT=$("$GROUNDTRUTH" math eval "15 * $OUTPUT_TOKENS / 1000000" 2>/dev/null || echo "?")
+      COST_CR=$("$GROUNDTRUTH" math eval "0.30 * $CACHE_READ / 1000000" 2>/dev/null || echo "0")
+      COST_CW=$("$GROUNDTRUTH" math eval "3.75 * $CACHE_WRITE / 1000000" 2>/dev/null || echo "0")
+      TOTAL_COST=$("$GROUNDTRUTH" math eval "$COST_IN + $COST_OUT + $COST_CR + $COST_CW" 2>/dev/null || echo "?")
+    else
+      TOTAL_COST="?"
+    fi
+
+    echo ""
+    echo "💰 tokens: ${INPUT_TOKENS}in ${OUTPUT_TOKENS}out  cost: ~\$$TOTAL_COST"
+
+    if [ "$INPUT_TOKENS" -gt 160000 ]; then
+      echo "⚠ large context ($(( INPUT_TOKENS / 1000 ))k tokens)"
+    fi
+
+    # Merge cost summary into last line of .tokenmiser/runs.json
+    RUNS_FILE=".tokenmiser/runs.json"
+    if [ -f "$RUNS_FILE" ] && command -v jq &>/dev/null; then
+      LAST_LINE=$(tail -1 "$RUNS_FILE")
+      if [ -n "$LAST_LINE" ]; then
+        UPDATED=$(echo "$LAST_LINE" | jq \
+          --argjson inp "$INPUT_TOKENS" \
+          --argjson out "$OUTPUT_TOKENS" \
+          --arg cost "$TOTAL_COST" \
+          '. + {tokenUsage: {inputTokens: $inp, outputTokens: $out}, approxCostUsd: $cost}' 2>/dev/null || echo "")
+        if [ -n "$UPDATED" ]; then
+          # Replace last line
+          TMPFILE=$(mktemp)
+          head -n -1 "$RUNS_FILE" > "$TMPFILE"
+          echo "$UPDATED" >> "$TMPFILE"
+          mv "$TMPFILE" "$RUNS_FILE"
+        fi
+      fi
+    fi
+  fi
+fi
+rm -f "$TMPOUT"
 
 # Post-completion: deploy if requested
 if [ "$DEPLOY" -eq 1 ]; then

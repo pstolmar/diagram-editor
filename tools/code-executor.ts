@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { promisify } from "util";
 import { exec as execCb } from "child_process";
+import crypto from "crypto";
 
 const execAsync = promisify(execCb);
 
@@ -46,6 +47,17 @@ type StepResult = {
 const JOB_PATH = path.join(".claude", "job.json");
 const LOG_DIR = path.join(".claude", "logs");
 const REPORT_PATH = "REPORT.md";
+const TOKENMISER_DIR = ".tokenmiser";
+const RUNS_LOG = path.join(TOKENMISER_DIR, "runs.json");
+
+/** Infer model tier from tool name */
+function inferModel(tool: string): string {
+  if (["bash", "npmScript", "eds.buildJson", "eds.lint", "playwright.test"].includes(tool)) return "bash";
+  if (["codex.write", "codex.patch"].includes(tool)) return "codex";
+  if (tool === "fj.snippet") return "fj";
+  if (tool === "log.escalate") return "system";
+  return "unknown";
+}
 
 function ensureDirs() {
   if (!fs.existsSync(".claude")) {
@@ -53,6 +65,9 @@ function ensureDirs() {
   }
   if (!fs.existsSync(LOG_DIR)) {
     fs.mkdirSync(LOG_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(TOKENMISER_DIR)) {
+    fs.mkdirSync(TOKENMISER_DIR, { recursive: true });
   }
 }
 
@@ -442,7 +457,41 @@ async function writeReport(job: JobSpec, results: StepResult[]) {
   console.log(`\n📄 Wrote ${REPORT_PATH}`);
 }
 
+/** Extract MISER level from markers env var or job id, returns null if absent */
+function extractMiserLevel(job: JobSpec): number | null {
+  const src = [job.id ?? "", job.kind ?? ""].join(" ");
+  const m = src.match(/MISER=(\d+)/i);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+interface RunStep {
+  name: string;
+  tool: string;
+  model: string;
+  durationMs: number;
+  status: "ok" | "failed" | "skipped";
+}
+
+interface RunRecord {
+  id: string;
+  timestamp: string;
+  jobId: string;
+  miserLevel: number | null;
+  steps: RunStep[];
+  totalDurationMs: number;
+  failedSteps: number;
+  skippedSteps: number;
+  escalations: string[];
+  escalationRecommended?: boolean;
+}
+
+async function appendRunRecord(record: RunRecord): Promise<void> {
+  const line = JSON.stringify(record) + "\n";
+  await fs.promises.appendFile(RUNS_LOG, line, "utf8");
+}
+
 async function main() {
+  const jobStartMs = Date.now();
   try {
     ensureDirs();
     const job = await loadJob();
@@ -453,6 +502,7 @@ async function main() {
     };
 
     const results: StepResult[] = [];
+    const escalations: string[] = [];
 
     for (const phase of job.phases ?? []) {
       console.log(`\n==============================`);
@@ -462,6 +512,12 @@ async function main() {
       for (const step of phase.steps ?? []) {
         const res = await handleStep(phase, step, constraints);
         results.push(res);
+
+        // Collect escalation messages from log.escalate steps
+        if (step.tool === "log.escalate" && res.status === "ok" && res.stdout) {
+          escalations.push(res.stdout);
+        }
+
         if (constraints.stopOnError && res.status === "failed") {
           console.log(
             `⚠️ Stopping further steps in this job because stopOnError=true`
@@ -474,6 +530,35 @@ async function main() {
     await writeReport(job, results);
 
     const failed = results.filter((r) => r.status === "failed");
+    const skipped = results.filter((r) => r.status === "skipped");
+    const totalDurationMs = Date.now() - jobStartMs;
+
+    // Build and append run record
+    const runRecord: RunRecord = {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      jobId: job.id ?? "unknown",
+      miserLevel: extractMiserLevel(job),
+      steps: results.map((r) => ({
+        name: r.stepName,
+        tool: r.tool,
+        model: inferModel(r.tool),
+        durationMs: r.durationMs,
+        status: r.status,
+      })),
+      totalDurationMs,
+      failedSteps: failed.length,
+      skippedSteps: skipped.length,
+      escalations,
+    };
+
+    if (failed.length >= 2) {
+      runRecord.escalationRecommended = true;
+      console.log(`\x1b[33m⚡ Next run may benefit from a higher model tier (${failed.length} steps failed)\x1b[0m`);
+    }
+
+    await appendRunRecord(runRecord);
+
     if (failed.length > 0) {
       console.error(
         `\n❌ Job completed with ${failed.length} failed step(s). See REPORT.md and .claude/logs/ for details.`
