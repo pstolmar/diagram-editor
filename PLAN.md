@@ -2,114 +2,148 @@
 
 ## Task
 
-Implement **Tokenmiser v2 — Phase 3**: the live dashboard EDS block and terminal status commands.
-Then re-implement the three demo components (image-compare, metrics-grid, callout-panel) via
-tokenmiser so we can compare the tokenmiser-built output against the manually-built originals.
+Build three new EDS blocks for the diagram-editor site. Each is a standalone, fully UE-authorable
+component with animations. Do NOT modify any existing blocks.
 
-Full spec: `docs/superpowers/specs/2026-04-06-tokenmiser-v2-design.md`
+## Part A — Tabbed Feature Showcase (`blocks/tabbed-feature/`)
 
-## Part A — Dashboard EDS block
+A marketing component: left-side vertical tab list (up to 6 tabs), clicking a tab animates in
+a panel on the right with a large image + headline + 2–3 bullet points. Tabs auto-advance every
+5 seconds with an animated progress bar; hovering pauses the timer.
 
-### Create `blocks/tokenmiser-dashboard/tokenmiser-dashboard.js`
+### Block HTML structure (UE authored as rows)
 
-A standard EDS block. The `decorate(block)` function:
-1. Ignores block DOM content (the block is the UI container).
-2. Fetches `/.tokenmiser/runs.json` (relative to site root) as text, splits on newlines,
-   parses each non-empty line as JSON. Gracefully handles fetch errors (show empty state).
-3. Renders a dashboard UI with:
+Each row = one tab:
+| Tab Label | Image | Heading | Body (bullets, `\n`-separated) |
 
-   **Header row:**
-   - Title: "Tokenmiser Runs"
-   - Total runs count badge
-   - Total cost: sum of `approxCostUsd` across all records
-   - Estimated savings vs Opus 4 Extended baseline:
-     Opus 4 input=$15/MTok output=$75/MTok; for each run use tokenUsage if present,
-     else estimate Opus cost as 5× the approxCostUsd. Show as "$X.XX saved (NN%)".
+### Files
 
-   **Runs table** (newest first):
-   | # | Time | Job | Model | Steps | Cost | Savings | Status |
-   - Time: relative ("2 min ago", "3 hr ago", "yesterday")
-   - Job: jobId truncated to 24 chars
-   - Model: routing tier (haiku/sonnet, from first step's model or infer from miserLevel)
-   - Steps: "12 ok / 0 fail / 1 skip"
-   - Cost: approxCostUsd formatted as "$0.0042"
-   - Savings: vs Opus baseline
-   - Status: green ✓ / red ✗ / yellow ⚡ (escalation)
+- `blocks/tabbed-feature/tabbed-feature.js`
+  - Parse rows: col 0 = tab label, col 1 = image, col 2 = heading, col 3 = body text
+  - Build left tab list and right panel area
+  - On tab click/auto-advance: swap active panel with CSS class transition
+  - Auto-advance timer: `setInterval` paused on `mouseenter`, resumed on `mouseleave`
+  - Progress bar: `<div class="tf-progress">` under active tab, animated via CSS
+  - `moveInstrumentation(block, ...)` for UE live editing support
 
-   **Footer:** "Powered by Tokenmiser v2 · MISER routing active"
+- `blocks/tabbed-feature/tabbed-feature.css`
+  - Two-column layout (tabs left ~30%, panel right ~70%), mobile stacks vertically
+  - Tab list: dark sidebar (#0f172a bg), active tab highlighted with blue left border
+  - Panel: fade + slight translateX entrance transition on tab switch
+  - Progress bar: `animation: tf-progress-fill linear` keyed to tab interval duration
+  - Accent: #0070f3 blue for active states
 
-4. Auto-refreshes every 30s by re-fetching runs.json.
+- `blocks/tabbed-feature/_tabbed-feature.json`
+  - UE model: 4-cell row (tabLabel text, image image, heading text, body text)
+  - filters: empty (no sub-blocks)
 
-### Create `blocks/tokenmiser-dashboard/tokenmiser-dashboard.css`
+### Add to `models/_section.json` filters array: "tabbed-feature"
 
-Dark-themed dashboard card. Use CSS custom properties for colors.
-Key styles: dark bg (#0f172a), monospace values, colored badges for status,
-accent colors matching the metrics-grid palette (#0070f3 blue, #059669 green, #dc2626 red).
-Responsive: table collapses to cards on mobile.
+---
 
-### Create `blocks/tokenmiser-dashboard/_tokenmiser-dashboard.json`
+## Part B — Sticky Scroll Narrative (`blocks/scroll-narrative/`)
 
-UE model: no editable fields (block is self-contained). Minimal definition + empty filters.
+"Apple-style" storytelling: a tall pinned section where a LEFT panel sticks to the viewport
+while the user scrolls through stacked RIGHT panels. As each right panel enters the viewport,
+the left panel content swaps to match. Great for "how it works" flows.
 
-### Add block to `models/_section.json` section filter
+### Files
 
-Add "tokenmiser-dashboard" to the section filter components array.
-Then run: npm run build:json
+- `blocks/scroll-narrative/scroll-narrative.js`
+  - Parse rows: col 0 = pinned-side content (text/heading/image), col 1 = scroll-side content
+  - Build a wrapper with `position: sticky` left panel and a tall right scroll area
+  - Use IntersectionObserver on each right panel to detect which is most visible
+  - On intersection: update left panel content with crossfade transition
+  - Fallback for UE Author iframe: show all panels stacked (no sticky)
 
-### Create `demo/tokenmiser-dash.html`
+- `blocks/scroll-narrative/scroll-narrative.css`
+  - `.sn-wrapper`: CSS Grid, two columns (40% sticky / 60% scroll)
+  - `.sn-sticky`: `position: sticky; top: 10vh; height: 80vh`
+  - `.sn-panel`: min-height 60vh per scroll panel, padding
+  - Left panel crossfade: `opacity` + `transform: translateY(8px)` transition on content swap
+  - Mobile: single column, no sticky, sequential stacking
+  - Color scheme: clean white/light grey, accent #0070f3
 
-A demo page at `/demo/tokenmiser-dash` with the dashboard block.
-Follow the same HTML structure as `demo/tokenmiser.html`.
+- `blocks/scroll-narrative/_scroll-narrative.json`
+  - UE model: 2-cell row (leftContent text, rightContent text)
+  - filters: empty
 
-## Part B — Terminal status commands in `tokenmiser` script
+### Add to `models/_section.json` filters array: "scroll-narrative"
 
-Add these to the `tokenmiser` script (detect via first argument pattern):
+---
 
-- `--status`: read last line of `.tokenmiser/runs.json`, print:
-  ```
-  Last run: <jobId> · <time ago> · <N> steps · cost: ~$<N> · savings: ~$<N> vs Opus4
-  Model: <tier>   MISER: <N>   Status: ok/failed
-  ```
-- `--cost`: read all lines, print cost table (last 10 runs, newest first):
-  ```
-  Run                    Model   Tokens       Cost     Opus4 est  Saved
-  cleanup_filmstrip...   sonnet  2k/341       $0.005   $0.025     80%
-  ```
-- `--history`: same as --cost but show all runs, more columns
-- `--export`: generate `dashboard.html` at repo root as a self-contained HTML file
-  that embeds the runs data inline (no server needed). Open it with `open dashboard.html`.
+## Part C — Testimonials Mosaic (`blocks/testimonials-mosaic/`)
 
-Detect these before the PLAN.md check:
-```bash
-if [ "${1:-}" = "--status" ]; then ... exit 0; fi
+Masonry-style grid of testimonial cards. Filter chips at top (All + any categories found in
+data). Cards animate in with stagger on load. "Show more" reveals next batch of 6.
+
+### Files
+
+- `blocks/testimonials-mosaic/testimonials-mosaic.js`
+  - Parse rows: col 0 = quote, col 1 = name, col 2 = role+company (e.g. "VP · Adobe"),
+    col 3 = category tag, col 4 = optional star rating (1–5)
+  - Build filter chips from unique categories
+  - Render cards with staggered `animation-delay` (0, 0.05s, 0.1s…)
+  - Filter click: add/remove `hidden` class on cards matching category, animate remaining
+  - "Show more" button: reveal next 6 hidden-by-count cards
+  - Stars: render filled/empty star spans
+
+- `blocks/testimonials-mosaic/testimonials-mosaic.css`
+  - Grid: `columns: 3` CSS multi-column masonry, gap 1.5rem, mobile → 1 column
+  - Cards: `break-inside: avoid`, white bg, border-radius 12px, box-shadow,
+    hover: lift (translateY(-4px))
+  - Stagger entrance: `@keyframes tm-card-in` (opacity 0→1, translateY 16px→0)
+  - Filter chips: pill buttons, active chip has #0070f3 bg
+  - Stars: color #f59e0b
+  - "Show more" button: centered, outline style
+
+- `blocks/testimonials-mosaic/_testimonials-mosaic.json`
+  - UE model: 5-cell row (quote text, name text, role text, category text, stars text)
+  - filters: empty
+
+### Add to `models/_section.json` filters array: "testimonials-mosaic"
+
+---
+
+## Part D — Wire up `demo/tokenmiser.html` additions and `demo/tokenmiser-dash.html`
+
+Add BELOW the existing `-tm` section in `demo/tokenmiser.html`:
+
+### Tabbed Feature Showcase demo
+
+```html
+<div class="tabbed-feature">
+  <div><div>Platform Analytics</div><div><picture><img src="/blocks/diagram-editor/filmstrip.html" alt="Analytics"></picture></div><div>Real-time insights</div><div>Track every token\nSee cost per run\nOptimize routing live</div></div>
+  <div><div>Smart Routing</div><div><picture><img src="" alt="Routing"></picture></div><div>Model ladder, automated</div><div>Free tools first\nHaiku for simple tasks\nOpus only when essential</div></div>
+  <div><div>Cost Dashboard</div><div><picture><img src="" alt="Dashboard"></picture></div><div>Know what you spend</div><div>Per-run breakdown\nSavings vs Opus 4\nExport to HTML</div></div>
+</div>
 ```
 
-## Part C — Re-implement the three components via tokenmiser (for comparison)
+### Scroll Narrative demo
 
-IMPORTANT: Do NOT overwrite the existing blocks. Create parallel versions:
-- `blocks/image-compare-tm/` — tokenmiser-built image compare
-- `blocks/metrics-grid-tm/` — tokenmiser-built metrics grid
-- `blocks/callout-panel-tm/` — tokenmiser-built callout panel
+```html
+<div class="scroll-narrative">
+  <div><div>Step 1: Plan decomposes automatically</div><div>PLAN.md gets parsed by a lightweight Haiku call into a structured JobSpec with phases and parallel groups.</div></div>
+  <div><div>Step 2: Cheapest tool handles each step</div><div>bash for shell commands, codex for mechanical writes, fj.snippet for AEM JSON — no LLM needed.</div></div>
+  <div><div>Step 3: Parallel phases cut wall-clock time</div><div>Independent blocks build simultaneously across Node workers. Three blocks in the time of one.</div></div>
+</div>
+```
 
-Each should be a full re-implementation from scratch using only the PLAN spec as input
-(no looking at existing block code). Suffix "-tm" on all CSS classes too.
+### Testimonials Mosaic demo
 
-Add these to `demo/tokenmiser.html` BELOW the existing three components,
-with a heading "Tokenmiser-Built Versions" so both versions are visible side-by-side.
+```html
+<div class="testimonials-mosaic">
+  <div><div>Tokenmiser cut our build costs by 80% on the first run.</div><div>Peter S.</div><div>Engineer · Adobe</div><div>Engineering</div><div>5</div></div>
+  <div><div>The parallel executor is a game-changer for multi-block sprints.</div><div>Demo User</div><div>Architect · EDS</div><div>Architecture</div><div>5</div></div>
+  <div><div>FluffyJaws + Codex combo produces clean AEM JSON every time.</div><div>Test Author</div><div>Content · AEM</div><div>AEM</div><div>4</div></div>
+  <div><div>MISER=8 gives 90% of Sonnet quality at Haiku prices.</div><div>Cost Analyst</div><div>Finance · Demo</div><div>Engineering</div><div>4</div></div>
+</div>
+```
 
-Add all three to `models/_section.json` and run `npm run build:json`.
-Add UE model JSON for each.
+---
 
-## Verification
+## Part E — Verification
 
 1. `npm run build:json`
 2. `npm run lint` — 0 errors
-3. `npx playwright test tests/image-compare.spec.ts tests/metrics-grid.spec.ts tests/callout-panel.spec.ts`
-4. Print cost summary at end
-
-## Constraints
-
-- PATCH mode where possible, full create for new files
-- Read existing files before editing any
-- Do not modify existing block files (image-compare, metrics-grid, callout-panel)
-- The -tm blocks are fresh implementations, not copies
+3. Confirm all three blocks load at `http://localhost:3000/demo/tokenmiser` (section "New Blocks")

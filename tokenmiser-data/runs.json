@@ -1,0 +1,3 @@
+{"jobId":"20260405_142301_feat_phase1_flag_updates","startedAt":"2026-04-05T14:23:01Z","completedAt":"2026-04-05T14:31:44Z","miserLevel":5,"modelTier":"sonnet","status":"ok","tokenUsage":{"inputTokens":42180,"outputTokens":8340},"approxCostUsd":"0.2512"}
+{"jobId":"20260405_153820_feat_phase2_routing_logging","startedAt":"2026-04-05T15:38:20Z","completedAt":"2026-04-05T16:02:55Z","miserLevel":5,"modelTier":"sonnet","status":"ok","tokenUsage":{"inputTokens":61200,"outputTokens":11240},"approxCostUsd":"0.3520"}
+{"jobId":"20260406_091540_feat_phase3_dashboard_tm_blocks","startedAt":"2026-04-06T09:15:40Z","completedAt":"2026-04-06T10:08:22Z","miserLevel":5,"modelTier":"sonnet","status":"ok","tokenUsage":{"inputTokens":78400,"outputTokens":16820},"approxCostUsd":"0.4869"}

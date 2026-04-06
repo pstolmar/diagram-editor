@@ -15,6 +15,7 @@ type JobStep = {
 
 type JobPhase = {
   name: string;
+  parallel?: boolean;
   steps: JobStep[];
 };
 
@@ -55,6 +56,9 @@ function inferModel(tool: string): string {
   if (["bash", "npmScript", "eds.buildJson", "eds.lint", "playwright.test"].includes(tool)) return "bash";
   if (["codex.write", "codex.patch"].includes(tool)) return "codex";
   if (tool === "fj.snippet") return "fj";
+  if (tool === "haiku") return "haiku";
+  if (tool === "sonnet") return "sonnet";
+  if (tool === "groundtruth") return "groundtruth";
   if (tool === "log.escalate") return "system";
   return "unknown";
 }
@@ -256,15 +260,58 @@ async function handleStep(
       }
 
       case "fj.snippet": {
-        const msg = `fj.snippet not yet wired — skipped`;
-        console.warn(`⚠️ ${phasePrefix} ${msg}`);
-        return {
-          ...resultBase,
-          status: "skipped",
-          endedAt: nowIso(),
-          durationMs: Date.now() - start,
-          errorMessage: msg,
-        };
+        const query = step.args?.query ?? step.description ?? stepName;
+        const target = step.args?.target as string | undefined;
+        const fjPrompt = `You are an AEM Edge Delivery Services expert. Output ONLY the requested code or JSON, no explanation, no markdown fences.\n\nRequest: ${query}`;
+        command = `echo ${JSON.stringify(fjPrompt)} | claude -p --model claude-haiku-4-5-20251001`;
+        console.log(`  🔍 fj.snippet: ${query.substring(0, 60)}`);
+        const fjOut = await runCommand(command, perStepTimeout);
+        stdout = fjOut.stdout.trim();
+        stderr = fjOut.stderr;
+        if (target && stdout) {
+          await fs.promises.mkdir(path.dirname(path.resolve(target)), { recursive: true });
+          await fs.promises.writeFile(target, stdout, "utf8");
+          console.log(`  → wrote to ${target}`);
+        }
+        break;
+      }
+
+      case "haiku":
+      case "sonnet": {
+        const modelId = step.tool === "haiku" ? "claude-haiku-4-5-20251001" : "";
+        const modelFlag = modelId ? `--model ${modelId}` : "";
+        let llmPrompt = step.args?.prompt ?? step.description ?? stepName;
+        const files = step.args?.files as string[] | undefined;
+        if (files?.length) {
+          const contents = await Promise.all(
+            files.map(async (f) => {
+              try {
+                return `\n\n--- ${f} ---\n${await fs.promises.readFile(f, "utf8")}`;
+              } catch {
+                return "";
+              }
+            })
+          );
+          llmPrompt += contents.join("");
+        }
+        command = `echo ${JSON.stringify(llmPrompt)} | claude -p ${modelFlag} --permission-mode acceptEdits`.trim();
+        console.log(`  🤖 ${step.tool}: ${llmPrompt.substring(0, 60)}...`);
+        const llmOut = await runCommand(command, perStepTimeout);
+        stdout = llmOut.stdout;
+        stderr = llmOut.stderr;
+        break;
+      }
+
+      case "groundtruth": {
+        const expr = step.args?.expr ?? step.args?.expression ?? step.description ?? "";
+        const subCmd = (step.args?.subcommand as string | undefined) ?? "math eval";
+        const gtBin = path.join(process.env.HOME ?? "", "bin", "groundtruth");
+        command = `${gtBin} ${subCmd} ${JSON.stringify(String(expr))}`;
+        console.log(`  🔢 groundtruth: ${expr}`);
+        const gtOut = await runCommand(command, perStepTimeout);
+        stdout = gtOut.stdout;
+        stderr = gtOut.stderr;
+        break;
       }
 
       case "log.escalate": {
@@ -490,6 +537,23 @@ async function appendRunRecord(record: RunRecord): Promise<void> {
   await fs.promises.appendFile(RUNS_LOG, line, "utf8");
 }
 
+async function runPhase(
+  phase: JobPhase,
+  constraints: JobConstraints
+): Promise<StepResult[]> {
+  if (phase.parallel && phase.steps.length > 1) {
+    console.log(`  ⚡ ${phase.steps.length} steps running in parallel`);
+    return Promise.all(phase.steps.map((step) => handleStep(phase, step, constraints)));
+  }
+  const results: StepResult[] = [];
+  for (const step of phase.steps ?? []) {
+    const res = await handleStep(phase, step, constraints);
+    results.push(res);
+    if (constraints.stopOnError && res.status === "failed") break;
+  }
+  return results;
+}
+
 async function main() {
   const jobStartMs = Date.now();
   try {
@@ -506,24 +570,23 @@ async function main() {
 
     for (const phase of job.phases ?? []) {
       console.log(`\n==============================`);
-      console.log(`🧩 Phase: ${phase.name}`);
+      console.log(`🧩 Phase: ${phase.name}${phase.parallel ? " ⚡ PARALLEL" : ""}`);
       console.log(`==============================`);
 
-      for (const step of phase.steps ?? []) {
-        const res = await handleStep(phase, step, constraints);
-        results.push(res);
+      const phaseResults = await runPhase(phase, constraints);
+      results.push(...phaseResults);
 
-        // Collect escalation messages from log.escalate steps
-        if (step.tool === "log.escalate" && res.status === "ok" && res.stdout) {
+      // Collect escalation messages from log.escalate steps
+      for (const res of phaseResults) {
+        const stepRef = phase.steps.find((s) => (s.name || s.tool) === res.stepName);
+        if (stepRef?.tool === "log.escalate" && res.status === "ok" && res.stdout) {
           escalations.push(res.stdout);
         }
+      }
 
-        if (constraints.stopOnError && res.status === "failed") {
-          console.log(
-            `⚠️ Stopping further steps in this job because stopOnError=true`
-          );
-          break;
-        }
+      if (constraints.stopOnError && phaseResults.some((r) => r.status === "failed")) {
+        console.log(`⚠️ Stopping job because a phase failed and stopOnError=true`);
+        break;
       }
     }
 

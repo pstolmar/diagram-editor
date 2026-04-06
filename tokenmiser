@@ -265,6 +265,54 @@ ROUTE_TIER="${ROUTE%|*}"
 ROUTE_REASON="${ROUTE#*|}"
 echo "🔀 routing: $ROUTE_TIER (reason: $ROUTE_REASON)"
 
+# ── Decompose PLAN.md into JobSpec if we have the TypeScript executor ─────────
+USE_EXECUTOR=0
+if command -v npx &>/dev/null && [ -f "tools/decompose.ts" ]; then
+  USE_EXECUTOR=1
+fi
+
+if [ "$USE_EXECUTOR" -eq 1 ]; then
+  echo ""
+  echo "🔬 Decomposing PLAN.md into job spec (haiku)..."
+  if MISER_LEVEL="$MISER_LEVEL" MARKERS="$MARKERS" npx --yes tsx tools/decompose.ts "$PLAN_FILE" 2>&1; then
+    echo ""
+    echo "📋 Job phases:"
+    if command -v jq &>/dev/null && [ -f ".claude/job.json" ]; then
+      jq -r '.phases[] | "  \(if .parallel then "⚡" else "→" end) \(.name): \(.steps | length) steps [\([.steps[].tool] | unique | join("+")] | join(""))]"' .claude/job.json 2>/dev/null || true
+    fi
+    echo ""
+    echo "⚙️  Executing job spec..."
+    mkdir -p .tokenmiser
+    JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
+    RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\"}" >> .tokenmiser/runs.json
+    TMPOUT=$(mktemp)
+    npx --yes tsx tools/code-executor.ts 2>&1 | tee "$TMPOUT"
+    RUN_END="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    # Update run record status
+    if command -v jq &>/dev/null && [ -f ".tokenmiser/runs.json" ]; then
+      LAST_LINE=$(tail -1 .tokenmiser/runs.json)
+      if [ -n "$LAST_LINE" ]; then
+        UPDATED=$(echo "$LAST_LINE" | jq --arg end "$RUN_END" '. + {completedAt: $end, status: "ok"}' 2>/dev/null || echo "")
+        if [ -n "$UPDATED" ]; then
+          TMPFILE=$(mktemp)
+          head -n -1 .tokenmiser/runs.json > "$TMPFILE"
+          echo "$UPDATED" >> "$TMPFILE"
+          mv "$TMPFILE" .tokenmiser/runs.json
+        fi
+      fi
+    fi
+    cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
+    rm -f "$TMPOUT"
+    # Skip the rest of the tokenmiser claude -p flow
+    echo ""
+    echo "✅ Executor pipeline complete."
+    exit 0
+  else
+    echo "⚠️  Decompose failed, falling back to claude -p"
+  fi
+fi
+
 # Select model flag
 MODEL_FLAG=""
 if [ "$ROUTE_TIER" = "haiku" ]; then
@@ -370,6 +418,7 @@ if command -v jq &>/dev/null; then
   fi
 fi
 rm -f "$TMPOUT"
+cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
 
 # Post-completion: deploy if requested
 if [ "$DEPLOY" -eq 1 ]; then
