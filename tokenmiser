@@ -282,10 +282,11 @@ if [ "$USE_EXECUTOR" -eq 1 ]; then
     fi
     echo ""
     echo "⚙️  Executing job spec..."
-    mkdir -p .tokenmiser
+    mkdir -p .tokenmiser tokenmiser-data
     JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
     RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\"}" >> .tokenmiser/runs.json
+    RUN_DESC="$(grep -m1 '^[^#]' "$PLAN_FILE" | head -c 80 | sed 's/"/\\"/g')"
+    printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\",\"description\":\"${RUN_DESC}\"}" >> .tokenmiser/runs.json
     TMPOUT=$(mktemp)
     npx --yes tsx tools/code-executor.ts 2>&1 | tee "$TMPOUT"
     RUN_END="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -356,10 +357,11 @@ echo "   Plan: $(head -3 "$PLAN_FILE" | tail -1)"
 echo ""
 
 # ── Write initial run record before dispatch ─────────────────────────────────
-mkdir -p .tokenmiser
+mkdir -p .tokenmiser tokenmiser-data
 JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
 RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\"}" >> .tokenmiser/runs.json
+RUN_DESC="$(grep -m1 '^[^#]' "$PLAN_FILE" | head -c 80 | sed 's/"/\\"/g')"
+printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\",\"description\":\"${RUN_DESC}\"}" >> .tokenmiser/runs.json
 
 # Capture output to temp file for token extraction
 TMPOUT=$(mktemp)

@@ -69,6 +69,23 @@ function getTs(run) {
   return run.completedAt || run.startedAt || run.timestamp || null;
 }
 
+/** Extract a short readable description from a jobId like 20260406_091540_feat_phase3_dash */
+function jobDesc(jobId) {
+  // Strip leading date/time prefix (YYYYMMDD_HHMMSS_)
+  const noDate = jobId.replace(/^\d{8}_\d{6}_/, '');
+  // Convert underscores to spaces, title-case, limit to 5 words
+  const words = noDate.replace(/_/g, ' ').split(' ').slice(0, 5);
+  return words.join(' ') || jobId.substring(0, 28);
+}
+
+/** Extract YYYY-MM-DD from jobId or timestamp */
+function jobDate(jobId, ts) {
+  const m = jobId.match(/^(\d{4})(\d{2})(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  if (ts) return ts.substring(0, 10);
+  return '';
+}
+
 function renderHeroStats(runs) {
   const totalCost = runs.reduce((s, r) => s + parseFloat(r.approxCostUsd || 0), 0);
   const totalOpus = runs.reduce((s, r) => s + opusCost(r), 0);
@@ -109,14 +126,15 @@ function renderDashboard(block, runs) {
     const opus = opusCost(run);
     const runSaved = opus - actualCost;
     const runPct = opus > 0 ? Math.round((runSaved / opus) * 100) : 0;
-    const jobLabel = (run.jobId || '—').substring(0, 24);
     const timeStr = relativeTime(getTs(run));
+    const desc = run.description || jobDesc(run.jobId || '');
+    const dateStr = jobDate(run.jobId || '', getTs(run));
 
     return `
       <tr>
         <td class="tm-num">${runs.length - i}</td>
-        <td class="tm-time">${timeStr}</td>
-        <td class="tm-job" title="${run.jobId || ''}">${jobLabel}</td>
+        <td class="tm-time">${timeStr}<br><span class="tm-date">${dateStr}</span></td>
+        <td class="tm-desc" title="${run.jobId || ''}">${desc}</td>
         <td class="tm-model">${inferModel(run)}</td>
         <td class="tm-steps">${stepSummary(run)}</td>
         <td class="tm-cost">${formatCost(run.approxCostUsd)}</td>
@@ -132,7 +150,7 @@ function renderDashboard(block, runs) {
   block.innerHTML = `
     <div class="tm-dashboard">
       <div class="tm-header">
-        <h2 class="tm-title">Tokenmiser Runs</h2>
+        <h2 class="tm-title">TokenMiser Runs</h2>
         <div class="tm-header-meta">
           <span class="tm-badge tm-badge-info">${runs.length} run${runs.length !== 1 ? 's' : ''}</span>
           <span class="tm-stat tm-stat-savings">
@@ -145,14 +163,14 @@ function renderDashboard(block, runs) {
         <table class="tm-table">
           <thead>
             <tr>
-              <th>#</th><th>Time</th><th>Job</th><th>Model</th>
+              <th>#</th><th>Time</th><th>Task</th><th>Model</th>
               <th>Steps</th><th>Cost</th><th>Savings</th><th>Status</th>
             </tr>
           </thead>
           <tbody>${emptyRow}${rows}</tbody>
         </table>
       </div>
-      <div class="tm-footer">Powered by Tokenmiser v2 · MISER routing active</div>
+      <div class="tm-footer">Powered by TokenMiser v2 · MISER routing active</div>
     </div>`;
 }
 
