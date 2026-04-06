@@ -38,6 +38,24 @@ if echo "$MARKERS" | grep -q '\[YOLO\]'; then
   YOLO=1
 fi
 
+AUTO_APPROVE=0
+if echo "$MARKERS" | grep -q '\[AUTO_APPROVE\]'; then
+  AUTO_APPROVE=1
+fi
+# YOLO implies auto-approve
+if [ "$YOLO" -eq 1 ]; then
+  AUTO_APPROVE=1
+fi
+
+LINEAR=0
+REACTIVE=0
+if echo "$MARKERS" | grep -q '\[LINEAR\]'; then
+  LINEAR=1
+fi
+if echo "$MARKERS" | grep -q '\[REACTIVE\]'; then
+  REACTIVE=1
+fi
+
 # Build MISER 11 note if applicable
 MISER11_NOTE=""
 if echo "$MARKERS" | grep -q '\[MISER=11\]'; then
@@ -48,6 +66,14 @@ fi
 YOLO_NOTE=""
 if [ "$YOLO" -eq 1 ]; then
   YOLO_NOTE="Skip screenshots and video steps."
+fi
+
+# Build mode note
+MODE_NOTE=""
+if [ "$LINEAR" -eq 1 ]; then
+  MODE_NOTE="EXECUTION MODE: LINEAR. Before writing any code, output a complete annotated step list showing which tool/model handles each step. Then execute all steps in order."
+elif [ "$REACTIVE" -eq 1 ]; then
+  MODE_NOTE="EXECUTION MODE: REACTIVE. Default to the cheapest approach (bash edits, no LLM calls where possible). Only escalate to a more capable model if a step fails or is genuinely ambiguous. Prefer local tools first."
 fi
 
 # ── route_task: recommend model tier based on PLAN.md and MISER level ──────────
@@ -81,10 +107,10 @@ if [ "$ROUTE_TIER" = "haiku" ]; then
   MODEL_FLAG="--model claude-haiku-4-5-20251001"
 fi
 
-# Permission mode: high MISER = acceptEdits (fewer prompts, faster); low = default (safer)
-PERM_MODE="acceptEdits"
-if [ "$MISER_LEVEL" -le 3 ]; then
-  PERM_MODE="default"
+# Permission mode: explicit --auto-approve flag, otherwise default (prompts for risky ops)
+PERM_MODE="default"
+if [ "$AUTO_APPROVE" -eq 1 ]; then
+  PERM_MODE="acceptEdits"
 fi
 
 # Build prompt: markers + PLAN.md content + codebase hints
@@ -93,6 +119,7 @@ ${MARKERS:+$MARKERS
 
 }${MISER11_NOTE:+$MISER11_NOTE
 }${YOLO_NOTE:+$YOLO_NOTE
+}${MODE_NOTE:+$MODE_NOTE
 }You are an expert AEM Edge Delivery Services engineer working in this repository.
 Read the following PLAN.md and execute it completely.
 
