@@ -68,16 +68,22 @@ The JSON must match this exact schema:
   const userPrompt = `Decompose this PLAN.md into a JobSpec JSON:\n\n${plan}`;
   const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
+  // Write prompt to temp file to avoid shell argument-length limits
+  const tmpFile = `/tmp/tm-decompose-${Date.now()}.txt`;
+  await fs.promises.writeFile(tmpFile, fullPrompt, "utf8");
+
   let raw: string;
   try {
     const result = await execAsync(
-      `echo ${JSON.stringify(fullPrompt)} | claude -p --model claude-haiku-4-5-20251001`,
+      `claude -p --model claude-haiku-4-5-20251001 < "${tmpFile}"`,
       { encoding: "utf8", maxBuffer: 2 * 1024 * 1024 }
     );
     raw = result.stdout.trim();
   } catch (err: any) {
     console.error(`❌ decompose: claude call failed: ${err?.message || err}`);
     process.exit(1);
+  } finally {
+    await fs.promises.unlink(tmpFile).catch(() => {});
   }
 
   // Strip markdown fences if model wrapped output

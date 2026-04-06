@@ -91,6 +91,13 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+/** Write content to a temp file; return its path. Caller must unlink when done. */
+async function writeTmp(content: string): Promise<string> {
+  const tmpPath = `/tmp/tm-executor-${Date.now()}-${Math.random().toString(36).slice(2)}.txt`;
+  await fs.promises.writeFile(tmpPath, content, "utf8");
+  return tmpPath;
+}
+
 async function runCommand(
   command: string,
   timeoutSeconds: number | undefined
@@ -224,12 +231,17 @@ async function handleStep(
         }
         const target = step.args?.target ?? "";
         const description = step.description ?? step.args?.description ?? stepName;
-        command = `codex -q ${JSON.stringify(description)} --full-auto`;
+        const writeTmpFile = await writeTmp(description);
+        command = `cat "${writeTmpFile}" | codex --approval-mode full-auto`;
         if (target) command += ` -- ${JSON.stringify(target)}`;
-        console.log(`$ ${command}`);
-        const out = await runCommand(command, perStepTimeout);
-        stdout = out.stdout;
-        stderr = out.stderr;
+        console.log(`$ ${command.replace(writeTmpFile, '<prompt>')}`);
+        try {
+          const out = await runCommand(command, perStepTimeout);
+          stdout = out.stdout;
+          stderr = out.stderr;
+        } finally {
+          await fs.promises.unlink(writeTmpFile).catch(() => {});
+        }
         break;
       }
 
@@ -249,13 +261,19 @@ async function handleStep(
           };
         }
         const patchTarget = step.args?.target ?? "";
-        const prompt = step.args?.prompt ?? step.description ?? stepName;
-        command = `codex -q ${JSON.stringify(prompt)} --full-auto`;
+        const patchPrompt = step.args?.prompt ?? step.description ?? stepName;
+        const patchTmp = await writeTmp(patchPrompt);
+        // codex reads prompt from stdin; --approval-mode full-auto for non-interactive
+        command = `cat "${patchTmp}" | codex --approval-mode full-auto`;
         if (patchTarget) command += ` -- ${JSON.stringify(patchTarget)}`;
-        console.log(`$ ${command}`);
-        const out = await runCommand(command, perStepTimeout);
-        stdout = out.stdout;
-        stderr = out.stderr;
+        console.log(`$ ${command.replace(patchTmp, '<prompt>')}`);
+        try {
+          const out = await runCommand(command, perStepTimeout);
+          stdout = out.stdout;
+          stderr = out.stderr;
+        } finally {
+          await fs.promises.unlink(patchTmp).catch(() => {});
+        }
         break;
       }
 
@@ -263,11 +281,16 @@ async function handleStep(
         const query = step.args?.query ?? step.description ?? stepName;
         const target = step.args?.target as string | undefined;
         const fjPrompt = `You are an AEM Edge Delivery Services expert. Output ONLY the requested code or JSON, no explanation, no markdown fences.\n\nRequest: ${query}`;
-        command = `echo ${JSON.stringify(fjPrompt)} | claude -p --model claude-haiku-4-5-20251001`;
+        const fjTmp = await writeTmp(fjPrompt);
+        command = `claude -p --model claude-haiku-4-5-20251001 < "${fjTmp}"`;
         console.log(`  🔍 fj.snippet: ${query.substring(0, 60)}`);
-        const fjOut = await runCommand(command, perStepTimeout);
-        stdout = fjOut.stdout.trim();
-        stderr = fjOut.stderr;
+        try {
+          const fjOut = await runCommand(command, perStepTimeout);
+          stdout = fjOut.stdout.trim();
+          stderr = fjOut.stderr;
+        } finally {
+          await fs.promises.unlink(fjTmp).catch(() => {});
+        }
         if (target && stdout) {
           await fs.promises.mkdir(path.dirname(path.resolve(target)), { recursive: true });
           await fs.promises.writeFile(target, stdout, "utf8");
@@ -294,11 +317,16 @@ async function handleStep(
           );
           llmPrompt += contents.join("");
         }
-        command = `echo ${JSON.stringify(llmPrompt)} | claude -p ${modelFlag} --permission-mode acceptEdits`.trim();
+        const llmTmp = await writeTmp(llmPrompt);
+        command = `claude -p ${modelFlag} --permission-mode acceptEdits < "${llmTmp}"`.trim();
         console.log(`  🤖 ${step.tool}: ${llmPrompt.substring(0, 60)}...`);
-        const llmOut = await runCommand(command, perStepTimeout);
-        stdout = llmOut.stdout;
-        stderr = llmOut.stderr;
+        try {
+          const llmOut = await runCommand(command, perStepTimeout);
+          stdout = llmOut.stdout;
+          stderr = llmOut.stderr;
+        } finally {
+          await fs.promises.unlink(llmTmp).catch(() => {});
+        }
         break;
       }
 
