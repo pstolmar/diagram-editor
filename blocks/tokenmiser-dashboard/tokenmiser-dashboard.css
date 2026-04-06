@@ -59,6 +59,102 @@
   font-weight: 600;
 }
 
+/* ── Live job bar ───────────────────────────────────────────────────────── */
+.tm-badge-live {
+  background: #14532d;
+  color: #86efac;
+  animation: tm-live-fade 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes tm-live-fade {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+.tm-live-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  font-family: var(--tm-font-mono);
+  border-bottom: 1px solid var(--tm-border);
+}
+
+.tm-live-busy {
+  background: rgb(34 197 94 / 4%);
+  border-bottom-color: rgb(34 197 94 / 20%);
+}
+
+.tm-live-idle {
+  background: transparent;
+  color: #475569;
+}
+
+.tm-live-job {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tm-live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tm-live-dot-idle  { background: #475569; }
+.tm-live-dot-stale { background: #d97706; }
+
+.tm-live-dot-pulse {
+  background: #22c55e;
+  animation: tm-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes tm-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(34 197 94 / 60%); }
+  50% { box-shadow: 0 0 0 5px rgb(34 197 94 / 0%); }
+}
+
+.tm-live-tag {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #22c55e;
+}
+
+.tm-live-stale .tm-live-tag { color: #d97706; }
+
+.tm-live-desc {
+  color: var(--tm-text);
+  text-transform: capitalize;
+}
+
+.tm-live-elapsed {
+  color: #22c55e;
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5rem;
+}
+
+.tm-live-stale .tm-live-elapsed { color: #d97706; }
+
+.tm-live-meta {
+  color: var(--tm-muted);
+  font-size: 0.6875rem;
+}
+
+.tm-live-label {
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 /* ── Hero metrics ───────────────────────────────────────────────────────── */
 .tm-hero {
   display: grid;
@@ -184,10 +280,10 @@
   table-layout: fixed;
 }
 
-/* Column widths at desktop — desc gets the room it needs */
+/* Column widths — desc is percentage-bounded so long text wraps, never overflows */
 .tm-table col.col-num    { width: 2.5rem; }
 .tm-table col.col-time   { width: 8rem; }
-.tm-table col.col-desc   { width: auto; }
+.tm-table col.col-desc   { width: 26%; }
 .tm-table col.col-model  { width: 6rem; }
 .tm-table col.col-steps  { width: 9rem; }
 .tm-table col.col-cost   { width: 6.5rem; }
@@ -221,6 +317,7 @@
 .tm-desc {
   white-space: normal;
   overflow-wrap: break-word;
+  overflow: hidden;
   color: var(--tm-text);
   font-size: 0.8125rem;
   text-transform: capitalize;

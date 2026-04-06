@@ -695,5 +695,9 @@
   {
     "id": "tokenmiser-dashboard",
     "fields": []
+  },
+  {
+    "id": "tokenmiser-live",
+    "fields": []
   }
 ]

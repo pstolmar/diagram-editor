@@ -1,6 +1,8 @@
 // Try public path first (works with aem up), fall back to hidden dir (works on live site)
 const RUNS_URLS = ['/tokenmiser-data/runs.json', '/.tokenmiser/runs.json'];
 const REFRESH_MS = 30000;
+const LIVE_REFRESH_MS = 5000;
+const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000; // 2 hours → treat as abandoned
 
 // Opus 4 Extended pricing per million tokens
 const OPUS_INPUT_PER_M = 15;
@@ -129,6 +131,42 @@ function fmtTokens(n) {
   return String(n);
 }
 
+function elapsedStr(startedAt) {
+  if (!startedAt) return '';
+  const ms = Date.now() - new Date(startedAt).getTime();
+  return fmtDuration(ms);
+}
+
+function isStale(run) {
+  if (!run.startedAt) return false;
+  return (Date.now() - new Date(run.startedAt).getTime()) > STALE_THRESHOLD_MS;
+}
+
+function renderLiveBar(activeRuns) {
+  if (activeRuns.length === 0) {
+    return `<div class="tm-live-bar tm-live-idle">
+      <span class="tm-live-dot tm-live-dot-idle"></span>
+      <span class="tm-live-label">idle</span>
+      <span class="tm-live-meta">no jobs running</span>
+    </div>`;
+  }
+  const items = activeRuns.map((run) => {
+    const stale = isStale(run);
+    const stateClass = stale ? 'tm-live-stale' : 'tm-live-active';
+    const stateLabel = stale ? 'abandoned?' : 'running';
+    const desc = run.description || jobDesc(run.jobId || '');
+    const elapsed = elapsedStr(run.startedAt);
+    return `<div class="tm-live-job ${stateClass}">
+      <span class="tm-live-dot ${stale ? 'tm-live-dot-stale' : 'tm-live-dot-pulse'}"></span>
+      <span class="tm-live-tag">${stateLabel}</span>
+      <span class="tm-live-desc">${desc}</span>
+      <span class="tm-live-elapsed" data-started="${run.startedAt || ''}">${elapsed}</span>
+      <span class="tm-live-meta">MISER=${run.miserLevel ?? '?'} · ${run.modelTier || '?'}</span>
+    </div>`;
+  }).join('');
+  return `<div class="tm-live-bar tm-live-busy">${items}</div>`;
+}
+
 function renderDetail(run) {
   const inp = run.tokenUsage?.inputTokens || 0;
   const out = run.tokenUsage?.outputTokens || 0;
@@ -204,12 +242,14 @@ function renderDetail(run) {
 }
 
 function renderDashboard(block, runs) {
-  const totalCost = runs.reduce((s, r) => s + parseFloat(r.approxCostUsd || 0), 0);
+  const activeRuns = runs.filter((r) => r.status === 'running');
+  const completedRuns = runs.filter((r) => r.status !== 'running');
+  const totalCost = completedRuns.reduce((s, r) => s + parseFloat(r.approxCostUsd || 0), 0);
   const totalOpus = runs.reduce((s, r) => s + opusCost(r), 0);
   const saved = totalOpus - totalCost;
   const savedPct = totalOpus > 0 ? Math.round((saved / totalOpus) * 100) : 0;
 
-  const sorted = [...runs].reverse();
+  const sorted = [...completedRuns].reverse();
 
   const rowPairs = sorted.map((run, i) => {
     const actualCost = parseFloat(run.approxCostUsd || 0);
@@ -237,8 +277,8 @@ function renderDashboard(block, runs) {
       </tr>`;
   }).join('');
 
-  const emptyRow = runs.length === 0
-    ? '<tr><td colspan="8" class="tm-empty">No runs found. Run <code>t</code> to see data here.</td></tr>'
+  const emptyRow = completedRuns.length === 0
+    ? '<tr><td colspan="8" class="tm-empty">No completed runs. Run <code>t</code> to see data here.</td></tr>'
     : '';
 
   block.innerHTML = `
@@ -246,13 +286,15 @@ function renderDashboard(block, runs) {
       <div class="tm-header">
         <h2 class="tm-title">TokenMiser Runs</h2>
         <div class="tm-header-meta">
-          <span class="tm-badge tm-badge-info">${runs.length} run${runs.length !== 1 ? 's' : ''}</span>
+          <span class="tm-badge tm-badge-info">${completedRuns.length} run${completedRuns.length !== 1 ? 's' : ''}</span>
+          ${activeRuns.length > 0 ? `<span class="tm-badge tm-badge-live">⚡ ${activeRuns.length} running</span>` : ''}
           <span class="tm-stat tm-stat-savings">
             <strong>${savedPct}% saved</strong> · $${saved.toFixed(2)} vs Opus 4
           </span>
         </div>
       </div>
-      ${renderHeroStats(runs)}
+      ${renderLiveBar(activeRuns)}
+      ${renderHeroStats(completedRuns)}
       <div class="tm-table-wrap">
         <table class="tm-table">
           <colgroup>
@@ -310,12 +352,42 @@ async function fetchRuns() {
     .catch(() => tryFetchUrl(RUNS_URLS[1]).catch(() => []));
 }
 
-export default async function decorate(block) {
-  const runs = await fetchRuns();
-  renderDashboard(block, runs);
+function tickElapsed(block) {
+  block.querySelectorAll('.tm-live-elapsed[data-started]').forEach((el) => {
+    const { started } = el.dataset;
+    if (started) el.textContent = elapsedStr(started);
+  });
+}
 
+export default async function decorate(block) {
+  let allRuns = await fetchRuns();
+  renderDashboard(block, allRuns);
+
+  // Tick elapsed timers every second (cheap DOM update, no re-fetch)
+  setInterval(() => tickElapsed(block), 1000);
+
+  // Fast poll for running-job status changes
   setInterval(async () => {
     const fresh = await fetchRuns();
+    const hadActive = allRuns.some((r) => r.status === 'running');
+    const hasActive = fresh.some((r) => r.status === 'running');
+    allRuns = fresh;
+    // Full re-render if running state changed; otherwise just update live bar
+    if (hadActive !== hasActive) {
+      renderDashboard(block, fresh);
+    } else {
+      const liveBar = block.querySelector('.tm-live-bar');
+      if (liveBar) {
+        const active = fresh.filter((r) => r.status === 'running');
+        liveBar.outerHTML = renderLiveBar(active);
+      }
+    }
+  }, LIVE_REFRESH_MS);
+
+  // Full refresh every 30s
+  setInterval(async () => {
+    const fresh = await fetchRuns();
+    allRuns = fresh;
     renderDashboard(block, fresh);
   }, REFRESH_MS);
 }
