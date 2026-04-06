@@ -315,14 +315,53 @@
 }
 
 .tm-desc {
-  white-space: normal;
-  overflow-wrap: break-word;
   overflow: hidden;
   color: var(--tm-text);
   font-size: 0.8125rem;
   text-transform: capitalize;
   line-height: 1.45;
   cursor: pointer;
+  position: relative;
+}
+
+/* Clipped single-line with marquee on hover */
+.tm-desc-text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tm-desc:hover .tm-desc-text {
+  animation: tm-marquee 6s linear infinite;
+  text-overflow: clip;
+}
+
+@keyframes tm-marquee {
+  0%, 15%  { transform: translateX(0); }
+  85%, 100% { transform: translateX(calc(-100% + 12rem)); }
+}
+
+/* Full wrapped text — only visible when row is expanded */
+.tm-desc-full {
+  display: none;
+  white-space: normal;
+  overflow-wrap: break-word;
+  margin-top: 0.25rem;
+  color: var(--tm-muted);
+  font-size: 0.75rem;
+}
+
+.tm-run-row.is-expanded .tm-desc-text {
+  animation: none;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: break-word;
+}
+
+.tm-run-row.is-expanded .tm-desc-full {
+  display: none;
 }
 
 .tm-desc:hover {

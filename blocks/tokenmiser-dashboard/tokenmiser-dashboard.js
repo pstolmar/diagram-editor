@@ -265,7 +265,10 @@ function renderDashboard(block, runs) {
       <tr class="tm-run-row" data-rid="${rid}" title="Click to expand run detail">
         <td class="tm-num">${runs.length - i}</td>
         <td class="tm-time">${timeStr}<span class="tm-date">${dateStr}</span></td>
-        <td class="tm-desc">${desc}</td>
+        <td class="tm-desc" title="${desc} · ${run.jobId || ''}">
+          <span class="tm-desc-text">${desc}</span>
+          <span class="tm-desc-full" aria-hidden="true">${desc}</span>
+        </td>
         <td class="tm-model">${inferModel(run)}</td>
         <td class="tm-steps">${stepSummary(run)}</td>
         <td class="tm-cost">${formatCost(run.approxCostUsd)}</td>
