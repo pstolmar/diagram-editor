@@ -43,4 +43,17 @@ export default function decorate(block) {
   }
 
   block.replaceChildren(panel);
+
+  // Trigger entrance animation when panel enters viewport.
+  // Uses threshold:0 + rootMargin so it fires promptly.
+  // Fallback timeout handles AEM Author/UE iframe contexts where
+  // IntersectionObserver root differs from the editor canvas.
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      panel.classList.add('is-visible');
+      observer.disconnect();
+    }
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+  observer.observe(panel);
+  setTimeout(() => panel.classList.add('is-visible'), 600);
 }

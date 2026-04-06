@@ -1,23 +1,54 @@
 #!/usr/bin/env bash
-# claudium — reads PLAN.md + markers, dispatches to claude -p
+# tokenmiser — reads PLAN.md + markers, dispatches to claude -p
 # Called by `t` when present in the repo root.
-# Usage: ./claudium "[PATCH] [MISER=N] optional task override"
+# Usage: ./tokenmiser "[PATCH] [MISER=N] [LINEAR] [REACTIVE] [DEPLOY] [VALIDATE=cmd] [YOLO] optional task override"
 set -euo pipefail
 
 MARKERS="${1:-}"
 PLAN_FILE="PLAN.md"
 
 if [ ! -f "$PLAN_FILE" ]; then
-  echo "❌ claudium: no PLAN.md found in $(pwd)" >&2
+  echo "❌ tokenmiser: no PLAN.md found in $(pwd)" >&2
   exit 1
 fi
 
 PLAN=$(cat "$PLAN_FILE")
 
+# Extract special markers
+DEPLOY=0
+VALIDATE_CMD=""
+YOLO=0
+
+if echo "$MARKERS" | grep -q '\[DEPLOY\]'; then
+  DEPLOY=1
+fi
+if echo "$MARKERS" | grep -qE '\[VALIDATE=([^]]+)\]'; then
+  VALIDATE_CMD=$(echo "$MARKERS" | grep -oE '\[VALIDATE=([^]]+)\]' | sed 's/\[VALIDATE=//;s/\]//')
+elif echo "$MARKERS" | grep -q '\[VALIDATE\]'; then
+  VALIDATE_CMD="npx playwright test"
+fi
+if echo "$MARKERS" | grep -q '\[YOLO\]'; then
+  YOLO=1
+fi
+
+# Build MISER 11 note if applicable
+MISER11_NOTE=""
+if echo "$MARKERS" | grep -q '\[MISER=11\]'; then
+  MISER11_NOTE="MISER=11 means never use Opus or Sonnet — plan for Haiku/Codex/FJ only."
+fi
+
+# Build YOLO note
+YOLO_NOTE=""
+if [ "$YOLO" -eq 1 ]; then
+  YOLO_NOTE="Skip screenshots and video steps."
+fi
+
 # Build prompt: markers + PLAN.md content + codebase hints
 PROMPT=$(cat <<PROMPT
 ${MARKERS:+$MARKERS
 
+}${MISER11_NOTE:+$MISER11_NOTE
+}${YOLO_NOTE:+$YOLO_NOTE
 }You are an expert AEM Edge Delivery Services engineer working in this repository.
 Read the following PLAN.md and execute it completely.
 
@@ -37,8 +68,32 @@ ${PLAN}
 PROMPT
 )
 
-echo "🚀 claudium: dispatching to claude -p (MISER=${MARKERS})"
+echo "🚀 tokenmiser: dispatching to claude -p (markers: ${MARKERS:-none})"
 echo "   Plan: $(head -3 "$PLAN_FILE" | tail -1)"
 echo ""
 
 echo "$PROMPT" | claude -p
+
+# Post-completion: deploy if requested
+if [ "$DEPLOY" -eq 1 ]; then
+  echo ""
+  echo "🚀 [DEPLOY] Committing and pushing changes..."
+  git add -A
+  git commit -m "chore: tokenmiser auto-deploy"
+  git push
+  PUSHED_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  PUSHED_COMMIT=$(git rev-parse --short HEAD)
+  echo "✅ [DEPLOY] Pushed branch '$PUSHED_BRANCH' at commit $PUSHED_COMMIT"
+
+  # Validate if requested
+  if [ -n "$VALIDATE_CMD" ]; then
+    echo ""
+    echo "🧪 [VALIDATE] Running: $VALIDATE_CMD"
+    if eval "$VALIDATE_CMD"; then
+      echo "✅ [VALIDATE] Passed: $VALIDATE_CMD"
+    else
+      echo "❌ [VALIDATE] Failed: $VALIDATE_CMD" >&2
+      exit 1
+    fi
+  fi
+fi

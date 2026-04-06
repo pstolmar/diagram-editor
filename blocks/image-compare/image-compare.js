@@ -91,6 +91,7 @@ export default function decorate(block) {
 
   container.addEventListener('mousedown', (e) => {
     dragging = true;
+    document.body.style.cursor = 'col-resize';
     e.preventDefault();
   });
 
@@ -101,7 +102,10 @@ export default function decorate(block) {
     setPosition(pct);
   });
 
-  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('mouseup', () => {
+    dragging = false;
+    document.body.style.cursor = '';
+  });
 
   container.addEventListener('touchstart', (e) => {
     dragging = true;
@@ -115,7 +119,10 @@ export default function decorate(block) {
     setPosition(pct);
   }, { passive: true });
 
-  window.addEventListener('touchend', () => { dragging = false; });
+  window.addEventListener('touchend', () => {
+    dragging = false;
+    document.body.style.cursor = '';
+  });
 
   slider.addEventListener('keydown', (e) => {
     const current = parseFloat(slider.getAttribute('aria-valuenow')) || 50;

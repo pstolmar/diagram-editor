@@ -187,6 +187,103 @@ async function handleStep(
         break;
       }
 
+
+      case "codex.write": {
+        // Check codex availability; fall back to skip if absent
+        try {
+          await runCommand("which codex", 5);
+        } catch {
+          const msg = `codex not found — skipping codex.write step '${stepName}'`;
+          console.warn(`⚠️ ${phasePrefix} ${msg}`);
+          return {
+            ...resultBase,
+            status: "skipped",
+            endedAt: nowIso(),
+            durationMs: Date.now() - start,
+            errorMessage: msg,
+          };
+        }
+        const target = step.args?.target ?? "";
+        const description = step.description ?? step.args?.description ?? stepName;
+        command = `codex -q ${JSON.stringify(description)} --full-auto`;
+        if (target) command += ` -- ${JSON.stringify(target)}`;
+        console.log(`$ ${command}`);
+        const out = await runCommand(command, perStepTimeout);
+        stdout = out.stdout;
+        stderr = out.stderr;
+        break;
+      }
+
+      case "codex.patch": {
+        // Check codex availability; fall back to skip if absent
+        try {
+          await runCommand("which codex", 5);
+        } catch {
+          const msg = `codex not found — skipping codex.patch step '${stepName}'`;
+          console.warn(`⚠️ ${phasePrefix} ${msg}`);
+          return {
+            ...resultBase,
+            status: "skipped",
+            endedAt: nowIso(),
+            durationMs: Date.now() - start,
+            errorMessage: msg,
+          };
+        }
+        const patchTarget = step.args?.target ?? "";
+        const prompt = step.args?.prompt ?? step.description ?? stepName;
+        command = `codex -q ${JSON.stringify(prompt)} --full-auto`;
+        if (patchTarget) command += ` -- ${JSON.stringify(patchTarget)}`;
+        console.log(`$ ${command}`);
+        const out = await runCommand(command, perStepTimeout);
+        stdout = out.stdout;
+        stderr = out.stderr;
+        break;
+      }
+
+      case "fj.snippet": {
+        const msg = `fj.snippet not yet wired — skipped`;
+        console.warn(`⚠️ ${phasePrefix} ${msg}`);
+        return {
+          ...resultBase,
+          status: "skipped",
+          endedAt: nowIso(),
+          durationMs: Date.now() - start,
+          errorMessage: msg,
+        };
+      }
+
+      case "log.escalate": {
+        const from = step.args?.from ?? "unknown";
+        const to = step.args?.to ?? "unknown";
+        const reason = step.args?.reason ?? "(no reason)";
+        const escalationLine = `⚡ escalated: ${from} → ${to} · reason: ${reason}`;
+        // Print in yellow
+        console.log(`\x1b[33m${escalationLine}\x1b[0m`);
+        // Append to REPORT.md escalations section
+        const reportExists = fs.existsSync(REPORT_PATH);
+        const reportContent = reportExists
+          ? await fs.promises.readFile(REPORT_PATH, "utf8")
+          : "";
+        const escalationSection = "\n## Escalations\n";
+        const newEntry = `- ${escalationLine}\n`;
+        let updatedReport: string;
+        if (reportContent.includes("## Escalations")) {
+          updatedReport = reportContent.replace(
+            /## Escalations\n/,
+            `## Escalations\n${newEntry}`
+          );
+        } else {
+          updatedReport = reportContent + escalationSection + newEntry;
+        }
+        await fs.promises.writeFile(REPORT_PATH, updatedReport, "utf8");
+        return {
+          ...resultBase,
+          status: "ok",
+          endedAt: nowIso(),
+          durationMs: Date.now() - start,
+          stdout: escalationLine,
+        };
+      }
       default: {
         const msg = `Unknown tool '${step.tool}', skipping.`;
         console.warn(`⚠️ ${phasePrefix} ${msg}`);
