@@ -2,10 +2,27 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 
 export default function decorate(block) {
   const rows = [...block.children];
-  const [imageRow, labelRow, descRow] = rows;
 
-  const [beforeImgDiv, afterImgDiv] = [...(imageRow ? imageRow.children : [])];
-  const [beforeLabelDiv, afterLabelDiv] = [...(labelRow ? labelRow.children : [])];
+  // Two formats supported:
+  // (a) Two-column: row0=[beforeImg,afterImg], row1=[beforeLabel,afterLabel]  (demo/Docs)
+  // (b) Separate rows: row0=beforeImg, row1=afterImg, row2=beforeLabel, row3=afterLabel (UE)
+  let beforeImgDiv;
+  let afterImgDiv;
+  let beforeLabelDiv;
+  let afterLabelDiv;
+  let descRow;
+  const firstRowCols = rows[0] ? [...rows[0].children] : [];
+  if (firstRowCols.length >= 2) {
+    [beforeImgDiv, afterImgDiv] = firstRowCols;
+    [beforeLabelDiv, afterLabelDiv] = rows[1] ? [...rows[1].children] : [];
+    [, , descRow] = rows;
+  } else {
+    [beforeImgDiv] = rows[0]?.children ?? [];
+    [afterImgDiv] = rows[1]?.children ?? [];
+    [beforeLabelDiv] = rows[2]?.children ?? [];
+    [afterLabelDiv] = rows[3]?.children ?? [];
+    [, , , , descRow] = rows;
+  }
 
   const beforeLabel = beforeLabelDiv ? beforeLabelDiv.textContent.trim() : 'Before';
   const afterLabel = afterLabelDiv ? afterLabelDiv.textContent.trim() : 'After';
@@ -22,7 +39,6 @@ export default function decorate(block) {
 
   const afterEl = document.createElement('div');
   afterEl.className = 'image-compare-after';
-  afterEl.style.clipPath = 'inset(0 50% 0 0)';
   if (afterImgDiv) {
     moveInstrumentation(afterImgDiv, afterEl);
     while (afterImgDiv.firstChild) afterEl.append(afterImgDiv.firstChild);
@@ -66,7 +82,8 @@ export default function decorate(block) {
   function setPosition(pct) {
     const clamped = Math.max(0, Math.min(100, pct));
     slider.style.left = `${clamped}%`;
-    afterEl.style.clipPath = `inset(0 ${100 - clamped}% 0 0)`;
+    // After image revealed from left: show right portion starting at clamped%
+    afterEl.style.clipPath = `inset(0 0 0 ${clamped}%)`;
     slider.setAttribute('aria-valuenow', String(Math.round(clamped)));
   }
 

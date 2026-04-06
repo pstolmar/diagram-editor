@@ -4,14 +4,65 @@
 }
 
 .callout-panel-inner {
-  background: linear-gradient(135deg, #0070f3 0%, #0050c0 100%);
+  background: linear-gradient(135deg, #0070f3 0%, #5b21b6 100%);
   color: #fff;
   border-radius: 12px;
   padding: 2.5rem 2rem;
   text-align: center;
-  box-shadow: 0 8px 30px rgb(0 112 243 / 30%);
+  box-shadow: 0 8px 40px rgb(0 112 243 / 35%);
   position: relative;
   overflow: hidden;
+  animation: callout-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes callout-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ambient orbs */
+.callout-panel-inner::before,
+.callout-panel-inner::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.callout-panel-inner::before {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, #fff 0%, transparent 70%);
+  top: -80px;
+  right: -60px;
+  animation: orb-drift 8s ease-in-out infinite alternate;
+}
+
+.callout-panel-inner::after {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, #a78bfa 0%, transparent 70%);
+  bottom: -60px;
+  left: -40px;
+  animation: orb-drift 10s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes orb-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+
+  to {
+    transform: translate(20px, 15px) scale(1.1);
+  }
 }
 
 .callout-panel-icon {
@@ -19,6 +70,19 @@
   line-height: 1;
   margin-bottom: 1rem;
   display: block;
+  animation: icon-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+}
+
+@keyframes icon-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .callout-panel-title {
@@ -35,8 +99,7 @@
   color: rgb(255 255 255 / 90%);
   margin: 0 0 1.75rem;
   max-width: 520px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline: auto;
 }
 
 .callout-panel-cta {
@@ -48,13 +111,14 @@
   padding: 0.75rem 2rem;
   border-radius: 50px;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   box-shadow: 0 4px 14px rgb(0 0 0 / 20%);
 }
 
 .callout-panel-cta:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+  background: #f0f7ff;
 }
 
 .callout-panel-cta:focus-visible {
