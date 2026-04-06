@@ -22,7 +22,11 @@
       "polaroid-corkboard",
       "image-compare",
       "metrics-grid",
-      "callout-panel"
+      "callout-panel",
+      "tokenmiser-dashboard",
+      "image-compare-tm",
+      "metrics-grid-tm",
+      "callout-panel-tm"
     ]
   },
   {
@@ -62,6 +66,12 @@
     "id": "filmstrip",
     "components": [
       "filmstrip-frame"
+    ]
+  },
+  {
+    "id": "metrics-grid-tm",
+    "components": [
+      "metrics-grid-tm-item"
     ]
   },
   {

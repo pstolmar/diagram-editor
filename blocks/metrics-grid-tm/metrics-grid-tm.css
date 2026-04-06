@@ -1,0 +1,73 @@
+.metrics-grid-tm {
+  margin: 2rem 0;
+}
+
+.mg-tm-grid {
+  background: #f8fafc;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.mg-tm-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.mg-tm-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.mg-tm-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0;
+}
+
+.mg-tm-card {
+  padding: 1.5rem;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+  transition: background 0.15s ease;
+}
+
+.mg-tm-card:hover {
+  background: #f1f5f9;
+}
+
+.mg-tm-card:last-child {
+  border-right: none;
+}
+
+.mg-tm-value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0070f3;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.375rem;
+}
+
+.mg-tm-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.mg-tm-subtitle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+@media (width <= 480px) {
+  .mg-tm-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -1,0 +1,108 @@
+.image-compare-tm {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+.ic-tm-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 15%);
+}
+
+.ic-tm-clip {
+  position: relative;
+  overflow: hidden;
+  cursor: col-resize;
+  user-select: none;
+  line-height: 0;
+}
+
+.ic-tm-before,
+.ic-tm-after {
+  position: absolute;
+  inset: 0;
+  line-height: 0;
+}
+
+.ic-tm-after {
+  position: relative;
+  z-index: 0;
+}
+
+.ic-tm-before {
+  z-index: 1;
+  clip-path: inset(0 50% 0 0);
+  transition: none;
+}
+
+.ic-tm-before img,
+.ic-tm-after img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.ic-tm-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 10;
+  width: 2px;
+  background: #fff;
+  transform: translateX(-50%);
+  cursor: col-resize;
+}
+
+.ic-tm-handle:focus {
+  outline: 2px solid #0070f3;
+  outline-offset: 2px;
+}
+
+.ic-tm-pill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 999px;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+}
+
+.ic-tm-label {
+  position: absolute;
+  top: 0.75rem;
+  padding: 0.25em 0.6em;
+  background: rgb(0 0 0 / 55%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.ic-tm-label-before {
+  left: 0.75rem;
+}
+
+.ic-tm-label-after {
+  right: 0.75rem;
+}
+
+.ic-tm-caption {
+  text-align: center;
+  margin: 0.75rem 0 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}

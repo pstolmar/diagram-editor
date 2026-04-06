@@ -57,7 +57,11 @@
         "polaroid-corkboard",
         "image-compare",
         "metrics-grid",
-        "callout-panel"
+        "callout-panel",
+        "tokenmiser-dashboard",
+        "image-compare-tm",
+        "metrics-grid-tm",
+        "callout-panel-tm"
       ]
     }
   ]

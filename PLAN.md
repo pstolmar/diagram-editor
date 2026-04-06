@@ -2,102 +2,114 @@
 
 ## Task
 
-Implement **Tokenmiser v2 — Phase 2**: run logging and the routing intelligence layer.
+Implement **Tokenmiser v2 — Phase 3**: the live dashboard EDS block and terminal status commands.
+Then re-implement the three demo components (image-compare, metrics-grid, callout-panel) via
+tokenmiser so we can compare the tokenmiser-built output against the manually-built originals.
 
 Full spec: `docs/superpowers/specs/2026-04-06-tokenmiser-v2-design.md`
 
-## Scope
+## Part A — Dashboard EDS block
 
-### 1. Run logging — `.tokenmiser/runs.json`
+### Create `blocks/tokenmiser-dashboard/tokenmiser-dashboard.js`
 
-Update `tools/code-executor.ts` to append a run record to `.tokenmiser/runs.json` after every job.
-Create `.tokenmiser/` dir if absent. Append one NDJSON line per run (do not rewrite the whole file).
+A standard EDS block. The `decorate(block)` function:
+1. Ignores block DOM content (the block is the UI container).
+2. Fetches `/.tokenmiser/runs.json` (relative to site root) as text, splits on newlines,
+   parses each non-empty line as JSON. Gracefully handles fetch errors (show empty state).
+3. Renders a dashboard UI with:
 
-Run record schema (all fields required, omit unknown ones gracefully):
-```json
-{
-  "id": "<uuid-v4>",
-  "timestamp": "<ISO8601>",
-  "jobId": "<job.id or 'unknown'>",
-  "miserLevel": <number or null>,
-  "steps": [
-    { "name": "...", "tool": "...", "model": "bash|codex|haiku|sonnet|opus|unknown",
-      "durationMs": 123, "status": "ok|failed|skipped" }
-  ],
-  "totalDurationMs": 456,
-  "failedSteps": 0,
-  "skippedSteps": 0,
-  "escalations": []
-}
+   **Header row:**
+   - Title: "Tokenmiser Runs"
+   - Total runs count badge
+   - Total cost: sum of `approxCostUsd` across all records
+   - Estimated savings vs Opus 4 Extended baseline:
+     Opus 4 input=$15/MTok output=$75/MTok; for each run use tokenUsage if present,
+     else estimate Opus cost as 5× the approxCostUsd. Show as "$X.XX saved (NN%)".
+
+   **Runs table** (newest first):
+   | # | Time | Job | Model | Steps | Cost | Savings | Status |
+   - Time: relative ("2 min ago", "3 hr ago", "yesterday")
+   - Job: jobId truncated to 24 chars
+   - Model: routing tier (haiku/sonnet, from first step's model or infer from miserLevel)
+   - Steps: "12 ok / 0 fail / 1 skip"
+   - Cost: approxCostUsd formatted as "$0.0042"
+   - Savings: vs Opus baseline
+   - Status: green ✓ / red ✗ / yellow ⚡ (escalation)
+
+   **Footer:** "Powered by Tokenmiser v2 · MISER routing active"
+
+4. Auto-refreshes every 30s by re-fetching runs.json.
+
+### Create `blocks/tokenmiser-dashboard/tokenmiser-dashboard.css`
+
+Dark-themed dashboard card. Use CSS custom properties for colors.
+Key styles: dark bg (#0f172a), monospace values, colored badges for status,
+accent colors matching the metrics-grid palette (#0070f3 blue, #059669 green, #dc2626 red).
+Responsive: table collapses to cards on mobile.
+
+### Create `blocks/tokenmiser-dashboard/_tokenmiser-dashboard.json`
+
+UE model: no editable fields (block is self-contained). Minimal definition + empty filters.
+
+### Add block to `models/_section.json` section filter
+
+Add "tokenmiser-dashboard" to the section filter components array.
+Then run: npm run build:json
+
+### Create `demo/tokenmiser-dash.html`
+
+A demo page at `/demo/tokenmiser-dash` with the dashboard block.
+Follow the same HTML structure as `demo/tokenmiser.html`.
+
+## Part B — Terminal status commands in `tokenmiser` script
+
+Add these to the `tokenmiser` script (detect via first argument pattern):
+
+- `--status`: read last line of `.tokenmiser/runs.json`, print:
+  ```
+  Last run: <jobId> · <time ago> · <N> steps · cost: ~$<N> · savings: ~$<N> vs Opus4
+  Model: <tier>   MISER: <N>   Status: ok/failed
+  ```
+- `--cost`: read all lines, print cost table (last 10 runs, newest first):
+  ```
+  Run                    Model   Tokens       Cost     Opus4 est  Saved
+  cleanup_filmstrip...   sonnet  2k/341       $0.005   $0.025     80%
+  ```
+- `--history`: same as --cost but show all runs, more columns
+- `--export`: generate `dashboard.html` at repo root as a self-contained HTML file
+  that embeds the runs data inline (no server needed). Open it with `open dashboard.html`.
+
+Detect these before the PLAN.md check:
+```bash
+if [ "${1:-}" = "--status" ]; then ... exit 0; fi
 ```
 
-Model field: infer from tool name:
-- `bash`, `npmScript`, `eds.buildJson`, `eds.lint`, `playwright.test` → `"bash"`
-- `codex.write`, `codex.patch` → `"codex"`
-- `fj.snippet` → `"fj"`
-- `log.escalate` → `"system"`
-- anything else → `"unknown"`
+## Part C — Re-implement the three components via tokenmiser (for comparison)
 
-For uuid: use `crypto.randomUUID()` (Node 14.17+). No external packages.
+IMPORTANT: Do NOT overwrite the existing blocks. Create parallel versions:
+- `blocks/image-compare-tm/` — tokenmiser-built image compare
+- `blocks/metrics-grid-tm/` — tokenmiser-built metrics grid
+- `blocks/callout-panel-tm/` — tokenmiser-built callout panel
 
-### 2. Token re-passing detection in `tokenmiser` script
+Each should be a full re-implementation from scratch using only the PLAN spec as input
+(no looking at existing block code). Suffix "-tm" on all CSS classes too.
 
-In the `tokenmiser` bash script (repo root), after `claude -p` completes:
-- Parse the output for token usage if `--output-format=stream-json` is available.
-- Actually simpler: pass `--output-format=stream-json --verbose` flags to `claude -p` and capture
-  the stream to a temp file, then extract `modelUsage` with jq (if available).
-- Print a summary line: `💰 tokens: <input>in <output>out  cost: ~$<N>`
-- If input tokens > 160000: print `⚠ large context (<N>k tokens)`
-- Append cost summary to `.tokenmiser/runs.json` last line (merge into the record written by executor).
-  If jq not available, skip silently.
-- Extract MISER level from markers using grep/sed (already parsed in Phase 1).
+Add these to `demo/tokenmiser.html` BELOW the existing three components,
+with a heading "Tokenmiser-Built Versions" so both versions are visible side-by-side.
 
-Compute approximate cost using Sonnet 4.6 rates:
-  input: $3/MTok, output: $15/MTok, cache_read: $0.30/MTok, cache_write: $3.75/MTok
+Add all three to `models/_section.json` and run `npm run build:json`.
+Add UE model JSON for each.
 
-Use the `groundtruth` CLI for cost arithmetic to avoid LLM token burn on math:
-  groundtruth math eval "3 * inputTokens / 1000000"
-  groundtruth math eval "15 * outputTokens / 1000000"
-`groundtruth` is on PATH at ~/bin/groundtruth.
+## Verification
 
-### 3. Routing intelligence — `tokenmiser` script
-
-Add a `route_task()` function to the `tokenmiser` bash script that analyzes the PLAN.md
-content and returns a recommended model tier. Called before building the prompt.
-
-Rules (check in order, first match wins):
-1. MISER=11 → `haiku`
-2. MISER >= 8 → `haiku` (no Sonnet)
-3. PLAN.md contains any of: DECISION, DESIGN, ARCHITECTURE, BLOCKED → `sonnet`
-4. PLAN.md line count > 60 → `sonnet`
-5. MISER >= 5 → `haiku`
-6. Default → `sonnet`
-
-Use the recommended model tier to select the `claude -p` model flag:
-- `haiku` → `--model claude-haiku-4-5-20251001`
-- `sonnet` → `--model claude-sonnet-4-6` (or omit flag, let claude CLI use default)
-
-Print the routing decision: `🔀 routing: <tier> (reason: <rule that matched>)`
-
-### 4. Escalation signal tracking
-
-In `tools/code-executor.ts`, track escalation signals during job execution:
-- Count retries per step (if a step fails and stopOnError=false, it counts as a signal)
-- If `failedSteps >= 2` at end of job: append to the run record `"escalationRecommended": true`
-  and print `⚡ Next run may benefit from a higher model tier (2+ steps failed)`
-- This is informational only — no automatic re-run yet
-
-### 5. Lint and verify
-
-After all changes:
-1. `npm run lint` — 0 errors
-2. `npx tsc --noEmit` if tsconfig exists
-3. Print summary of all files changed
+1. `npm run build:json`
+2. `npm run lint` — 0 errors
+3. `npx playwright test tests/image-compare.spec.ts tests/metrics-grid.spec.ts tests/callout-panel.spec.ts`
+4. Print cost summary at end
 
 ## Constraints
 
-- PATCH mode: targeted edits, no full rewrites
-- Read each file before editing
-- No new npm packages — use Node built-ins only (crypto, fs, path)
-- Do not touch block files or demo HTML
-- Do not implement the dashboard block yet (Phase 3)
+- PATCH mode where possible, full create for new files
+- Read existing files before editing any
+- Do not modify existing block files (image-compare, metrics-grid, callout-panel)
+- The -tm blocks are fresh implementations, not copies

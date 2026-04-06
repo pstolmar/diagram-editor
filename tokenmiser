@@ -5,6 +5,170 @@
 set -euo pipefail
 
 MARKERS="${1:-}"
+
+# ── Terminal status commands ─────────────────────────────────────────────────
+RUNS_FILE=".tokenmiser/runs.json"
+
+_tm_relative_time() {
+  local ts="$1"
+  local now
+  now=$(date +%s)
+  local then
+  then=$(date -j -f "%Y-%m-%dT%H:%M:%S" "${ts%%.*}" +%s 2>/dev/null \
+    || date -d "$ts" +%s 2>/dev/null || echo "$now")
+  local diff=$(( now - then ))
+  if   [ "$diff" -lt 120 ];   then echo "just now"
+  elif [ "$diff" -lt 3600 ];  then echo "$(( diff / 60 )) min ago"
+  elif [ "$diff" -lt 86400 ]; then echo "$(( diff / 3600 )) hr ago"
+  elif [ "$diff" -lt 172800 ]; then echo "yesterday"
+  else echo "$(( diff / 86400 )) days ago"
+  fi
+}
+
+_tm_infer_model() {
+  local miser="${1:-0}"
+  if [ "$miser" -ge 8 ]; then echo "haiku"; elif [ "$miser" -ge 1 ]; then echo "sonnet"; else echo "sonnet"; fi
+}
+
+_tm_opus_est() {
+  # Estimate Opus 4 cost: 5× actual cost (conservative fallback)
+  local cost="${1:-0}"
+  awk "BEGIN { printf \"%.4f\", $cost * 5 }"
+}
+
+_tm_savings_pct() {
+  local actual="$1" opus="$2"
+  awk "BEGIN { if ($opus > 0) printf \"%d\", ($opus - $actual) / $opus * 100; else print \"0\" }"
+}
+
+if [ "${MARKERS:-}" = "--status" ]; then
+  if [ ! -f "$RUNS_FILE" ]; then
+    echo "No runs found (${RUNS_FILE} missing)."
+    exit 0
+  fi
+  LAST=$(tail -1 "$RUNS_FILE")
+  if [ -z "$LAST" ]; then echo "No runs recorded."; exit 0; fi
+  JOB=$(echo "$LAST" | jq -r '.jobId // "—"')
+  TS=$(echo "$LAST" | jq -r '.timestamp // ""')
+  STEPS=$(echo "$LAST" | jq '.steps | length // 0' 2>/dev/null || echo 0)
+  COST=$(echo "$LAST" | jq -r '.approxCostUsd // "0"')
+  MISER=$(echo "$LAST" | jq -r '.miserLevel // 0')
+  STATUS=$(echo "$LAST" | jq -r '.status // "ok"')
+  OPUS=$(_tm_opus_est "$COST")
+  SAVED=$(awk "BEGIN { printf \"%.4f\", $OPUS - $COST }")
+  TIME_AGO=$( [ -n "$TS" ] && _tm_relative_time "$TS" || echo "—")
+  echo "Last run: ${JOB} · ${TIME_AGO} · ${STEPS} steps · cost: ~\$${COST} · savings: ~\$${SAVED} vs Opus4"
+  echo "Model: $(_tm_infer_model "$MISER")   MISER: ${MISER}   Status: ${STATUS}"
+  exit 0
+fi
+
+if [ "${MARKERS:-}" = "--cost" ] || [ "${MARKERS:-}" = "--history" ]; then
+  if [ ! -f "$RUNS_FILE" ]; then
+    echo "No runs found (${RUNS_FILE} missing)."
+    exit 0
+  fi
+  LIMIT=10
+  [ "${MARKERS:-}" = "--history" ] && LIMIT=9999
+  printf "%-28s %-8s %-12s %-10s %-10s %s\n" "Run" "Model" "Tokens" "Cost" "Opus4 est" "Saved"
+  printf "%-28s %-8s %-12s %-10s %-10s %s\n" "---" "-----" "------" "----" "---------" "-----"
+  # Read newest-first
+  tac "$RUNS_FILE" 2>/dev/null | head -n "$LIMIT" | while IFS= read -r LINE; do
+    [ -z "$LINE" ] && continue
+    JOB=$(echo "$LINE" | jq -r '.jobId // "—"' | cut -c1-24)
+    MISER=$(echo "$LINE" | jq -r '.miserLevel // 0')
+    MODEL=$(_tm_infer_model "$MISER")
+    INP=$(echo "$LINE" | jq -r '.tokenUsage.inputTokens // 0')
+    OUT=$(echo "$LINE" | jq -r '.tokenUsage.outputTokens // 0')
+    TOK=$(awk "BEGIN { i=$INP; o=$OUT; if(i+o>0){ if(i>1000) printf \"%dk\",i/1000; else printf \"%d\",i; printf \"/%d\",o } else print \"—\" }")
+    COST=$(echo "$LINE" | jq -r '.approxCostUsd // "0"')
+    OPUS=$(_tm_opus_est "$COST")
+    PCT=$(_tm_savings_pct "$COST" "$OPUS")
+    printf "%-28s %-8s %-12s \$%-9s \$%-9s %s%%\n" "$JOB" "$MODEL" "$TOK" "$COST" "$OPUS" "$PCT"
+  done
+  exit 0
+fi
+
+if [ "${MARKERS:-}" = "--export" ]; then
+  if [ ! -f "$RUNS_FILE" ]; then
+    echo "No runs found (${RUNS_FILE} missing)."
+    exit 0
+  fi
+  RUNS_DATA=$(cat "$RUNS_FILE")
+  OUT_FILE="dashboard.html"
+  cat > "$OUT_FILE" <<HTMLEOF
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tokenmiser Dashboard Export</title>
+<style>
+  body { font-family: 'SFMono-Regular', Consolas, monospace; background: #0f172a; color: #e2e8f0; margin: 0; padding: 2rem; }
+  h1 { font-size: 1.25rem; color: #e2e8f0; margin-bottom: 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+  th { background: #1e293b; padding: 0.5rem 0.75rem; text-align: left; color: #94a3b8; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #334155; }
+  tr:hover td { background: rgba(255,255,255,0.025); }
+  .ok { color: #6ee7b7; } .fail { color: #fca5a5; } .esc { color: #fcd34d; }
+  .muted { color: #94a3b8; } .green { color: #059669; } .blue { color: #0070f3; }
+  footer { margin-top: 1.5rem; color: #475569; font-size: 0.75rem; }
+</style>
+</head>
+<body>
+<h1>Tokenmiser Runs — Exported $(date)</h1>
+<div id="app">Loading…</div>
+<script>
+const raw = \`${RUNS_DATA}\`;
+const runs = raw.trim().split('\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+function rel(ts) {
+  if (!ts) return '—';
+  const d = (Date.now() - new Date(ts)) / 1000;
+  if (d < 120) return 'just now';
+  if (d < 3600) return Math.floor(d/60) + ' min ago';
+  if (d < 86400) return Math.floor(d/3600) + ' hr ago';
+  return Math.floor(d/86400) + ' days ago';
+}
+function opusCost(r) {
+  if (r.tokenUsage) return (r.tokenUsage.inputTokens||0)/1e6*15 + (r.tokenUsage.outputTokens||0)/1e6*75;
+  return parseFloat(r.approxCostUsd||0) * 5;
+}
+function model(r) {
+  const m = parseInt(r.miserLevel||0);
+  return m >= 8 ? 'haiku' : 'sonnet';
+}
+function badge(s) {
+  if (s === 'escalated') return '<span class="esc">⚡</span>';
+  if (s === 'failed' || s === 'error') return '<span class="fail">✗</span>';
+  return '<span class="ok">✓</span>';
+}
+let html = '<table><thead><tr><th>#</th><th>Time</th><th>Job</th><th>Model</th><th>Cost</th><th>Opus4 Est</th><th>Saved</th><th>Status</th></tr></thead><tbody>';
+[...runs].reverse().forEach((r, i) => {
+  const cost = parseFloat(r.approxCostUsd||0);
+  const opus = opusCost(r);
+  const saved = opus - cost;
+  const pct = opus > 0 ? Math.round(saved/opus*100) : 0;
+  html += \`<tr>
+    <td class="muted">\${runs.length - i}</td>
+    <td class="muted">\${rel(r.timestamp)}</td>
+    <td>\${(r.jobId||'—').substring(0,28)}</td>
+    <td class="blue">\${model(r)}</td>
+    <td>\$\${cost.toFixed(4)}</td>
+    <td class="muted">\$\${opus.toFixed(4)}</td>
+    <td class="green">\$\${saved.toFixed(4)} (\${pct}%)</td>
+    <td>\${badge(r.status)}</td>
+  </tr>\`;
+});
+html += '</tbody></table>';
+document.getElementById('app').innerHTML = html;
+</script>
+<footer>Powered by Tokenmiser v2 · Generated $(date)</footer>
+</body>
+</html>
+HTMLEOF
+  echo "✅ Exported to ${OUT_FILE}"
+  open "$OUT_FILE" 2>/dev/null || true
+  exit 0
+fi
+
 PLAN_FILE="PLAN.md"
 
 if [ ! -f "$PLAN_FILE" ]; then
