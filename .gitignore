@@ -11,3 +11,4 @@ helix-importer-ui
 .claude/job.json
 .claude/logs/
 REPORT.md
+.worktrees
