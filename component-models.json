@@ -142,6 +142,39 @@
     ]
   },
   {
+    "id": "callout-panel",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "body",
+        "label": "Body Text",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "ctaLabel",
+        "label": "CTA Label",
+        "value": "Learn More"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "ctaUrl",
+        "label": "CTA URL",
+        "value": "#"
+      }
+    ]
+  },
+  {
     "id": "card-reveal-hero",
     "fields": [
       {
@@ -420,6 +453,77 @@
         "value": "",
         "label": "Text",
         "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "image-compare",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "beforeImage",
+        "label": "Before Image",
+        "multi": false
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "afterImage",
+        "label": "After Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "beforeLabel",
+        "label": "Before Label",
+        "value": "Before"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "afterLabel",
+        "label": "After Label",
+        "value": "After"
+      }
+    ]
+  },
+  {
+    "id": "metrics-grid",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Section Title",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "metrics-grid-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "value",
+        "label": "Metric Value",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Metric Label",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "subtitle",
+        "label": "Subtitle",
+        "value": ""
       }
     ]
   },

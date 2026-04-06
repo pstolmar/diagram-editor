@@ -1,0 +1,73 @@
+.callout-panel {
+  max-width: 700px;
+  margin: 2rem auto;
+}
+
+.callout-panel-inner {
+  background: linear-gradient(135deg, #0070f3 0%, #0050c0 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: 0 8px 30px rgb(0 112 243 / 30%);
+  position: relative;
+  overflow: hidden;
+}
+
+.callout-panel-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.callout-panel-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 1rem;
+  line-height: 1.2;
+}
+
+.callout-panel-body {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgb(255 255 255 / 90%);
+  margin: 0 0 1.75rem;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.callout-panel-cta {
+  display: inline-block;
+  background: #fff;
+  color: #0070f3;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 20%);
+}
+
+.callout-panel-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+}
+
+.callout-panel-cta:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (width <= 600px) {
+  .callout-panel-inner {
+    padding: 2rem 1.25rem;
+  }
+
+  .callout-panel-title {
+    font-size: 1.4rem;
+  }
+}

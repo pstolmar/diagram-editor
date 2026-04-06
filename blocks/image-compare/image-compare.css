@@ -1,0 +1,109 @@
+.image-compare {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+.image-compare-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+  cursor: col-resize;
+  user-select: none;
+}
+
+.image-compare-before,
+.image-compare-after {
+  width: 100%;
+  display: block;
+}
+
+.image-compare-after {
+  position: absolute;
+  inset: 0;
+}
+
+.image-compare-before img,
+.image-compare-after img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-compare-slider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #fff;
+  transform: translateX(-50%);
+  cursor: col-resize;
+  z-index: 3;
+  box-shadow: 0 0 6px rgb(0 0 0 / 40%);
+}
+
+.image-compare-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-compare-handle::before,
+.image-compare-handle::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  position: absolute;
+}
+
+.image-compare-handle::before {
+  border-right: 10px solid #333;
+  right: 55%;
+}
+
+.image-compare-handle::after {
+  border-left: 10px solid #333;
+  left: 55%;
+}
+
+.image-compare-badge {
+  position: absolute;
+  top: 12px;
+  padding: 4px 10px;
+  background: rgb(0 0 0 / 55%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.image-compare-badge-before {
+  left: 12px;
+}
+
+.image-compare-badge-after {
+  right: 12px;
+}
+
+.image-compare-description {
+  margin-top: 0.75rem;
+  color: var(--text-color, #333);
+  font-size: 0.9rem;
+  text-align: center;
+}

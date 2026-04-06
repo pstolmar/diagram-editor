@@ -58,6 +58,12 @@
     ]
   },
   {
+    "id": "metrics-grid",
+    "components": [
+      "metrics-grid-item"
+    ]
+  },
+  {
     "id": "polaroid-corkboard",
     "components": [
       "polaroid-photo"
