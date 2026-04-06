@@ -113,6 +113,96 @@ function renderHeroStats(runs) {
     </div>`;
 }
 
+function fmtDuration(ms) {
+  if (!ms || ms <= 0) return '—';
+  if (ms < 1000) return `${ms}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+  const m = Math.floor(ms / 60000);
+  const s = Math.round((ms % 60000) / 1000);
+  return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
+
+function fmtTokens(n) {
+  if (!n) return '0';
+  if (n >= 1000000) return `${(n / 1000000).toFixed(2)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+}
+
+function renderDetail(run) {
+  const inp = run.tokenUsage?.inputTokens || 0;
+  const out = run.tokenUsage?.outputTokens || 0;
+  const cacheRead = run.tokenUsage?.cacheReadTokens || 0;
+  const cacheWrite = run.tokenUsage?.cacheWriteTokens || 0;
+  const totalTok = inp + out;
+  const actualCost = parseFloat(run.approxCostUsd || 0);
+  const opus = opusCost(run);
+  const durationMs = run.totalDurationMs
+    || (run.completedAt && run.startedAt
+      ? new Date(run.completedAt) - new Date(run.startedAt)
+      : 0);
+
+  // Cost per-model breakdown
+  const costIn = (inp / 1e6) * (run.modelTier === 'haiku' ? 0.25 : 3);
+  const costOut = (out / 1e6) * (run.modelTier === 'haiku' ? 1.25 : 15);
+
+  // Step breakdown
+  const steps = run.steps || [];
+  const toolCounts = steps.reduce((acc, s) => {
+    acc[s.tool] = (acc[s.tool] || 0) + 1;
+    return acc;
+  }, {});
+  const toolBreakdown = Object.entries(toolCounts)
+    .map(([tool, n]) => `<span class="tm-step-tool tm-step-tool-${tool}">${tool}×${n}</span>`)
+    .join(' ');
+
+  const stepRows = steps.map((s) => {
+    let icon = '⏭️';
+    if (s.status === 'ok') icon = '✅';
+    else if (s.status === 'failed') icon = '❌';
+    return `<div class="tm-step-entry">
+      <span class="tm-step-icon">${icon}</span>
+      <span class="tm-step-tool tm-step-tool-${s.tool}">${s.tool}</span>
+      <span>${s.name || '—'}</span>
+      <span class="tm-step-dur">${fmtDuration(s.durationMs)}</span>
+    </div>`;
+  }).join('');
+
+  const noSteps = steps.length === 0
+    ? '<span style="color:var(--tm-muted);font-style:italic">No step detail (pre-executor run)</span>'
+    : '';
+
+  const escalations = (run.escalations || []).map((e) => `<div>⚡ ${e}</div>`).join('');
+
+  return `<div class="tm-detail-inner">
+    <div class="tm-detail-section">
+      <div class="tm-detail-label">🔀 Routing &amp; config</div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">model tier</span><span class="tm-detail-val">${run.modelTier || inferModel(run)}</span></div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">MISER level</span><span class="tm-detail-val">${run.miserLevel ?? '—'}</span></div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">status</span><span class="tm-detail-val">${run.status || '—'}</span></div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">wall time</span><span class="tm-detail-val">${fmtDuration(durationMs)}</span></div>
+      ${run.escalationRecommended ? '<div class="tm-detail-row-entry"><span class="tm-detail-key">note</span><span style="color:var(--tm-yellow)">⚡ escalation recommended next run</span></div>' : ''}
+      ${escalations ? `<div class="tm-detail-row-entry"><span class="tm-detail-key">escalations</span><span class="tm-detail-val">${escalations}</span></div>` : ''}
+    </div>
+    <div class="tm-detail-section">
+      <div class="tm-detail-label">💰 Token &amp; cost breakdown</div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">input tokens</span><span class="tm-detail-val">${fmtTokens(inp)} <span style="color:var(--tm-muted)">($${costIn.toFixed(4)})</span></span></div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">output tokens</span><span class="tm-detail-val">${fmtTokens(out)} <span style="color:var(--tm-muted)">($${costOut.toFixed(4)})</span></span></div>
+      ${cacheRead ? `<div class="tm-detail-row-entry"><span class="tm-detail-key">cache read</span><span class="tm-detail-val">${fmtTokens(cacheRead)}</span></div>` : ''}
+      ${cacheWrite ? `<div class="tm-detail-row-entry"><span class="tm-detail-key">cache write</span><span class="tm-detail-val">${fmtTokens(cacheWrite)}</span></div>` : ''}
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">total tokens</span><span class="tm-detail-val">${fmtTokens(totalTok)}</span></div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">actual cost</span><span class="tm-detail-val">${formatCost(run.approxCostUsd)}</span></div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">Opus4 equiv</span><span class="tm-detail-val">$${opus.toFixed(4)}</span></div>
+      <div class="tm-detail-row-entry"><span class="tm-detail-key">saved</span><span class="tm-detail-val tm-detail-val-hi">$${(opus - actualCost).toFixed(4)} (${opus > 0 ? Math.round(((opus - actualCost) / opus) * 100) : 0}%)</span></div>
+    </div>
+    <div class="tm-detail-section">
+      <div class="tm-detail-label">⚡ Step breakdown (${steps.length})</div>
+      ${toolBreakdown ? `<div style="margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.25rem">${toolBreakdown}</div>` : ''}
+      <div class="tm-step-list">${stepRows}${noSteps}</div>
+    </div>
+  </div>`;
+}
+
 function renderDashboard(block, runs) {
   const totalCost = runs.reduce((s, r) => s + parseFloat(r.approxCostUsd || 0), 0);
   const totalOpus = runs.reduce((s, r) => s + opusCost(r), 0);
@@ -121,7 +211,7 @@ function renderDashboard(block, runs) {
 
   const sorted = [...runs].reverse();
 
-  const rows = sorted.map((run, i) => {
+  const rowPairs = sorted.map((run, i) => {
     const actualCost = parseFloat(run.approxCostUsd || 0);
     const opus = opusCost(run);
     const runSaved = opus - actualCost;
@@ -129,17 +219,21 @@ function renderDashboard(block, runs) {
     const timeStr = relativeTime(getTs(run));
     const desc = run.description || jobDesc(run.jobId || '');
     const dateStr = jobDate(run.jobId || '', getTs(run));
+    const rid = `tm-run-${i}`;
 
     return `
-      <tr>
+      <tr class="tm-run-row" data-rid="${rid}" title="Click to expand run detail">
         <td class="tm-num">${runs.length - i}</td>
-        <td class="tm-time">${timeStr}<br><span class="tm-date">${dateStr}</span></td>
-        <td class="tm-desc" title="${run.jobId || ''}">${desc}</td>
+        <td class="tm-time">${timeStr}<span class="tm-date">${dateStr}</span></td>
+        <td class="tm-desc">${desc}</td>
         <td class="tm-model">${inferModel(run)}</td>
         <td class="tm-steps">${stepSummary(run)}</td>
         <td class="tm-cost">${formatCost(run.approxCostUsd)}</td>
         <td class="tm-saved">$${runSaved.toFixed(4)} <span class="tm-pct">(${runPct}%)</span></td>
         <td class="tm-status">${statusBadge(run)}</td>
+      </tr>
+      <tr class="tm-detail-row is-hidden" id="${rid}">
+        <td colspan="8">${renderDetail(run)}</td>
       </tr>`;
   }).join('');
 
@@ -161,17 +255,39 @@ function renderDashboard(block, runs) {
       ${renderHeroStats(runs)}
       <div class="tm-table-wrap">
         <table class="tm-table">
+          <colgroup>
+            <col class="col-num"><col class="col-time"><col class="col-desc">
+            <col class="col-model"><col class="col-steps"><col class="col-cost">
+            <col class="col-saved"><col class="col-status">
+          </colgroup>
           <thead>
             <tr>
-              <th>#</th><th>Time</th><th>Task</th><th>Model</th>
+              <th>#</th><th>Time</th><th>Task ↕</th><th>Model</th>
               <th>Steps</th><th>Cost</th><th>Savings</th><th>Status</th>
             </tr>
           </thead>
-          <tbody>${emptyRow}${rows}</tbody>
+          <tbody>${emptyRow}${rowPairs}</tbody>
         </table>
       </div>
-      <div class="tm-footer">Powered by TokenMiser v2 · MISER routing active</div>
+      <div class="tm-footer">Powered by TokenMiser v2 · MISER routing active · click any row to expand</div>
     </div>`;
+
+  // Accordion click handler
+  block.querySelectorAll('.tm-run-row').forEach((tr) => {
+    tr.addEventListener('click', () => {
+      const { rid } = tr.dataset;
+      const detail = block.querySelector(`#${rid}`);
+      if (!detail) return;
+      const isOpen = !detail.classList.contains('is-hidden');
+      // Close all others
+      block.querySelectorAll('.tm-detail-row').forEach((d) => d.classList.add('is-hidden'));
+      block.querySelectorAll('.tm-run-row').forEach((r) => r.classList.remove('is-expanded'));
+      if (!isOpen) {
+        detail.classList.remove('is-hidden');
+        tr.classList.add('is-expanded');
+      }
+    });
+  });
 }
 
 function parseNdjson(text) {

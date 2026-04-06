@@ -181,7 +181,18 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8125rem;
+  table-layout: fixed;
 }
+
+/* Column widths at desktop — desc gets the room it needs */
+.tm-table col.col-num    { width: 2.5rem; }
+.tm-table col.col-time   { width: 8rem; }
+.tm-table col.col-desc   { width: auto; }
+.tm-table col.col-model  { width: 6rem; }
+.tm-table col.col-steps  { width: 9rem; }
+.tm-table col.col-cost   { width: 6.5rem; }
+.tm-table col.col-saved  { width: 9rem; }
+.tm-table col.col-status { width: 7rem; }
 
 .tm-table thead tr {
   background: var(--tm-surface);
@@ -204,15 +215,21 @@
   border-bottom: 1px solid var(--tm-border);
   white-space: nowrap;
   color: var(--tm-text);
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 .tm-desc {
-  max-width: 18rem;
   white-space: normal;
+  overflow-wrap: break-word;
   color: var(--tm-text);
   font-size: 0.8125rem;
   text-transform: capitalize;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.tm-desc:hover {
+  color: var(--tm-blue);
 }
 
 .tm-date {
@@ -220,6 +237,23 @@
   color: var(--tm-muted);
   display: block;
   margin-top: 0.125rem;
+}
+
+/* Detail + expanded rows declared before :last-child to avoid specificity conflict */
+.tm-detail-row td {
+  padding: 0;
+  border-bottom: 2px solid var(--tm-border);
+  white-space: normal;
+  background: #0a1628;
+}
+
+.tm-run-row.is-expanded td {
+  background: rgb(0 112 243 / 5%);
+  border-bottom-color: transparent;
+}
+
+.tm-run-row.is-expanded .tm-desc {
+  color: var(--tm-blue);
 }
 
 .tm-table tbody tr:last-child td {
@@ -245,6 +279,124 @@
 
 .tm-model {
   color: var(--tm-blue);
+  white-space: nowrap;
+}
+
+/* ── Expandable detail row ──────────────────────────────────────────────── */
+.tm-detail-inner {
+  padding: 1rem 1.5rem 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.tm-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tm-detail-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tm-muted);
+  margin-bottom: 0.25rem;
+}
+
+.tm-detail-row-entry {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.tm-detail-key {
+  color: var(--tm-muted);
+  min-width: 7rem;
+  flex-shrink: 0;
+}
+
+.tm-detail-val {
+  color: var(--tm-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-detail-val-hi {
+  color: var(--tm-green);
+  font-weight: 600;
+}
+
+.tm-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tm-step-entry {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.6875rem;
+}
+
+.tm-step-icon { flex-shrink: 0; }
+
+.tm-step-tool {
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  background: #1e293b;
+  color: var(--tm-muted);
+}
+
+.tm-step-tool-bash    { color: #34d399; }
+.tm-step-tool-codex   { color: #60a5fa; }
+.tm-step-tool-haiku   { color: #a78bfa; }
+.tm-step-tool-sonnet  { color: #fb923c; }
+.tm-step-tool-fj      { color: #f472b6; }
+
+.tm-step-dur {
+  color: var(--tm-muted);
+  font-size: 0.625rem;
+  margin-left: auto;
+}
+
+.tm-phase-header {
+  color: var(--tm-muted);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-top: 0.5rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--tm-border);
+}
+
+.tm-detail-row.is-hidden {
+  display: none;
+}
+
+.tm-run-row {
+  cursor: pointer;
+}
+
+/* Slide-in animation for detail panel */
+@keyframes tm-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tm-detail-row:not(.is-hidden) .tm-detail-inner {
+  animation: tm-detail-in 0.18s ease-out both;
 }
 
 .tm-steps {
