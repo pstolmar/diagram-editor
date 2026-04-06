@@ -324,22 +324,23 @@
   position: relative;
 }
 
-/* Clipped single-line with marquee on hover */
+/* Clipped single-line; JS adds .is-scrolling with measured --tm-overflow */
 .tm-desc-text {
   display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  will-change: transform;
 }
 
-.tm-desc:hover .tm-desc-text {
-  animation: tm-marquee 6s linear infinite;
+.tm-desc-text.is-scrolling {
   text-overflow: clip;
+  animation: tm-marquee 3.5s ease-in-out infinite alternate;
 }
 
 @keyframes tm-marquee {
   0%, 15%  { transform: translateX(0); }
-  85%, 100% { transform: translateX(calc(-100% + 12rem)); }
+  85%, 100% { transform: translateX(var(--tm-overflow, 0)); }
 }
 
 /* Full wrapped text — only visible when row is expanded */

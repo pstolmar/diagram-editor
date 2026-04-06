@@ -241,7 +241,44 @@ function renderDetail(run) {
   </div>`;
 }
 
-function renderDashboard(block, runs) {
+function wireInteractions(block, openRidRef) {
+  // Accordion
+  block.querySelectorAll('.tm-run-row').forEach((tr) => {
+    tr.addEventListener('click', () => {
+      const { rid } = tr.dataset;
+      const detail = block.querySelector(`#${rid}`);
+      if (!detail) return;
+      const isOpen = !detail.classList.contains('is-hidden');
+      block.querySelectorAll('.tm-detail-row').forEach((d) => d.classList.add('is-hidden'));
+      block.querySelectorAll('.tm-run-row').forEach((r) => r.classList.remove('is-expanded'));
+      if (!isOpen) {
+        detail.classList.remove('is-hidden');
+        tr.classList.add('is-expanded');
+        openRidRef.value = rid;
+      } else {
+        openRidRef.value = null;
+      }
+    });
+  });
+
+  // Marquee: measure real overflow with JS, scroll exactly that far
+  block.querySelectorAll('.tm-desc').forEach((td) => {
+    const text = td.querySelector('.tm-desc-text');
+    if (!text) return;
+    td.addEventListener('mouseenter', () => {
+      const overflow = text.scrollWidth - td.clientWidth;
+      if (overflow <= 4) return; // nothing hidden
+      text.style.setProperty('--tm-overflow', `-${overflow}px`);
+      text.classList.add('is-scrolling');
+    });
+    td.addEventListener('mouseleave', () => {
+      text.classList.remove('is-scrolling');
+      text.style.removeProperty('--tm-overflow');
+    });
+  });
+}
+
+function renderDashboard(block, runs, openRidRef) {
   const activeRuns = runs.filter((r) => r.status === 'running');
   const completedRuns = runs.filter((r) => r.status !== 'running');
   const totalCost = completedRuns.reduce((s, r) => s + parseFloat(r.approxCostUsd || 0), 0);
@@ -317,22 +354,19 @@ function renderDashboard(block, runs) {
       <div class="tm-footer">Powered by TokenMiser v2 · MISER routing active · click any row to expand</div>
     </div>`;
 
-  // Accordion click handler
-  block.querySelectorAll('.tm-run-row').forEach((tr) => {
-    tr.addEventListener('click', () => {
-      const { rid } = tr.dataset;
-      const detail = block.querySelector(`#${rid}`);
-      if (!detail) return;
-      const isOpen = !detail.classList.contains('is-hidden');
-      // Close all others
-      block.querySelectorAll('.tm-detail-row').forEach((d) => d.classList.add('is-hidden'));
-      block.querySelectorAll('.tm-run-row').forEach((r) => r.classList.remove('is-expanded'));
-      if (!isOpen) {
-        detail.classList.remove('is-hidden');
-        tr.classList.add('is-expanded');
-      }
-    });
-  });
+  wireInteractions(block, openRidRef);
+
+  // Restore previously open accordion row after re-render
+  if (openRidRef.value) {
+    const detail = block.querySelector(`#${openRidRef.value}`);
+    const row = block.querySelector(`[data-rid="${openRidRef.value}"]`);
+    if (detail && row) {
+      detail.classList.remove('is-hidden');
+      row.classList.add('is-expanded');
+    } else {
+      openRidRef.value = null; // row no longer exists
+    }
+  }
 }
 
 function parseNdjson(text) {
@@ -363,8 +397,9 @@ function tickElapsed(block) {
 }
 
 export default async function decorate(block) {
+  const openRidRef = { value: null }; // persists across re-renders
   let allRuns = await fetchRuns();
-  renderDashboard(block, allRuns);
+  renderDashboard(block, allRuns, openRidRef);
 
   // Tick elapsed timers every second (cheap DOM update, no re-fetch)
   setInterval(() => tickElapsed(block), 1000);
@@ -375,9 +410,8 @@ export default async function decorate(block) {
     const hadActive = allRuns.some((r) => r.status === 'running');
     const hasActive = fresh.some((r) => r.status === 'running');
     allRuns = fresh;
-    // Full re-render if running state changed; otherwise just update live bar
     if (hadActive !== hasActive) {
-      renderDashboard(block, fresh);
+      renderDashboard(block, fresh, openRidRef);
     } else {
       const liveBar = block.querySelector('.tm-live-bar');
       if (liveBar) {
@@ -387,10 +421,10 @@ export default async function decorate(block) {
     }
   }, LIVE_REFRESH_MS);
 
-  // Full refresh every 30s
+  // Full refresh every 30s — accordion state preserved via openRidRef
   setInterval(async () => {
     const fresh = await fetchRuns();
     allRuns = fresh;
-    renderDashboard(block, fresh);
+    renderDashboard(block, fresh, openRidRef);
   }, REFRESH_MS);
 }
