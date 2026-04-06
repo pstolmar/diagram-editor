@@ -49,7 +49,7 @@ if [ "${MARKERS:-}" = "--status" ]; then
   LAST=$(tail -1 "$RUNS_FILE")
   if [ -z "$LAST" ]; then echo "No runs recorded."; exit 0; fi
   JOB=$(echo "$LAST" | jq -r '.jobId // "—"')
-  TS=$(echo "$LAST" | jq -r '.timestamp // ""')
+  TS=$(echo "$LAST" | jq -r '.completedAt // .startedAt // ""')
   STEPS=$(echo "$LAST" | jq '.steps | length // 0' 2>/dev/null || echo 0)
   COST=$(echo "$LAST" | jq -r '.approxCostUsd // "0"')
   MISER=$(echo "$LAST" | jq -r '.miserLevel // 0')
@@ -71,8 +71,8 @@ if [ "${MARKERS:-}" = "--cost" ] || [ "${MARKERS:-}" = "--history" ]; then
   [ "${MARKERS:-}" = "--history" ] && LIMIT=9999
   printf "%-28s %-8s %-12s %-10s %-10s %s\n" "Run" "Model" "Tokens" "Cost" "Opus4 est" "Saved"
   printf "%-28s %-8s %-12s %-10s %-10s %s\n" "---" "-----" "------" "----" "---------" "-----"
-  # Read newest-first
-  tac "$RUNS_FILE" 2>/dev/null | head -n "$LIMIT" | while IFS= read -r LINE; do
+  # Read newest-first (tail -r on macOS, tac on Linux)
+  (_TM_REV_CMD="tail -r"; command -v tac &>/dev/null && _TM_REV_CMD="tac"; eval "$_TM_REV_CMD \"$RUNS_FILE\"") 2>/dev/null | head -n "$LIMIT" | while IFS= read -r LINE; do
     [ -z "$LINE" ] && continue
     JOB=$(echo "$LINE" | jq -r '.jobId // "—"' | cut -c1-24)
     MISER=$(echo "$LINE" | jq -r '.miserLevel // 0')
@@ -307,6 +307,12 @@ echo "🚀 tokenmiser: dispatching to claude -p (markers: ${MARKERS:-none})"
 echo "   Plan: $(head -3 "$PLAN_FILE" | tail -1)"
 echo ""
 
+# ── Write initial run record before dispatch ─────────────────────────────────
+mkdir -p .tokenmiser
+JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
+RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\"}" >> .tokenmiser/runs.json
+
 # Capture output to temp file for token extraction
 TMPOUT=$(mktemp)
 # shellcheck disable=SC2086
@@ -345,11 +351,13 @@ if command -v jq &>/dev/null; then
     if [ -f "$RUNS_FILE" ] && command -v jq &>/dev/null; then
       LAST_LINE=$(tail -1 "$RUNS_FILE")
       if [ -n "$LAST_LINE" ]; then
+        RUN_END="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         UPDATED=$(echo "$LAST_LINE" | jq \
           --argjson inp "$INPUT_TOKENS" \
           --argjson out "$OUTPUT_TOKENS" \
           --arg cost "$TOTAL_COST" \
-          '. + {tokenUsage: {inputTokens: $inp, outputTokens: $out}, approxCostUsd: $cost}' 2>/dev/null || echo "")
+          --arg end "$RUN_END" \
+          '. + {tokenUsage: {inputTokens: $inp, outputTokens: $out}, approxCostUsd: $cost, completedAt: $end, status: "ok"}' 2>/dev/null || echo "")
         if [ -n "$UPDATED" ]; then
           # Replace last line
           TMPFILE=$(mktemp)
