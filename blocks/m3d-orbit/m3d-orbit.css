@@ -1,0 +1,47 @@
+.m3d-orbit {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  background: radial-gradient(ellipse at 50% 38%, #0d1629 0%, #050a14 55%, #000000 100%);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+}
+
+.m3d-orbit.is-dragging {
+  cursor: grabbing;
+}
+
+.m3d-orbit canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.m3d-orbit-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.m3d-orbit-label {
+  position: absolute;
+  font-family: 'Courier New', 'Courier', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(155 200 235 / 82%);
+  text-shadow:
+    0 0 8px rgb(70 150 255 / 55%),
+    0 0 20px rgb(70 150 255 / 20%);
+  transform: translate(-50%, -100%);
+  padding-bottom: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: left, top;
+}

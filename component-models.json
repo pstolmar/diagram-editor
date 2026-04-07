@@ -576,6 +576,160 @@
     ]
   },
   {
+    "id": "m3d-bars",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "csvData",
+        "label": "Bar Data (CSV: category,value,color or row,col,value)",
+        "valueType": "string",
+        "description": "Inline CSV rows. Or enter a DAM path to a .csv/.txt/.pdf file."
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 420px)"
+      },
+      {
+        "component": "select",
+        "name": "variant",
+        "label": "Variant",
+        "options": [
+          {
+            "name": "Bars (category/value)",
+            "value": "bars"
+          },
+          {
+            "name": "Grid heatmap (row/col/value)",
+            "value": "grid"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "m3d-force-graph",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "graphData",
+        "label": "Graph Data (CSV: Source,Target,Weight)",
+        "valueType": "string",
+        "description": "Inline CSV rows — one edge per line. Or enter a DAM path to a .csv/.txt/.pdf file."
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 420px)"
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color Scheme",
+        "valueType": "string",
+        "description": "Node color palette: blue (default), green, amber, purple"
+      }
+    ]
+  },
+  {
+    "id": "m3d-globe",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "markerData",
+        "label": "Marker Data (CSV: label,lat,lon,value)",
+        "valueType": "string",
+        "description": "Inline CSV rows — one marker per line. Or enter a DAM path to a .csv/.txt/.pdf file."
+      },
+      {
+        "component": "select",
+        "name": "color",
+        "label": "Color Scheme",
+        "options": [
+          {
+            "name": "Blue (default)",
+            "value": "blue"
+          },
+          {
+            "name": "Green",
+            "value": "green"
+          },
+          {
+            "name": "Amber",
+            "value": "amber"
+          },
+          {
+            "name": "Purple",
+            "value": "purple"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 420px)"
+      }
+    ]
+  },
+  {
+    "id": "m3d-orbit",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "orbitData",
+        "label": "Orbit Data (CSV: label,radius,speed,size,color)",
+        "valueType": "string",
+        "description": "Inline CSV rows — one orbital body per line. Or enter a DAM path to a .csv/.txt/.pdf file."
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color Scheme",
+        "valueType": "string",
+        "description": "Palette for orbital bodies: blue (default), green, amber, purple"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 420px)"
+      }
+    ]
+  },
+  {
+    "id": "m3d-scatter",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "csvData",
+        "label": "Point Data (CSV: label,x,y,z,color)",
+        "valueType": "string",
+        "description": "Inline CSV rows with header. Or enter a DAM path to a .csv/.txt/.pdf file."
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 420px)"
+      },
+      {
+        "component": "text",
+        "name": "pointSize",
+        "label": "Point Size",
+        "valueType": "string",
+        "description": "Radius of each point in scene units (default: 0.05)"
+      }
+    ]
+  },
+  {
     "id": "metrics-grid-tm",
     "fields": [
       {

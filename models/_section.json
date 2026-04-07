@@ -78,7 +78,12 @@
         "miser-popin-carousel",
         "miser-tabbed-feature",
         "miser-scroll-narrative",
-        "miser-testimonials-mosaic"
+        "miser-testimonials-mosaic",
+        "m3d-force-graph",
+        "m3d-scatter",
+        "m3d-bars",
+        "m3d-globe",
+        "m3d-orbit"
       ]
     }
   ]

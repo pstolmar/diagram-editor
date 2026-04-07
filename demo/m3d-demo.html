@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>M3D Blocks — Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/styles/lazy-styles.css">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js" as="script" crossorigin>
+  <style>
+    body { background: #0d1117; color: #e2e8f0; font-family: system-ui, sans-serif; }
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .section { margin-bottom: 3rem; }
+    .section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin: 0 0 .75rem;
+      padding-bottom: .4rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .section p.desc {
+      font-size: .875rem;
+      color: #64748b;
+      margin: 0 0 1rem;
+    }
+    h1.page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin: 0 0 .25rem;
+    }
+    .page-subtitle {
+      font-size: .9375rem;
+      color: #64748b;
+      margin: 0 0 2.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header></header>
+  <main>
+
+    <h1 class="page-title">M3D Blocks — Interactive 3D Visualisations</h1>
+    <p class="page-subtitle">Five Three.js-powered EDS blocks. Drag to orbit, scroll to zoom.</p>
+
+    <!-- ── 1. Force Graph ──────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Force Graph — Node Network</h2>
+      <p class="desc">7 edges across 6 nodes. Node size reflects weighted degree; colour gradient cool→warm by connectivity.</p>
+      <div class="m3d-force-graph block" data-block-name="m3d-force-graph">
+        <div><div><pre>Source,Target,Weight
+A,B,1
+A,C,2
+B,D,1
+C,D,2
+D,E,1
+E,F,1
+C,F,1</pre></div></div>
+      </div>
+    </div>
+
+    <!-- ── 2. Scatter Plot ─────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Scatter — 50-Point Sample Cloud</h2>
+      <p class="desc">50 labelled points in x/y/z 0–100 space. Five colour clusters. Drag to rotate, scroll to zoom.</p>
+      <div class="m3d-scatter block" data-block-name="m3d-scatter">
+        <div><div><pre>label,x,y,z,color
+point1,12,24,68,#00c8f0
+point2,18,30,72,#00c8f0
+point3,8,19,61,#00c8f0
+point4,22,27,75,#00c8f0
+point5,15,33,65,#00c8f0
+point6,10,21,70,#00c8f0
+point7,20,28,58,#00c8f0
+point8,14,35,80,#00c8f0
+point9,7,16,64,#00c8f0
+point10,25,22,77,#00c8f0
+point11,73,62,22,#ff6b6b
+point12,80,55,18,#ff6b6b
+point13,68,70,28,#ff6b6b
+point14,85,60,15,#ff6b6b
+point15,76,48,32,#ff6b6b
+point16,71,65,25,#ff6b6b
+point17,88,52,20,#ff6b6b
+point18,64,73,35,#ff6b6b
+point19,79,58,12,#ff6b6b
+point20,83,44,30,#ff6b6b
+point21,33,80,50,#51cf66
+point22,40,75,55,#51cf66
+point23,27,88,45,#51cf66
+point24,45,70,60,#51cf66
+point25,35,83,48,#51cf66
+point26,30,77,53,#51cf66
+point27,42,90,40,#51cf66
+point28,25,72,58,#51cf66
+point29,38,85,52,#51cf66
+point30,48,68,44,#51cf66
+point31,85,35,85,#ffd43b
+point32,90,28,80,#ffd43b
+point33,78,42,90,#ffd43b
+point34,92,32,75,#ffd43b
+point35,82,48,88,#ffd43b
+point36,88,22,82,#ffd43b
+point37,75,38,92,#ffd43b
+point38,95,30,78,#ffd43b
+point39,80,45,85,#ffd43b
+point40,86,25,88,#ffd43b
+point41,50,55,28,#cc5de8
+point42,58,48,35,#cc5de8
+point43,44,62,22,#cc5de8
+point44,55,40,30,#cc5de8
+point45,62,58,18,#cc5de8
+point46,48,52,38,#cc5de8
+point47,53,65,25,#cc5de8
+point48,60,45,32,#cc5de8
+point49,46,70,20,#cc5de8
+point50,57,50,42,#cc5de8</pre></div></div>
+      </div>
+    </div>
+
+    <!-- ── 3. Bar Chart ────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Bar Chart — Quarterly Values Q1–Q7</h2>
+      <p class="desc">7 categories with per-bar colour. Isometric projection with animated grow-on-load.</p>
+      <div class="m3d-bars block" data-block-name="m3d-bars">
+        <div><div>bars</div></div>
+        <div><div>420</div></div>
+        <div><div>Q1,15,#0ea5e9
+Q2,28,#10b981
+Q3,42,#f59e0b
+Q4,35,#ef4444
+Q5,55,#a855f7
+Q6,68,#00c8a0
+Q7,45,#f97316</div></div>
+      </div>
+    </div>
+
+    <!-- ── 4. Globe ────────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Globe — Global City Markers</h2>
+      <p class="desc">24 city markers across all continents. Drag to rotate the globe.</p>
+      <div class="m3d-globe block" data-block-name="m3d-globe">
+        <div><div>New York,40.71,-74.01,45
+London,51.51,-0.13,52
+Tokyo,35.68,139.69,78
+Sydney,-33.87,151.21,68
+Paris,48.86,2.29,55
+Dubai,25.20,55.27,82
+Singapore,1.35,103.82,75
+Mumbai,19.08,72.88,63
+Hong Kong,22.30,114.18,71
+Seoul,37.57,126.98,58
+Bangkok,13.73,100.47,72
+Shanghai,31.23,121.47,65
+Los Angeles,34.05,-118.24,48
+Mexico City,19.43,-99.13,47
+Rio,-22.91,-43.17,51
+Moscow,55.75,37.62,38
+Cairo,30.03,31.24,42
+Istanbul,41.01,28.98,44
+Athens,37.97,23.73,50
+Barcelona,41.39,2.17,53
+Amsterdam,52.37,4.89,54
+Vienna,48.21,16.37,49
+Rome,41.90,12.50,52
+Berlin,52.52,13.41,51</div></div>
+      </div>
+    </div>
+
+    <!-- ── 5. Globe (20 World Cities) ──────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Globe — 20 Major World Cities</h2>
+      <p class="desc">20 high-value cities across all continents. Marker brightness scales with city value (80–95). Drag to rotate.</p>
+      <div class="m3d-globe block" data-block-name="m3d-globe">
+        <div><div>New York,40.7128,-74.0060,95
+London,51.5074,-0.1278,87
+Tokyo,35.6762,139.6503,92
+Sydney,-33.8688,151.2093,88
+Paris,48.8566,2.3522,90
+Dubai,25.2048,55.2708,85
+Singapore,1.3521,103.8198,89
+Hong Kong,22.3193,114.1694,91
+Mumbai,19.0760,72.8777,82
+Los Angeles,34.0522,-118.2437,86
+Mexico City,19.4326,-99.1332,84
+Toronto,43.6532,-79.3832,87
+Berlin,52.5200,13.4050,88
+Moscow,55.7558,37.6173,80
+Bangkok,13.7563,100.5018,83
+ShanghaiCalling,31.2304,121.4737,93
+Seoul,37.5665,126.9780,91
+Vancouver,49.2827,-123.1207,88
+Auckland,-37.8136,174.7629,86
+Capetown,-33.9249,18.4241,84</div></div>
+        <div><div>blue</div></div>
+        <div><div>600</div></div>
+      </div>
+    </div>
+
+    <!-- ── 6. Orbit ────────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Orbit — Solar System</h2>
+      <p class="desc">9 bodies (Sun + 8 planets). Starfield backdrop, real-time orbital animation. Drag to orbit.</p>
+      <div class="m3d-orbit block" data-block-name="m3d-orbit">
+        <div><div><pre>label,radius,speed,size,color
+Sun,0,0,0.38,#FFD000
+Mercury,1,1.5,0.055,#A8A8A8
+Venus,1.5,1.2,0.092,#E8D5A3
+Earth,2,1.0,0.100,#4B9CD3
+Mars,2.5,0.8,0.068,#C1440E
+Jupiter,3.5,0.5,0.240,#C88B3A
+Saturn,4.5,0.3,0.200,#E4D191
+Uranus,5.5,0.2,0.140,#7EC8C8
+Neptune,6.5,0.1,0.130,#3B7BBF</pre></div></div>
+      </div>
+    </div>
+
+  </main>
+  <footer></footer>
+</body>
+</html>
+
+<!-- 3D Globe Demo -->
+<h2>3D Globe</h2>
+<div class="m3d-globe">
+  <div>markerData</div>
+  <div>New York,40.7128,-74.0060,85
+London,51.5074,-0.1278,92
+Tokyo,35.6762,139.6503,78
+Sydney,-33.8688,151.2093,88
+Paris,48.8566,2.3522,95
+Dubai,25.2048,55.2708,81
+Singapore,1.3521,103.8198,89
+Mumbai,19.0760,72.8777,65
+Bangkok,13.7563,100.5018,72
+Hong Kong,22.3193,114.1694,87
+Toronto,43.6532,-79.3832,79
+Mexico City,19.4326,-99.1332,68
+Buenos Aires,-34.6037,-58.3816,74
+Moscow,55.7558,37.6173,62
+Beijing,39.9042,116.4074,76
+Cairo,30.0444,31.2357,58
+Johannesburg,-26.2023,28.0436,64
+Los Angeles,34.0522,-118.2437,82
+Melbourne,-37.8136,144.9631,86
+Amsterdam,52.3676,4.9041,93</div>
+  <div>color</div>
+  <div>blue</div>
+  <div>height</div>
+  <div>600</div>
+</div>

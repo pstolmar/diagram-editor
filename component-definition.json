@@ -339,6 +339,81 @@
           }
         },
         {
+          "title": "3D Bar Chart",
+          "id": "m3d-bars",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "M3d Bars",
+                  "model": "m3d-bars"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Force Graph",
+          "id": "m3d-force-graph",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "M3d Force Graph",
+                  "model": "m3d-force-graph"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Globe",
+          "id": "m3d-globe",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "M3d Globe",
+                  "model": "m3d-globe"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Orbit",
+          "id": "m3d-orbit",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "M3d Orbit",
+                  "model": "m3d-orbit"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Scatter Plot",
+          "id": "m3d-scatter",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "M3d Scatter",
+                  "model": "m3d-scatter"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Metrics Grid TM",
           "id": "metrics-grid-tm",
           "plugins": {
