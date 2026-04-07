@@ -1,0 +1,58 @@
+{
+  "definitions": [
+    {
+      "title": "Viz Supply Chain",
+      "id": "viz-supply-chain",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Viz Supply Chain",
+              "model": "viz-supply-chain"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "viz-supply-chain",
+      "fields": [
+        {
+          "component": "text",
+          "name": "dataUrl",
+          "label": "Data URL",
+          "valueType": "string",
+          "description": "Supply chain data endpoint (JSON with nodes and routes arrays)"
+        },
+        {
+          "component": "text-area",
+          "name": "inlineData",
+          "label": "Inline Data",
+          "valueType": "string",
+          "description": "JSON fallback supply chain data"
+        },
+        {
+          "component": "text",
+          "name": "height",
+          "label": "Height",
+          "valueType": "string",
+          "description": "Canvas height in px (default: 700px)"
+        },
+        {
+          "component": "select",
+          "name": "showLabels",
+          "label": "Show Labels",
+          "options": [
+            { "name": "On hover (default)", "value": "hover" },
+            { "name": "Always", "value": "always" },
+            { "name": "Never", "value": "never" }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

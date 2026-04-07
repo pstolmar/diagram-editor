@@ -1,0 +1,286 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+.supply-chain-viz {
+  --scv-bg: #030a15;
+  --scv-panel-bg: #040c1c;
+  --scv-border: #0d2540;
+  --scv-teal: #00d4aa;
+  --scv-amber: #f59e0b;
+  --scv-red: #ef4444;
+  --scv-text: #7a98b0;
+  --scv-text-dim: #3a5268;
+  --scv-mono: 'Share Tech Mono', 'Courier New', monospace;
+  --scv-display: 'Orbitron', 'Share Tech Mono', 'Courier New', monospace;
+
+  position: relative;
+  width: 100%;
+  background: var(--scv-bg);
+  border: 1px solid var(--scv-border);
+  overflow: hidden;
+  font-family: var(--scv-mono);
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────────── */
+
+.scv-wrapper {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+.scv-canvas {
+  flex: 1 1 0;
+  display: block;
+  min-width: 0;
+  cursor: grab;
+}
+
+.scv-canvas:active {
+  cursor: grabbing;
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────────── */
+
+.scv-panel {
+  width: 256px;
+  flex-shrink: 0;
+  background: var(--scv-panel-bg);
+  border-left: 1px solid var(--scv-border);
+  padding: 18px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  color: var(--scv-text);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  position: relative;
+}
+
+/* Scanline texture */
+.scv-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgb(0 0 0 / 6%) 3px,
+    rgb(0 0 0 / 6%) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.scv-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Panel header ──────────────────────────────────────────────────────────── */
+
+.scv-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--scv-border);
+}
+
+.scv-panel-title {
+  font-family: var(--scv-display);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--scv-teal);
+  text-transform: uppercase;
+}
+
+.scv-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--scv-teal);
+  box-shadow: 0 0 8px var(--scv-teal), 0 0 16px var(--scv-teal);
+  animation: scv-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes scv-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+/* ── Stats ───────────────────────────────────────────────────────────────────── */
+
+.scv-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scv-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.scv-stat-value {
+  font-family: var(--scv-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  color: #b8cede;
+  letter-spacing: 0.01em;
+}
+
+.scv-v-teal {
+  color: var(--scv-teal);
+  text-shadow: 0 0 14px var(--scv-teal);
+}
+
+.scv-v-red {
+  color: var(--scv-red);
+  text-shadow: 0 0 14px var(--scv-red);
+  animation: scv-flicker 2.5s ease-in-out infinite;
+}
+
+@keyframes scv-flicker {
+  0%, 88%, 100% { opacity: 1; }
+  90%, 96% { opacity: 0.7; }
+  93% { opacity: 0.9; }
+}
+
+.scv-stat-label {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--scv-text-dim);
+  text-transform: uppercase;
+}
+
+/* ── Rule + section labels ───────────────────────────────────────────────────── */
+
+.scv-rule {
+  height: 1px;
+  background: linear-gradient(90deg, var(--scv-border), transparent 80%);
+  margin: 0;
+}
+
+.scv-section-lbl {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--scv-text-dim);
+  text-transform: uppercase;
+}
+
+/* ── Alerts ──────────────────────────────────────────────────────────────────── */
+
+.scv-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scv-alert-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: rgb(239 68 68 / 7%);
+  border: 1px solid rgb(239 68 68 / 22%);
+  border-radius: 2px;
+}
+
+.scv-alert-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--scv-red);
+  box-shadow: 0 0 6px var(--scv-red);
+  animation: scv-pulse 1.4s ease-in-out infinite;
+}
+
+.scv-alert-text {
+  font-size: 10px;
+  color: rgb(239 68 68 / 85%);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-no-alerts {
+  font-size: 10px;
+  color: var(--scv-teal);
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+/* ── Legend ──────────────────────────────────────────────────────────────────── */
+
+.scv-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: auto;
+}
+
+.scv-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--scv-text);
+  letter-spacing: 0.06em;
+}
+
+.scv-legend-pip {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+
+@media (width <= 720px) {
+  .scv-wrapper {
+    flex-direction: column;
+    height: auto !important;
+  }
+
+  .scv-canvas {
+    width: 100%;
+    height: 300px;
+    flex: none;
+  }
+
+  .scv-panel {
+    width: 100%;
+    height: auto;
+    border-left: none;
+    border-top: 1px solid var(--scv-border);
+    flex-flow: row wrap;
+    gap: 12px 24px;
+    padding: 14px 16px;
+  }
+
+  .scv-stats {
+    flex-flow: row wrap;
+    gap: 12px 24px;
+  }
+
+  .scv-legend {
+    margin-top: 0;
+    flex-flow: row wrap;
+    gap: 6px 16px;
+  }
+}

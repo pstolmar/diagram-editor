@@ -279,8 +279,8 @@ function wireInteractions(block, openRidRef) {
 }
 
 function renderDashboard(block, runs, openRidRef) {
-  const activeRuns = runs.filter((r) => r.status === 'running');
-  const completedRuns = runs.filter((r) => r.status !== 'running');
+  const activeRuns = runs.filter((r) => r.status === 'running' && !isStale(r));
+  const completedRuns = runs.filter((r) => r.status !== 'running' || isStale(r));
   const totalCost = completedRuns.reduce((s, r) => s + parseFloat(r.approxCostUsd || 0), 0);
   const totalOpus = runs.reduce((s, r) => s + opusCost(r), 0);
   const saved = totalOpus - totalCost;
@@ -407,15 +407,15 @@ export default async function decorate(block) {
   // Fast poll for running-job status changes
   setInterval(async () => {
     const fresh = await fetchRuns();
-    const hadActive = allRuns.some((r) => r.status === 'running');
-    const hasActive = fresh.some((r) => r.status === 'running');
+    const hadActive = allRuns.some((r) => r.status === 'running' && !isStale(r));
+    const hasActive = fresh.some((r) => r.status === 'running' && !isStale(r));
     allRuns = fresh;
     if (hadActive !== hasActive) {
       renderDashboard(block, fresh, openRidRef);
     } else {
       const liveBar = block.querySelector('.tm-live-bar');
       if (liveBar) {
-        const active = fresh.filter((r) => r.status === 'running');
+        const active = fresh.filter((r) => r.status === 'running' && !isStale(r));
         liveBar.outerHTML = renderLiveBar(active);
       }
     }

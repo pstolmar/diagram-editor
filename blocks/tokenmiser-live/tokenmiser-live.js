@@ -39,7 +39,7 @@ function jobLabel(run) {
 }
 
 function render(block, runs) {
-  const active = runs.filter((r) => r.status === 'running');
+  const active = runs.filter((r) => r.status === 'running' && !isStale(r));
   const last = runs.filter((r) => r.status !== 'running').at(-1);
 
   if (active.length === 0) {

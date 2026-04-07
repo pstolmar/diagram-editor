@@ -1399,6 +1399,52 @@
     ]
   },
   {
+    "id": "supply-chain-viz",
+    "fields": [
+      {
+        "component": "text",
+        "name": "dataUrl",
+        "label": "Data URL",
+        "valueType": "string",
+        "description": "URL to fetch supply chain JSON ({nodes:[...], routes:[...]}). Falls back to inlineData or built-in demo."
+      },
+      {
+        "component": "text-area",
+        "name": "inlineData",
+        "label": "Inline Data (JSON)",
+        "valueType": "string",
+        "description": "Inline JSON string with nodes and routes arrays. Used when dataUrl is empty."
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height (px)",
+        "valueType": "string",
+        "description": "Visualization height in pixels (default: 520)"
+      },
+      {
+        "component": "select",
+        "name": "showLabels",
+        "label": "Show Node Labels",
+        "valueType": "string",
+        "options": [
+          {
+            "name": "On Hover (default)",
+            "value": "hover"
+          },
+          {
+            "name": "Always",
+            "value": "always"
+          },
+          {
+            "name": "Never",
+            "value": "never"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "tabbed-feature",
     "fields": [
       {
@@ -1481,5 +1527,202 @@
   {
     "id": "tokenmiser-live",
     "fields": []
+  },
+  {
+    "id": "viz-analytics-pulse",
+    "fields": [
+      {
+        "component": "text",
+        "name": "dataUrl",
+        "label": "Data URL",
+        "valueType": "string",
+        "description": "Analytics endpoint returning JSON with activeUsers, pageviewsToday, topPages, byRegion"
+      },
+      {
+        "component": "text",
+        "name": "refreshSeconds",
+        "label": "Refresh Interval (seconds)",
+        "valueType": "string",
+        "description": "How often to poll the data endpoint (default: 30)"
+      },
+      {
+        "component": "text-area",
+        "name": "inlineData",
+        "label": "Inline Data",
+        "valueType": "string",
+        "description": "JSON fallback analytics snapshot"
+      },
+      {
+        "component": "text",
+        "name": "accentColor",
+        "label": "Accent Color",
+        "valueType": "string",
+        "description": "Highlight color for counters and charts (hex or name, default: #0066ff)"
+      }
+    ]
+  },
+  {
+    "id": "viz-office-map",
+    "fields": [
+      {
+        "component": "text",
+        "name": "dataUrl",
+        "label": "Data URL",
+        "valueType": "string",
+        "description": "Live data endpoint (JSON array of office objects)"
+      },
+      {
+        "component": "text-area",
+        "name": "inlineData",
+        "label": "Inline Data",
+        "valueType": "string",
+        "description": "JSON fallback data — used when Data URL is empty or fails"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 600px)"
+      },
+      {
+        "component": "select",
+        "name": "theme",
+        "label": "Theme",
+        "options": [
+          {
+            "name": "Dark (default)",
+            "value": "dark"
+          },
+          {
+            "name": "Light",
+            "value": "light"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "viz-pipeline",
+    "fields": [
+      {
+        "component": "text",
+        "name": "dataUrl",
+        "label": "Data URL",
+        "valueType": "string",
+        "description": "Pipeline data endpoint (JSON) — polled on interval"
+      },
+      {
+        "component": "text",
+        "name": "pollInterval",
+        "label": "Poll Interval (seconds)",
+        "valueType": "string",
+        "description": "How often to refresh live data (default: 10)"
+      },
+      {
+        "component": "text-area",
+        "name": "inlineData",
+        "label": "Inline Data",
+        "valueType": "string",
+        "description": "JSON fallback data — used when Data URL is empty or fails"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 500px)"
+      }
+    ]
+  },
+  {
+    "id": "viz-supply-chain",
+    "fields": [
+      {
+        "component": "text",
+        "name": "dataUrl",
+        "label": "Data URL",
+        "valueType": "string",
+        "description": "Supply chain data endpoint (JSON with nodes and routes arrays)"
+      },
+      {
+        "component": "text-area",
+        "name": "inlineData",
+        "label": "Inline Data",
+        "valueType": "string",
+        "description": "JSON fallback supply chain data"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 700px)"
+      },
+      {
+        "component": "select",
+        "name": "showLabels",
+        "label": "Show Labels",
+        "options": [
+          {
+            "name": "On hover (default)",
+            "value": "hover"
+          },
+          {
+            "name": "Always",
+            "value": "always"
+          },
+          {
+            "name": "Never",
+            "value": "never"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "viz-threat-map",
+    "fields": [
+      {
+        "component": "text",
+        "name": "dataUrl",
+        "label": "Data URL",
+        "valueType": "string",
+        "description": "Threat feed endpoint (JSON, refreshed every 5s)"
+      },
+      {
+        "component": "text",
+        "name": "wsUrl",
+        "label": "WebSocket URL",
+        "valueType": "string",
+        "description": "Optional WebSocket endpoint for real-time threat stream"
+      },
+      {
+        "component": "text-area",
+        "name": "inlineData",
+        "label": "Inline Data",
+        "valueType": "string",
+        "description": "JSON fallback attack arcs — replayed in a loop"
+      },
+      {
+        "component": "select",
+        "name": "theme",
+        "label": "Theme",
+        "options": [
+          {
+            "name": "Dark (default)",
+            "value": "dark"
+          },
+          {
+            "name": "Neon",
+            "value": "neon"
+          },
+          {
+            "name": "Corporate",
+            "value": "corporate"
+          }
+        ]
+      }
+    ]
   }
 ]

@@ -1,0 +1,58 @@
+{
+  "definitions": [
+    {
+      "title": "Viz Threat Map",
+      "id": "viz-threat-map",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Viz Threat Map",
+              "model": "viz-threat-map"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "viz-threat-map",
+      "fields": [
+        {
+          "component": "text",
+          "name": "dataUrl",
+          "label": "Data URL",
+          "valueType": "string",
+          "description": "Threat feed endpoint (JSON, refreshed every 5s)"
+        },
+        {
+          "component": "text",
+          "name": "wsUrl",
+          "label": "WebSocket URL",
+          "valueType": "string",
+          "description": "Optional WebSocket endpoint for real-time threat stream"
+        },
+        {
+          "component": "text-area",
+          "name": "inlineData",
+          "label": "Inline Data",
+          "valueType": "string",
+          "description": "JSON fallback attack arcs — replayed in a loop"
+        },
+        {
+          "component": "select",
+          "name": "theme",
+          "label": "Theme",
+          "options": [
+            { "name": "Dark (default)", "value": "dark" },
+            { "name": "Neon", "value": "neon" },
+            { "name": "Corporate", "value": "corporate" }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

@@ -1,0 +1,435 @@
+/* =============================================================
+   viz-threat-map — Cyber threat intelligence visualization
+   Themes: dark (default) | neon | corporate (Adobe)
+   ============================================================= */
+
+/* ── CSS Custom Properties (dark theme defaults) ── */
+.viz-threat-map {
+  --vtm-bg: #07080d;
+  --vtm-bg-alt: #0d0f18;
+  --vtm-border: rgb(255 255 255 / 8%);
+  --vtm-text: #c8cfe0;
+  --vtm-text-dim: rgb(200 207 224 / 45%);
+  --vtm-accent: #38bdf8;
+  --vtm-accent-glow: rgb(56 189 248 / 30%);
+  --vtm-danger: #f87171;
+  --vtm-danger-glow: rgb(248 113 113 / 25%);
+  --vtm-warn: #fb923c;
+  --vtm-safe: #4ade80;
+  --vtm-badge-bg: rgb(255 255 255 / 5%);
+  --vtm-badge-border: rgb(255 255 255 / 12%);
+  --vtm-ticker-bg: rgb(0 0 0 / 60%);
+  --vtm-font-mono: "Fira Code", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace;
+  --vtm-font-display: "DM Sans", "IBM Plex Sans", system-ui, sans-serif;
+  --vtm-ticker-speed: 60s;
+  --vtm-glow-blur: 12px;
+  --vtm-flag-size: 1.25em;
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--vtm-bg);
+  font-family: var(--vtm-font-display);
+  color: var(--vtm-text);
+
+  /* Subtle scanline texture — adds depth without JS */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgb(0 0 0 / 4%) 2px,
+      rgb(0 0 0 / 4%) 4px
+    );
+}
+
+/* ── Neon theme ── */
+.viz-threat-map.neon {
+  --vtm-bg: #020408;
+  --vtm-bg-alt: #040810;
+  --vtm-border: rgb(0 255 159 / 15%);
+  --vtm-text: #e0ffe8;
+  --vtm-text-dim: rgb(0 255 159 / 50%);
+  --vtm-accent: #00ff9f;
+  --vtm-accent-glow: rgb(0 255 159 / 35%);
+  --vtm-danger: #ff2d55;
+  --vtm-danger-glow: rgb(255 45 85 / 35%);
+  --vtm-warn: #fc0;
+  --vtm-safe: #00ff9f;
+  --vtm-badge-bg: rgb(0 255 159 / 5%);
+  --vtm-badge-border: rgb(0 255 159 / 20%);
+  --vtm-ticker-bg: rgb(0 0 0 / 75%);
+  --vtm-glow-blur: 18px;
+}
+
+/* ── Corporate / Adobe theme ── */
+.viz-threat-map.corporate {
+  --vtm-bg: #1a1a2e;
+  --vtm-bg-alt: #16213e;
+  --vtm-border: rgb(255 255 255 / 10%);
+  --vtm-text: #f0f4ff;
+  --vtm-text-dim: rgb(240 244 255 / 55%);
+  --vtm-accent: #e8411e;
+
+  /* Adobe red */
+  --vtm-accent-glow: rgb(232 65 30 / 30%);
+  --vtm-danger: #ff4040;
+  --vtm-danger-glow: rgb(255 64 64 / 25%);
+  --vtm-warn: #ffb938;
+  --vtm-safe: #3ecf8e;
+  --vtm-badge-bg: rgb(232 65 30 / 8%);
+  --vtm-badge-border: rgb(232 65 30 / 25%);
+  --vtm-ticker-bg: rgb(10 10 28 / 80%);
+  --vtm-font-display: "Adobe Clean", "DM Sans", system-ui, sans-serif;
+  --vtm-glow-blur: 10px;
+}
+
+
+/* Vignette overlay for cinematic depth */
+.viz-threat-map::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, rgb(0 0 0 / 55%) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Canvas ── */
+#threat-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 420px;
+  position: relative;
+  z-index: 1;
+}
+
+/* When canvas height is driven by JS, ensure the block tracks it */
+.viz-threat-map canvas {
+  display: block;
+  width: 100% !important;
+}
+
+/* ── Counters — top-right badge cluster ── */
+.counters {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.counter-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.6rem;
+  background: var(--vtm-badge-bg);
+  border: 1px solid var(--vtm-badge-border);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  font-family: var(--vtm-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Pulsing glow on live data updates */
+.counter-badge.live {
+  animation: badge-pulse 3s ease-in-out infinite;
+}
+
+.counter-badge.danger {
+  border-color: var(--vtm-danger);
+  color: var(--vtm-danger);
+  box-shadow: 0 0 var(--vtm-glow-blur) var(--vtm-danger-glow);
+}
+
+.counter-badge.accent {
+  border-color: var(--vtm-accent);
+  color: var(--vtm-accent);
+  box-shadow: 0 0 var(--vtm-glow-blur) var(--vtm-accent-glow);
+}
+
+.counter-badge.safe {
+  border-color: var(--vtm-safe);
+  color: var(--vtm-safe);
+  box-shadow: 0 0 var(--vtm-glow-blur) rgb(74 222 128 / 25%);
+}
+
+.counter-badge.warn {
+  border-color: var(--vtm-warn);
+  color: var(--vtm-warn);
+  box-shadow: 0 0 var(--vtm-glow-blur) rgb(251 146 60 / 25%);
+}
+
+.counter-label {
+  color: var(--vtm-text-dim);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.counter-value {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 3ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 var(--vtm-glow-blur) var(--vtm-accent-glow); }
+  50%       { box-shadow: 0 0 calc(var(--vtm-glow-blur) * 2) var(--vtm-accent-glow), 0 0 30px var(--vtm-accent-glow); }
+}
+
+.counter-badge.danger.live {
+  animation-name: badge-pulse-danger;
+}
+
+@keyframes badge-pulse-danger {
+  0%, 100% { box-shadow: 0 0 var(--vtm-glow-blur) var(--vtm-danger-glow); }
+  50%       { box-shadow: 0 0 calc(var(--vtm-glow-blur) * 2) var(--vtm-danger-glow), 0 0 30px var(--vtm-danger-glow); }
+}
+
+/* ── Ticker — scrolling threat feed at bottom ── */
+.ticker {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: 2.4rem;
+  background: var(--vtm-ticker-bg);
+  border-top: 1px solid var(--vtm-border);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Left label tab */
+.ticker::before {
+  content: "LIVE";
+  flex-shrink: 0;
+  padding: 0 0.75rem;
+  font-family: var(--vtm-font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--vtm-accent);
+  text-shadow: 0 0 8px var(--vtm-accent-glow);
+  border-right: 1px solid var(--vtm-border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Fade masks on left and right edges */
+.ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, var(--vtm-bg) 0%, transparent 6%, transparent 94%, var(--vtm-bg) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+  will-change: transform;
+  animation: ticker-scroll var(--vtm-ticker-speed) linear infinite;
+}
+
+/* Pause on hover for readability */
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 1.5rem;
+  font-family: var(--vtm-font-mono);
+  font-size: 0.7rem;
+  color: var(--vtm-text-dim);
+  letter-spacing: 0.02em;
+  border-right: 1px solid var(--vtm-border);
+}
+
+.ticker-item .severity {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ticker-item .severity.high   {
+  background: var(--vtm-danger);
+  box-shadow: 0 0 6px var(--vtm-danger);
+}
+.ticker-item .severity.medium { background: var(--vtm-warn); }
+.ticker-item .severity.low    { background: var(--vtm-safe); }
+
+.ticker-item .region {
+  color: var(--vtm-text);
+  font-weight: 500;
+}
+
+.ticker-item time {
+  color: var(--vtm-text-dim);
+  font-size: 0.62rem;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Flag emoji — consistent sizing across platforms ── */
+.flag-emoji {
+  display: inline-block;
+  font-size: var(--vtm-flag-size);
+  line-height: 1;
+  font-style: normal;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  vertical-align: middle;
+
+  /* Prevent OS from applying text colour to emoji */
+  -webkit-text-fill-color: initial;
+  text-shadow: none;
+  filter: none;
+}
+
+/* Slightly smaller flags inside the ticker */
+.ticker-item .flag-emoji {
+  font-size: 0.9em;
+}
+
+/* Slightly larger flags in badges */
+.counter-badge .flag-emoji {
+  font-size: 1.1em;
+}
+
+/* ── Tooltip (for map hover state) ── */
+.vtm-tooltip {
+  position: absolute;
+  z-index: 20;
+  padding: 0.5rem 0.75rem;
+  background: var(--vtm-bg-alt);
+  border: 1px solid var(--vtm-accent);
+  border-radius: 4px;
+  font-family: var(--vtm-font-mono);
+  font-size: 0.7rem;
+  color: var(--vtm-text);
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 60%), 0 0 var(--vtm-glow-blur) var(--vtm-accent-glow);
+  max-width: 200px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.vtm-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vtm-tooltip strong {
+  display: block;
+  color: var(--vtm-accent);
+  margin-bottom: 0.2rem;
+}
+
+/* ── Neon theme overrides ── */
+.viz-threat-map.neon .ticker::before {
+  color: var(--vtm-accent);
+  text-shadow: 0 0 12px var(--vtm-accent), 0 0 24px var(--vtm-accent-glow);
+  animation: neon-flicker 8s step-end infinite;
+}
+
+.viz-threat-map.neon .ticker-item .region {
+  text-shadow: 0 0 6px var(--vtm-accent-glow);
+}
+
+.viz-threat-map.neon .counter-badge.accent {
+  text-shadow: 0 0 10px var(--vtm-accent);
+}
+
+@keyframes neon-flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96%            { opacity: 0.4; }
+  97%            { opacity: 1; }
+  98%            { opacity: 0.6; }
+  99%            { opacity: 1; }
+}
+
+/* ── Corporate theme overrides ── */
+.viz-threat-map.corporate .ticker::before {
+  content: "ADOBE SENTINEL";
+  letter-spacing: 0.1em;
+}
+
+.viz-threat-map.corporate::before {
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, rgb(10 10 24 / 65%) 100%);
+}
+
+/* ── Responsive ── */
+@media (width <= 768px) {
+  .counters {
+  top: 0.5rem;
+  right: 0.5rem;
+  gap: 0.35rem;
+}
+
+  .counter-badge {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.65rem;
+}
+
+  .counter-value {
+    font-size: 0.85rem;
+  }
+
+  .ticker {
+    height: 2rem;
+  }
+
+  .ticker-item {
+  font-size: 0.62rem;
+  padding: 0 1rem;
+}
+
+  #threat-canvas {
+    min-height: 280px;
+  }
+}
+
+@media (width <= 480px) {
+  .counter-label {
+    display: none;
+  }
+
+  .counters {
+  flex-flow: row wrap;
+  justify-content: flex-end;
+  max-width: 60vw;
+}
+
+  .viz-threat-map.corporate .ticker::before {
+    content: "SENTINEL";
+  }
+}

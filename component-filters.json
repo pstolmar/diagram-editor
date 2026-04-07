@@ -48,7 +48,12 @@
       "m3d-scatter",
       "m3d-bars",
       "m3d-globe",
-      "m3d-orbit"
+      "m3d-orbit",
+      "viz-office-map",
+      "viz-pipeline",
+      "viz-threat-map",
+      "viz-analytics-pulse",
+      "viz-supply-chain"
     ]
   },
   {

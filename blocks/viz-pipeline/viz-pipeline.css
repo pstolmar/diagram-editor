@@ -1,0 +1,535 @@
+/* viz-pipeline — pipeline topology visualizer
+   Aesthetic: industrial systems-monitoring; dark terminal grid
+   Fonts: JetBrains Mono (data) + IBM Plex Sans (labels)
+   --------------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Custom properties ─────────────────────────────────────────── */
+.viz-pipeline {
+  -vp-bg:           #07111d;
+  -vp-surface:      #0c1826;
+  -vp-surface-2:    #111f2e;
+  -vp-border:       #1a2d40;
+  -vp-border-hi:    #274560;
+  -vp-text:         #8fa8bf;
+  -vp-text-hi:      #cde0f0;
+  -vp-text-dim:     #3d5a73;
+  -vp-ok:           #00c97a;
+  -vp-warn:         #f5c842;
+  -vp-error:        #ff4d5e;
+  -vp-idle:         #3d5a73;
+  -vp-unknown:      #8a7ecf;
+  -vp-active:       #1d8bff;
+  -vp-panel-w:      320px;
+  -vp-legend-h:     36px;
+  -vp-radius:       4px;
+  -vp-font-ui:      'IBM Plex Sans', system-ui, sans-serif;
+  -vp-font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* scanline pulse — applied to canvas */
+  -vp-scan-opacity: 0.025;
+  position: relative;
+  width: 100%;
+  background: var(--vp-bg);
+  border: 1px solid var(--vp-border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: var(--vp-font-ui);
+  color: var(--vp-text);
+
+  /* subtle inset glow */
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 3%),
+    0 0 0 1px var(--vp-bg),
+    0 8px 32px rgb(0 0 0 / 60%);
+}
+
+
+/* ── Canvas ────────────────────────────────────────────────────── */
+#pipeline-canvas {
+  display: block;
+  width: 100%;
+
+  /* height driven by JS;
+  min prevents collapse */
+  min-height: 320px;
+  height: auto;
+  position: relative;
+  z-index: 1;
+  cursor: default;
+  background:
+    /* dot-grid overlay */
+    radial-gradient(circle, var(--vp-border) 1px, transparent 1px),
+    var(--vp-bg);
+  background-size: 24px 24px, 100% 100%;
+  background-position: 0 0, 0 0;
+}
+
+/* scanline pass — purely decorative CRT texture */
+#pipeline-canvas::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgb(0 0 0 / var(--vp-scan-opacity)) 2px,
+    rgb(0 0 0 / var(--vp-scan-opacity)) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── SVG canvas element (when viz draws into an SVG child) ─────── */
+#pipeline-canvas svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── Node panel (overlay) ──────────────────────────────────────── */
+.node-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: var(--vp-panel-w);
+  max-width: calc(100% - 24px);
+  background: var(--vp-surface);
+  border: 1px solid var(--vp-border-hi);
+  border-radius: var(--vp-radius);
+  overflow: hidden;
+  z-index: 20;
+  transform: translateX(calc(var(--vp-panel-w) + 20px));
+  opacity: 0;
+  transition:
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity   0.18s ease;
+  pointer-events: none;
+
+  /* top accent stripe — defaults to active;
+  JS swaps via data-status */
+  -panel-accent: var(--vp-active);
+  border-top: 2px solid var(--panel-accent);
+  box-shadow:
+    0 4px 24px rgb(0 0 0 / 55%),
+    inset 0 1px 0 rgb(255 255 255 / 4%);
+}
+
+/* status variants */
+.node-panel[data-status='ok']      { -panel-accent: var(--vp-ok);      }
+.node-panel[data-status='warn']    { -panel-accent: var(--vp-warn);     }
+.node-panel[data-status='error']   { -panel-accent: var(--vp-error);    }
+.node-panel[data-status='idle']    { -panel-accent: var(--vp-idle);     }
+.node-panel[data-status='unknown'] { -panel-accent: var(--vp-unknown);  }
+
+/* open state — toggled by JS */
+.node-panel.is-open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* panel header */
+.node-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--vp-border);
+  gap: 8px;
+}
+
+.node-panel-title {
+  font-family: var(--vp-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vp-text-hi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-panel-status-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--panel-accent);
+  box-shadow: 0 0 6px var(--panel-accent);
+  animation: vp-pulse 2.4s ease-in-out infinite;
+}
+
+.node-panel[data-status='idle'] .node-panel-status-dot,
+.node-panel[data-status='unknown'] .node-panel-status-dot {
+  animation: none;
+}
+
+@keyframes vp-pulse {
+  0%, 100% {
+  opacity: 1;
+  box-shadow: 0 0 6px var(--panel-accent);
+}
+
+  50%       {
+  opacity: 0.5;
+  box-shadow: 0 0 3px var(--panel-accent);
+}
+}
+
+/* close button */
+.node-panel-close {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--vp-border);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--vp-text-dim);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.node-panel-close:hover {
+  color: var(--vp-text-hi);
+  border-color: var(--vp-border-hi);
+  background: var(--vp-surface-2);
+}
+
+/* panel metrics body */
+.node-panel-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* individual metric row */
+.node-panel-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.node-panel-metric-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vp-text-dim);
+}
+
+.node-panel-metric-value {
+  font-family: var(--vp-font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--vp-text-hi);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* error rate — color-shifts with severity */
+.node-panel-metric-error-rate .node-panel-metric-value {
+  color: var(--panel-accent);
+}
+
+/* sub-label (e.g. "last 5 min") */
+.node-panel-metric-sub {
+  font-size: 10px;
+  color: var(--vp-text-dim);
+  font-family: var(--vp-font-mono);
+}
+
+/* hairline divider between metrics */
+.node-panel-divider {
+  height: 1px;
+  background: var(--vp-border);
+  margin: 2px 0;
+}
+
+/* timestamp row */
+.node-panel-timestamp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--vp-border);
+  font-family: var(--vp-font-mono);
+  font-size: 10px;
+  color: var(--vp-text-dim);
+}
+
+.node-panel-timestamp::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vp-text-dim);
+  flex-shrink: 0;
+}
+
+/* ── Legend ────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: var(--vp-legend-h);
+  border-top: 1px solid var(--vp-border);
+  background: var(--vp-surface);
+  padding: 0 14px;
+  overflow: auto hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.legend::-webkit-scrollbar { display: none; }
+
+/* legend label prefix */
+.legend-title {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vp-text-dim);
+  margin-right: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* individual swatch + label */
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  height: 100%;
+  flex-shrink: 0;
+  border-left: 1px solid var(--vp-border);
+  cursor: default;
+  transition: background 0.15s;
+}
+
+.legend-item:hover {
+  background: var(--vp-surface-2);
+}
+
+.legend-item:first-of-type {
+  border-left: none;
+}
+
+.legend-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-swatch-ok      {
+  background: var(--vp-ok);
+  box-shadow: 0 0 4px var(--vp-ok);
+}
+
+.legend-swatch-warn    {
+  background: var(--vp-warn);
+  box-shadow: 0 0 4px var(--vp-warn);
+}
+
+.legend-swatch-error   {
+  background: var(--vp-error);
+  box-shadow: 0 0 4px var(--vp-error);
+}
+.legend-swatch-idle    { background: var(--vp-idle);     }
+.legend-swatch-unknown { background: var(--vp-unknown);  }
+
+.legend-label {
+  font-family: var(--vp-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--vp-text);
+  white-space: nowrap;
+}
+
+/* active/filtered state — JS toggles .is-filtered */
+.legend-item.is-filtered .legend-swatch {
+  opacity: 0.25;
+  box-shadow: none;
+}
+
+.legend-item.is-filtered .legend-label {
+  color: var(--vp-text-dim);
+}
+
+/* ── Toolbar (optional slot above canvas) ──────────────────────── */
+.viz-pipeline-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--vp-border);
+  background: var(--vp-surface);
+}
+
+.viz-pipeline-toolbar-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vp-text);
+}
+
+.viz-pipeline-toolbar-spacer {
+  flex: 1;
+}
+
+/* small icon-button in toolbar */
+.viz-pipeline-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  gap: 5px;
+  border: 1px solid var(--vp-border);
+  border-radius: var(--vp-radius);
+  background: transparent;
+  color: var(--vp-text);
+  font-family: var(--vp-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.viz-pipeline-btn:hover {
+  color: var(--vp-text-hi);
+  border-color: var(--vp-border-hi);
+  background: var(--vp-surface-2);
+}
+
+/* ── Loading / empty state ─────────────────────────────────────── */
+.viz-pipeline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  gap: 12px;
+  color: var(--vp-text-dim);
+}
+
+.viz-pipeline-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--vp-border);
+  border-top-color: var(--vp-active);
+  border-radius: 50%;
+  animation: vp-spin 0.9s linear infinite;
+}
+
+@keyframes vp-spin {
+  to { transform: rotate(360deg); }
+}
+
+.viz-pipeline-empty-text {
+  font-family: var(--vp-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+/* ── Responsive — mobile ───────────────────────────────────────── */
+@media (width <= 768px) {
+  .viz-pipeline {
+  -vp-panel-w: 260px;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
+
+  #pipeline-canvas {
+  min-height: 240px;
+
+  /* allow pinch-zoom on touch */
+    touch-action: pan-x pan-y;
+  background-size: 16px 16px, 100% 100%;
+}
+
+  /* panel drops to bottom sheet on mobile */
+  .node-panel {
+  inset: auto 8px calc(var(--vp-legend-h) + 8px);
+  width: auto;
+  max-width: none;
+  transform: translateY(calc(100% + 16px));
+}
+
+  .node-panel.is-open {
+    transform: translateY(0);
+  }
+
+  .node-panel-metric-value {
+    font-size: 18px;
+  }
+
+  .legend {
+    gap: 0;
+  }
+
+  .legend-title {
+    display: none;
+  }
+
+  .legend-item {
+    padding: 0 8px;
+  }
+}
+
+@media (width <= 480px) {
+  #pipeline-canvas {
+    min-height: 180px;
+  }
+
+  .node-panel-body {
+    gap: 8px;
+  }
+
+  .node-panel-metric-value {
+    font-size: 16px;
+  }
+
+  /* legend collapses to swatches only */
+  .legend-label {
+    display: none;
+  }
+
+  .legend-item {
+    padding: 0 6px;
+  }
+}
+
+/* ── Reduced-motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .node-panel {
+    transition: opacity 0.15s ease;
+  }
+
+  .node-panel-status-dot {
+    animation: none;
+  }
+
+  .viz-pipeline-spinner {
+  animation: none;
+  border-top-color: var(--vp-text-dim);
+}
+}

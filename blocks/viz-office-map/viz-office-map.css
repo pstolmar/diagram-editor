@@ -1,0 +1,796 @@
+/* ============================================================
+   viz-office-map — Mission Control aesthetic
+   Dark slate-blue shell · Amber telemetry accent · Monospace
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400;600;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Design tokens ─────────────────────────────────────────── */
+.viz-office-map {
+  --vom-bg:          #0d1117;
+  --vom-surface:     #161b22;
+  --vom-surface-hi:  #1f2633;
+  --vom-border:      #2a3144;
+  --vom-border-dim:  #1c2230;
+  --vom-amber:       #f5a623;
+  --vom-amber-dim:   rgb(245 166 35 / 18%);
+  --vom-amber-glow:  rgb(245 166 35 / 40%);
+  --vom-green:       #3fb950;
+  --vom-green-dim:   rgb(63 185 80 / 15%);
+  --vom-red:         #f85149;
+  --vom-text:        #e6edf3;
+  --vom-text-muted:  #7d8590;
+  --vom-text-dim:    #444c56;
+  --vom-font-mono:   'Martian Mono', 'Cascadia Code', 'Fira Mono', monospace;
+  --vom-font-ui:     'DM Sans', system-ui, sans-serif;
+  --vom-radius:      6px;
+  --vom-sidebar-w:   320px;
+  --vom-height:      var(--block-height, 560px);
+
+  transition:  220ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  width: 100%;
+  height: var(--vom-height);
+  background: var(--vom-bg);
+  border-radius: var(--vom-radius);
+  overflow: hidden;
+  font-family: var(--vom-font-ui);
+  color: var(--vom-text);
+
+  /* Subtle scanline texture */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgb(255 255 255 / 1%) 3px,
+      rgb(255 255 255 / 1%) 4px
+    );
+}
+
+/* Light-theme override (toggled via .vom-theme-light on root) */
+.viz-office-map.vom-theme-light {
+  --vom-bg:         #f0f2f5;
+  --vom-surface:    #fff;
+  --vom-surface-hi: #e8ebf0;
+  --vom-border:     #d0d7de;
+  --vom-border-dim: #e0e4ea;
+  --vom-text:       #1a1f26;
+  --vom-text-muted: #57606a;
+  --vom-text-dim:   #afb8c1;
+  --vom-amber-dim:  rgb(245 166 35 / 12%);
+}
+
+
+/* Grid overlay fading in on load */
+.viz-office-map::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--vom-border-dim) 1px, transparent 1px),
+    linear-gradient(90deg, var(--vom-border-dim) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  animation: vom-grid-fade 1.2s ease both;
+}
+
+@keyframes vom-grid-fade {
+  from { opacity: 0; }
+  to   { opacity: 0.4; }
+}
+
+/* ── Canvas container ──────────────────────────────────────── */
+.viz-office-map #canvas,
+.vom-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+}
+
+/* ── Top status bar ────────────────────────────────────────── */
+.vom-statusbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  background: rgb(13 17 23 / 85%);
+  border-bottom: 1px solid var(--vom-border);
+  backdrop-filter: blur(8px);
+  font-family: var(--vom-font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--vom-text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vom-statusbar-label {
+  color: var(--vom-amber);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.vom-statusbar-sep {
+  width: 1px;
+  height: 14px;
+  background: var(--vom-border);
+  flex-shrink: 0;
+}
+
+.vom-statusbar-spacer {
+  flex: 1;
+}
+
+/* Live indicator dot */
+.vom-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--vom-green);
+  box-shadow: 0 0 6px var(--vom-green);
+  animation: vom-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes vom-pulse {
+  0%, 100% {
+  opacity: 1;
+  box-shadow: 0 0 6px var(--vom-green);
+}
+
+  50%       {
+  opacity: 0.5;
+  box-shadow: 0 0 2px var(--vom-green);
+}
+}
+
+/* ── Clock ─────────────────────────────────────────────────── */
+.clock {
+  font-family: var(--vom-font-mono);
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 800;
+  color: var(--vom-text);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  position: relative;
+  display: inline-flex;
+  gap: 0.04em;
+  user-select: none;
+}
+
+/* Amber flash on digit tick */
+.clock.vom-tick {
+  color: var(--vom-amber);
+  text-shadow: 0 0 20px var(--vom-amber-glow);
+  transition: color 80ms ease, text-shadow 80ms ease;
+}
+
+.clock-seconds {
+  font-size: 0.55em;
+  font-weight: 300;
+  color: var(--vom-text-muted);
+  align-self: flex-end;
+  padding-bottom: 0.18em;
+  letter-spacing: 0;
+}
+
+.clock-label {
+  font-family: var(--vom-font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--vom-text-dim);
+  margin-top: 4px;
+}
+
+/* ── Headcount badge ───────────────────────────────────────── */
+.headcount-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--vom-green-dim);
+  border: 1px solid rgb(63 185 80 / 30%);
+  border-radius: var(--vom-radius);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Corner accent */
+.headcount-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--vom-green);
+  border-radius: var(--vom-radius) 0 0 var(--vom-radius);
+}
+
+.headcount-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.headcount-value {
+  font-family: var(--vom-font-mono);
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  color: var(--vom-green);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.headcount-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.headcount-label {
+  font-family: var(--vom-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--vom-text-muted);
+}
+
+.headcount-delta {
+  font-family: var(--vom-font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--vom-green);
+}
+
+.headcount-delta.is-down {
+  color: var(--vom-red);
+}
+
+/* ── Sparkline ─────────────────────────────────────────────── */
+.sparkline {
+  display: inline-block;
+  vertical-align: middle;
+  overflow: visible;
+}
+
+.sparkline-line {
+  fill: none;
+  stroke: var(--vom-amber);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sparkline-area {
+  fill: url("#sparkline-gradient");
+  opacity: 0.35;
+}
+
+/* Inline SVG gradient — defined once in JS, reused everywhere */
+.sparkline-dot {
+  fill: var(--vom-amber);
+  filter: drop-shadow(0 0 3px var(--vom-amber));
+}
+
+.sparkline-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sparkline-stat {
+  font-family: var(--vom-font-mono);
+  font-size: 11px;
+  color: var(--vom-text-muted);
+  white-space: nowrap;
+}
+
+.sparkline-stat strong {
+  color: var(--vom-amber);
+  font-weight: 600;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.office-sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--vom-sidebar-w);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: rgb(22 27 34 / 96%);
+  border-left: 1px solid var(--vom-border);
+  backdrop-filter: blur(12px);
+
+  /* Slide-in from right — default hidden */
+  transform: translateX(100%);
+  visibility: hidden;
+  transition:
+    transform 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 280ms;
+
+  /* Scan-line reveal mask (animates away on open) */
+  clip-path: inset(0 0 0 100%);
+}
+
+.office-sidebar.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition:
+    transform 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0s,
+    clip-path 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  clip-path: inset(0 0 0 0);
+}
+
+/* Amber edge glow when open */
+.office-sidebar.is-open::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -1px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--vom-amber) 30%,
+    var(--vom-amber) 70%,
+    transparent 100%
+  );
+  box-shadow: 0 0 12px var(--vom-amber-glow);
+  animation: vom-edge-scan 3s ease-in-out infinite;
+}
+
+@keyframes vom-edge-scan {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* Overlay backdrop */
+.vom-sidebar-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: rgb(0 0 0 / 45%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--vom-transition);
+}
+
+.vom-sidebar-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Sidebar header */
+.office-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--vom-border);
+  flex-shrink: 0;
+}
+
+.office-sidebar-title {
+  font-family: var(--vom-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--vom-amber);
+}
+
+.office-sidebar-close {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--vom-border);
+  border-radius: 4px;
+  color: var(--vom-text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: border-color var(--vom-transition), color var(--vom-transition);
+}
+
+.office-sidebar-close:hover {
+  border-color: var(--vom-amber);
+  color: var(--vom-amber);
+}
+
+/* Sidebar scrollable body */
+.office-sidebar-body {
+  flex: 1;
+  overflow: hidden auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--vom-border) transparent;
+}
+
+.office-sidebar-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.office-sidebar-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.office-sidebar-body::-webkit-scrollbar-thumb {
+  background: var(--vom-border);
+  border-radius: 2px;
+}
+
+/* Sidebar section */
+.vom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vom-section-label {
+  font-family: var(--vom-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--vom-text-dim);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--vom-border-dim);
+}
+
+/* Data row */
+.vom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--vom-surface-hi);
+  border-radius: 4px;
+  border: 1px solid var(--vom-border-dim);
+}
+
+.vom-row-key {
+  font-family: var(--vom-font-mono);
+  font-size: 11px;
+  color: var(--vom-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vom-row-val {
+  font-family: var(--vom-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vom-text);
+  white-space: nowrap;
+}
+
+.vom-row-val.is-green { color: var(--vom-green); }
+.vom-row-val.is-amber { color: var(--vom-amber); }
+.vom-row-val.is-red   { color: var(--vom-red); }
+
+/* ── Controls bar ──────────────────────────────────────────── */
+.controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgb(13 17 23 / 90%);
+  border-top: 1px solid var(--vom-border);
+  backdrop-filter: blur(8px);
+}
+
+/* Hide controls from visitors — only shown in edit/author context */
+:not(.hlx-edit) .controls {
+  display: none;
+}
+
+/* Show controls when block has .vom-author-mode (set by JS when in edit) */
+.viz-office-map.vom-author-mode .controls {
+  display: flex;
+}
+
+.controls-label {
+  font-family: var(--vom-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--vom-text-dim);
+  flex-shrink: 0;
+}
+
+/* Theme toggle switch */
+.vom-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vom-toggle-track {
+  width: 36px;
+  height: 20px;
+  background: var(--vom-surface-hi);
+  border: 1px solid var(--vom-border);
+  border-radius: 10px;
+  position: relative;
+  transition: background var(--vom-transition), border-color var(--vom-transition);
+}
+
+.vom-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.vom-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--vom-text-muted);
+  transition: transform var(--vom-transition), background var(--vom-transition);
+}
+
+.vom-toggle input:checked + .vom-toggle-track {
+  background: var(--vom-amber-dim);
+  border-color: var(--vom-amber);
+}
+
+.vom-toggle input:checked + .vom-toggle-track .vom-toggle-thumb {
+  transform: translateX(16px);
+  background: var(--vom-amber);
+}
+
+.vom-toggle-text {
+  font-family: var(--vom-font-mono);
+  font-size: 10px;
+  color: var(--vom-text-muted);
+  white-space: nowrap;
+}
+
+/* Floor/zone select */
+.vom-select {
+  appearance: none;
+  background: var(--vom-surface-hi);
+  border: 1px solid var(--vom-border);
+  border-radius: 4px;
+  color: var(--vom-text);
+  font-family: var(--vom-font-mono);
+  font-size: 10px;
+  padding: 3px 22px 3px 8px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237d8590'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  transition: border-color var(--vom-transition);
+}
+
+.vom-select:hover,
+.vom-select:focus {
+  border-color: var(--vom-amber);
+  outline: none;
+}
+
+.controls-spacer {
+  flex: 1;
+}
+
+/* Sidebar trigger button */
+.vom-sidebar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--vom-amber-dim);
+  border: 1px solid rgb(245 166 35 / 35%);
+  border-radius: var(--vom-radius);
+  color: var(--vom-amber);
+  font-family: var(--vom-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    background var(--vom-transition),
+    border-color var(--vom-transition),
+    box-shadow var(--vom-transition);
+}
+
+.vom-sidebar-btn:hover {
+  background: rgb(245 166 35 / 28%);
+  border-color: var(--vom-amber);
+  box-shadow: 0 0 8px var(--vom-amber-glow);
+}
+
+/* ── Zone tooltips ─────────────────────────────────────────── */
+.vom-tooltip {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+  padding: 8px 12px;
+  background: rgb(22 27 34 / 97%);
+  border: 1px solid var(--vom-border);
+  border-radius: var(--vom-radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 55%);
+  font-family: var(--vom-font-mono);
+  font-size: 11px;
+  color: var(--vom-text);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.vom-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vom-tooltip-name {
+  font-weight: 600;
+  color: var(--vom-amber);
+  margin-bottom: 4px;
+}
+
+.vom-tooltip-row {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.vom-tooltip-key { color: var(--vom-text-muted); }
+.vom-tooltip-val { font-weight: 600; }
+
+/* ── Legend ────────────────────────────────────────────────── */
+.vom-legend {
+  position: absolute;
+  bottom: 52px;
+
+  /* above controls bar */
+  left: 12px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  background: rgb(13 17 23 / 85%);
+  border: 1px solid var(--vom-border);
+  border-radius: var(--vom-radius);
+  backdrop-filter: blur(8px);
+}
+
+.vom-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--vom-font-mono);
+  font-size: 10px;
+  color: var(--vom-text-muted);
+  white-space: nowrap;
+}
+
+.vom-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (width <= 768px) {
+  .viz-office-map {
+  --vom-sidebar-w: 100%;
+  --vom-height: var(--block-height, 420px);
+
+  border-radius: 0;
+}
+
+  .office-sidebar {
+  inset: auto 0 0;
+  width: 100%;
+  height: 60%;
+  border-left: none;
+  border-top: 1px solid var(--vom-border);
+  transform: translateY(100%);
+  clip-path: inset(100% 0 0 0);
+}
+
+  .office-sidebar.is-open {
+  transform: translateY(0);
+  clip-path: inset(0 0 0 0);
+}
+
+  .office-sidebar.is-open::before {
+  inset: -1px 0 auto;
+  width: auto;
+  height: 2px;
+  background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--vom-amber) 30%,
+      var(--vom-amber) 70%,
+      transparent 100%
+    );
+}
+
+  .clock {
+    font-size: clamp(1.8rem, 7vw, 2.8rem);
+  }
+
+  .vom-legend {
+  bottom: 52px;
+  font-size: 9px;
+}
+
+  .controls {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 10px;
+}
+
+  .controls-spacer {
+    display: none;
+  }
+
+  .vom-statusbar {
+  font-size: 9px;
+  gap: 10px;
+  padding: 0 10px;
+}
+}
+
+@media (width <= 480px) {
+  .viz-office-map {
+    --vom-height: var(--block-height, 340px);
+  }
+
+  .headcount-value {
+    font-size: 1.8rem;
+  }
+
+  .vom-legend {
+    display: none;
+  }
+}
