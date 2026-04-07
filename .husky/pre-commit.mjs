@@ -30,7 +30,7 @@ if (blocksChanged && fs.existsSync('tests/critical-path.json')) {
     // Check if dev server is up before attempting Playwright
     let serverUp = false;
     try {
-      await run('curl -sf --max-time 2 http://localhost:3000 > /dev/null');
+      await run('curl -sfL --max-time 3 -o /dev/null http://localhost:3000');
       serverUp = true;
     } catch {
       // Server not running — skip tests with a warning
