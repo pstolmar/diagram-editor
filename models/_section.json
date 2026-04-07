@@ -62,7 +62,23 @@
         "tokenmiser-live",
         "image-compare-tm",
         "metrics-grid-tm",
-        "callout-panel-tm"
+        "callout-panel-tm",
+        "tabbed-feature",
+        "scroll-narrative",
+        "testimonials-mosaic",
+        "csv-chart",
+        "threejs-scene",
+        "d3-graph",
+        "particle-field",
+        "popin-carousel",
+        "miser-csv-chart",
+        "miser-threejs-scene",
+        "miser-d3-graph",
+        "miser-particle-field",
+        "miser-popin-carousel",
+        "miser-tabbed-feature",
+        "miser-scroll-narrative",
+        "miser-testimonials-mosaic"
       ]
     }
   ]

@@ -1,0 +1,125 @@
+.tf-wrap {
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  min-height: 400px;
+  overflow: hidden;
+}
+
+.tf-tabs {
+  background: #0f172a;
+  border-right: 1px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.tf-tab {
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  transition: background 0.2s, color 0.2s, border-left-color 0.2s;
+  user-select: none;
+}
+
+.tf-tab:hover {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.tf-tab.is-active {
+  border-left-color: #0070f3;
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.tf-tab-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.tf-tab-subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.tf-tab.is-active .tf-tab-subtitle {
+  color: #94a3b8;
+}
+
+.tf-progress {
+  height: 2px;
+  background: #0070f3;
+  width: 0%;
+  animation: tf-fill 5s linear forwards;
+}
+
+.tf-panels {
+  background: #0d1117;
+  position: relative;
+  overflow: hidden;
+}
+
+.tf-panel {
+  display: none;
+  flex-direction: column;
+  padding: 2rem;
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+}
+
+.tf-panel.is-active {
+  display: flex;
+  animation: tf-slide-in 0.35s ease forwards;
+}
+
+@keyframes tf-fill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes tf-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (width <= 640px) {
+  .tf-wrap {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .tf-tabs {
+    flex-direction: row;
+    overflow: auto hidden;
+    border-right: none;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .tf-tab {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tf-tab.is-active {
+    border-left-color: transparent;
+    border-bottom-color: #0070f3;
+  }
+
+  .tf-panels {
+    position: relative;
+    min-height: 300px;
+  }
+}

@@ -1,0 +1,41 @@
+.miser-d3-graph {
+  width: 100%;
+  min-height: 360px;
+  background: #0f172a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.d3g-node {
+  fill: #0070f3;
+  stroke: #1e293b;
+  stroke-width: 2;
+}
+
+.d3g-link {
+  stroke: #334155;
+  stroke-opacity: 0.6;
+}
+
+.d3g-label {
+  fill: #e2e8f0;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.d3g-bar {
+  fill: #0070f3;
+}
+
+.d3g-tooltip {
+  position: absolute;
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
+}

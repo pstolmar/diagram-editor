@@ -1,0 +1,75 @@
+.tf-wrap {
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  gap: 0;
+}
+
+.tf-tabs {
+  background: #0f172a;
+  border-right: 1px solid #1e293b;
+}
+
+.tf-tab {
+  padding: 1rem 1.25rem;
+  border-left: 3px solid transparent;
+}
+
+.tf-tab.is-active {
+  border-left-color: #0070f3;
+  background: rgb(0 112 243 / 8%);
+}
+
+.tf-panel {
+  display: none;
+}
+
+.tf-panel.is-active {
+  display: flex;
+  animation: tf-panel-in 240ms ease-out both;
+}
+
+.tf-progress {
+  height: 2px;
+  width: 0;
+  background: #0070f3;
+  animation: tf-fill 5s linear;
+}
+
+@keyframes tf-fill {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes tf-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (width <= 640px) {
+  .tf-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .tf-tabs {
+    display: flex;
+    overflow-x: auto;
+    border-right: none;
+  }
+
+  .tf-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}

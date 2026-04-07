@@ -3,6 +3,7 @@ import path from "path";
 import { promisify } from "util";
 import { exec as execCb } from "child_process";
 import crypto from "crypto";
+import { mcpRequest, isBridgeActive } from "./mcp-bridge.js";
 
 const execAsync = promisify(execCb);
 
@@ -43,24 +44,93 @@ type StepResult = {
   stdout?: string;
   stderr?: string;
   errorMessage?: string;
+  inputTokens?: number;
+  outputTokens?: number;
 };
 
 const JOB_PATH = path.join(".claude", "job.json");
 const LOG_DIR = path.join(".claude", "logs");
 const REPORT_PATH = "REPORT.md";
+
+/**
+ * TM_CODE_WITH: override the tool used for every non-bash step.
+ * "auto" = use the tool from the JobSpec (default behaviour)
+ * "codex" | "fj" | "haiku" | "sonnet" | "opus" = force that tool for all LLM steps
+ * bash/groundtruth steps are never overridden (they have no LLM equivalent).
+ */
+const CODE_WITH_OVERRIDE = (process.env.TM_CODE_WITH ?? "auto").toLowerCase();
+const LLM_TOOLS = new Set(["codex.patch", "codex.write", "fj.snippet", "fj.mcp", "haiku", "sonnet", "opus"]);
+
+// Read MISER from job at runtime, but also read from env for early enforcement
+const ENV_MISER = parseInt(process.env.MISER_LEVEL ?? "0", 10);
+// DISABLE_CODEX=true routes all codex.* steps to haiku instead (use when codex is rate-limited)
+const DISABLE_CODEX = process.env.DISABLE_CODEX === "true" || process.env.DISABLE_CODEX === "1";
+
+function applyCodeWithOverride(tool: string): string {
+  // DISABLE_CODEX: route all codex steps to haiku
+  if (DISABLE_CODEX && (tool === "codex.patch" || tool === "codex.write")) {
+    console.warn(`  [disable-codex] ${tool} → haiku`);
+    return "haiku";
+  }
+  // MISER enforcement: demote expensive models regardless of job spec
+  // At MISER>=8: sonnet → haiku, opus → skipped (via default case)
+  // At MISER>=10: haiku → fj.mcp (or fj.snippet if bridge inactive)
+  if (LLM_TOOLS.has(tool)) {
+    if (tool === "opus") {
+      console.warn(`  [miser] opus requested but NEVER allowed — skipping step`);
+      return "opus"; // hits default: case → skip
+    }
+    if (ENV_MISER >= 8 && tool === "sonnet") {
+      console.warn(`  [miser=${ENV_MISER}] sonnet demoted → haiku`);
+      return "haiku";
+    }
+    if (ENV_MISER >= 10 && tool === "haiku") {
+      const cheap = isBridgeActive() ? "fj.mcp" : "codex.patch";
+      console.warn(`  [miser=${ENV_MISER}] haiku demoted → ${cheap}`);
+      return cheap;
+    }
+  }
+
+  if (CODE_WITH_OVERRIDE === "auto" || !LLM_TOOLS.has(tool)) return tool;
+  // Map override name to canonical tool name used in runStep
+  const map: Record<string, string> = {
+    codex: "codex.patch",
+    fj:    isBridgeActive() ? "fj.mcp" : "fj.snippet",
+    haiku: "haiku",
+    sonnet:"sonnet",
+    opus:  "sonnet", // redirected through sonnet path if explicitly forced
+  };
+  return map[CODE_WITH_OVERRIDE] ?? tool;
+}
 const TOKENMISER_DIR = ".tokenmiser";
 const RUNS_LOG = path.join(TOKENMISER_DIR, "runs.json");
 
 /** Infer model tier from tool name */
 function inferModel(tool: string): string {
-  if (["bash", "npmScript", "eds.buildJson", "eds.lint", "playwright.test"].includes(tool)) return "bash";
+  if (["bash", "bash.check", "npmScript", "eds.buildJson", "eds.lint", "playwright.test"].includes(tool)) return "bash";
   if (["codex.write", "codex.patch"].includes(tool)) return "codex";
   if (tool === "fj.snippet") return "fj";
+  if (tool === "fj.mcp") return "fj.mcp";
   if (tool === "haiku") return "haiku";
   if (tool === "sonnet") return "sonnet";
   if (tool === "groundtruth") return "groundtruth";
   if (tool === "log.escalate") return "system";
   return "unknown";
+}
+
+// Approximate cost per million tokens by model tier
+const COST_RATES: Record<string, { in: number; out: number }> = {
+  haiku:    { in: 0.80,  out: 4.00  },
+  sonnet:   { in: 3.00,  out: 15.00 },
+  codex:    { in: 0.15,  out: 0.60  },  // gpt-4o-mini estimate
+  fj:       { in: 0.80,  out: 4.00  },  // proxy: haiku rates
+  "fj.mcp": { in: 0.80,  out: 4.00  },
+};
+
+function computeStepCost(tool: string, inp: number, out: number): number {
+  const tier = inferModel(tool);
+  const rates = COST_RATES[tier] ?? COST_RATES["haiku"];
+  return (inp / 1e6) * rates.in + (out / 1e6) * rates.out;
 }
 
 function ensureDirs() {
@@ -118,19 +188,25 @@ async function handleStep(
 ): Promise<StepResult> {
   const start = Date.now();
   const startedAt = nowIso();
-  const stepName = step.name || step.tool;
+  // Apply --code-with override (e.g. force all LLM steps through codex)
+  const effectiveTool = applyCodeWithOverride(step.tool);
+  if (effectiveTool !== step.tool) {
+    console.log(`  [code-with] ${step.tool} → ${effectiveTool}`);
+  }
+  const stepTool = { ...step, tool: effectiveTool };
+  const stepName = stepTool.name || stepTool.tool;
 
   const resultBase: Omit<StepResult, "status"> = {
     phase: phase.name,
     stepName,
-    tool: step.tool,
+    tool: stepTool.tool,
     startedAt,
     endedAt: startedAt,
     durationMs: 0,
   };
 
   const phasePrefix = `[${phase.name}]`;
-  const label = `${phasePrefix} ${stepName} (${step.tool})`;
+  const label = `${phasePrefix} ${stepName} (${stepTool.tool})`;
 
   console.log(`\n🚀 ${label}`);
 
@@ -142,9 +218,11 @@ async function handleStep(
   let command = "";
   let stdout = "";
   let stderr = "";
+  let inputTokens = 0;
+  let outputTokens = 0;
 
   try {
-    switch (step.tool) {
+    switch (stepTool.tool) {
       case "log": {
         const message = step.args?.message ?? "(no message)";
         console.log(`📝 ${phasePrefix} ${message}`);
@@ -167,6 +245,41 @@ async function handleStep(
         const out = await runCommand(cmd, perStepTimeout);
         stdout = out.stdout;
         stderr = out.stderr;
+        break;
+      }
+
+      // bash.check: zero-token validation step — runs a shell command and reports pass/fail.
+      // Use for lint, JSON validity, URL probes, file existence, grep checks — anything that
+      // doesn't need an LLM. Plans should prefer this over haiku/codex for any verifiable assertion.
+      case "bash.check": {
+        const checkCmd = step.args?.command;
+        if (!checkCmd || typeof checkCmd !== "string") {
+          throw new Error("bash.check step requires args.command:string");
+        }
+        command = checkCmd;
+        console.log(`✔ check: ${checkCmd}`);
+        try {
+          const out = await runCommand(checkCmd, perStepTimeout);
+          stdout = out.stdout;
+          stderr = out.stderr;
+          if (stdout || stderr) console.log((stdout + stderr).trim().substring(0, 400));
+        } catch (err: any) {
+          // Non-zero exit: report but don't throw — let constraints.stopOnError decide
+          stdout = err.stdout ?? "";
+          stderr = err.stderr ?? "";
+          const combined = (stdout + stderr).trim();
+          console.warn(`  ✗ check failed (exit ${err.code ?? "?"}):\n${combined.substring(0, 600)}`);
+          return {
+            ...resultBase,
+            status: "failed",
+            endedAt: nowIso(),
+            durationMs: Date.now() - start,
+            command,
+            stdout,
+            stderr,
+            errorMessage: `exit ${err.code ?? "nonzero"}: ${combined.substring(0, 200)}`,
+          };
+        }
         break;
       }
 
@@ -232,13 +345,16 @@ async function handleStep(
         const target = step.args?.target ?? "";
         const description = step.description ?? step.args?.description ?? stepName;
         const writeTmpFile = await writeTmp(description);
-        command = `cat "${writeTmpFile}" | codex --approval-mode full-auto`;
+        command = `cat "${writeTmpFile}" | codex exec --full-auto`;
         if (target) command += ` -- ${JSON.stringify(target)}`;
         console.log(`$ ${command.replace(writeTmpFile, '<prompt>')}`);
         try {
           const out = await runCommand(command, perStepTimeout);
           stdout = out.stdout;
           stderr = out.stderr;
+          // Estimate tokens from prompt + response length (codex CLI has no token output)
+          inputTokens = Math.ceil(description.length / 4);
+          outputTokens = Math.ceil(stdout.length / 4);
         } finally {
           await fs.promises.unlink(writeTmpFile).catch(() => {});
         }
@@ -264,30 +380,78 @@ async function handleStep(
         const patchPrompt = step.args?.prompt ?? step.description ?? stepName;
         const patchTmp = await writeTmp(patchPrompt);
         // codex reads prompt from stdin; --approval-mode full-auto for non-interactive
-        command = `cat "${patchTmp}" | codex --approval-mode full-auto`;
+        command = `cat "${patchTmp}" | codex exec --full-auto`;
         if (patchTarget) command += ` -- ${JSON.stringify(patchTarget)}`;
         console.log(`$ ${command.replace(patchTmp, '<prompt>')}`);
         try {
           const out = await runCommand(command, perStepTimeout);
           stdout = out.stdout;
           stderr = out.stderr;
+          // Estimate tokens from prompt + response length (codex CLI has no token output)
+          inputTokens = Math.ceil(patchPrompt.length / 4);
+          outputTokens = Math.ceil(stdout.length / 4);
         } finally {
           await fs.promises.unlink(patchTmp).catch(() => {});
         }
         break;
       }
 
+      case "fj.mcp": {
+        // Use real FluffyJaws MCP via the file-based bridge (parent CC session fulfills)
+        const fjMcpQuery = step.args?.query ?? step.description ?? stepName;
+        const fjMcpTarget = (step.args?.target as string | undefined) ?? (() => {
+          const m = fjMcpQuery.match(/\b(blocks\/[\w-]+\/[\w.-]+|demo\/[\w-]+\.html|models\/[\w.-]+\.json)/);
+          return m?.[1];
+        })();
+        const fjTool = (step.args?.fjTool as string | undefined) ?? "fluffyjaws_chat";
+        const bridgeStepId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        console.log(`  🌐 fj.mcp [${fjTool}]: ${fjMcpQuery.substring(0, 60)}`);
+        // Bridge timeout 120s — gives cron at least one full fire window
+        const res = await mcpRequest(
+          { stepId: bridgeStepId, tool: fjTool, args: { message: fjMcpQuery }, targetFile: fjMcpTarget, description: stepName },
+          120_000,
+        );
+        if (res.status === "error") throw new Error(res.errorMessage ?? "fj.mcp bridge returned error");
+        stdout = res.content ?? "";
+        // Estimate tokens from query + response (bridge is a black box)
+        inputTokens = Math.ceil(fjMcpQuery.length / 4);
+        outputTokens = Math.ceil(stdout.length / 4);
+        if (fjMcpTarget && stdout) {
+          await fs.promises.mkdir(path.dirname(path.resolve(fjMcpTarget)), { recursive: true });
+          await fs.promises.writeFile(fjMcpTarget, stdout, "utf8");
+          console.log(`  → wrote to ${fjMcpTarget}`);
+        }
+        break;
+      }
+
       case "fj.snippet": {
+        // Auto-route through MCP bridge when the parent session has real FJ access
+        if (isBridgeActive()) {
+          return handleStep(phase, { ...step, tool: "fj.mcp" }, constraints);
+        }
         const query = step.args?.query ?? step.description ?? stepName;
-        const target = step.args?.target as string | undefined;
+        // Explicit target wins; fall back to extracting a file path from the query string
+        const extractedTarget = (() => {
+          const m = query.match(/\b(blocks\/[\w-]+\/[\w.-]+|demo\/[\w-]+\.html|models\/[\w.-]+\.json)/);
+          return m?.[1];
+        })();
+        const target = (step.args?.target as string | undefined) ?? extractedTarget;
         const fjPrompt = `You are an AEM Edge Delivery Services expert. Output ONLY the requested code or JSON, no explanation, no markdown fences.\n\nRequest: ${query}`;
         const fjTmp = await writeTmp(fjPrompt);
-        command = `claude -p --model claude-haiku-4-5-20251001 < "${fjTmp}"`;
+        command = `claude -p --model claude-haiku-4-5-20251001 --output-format json < "${fjTmp}"`;
         console.log(`  🔍 fj.snippet: ${query.substring(0, 60)}`);
         try {
           const fjOut = await runCommand(command, perStepTimeout);
-          stdout = fjOut.stdout.trim();
           stderr = fjOut.stderr;
+          try {
+            const fjParsed = JSON.parse(fjOut.stdout.trim());
+            stdout = typeof fjParsed.result === "string" ? fjParsed.result : fjOut.stdout.trim();
+            const fjUsage = fjParsed.usage ?? {};
+            inputTokens = (fjUsage.input_tokens ?? 0) + (fjUsage.cache_creation_input_tokens ?? 0);
+            outputTokens = fjUsage.output_tokens ?? 0;
+          } catch {
+            stdout = fjOut.stdout.trim();
+          }
         } finally {
           await fs.promises.unlink(fjTmp).catch(() => {});
         }
@@ -318,12 +482,23 @@ async function handleStep(
           llmPrompt += contents.join("");
         }
         const llmTmp = await writeTmp(llmPrompt);
-        command = `claude -p ${modelFlag} --permission-mode acceptEdits < "${llmTmp}"`.trim();
+        command = `claude -p ${modelFlag} --output-format json --permission-mode acceptEdits < "${llmTmp}"`.trim();
         console.log(`  🤖 ${step.tool}: ${llmPrompt.substring(0, 60)}...`);
         try {
           const llmOut = await runCommand(command, perStepTimeout);
-          stdout = llmOut.stdout;
           stderr = llmOut.stderr;
+          try {
+            const parsed = JSON.parse(llmOut.stdout.trim());
+            stdout = typeof parsed.result === "string" ? parsed.result : llmOut.stdout;
+            const usage = parsed.usage ?? {};
+            inputTokens = (usage.input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
+            outputTokens = usage.output_tokens ?? 0;
+            if (inputTokens || outputTokens) {
+              console.log(`  📊 tokens: ${inputTokens}in ${outputTokens}out (~$${computeStepCost(step.tool, inputTokens, outputTokens).toFixed(5)})`);
+            }
+          } catch {
+            stdout = llmOut.stdout;
+          }
         } finally {
           await fs.promises.unlink(llmTmp).catch(() => {});
         }
@@ -390,12 +565,10 @@ async function handleStep(
     const endedAt = nowIso();
     const durationMs = Date.now() - start;
 
+    const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9_.-]/g, "_");
     const logFile = path.join(
       LOG_DIR,
-      `${phase.name.replace(/\s+/g, "_")}__${stepName.replace(
-        /\s+/g,
-        "_"
-      )}.log`
+      `${sanitize(phase.name)}__${sanitize(stepName)}.log`
     );
     const logContent = [
       `# ${phase.name} / ${stepName}`,
@@ -427,6 +600,7 @@ async function handleStep(
       command,
       stdout,
       stderr,
+      ...(inputTokens > 0 && { inputTokens, outputTokens }),
     };
   } catch (err: any) {
     const endedAt = nowIso();
@@ -436,12 +610,10 @@ async function handleStep(
 
     console.error(`❌ ${label} failed: ${message}`);
 
+    const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9_.-]/g, "_");
     const logFile = path.join(
       LOG_DIR,
-      `${phase.name.replace(/\s+/g, "_")}__${stepName.replace(
-        /\s+/g,
-        "_"
-      )}.log`
+      `${sanitize(phase.name)}__${sanitize(stepName)}.log`
     );
     const logContent = [
       `# ${phase.name} / ${stepName} (FAILED)`,
@@ -475,6 +647,7 @@ async function handleStep(
       stdout,
       stderr,
       errorMessage: message,
+      ...(inputTokens > 0 && { inputTokens, outputTokens }),
     };
   }
 }
@@ -545,6 +718,8 @@ interface RunStep {
   model: string;
   durationMs: number;
   status: "ok" | "failed" | "skipped";
+  inputTokens?: number;
+  outputTokens?: number;
 }
 
 interface RunRecord {
@@ -558,6 +733,8 @@ interface RunRecord {
   skippedSteps: number;
   escalations: string[];
   escalationRecommended?: boolean;
+  tokenUsage?: { inputTokens: number; outputTokens: number };
+  approxCostUsd?: number;
 }
 
 async function appendRunRecord(record: RunRecord): Promise<void> {
@@ -624,6 +801,18 @@ async function main() {
     const skipped = results.filter((r) => r.status === "skipped");
     const totalDurationMs = Date.now() - jobStartMs;
 
+    // Accumulate token usage across all steps
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let totalCostUsd = 0;
+    for (const r of results) {
+      if (r.inputTokens) {
+        totalInputTokens += r.inputTokens;
+        totalOutputTokens += r.outputTokens ?? 0;
+        totalCostUsd += computeStepCost(r.tool, r.inputTokens, r.outputTokens ?? 0);
+      }
+    }
+
     // Build and append run record
     const runRecord: RunRecord = {
       id: crypto.randomUUID(),
@@ -636,11 +825,16 @@ async function main() {
         model: inferModel(r.tool),
         durationMs: r.durationMs,
         status: r.status,
+        ...(r.inputTokens !== undefined && { inputTokens: r.inputTokens, outputTokens: r.outputTokens }),
       })),
       totalDurationMs,
       failedSteps: failed.length,
       skippedSteps: skipped.length,
       escalations,
+      ...(totalInputTokens > 0 && {
+        tokenUsage: { inputTokens: totalInputTokens, outputTokens: totalOutputTokens },
+        approxCostUsd: parseFloat(totalCostUsd.toFixed(6)),
+      }),
     };
 
     if (failed.length >= 2) {
@@ -649,6 +843,12 @@ async function main() {
     }
 
     await appendRunRecord(runRecord);
+
+    if (totalInputTokens > 0) {
+      const opusEst = (totalInputTokens / 1e6) * 15 + (totalOutputTokens / 1e6) * 75;
+      const saved = opusEst > 0 ? Math.round((1 - totalCostUsd / opusEst) * 100) : 0;
+      console.log(`\n💰 tokens: ${totalInputTokens}in ${totalOutputTokens}out  cost: ~$${totalCostUsd.toFixed(4)}  opus4 est: ~$${opusEst.toFixed(4)}  saved: ~${saved}%`);
+    }
 
     if (failed.length > 0) {
       console.error(

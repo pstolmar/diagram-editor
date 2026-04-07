@@ -1,0 +1,28 @@
+.miser-3d-globe {
+  --globe-height: 420px;
+
+  position: relative;
+  width: 100%;
+}
+
+.miser-3d-globe-canvas {
+  display: block;
+  width: 100%;
+  height: var(--globe-height, 420px);
+}
+
+.miser-3d-globe-tooltip {
+  position: absolute;
+  padding: 6px 12px;
+  background: rgb(10 10 20 / 90%);
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 40%);
+}

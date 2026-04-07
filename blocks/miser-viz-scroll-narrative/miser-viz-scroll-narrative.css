@@ -1,0 +1,385 @@
+/* ─── Design tokens ─────────────────────────────────────── */
+:root {
+  --sn-bg: #070810;
+  --sn-surface: rgb(255 255 255 / 4%);
+  --sn-surface-hover: rgb(255 255 255 / 7%);
+  --sn-border: rgb(255 255 255 / 8%);
+  --sn-border-bright: rgb(255 255 255 / 18%);
+  --sn-text: #e8eaf0;
+  --sn-text-muted: rgb(232 234 240 / 55%);
+  --sn-sticky-bg-from: #0d0e1c;
+  --sn-sticky-bg-to: #0a0b16;
+  --sn-radius: 18px;
+  --sn-radius-sm: 10px;
+  --sn-glow-blur: 48px;
+
+  /* panel accent palette — cycles via nth-child */
+  --sn-accent-1: #00e5ff;
+  --sn-accent-2: #7c4dff;
+  --sn-accent-3: #ff4081;
+  --sn-accent-4: #69f0ae;
+  --sn-accent-5: #ffd740;
+  --sn-accent-6: #40c4ff;
+}
+
+/* ─── Block root ─────────────────────────────────────────── */
+.miser-viz-scroll-narrative {
+  background: var(--sn-bg);
+  color: var(--sn-text);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* ─── Grid wrapper ───────────────────────────────────────── */
+.sn-wrapper {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  min-height: 200vh;
+  position: relative;
+}
+
+/* ─── Sticky column ──────────────────────────────────────── */
+.sn-sticky {
+  position: sticky;
+  top: 10vh;
+  height: 80vh;
+  overflow: hidden;
+  border-radius: var(--sn-radius);
+  margin: 2rem 1rem 2rem 2rem;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 40%, rgb(0 229 255 / 6%) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 70% 70%, rgb(124 77 255 / 8%) 0%, transparent 55%),
+    linear-gradient(160deg, var(--sn-sticky-bg-from) 0%, var(--sn-sticky-bg-to) 100%);
+  border: 1px solid var(--sn-border);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 3%),
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 32px 80px rgb(0 0 0 / 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* animated ambient glow behind sticky panel */
+.sn-sticky::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgb(0 229 255 / 15%) 0%,
+    transparent 40%,
+    rgb(124 77 255 / 10%) 80%,
+    transparent 100%
+  );
+  animation: sn-glow-rotate 8s linear infinite;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  padding: 1px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* progress track — decorative vertical line on right edge */
+.sn-sticky::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--sn-border-bright) 20%,
+    var(--sn-border-bright) 80%,
+    transparent
+  );
+  opacity: 0.5;
+}
+
+@keyframes sn-glow-rotate {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* ─── Sticky inner — transition host ─────────────────────── */
+.sn-sticky-inner {
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center 40%;
+  will-change: opacity, transform;
+}
+
+.sn-sticky-inner.is-leaving {
+  opacity: 0;
+  transform: perspective(800px) rotateY(-8deg) translateY(12px) scale(0.97);
+}
+
+/* entering state — JS removes is-leaving, CSS resets to identity */
+.sn-sticky-inner:not(.is-leaving) {
+  transform: perspective(800px) rotateY(0deg) translateY(0) scale(1);
+}
+
+/* ─── Sticky content wrapper ─────────────────────────────── */
+.sn-sticky-content {
+  padding: 2.5rem 2.5rem 2.5rem 3rem;
+}
+
+.sn-sticky-content > * {
+  margin-bottom: 1rem;
+}
+
+.sn-sticky-content h2,
+.sn-sticky-content h3 {
+  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--sn-text);
+  margin-bottom: 0.75rem;
+}
+
+.sn-sticky-content p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--sn-text-muted);
+}
+
+/* ─── Scroll column ──────────────────────────────────────── */
+.sn-scroll {
+  display: flex;
+  flex-direction: column;
+  padding: 0 2rem 0 1rem;
+}
+
+/* ─── Panels ─────────────────────────────────────────────── */
+.sn-panel {
+  min-height: 60vh;
+  padding: 4rem 3rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* inner card */
+.sn-panel > * {
+  width: 100%;
+  background: var(--sn-surface);
+  border: 1px solid var(--sn-border);
+  border-radius: var(--sn-radius);
+  padding: 2.5rem;
+  position: relative;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    background 0.3s ease,
+    border-color 0.3s ease;
+  cursor: default;
+  overflow: hidden;
+}
+
+/* card shimmer on hover */
+.sn-panel > *::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    transparent 40%,
+    rgb(255 255 255 / 4%) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.sn-panel > *:hover::before {
+  transform: translateX(100%);
+}
+
+.sn-panel > *:hover {
+  background: var(--sn-surface-hover);
+  transform: translateY(-4px) scale(1.005);
+}
+
+/* accent left-border + glow — cycles through palette */
+.sn-panel:nth-child(6n+1) > * {
+  border-left: 3px solid var(--sn-accent-1);
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(0 229 255 / 8%), 0 8px 32px rgb(0 0 0 / 40%);
+}
+
+.sn-panel:nth-child(6n+1) > *:hover {
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(0 229 255 / 18%), 0 16px 48px rgb(0 0 0 / 50%);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.sn-panel:nth-child(6n+2) > * {
+  border-left: 3px solid var(--sn-accent-2);
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(124 77 255 / 8%), 0 8px 32px rgb(0 0 0 / 40%);
+}
+
+.sn-panel:nth-child(6n+2) > *:hover {
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(124 77 255 / 18%), 0 16px 48px rgb(0 0 0 / 50%);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.sn-panel:nth-child(6n+3) > * {
+  border-left: 3px solid var(--sn-accent-3);
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(255 64 129 / 8%), 0 8px 32px rgb(0 0 0 / 40%);
+}
+
+.sn-panel:nth-child(6n+3) > *:hover {
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(255 64 129 / 18%), 0 16px 48px rgb(0 0 0 / 50%);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.sn-panel:nth-child(6n+4) > * {
+  border-left: 3px solid var(--sn-accent-4);
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(105 240 174 / 8%), 0 8px 32px rgb(0 0 0 / 40%);
+}
+
+.sn-panel:nth-child(6n+4) > *:hover {
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(105 240 174 / 18%), 0 16px 48px rgb(0 0 0 / 50%);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.sn-panel:nth-child(6n+5) > * {
+  border-left: 3px solid var(--sn-accent-5);
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(255 215 64 / 8%), 0 8px 32px rgb(0 0 0 / 40%);
+}
+
+.sn-panel:nth-child(6n+5) > *:hover {
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(255 215 64 / 18%), 0 16px 48px rgb(0 0 0 / 50%);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.sn-panel:nth-child(6n+6) > * {
+  border-left: 3px solid var(--sn-accent-6);
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(64 196 255 / 8%), 0 8px 32px rgb(0 0 0 / 40%);
+}
+
+.sn-panel:nth-child(6n+6) > *:hover {
+  box-shadow: -4px 0 var(--sn-glow-blur) rgb(64 196 255 / 18%), 0 16px 48px rgb(0 0 0 / 50%);
+}
+
+/* panel divider connector — dots between panels */
+.sn-panel:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 2rem;
+  background: linear-gradient(to bottom, var(--sn-border-bright), transparent);
+}
+
+/* panel typography */
+.sn-panel h2,
+.sn-panel h3,
+.sn-panel h4 {
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--sn-text);
+  margin-bottom: 0.75rem;
+}
+
+.sn-panel p {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--sn-text-muted);
+}
+
+/* ─── Progress indicator — sticky panel pip row ──────────── */
+.sn-sticky-content::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--sn-accent-1), var(--sn-accent-2));
+  border-radius: 1px;
+  margin-top: 1.5rem;
+  opacity: 0.7;
+}
+
+/* ─── Universal Editor stacked layout ───────────────────── */
+.sn-ue-sticky {
+  padding: 1.5rem;
+  background: var(--sn-surface);
+  border: 1px solid var(--sn-border);
+  border-radius: var(--sn-radius-sm);
+  margin-bottom: 0.75rem;
+}
+
+.sn-ue-scroll {
+  padding: 1.5rem;
+  background: var(--sn-surface);
+  border: 1px solid var(--sn-border);
+  border-left: 3px solid var(--sn-accent-1);
+  border-radius: var(--sn-radius-sm);
+}
+
+/* ─── Mobile ≤768px ──────────────────────────────────────── */
+@media (width <= 768px) {
+  .sn-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .sn-sticky {
+    position: static;
+    height: auto;
+    margin: 1rem;
+    min-height: 40vh;
+    border-radius: var(--sn-radius-sm);
+  }
+
+  .sn-sticky::before,
+  .sn-sticky::after {
+    display: none;
+  }
+
+  .sn-sticky-content {
+    padding: 2rem;
+  }
+
+  .sn-scroll {
+    padding: 0 1rem 2rem;
+  }
+
+  .sn-panel {
+    min-height: auto;
+    padding: 1rem 0 2rem;
+  }
+
+  .sn-panel > * {
+    padding: 1.75rem;
+  }
+
+  .sn-sticky-inner,
+  .sn-sticky-inner.is-leaving {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sn-sticky-inner,
+  .sn-panel > *,
+  .sn-panel > *::before {
+    transition: none;
+    animation: none;
+  }
+
+  .sn-sticky::before {
+    animation: none;
+  }
+}

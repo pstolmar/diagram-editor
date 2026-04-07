@@ -1,149 +1,103 @@
-# PLAN.md
+# [MISER=8] Build 5 Interactive 3D Viz Blocks
 
-## Task
-
-Build three new EDS blocks for the diagram-editor site. Each is a standalone, fully UE-authorable
-component with animations. Do NOT modify any existing blocks.
-
-## Part A — Tabbed Feature Showcase (`blocks/tabbed-feature/`)
-
-A marketing component: left-side vertical tab list (up to 6 tabs), clicking a tab animates in
-a panel on the right with a large image + headline + 2–3 bullet points. Tabs auto-advance every
-5 seconds with an animated progress bar; hovering pauses the timer.
-
-### Block HTML structure (UE authored as rows)
-
-Each row = one tab:
-| Tab Label | Image | Heading | Body (bullets, `\n`-separated) |
-
-### Files
-
-- `blocks/tabbed-feature/tabbed-feature.js`
-  - Parse rows: col 0 = tab label, col 1 = image, col 2 = heading, col 3 = body text
-  - Build left tab list and right panel area
-  - On tab click/auto-advance: swap active panel with CSS class transition
-  - Auto-advance timer: `setInterval` paused on `mouseenter`, resumed on `mouseleave`
-  - Progress bar: `<div class="tf-progress">` under active tab, animated via CSS
-  - `moveInstrumentation(block, ...)` for UE live editing support
-
-- `blocks/tabbed-feature/tabbed-feature.css`
-  - Two-column layout (tabs left ~30%, panel right ~70%), mobile stacks vertically
-  - Tab list: dark sidebar (#0f172a bg), active tab highlighted with blue left border
-  - Panel: fade + slight translateX entrance transition on tab switch
-  - Progress bar: `animation: tf-progress-fill linear` keyed to tab interval duration
-  - Accent: #0070f3 blue for active states
-
-- `blocks/tabbed-feature/_tabbed-feature.json`
-  - UE model: 4-cell row (tabLabel text, image image, heading text, body text)
-  - filters: empty (no sub-blocks)
-
-### Add to `models/_section.json` filters array: "tabbed-feature"
+Build 5 new `miser-3d-` prefixed EDS blocks. All have real Three.js 3D
+interactivity (mouse rotate/zoom). Two visualize actual data in 3D space.
+Blocks live at `blocks/miser-3d-<name>/`. Do NOT overwrite any existing block.
 
 ---
 
-## Part B — Sticky Scroll Narrative (`blocks/scroll-narrative/`)
+## Blocks
 
-"Apple-style" storytelling: a tall pinned section where a LEFT panel sticks to the viewport
-while the user scrolls through stacked RIGHT panels. As each right panel enters the viewport,
-the left panel content swaps to match. Great for "how it works" flows.
+### 1. `miser-3d-force-graph`
+Real data in 3D space. Three.js force-directed graph where nodes and links float
+in 3D. Mouse drag rotates the whole graph. Content format: same pipe-delimited
+`Source|Target|Weight` lines as `miser-d3-graph` (one per row in block cell).
+- CDN: `https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js`
+- Orbit controls via inline mini-implementation (no CDN dep for controls)
+- Nodes: spheres, color by degree. Links: `THREE.Line`. Labels optional.
+- Canvas fills block height (default `420px`, override via `height` field).
+- **Constraint**: layout runs N spring iterations then freezes for perf.
 
-### Files
+### 2. `miser-3d-scatter`
+Real data in 3D space. Three.js 3D scatter plot with labelled axes.
+Content format: CSV rows `label,x,y,z,color` (first row = header, ignored).
+- Axes drawn with `THREE.LineSegments`. Tick marks every 20% of range.
+- Points: `THREE.Points` with `THREE.BufferGeometry`. Size controlled by field.
+- Mouse orbit + zoom. Tooltip on hover shows label+coords via raycasting.
+- Canvas height via field (default `420px`).
+- Color defaults to `#0070f3` if column absent.
 
-- `blocks/scroll-narrative/scroll-narrative.js`
-  - Parse rows: col 0 = pinned-side content (text/heading/image), col 1 = scroll-side content
-  - Build a wrapper with `position: sticky` left panel and a tall right scroll area
-  - Use IntersectionObserver on each right panel to detect which is most visible
-  - On intersection: update left panel content with crossfade transition
-  - Fallback for UE Author iframe: show all panels stacked (no sticky)
+### 3. `miser-3d-bars`
+Isometric 3D bar chart. Three.js box geometries arranged in a grid.
+Content format: CSV `category,value,color` (multiline in single cell) or
+`row,col,value` for a 2D grid heatmap variant selected by variant field.
+- Bars extruded upward from a flat grid plane. Top face slightly lighter shade.
+- Axes labels on X and Z edges. Value label floats above each bar.
+- Variant field: `bars` (default) or `grid` (heatmap grid, color by value).
+- Rotate on drag, zoom on scroll.
 
-- `blocks/scroll-narrative/scroll-narrative.css`
-  - `.sn-wrapper`: CSS Grid, two columns (40% sticky / 60% scroll)
-  - `.sn-sticky`: `position: sticky; top: 10vh; height: 80vh`
-  - `.sn-panel`: min-height 60vh per scroll panel, padding
-  - Left panel crossfade: `opacity` + `transform: translateY(8px)` transition on content swap
-  - Mobile: single column, no sticky, sequential stacking
-  - Color scheme: clean white/light grey, accent #0070f3
+### 4. `miser-3d-globe`
+Decorative interactive globe with data markers.
+Content format: `label|lat|lon|value` lines (one per row).
+- Sphere with wireframe overlay (`THREE.WireframeGeometry`). Subtle auto-rotation.
+- Markers: small `THREE.SphereGeometry` pins placed at lat/lon positions.
+- Color and size of pin driven by `value` (normalized 0-1 scale).
+- Drag to rotate, scroll to zoom. Click marker shows label in DOM tooltip.
+- Default color scheme field: `blue` | `green` | `amber` | `purple`.
 
-- `blocks/scroll-narrative/_scroll-narrative.json`
-  - UE model: 2-cell row (leftContent text, rightContent text)
-  - filters: empty
-
-### Add to `models/_section.json` filters array: "scroll-narrative"
-
----
-
-## Part C — Testimonials Mosaic (`blocks/testimonials-mosaic/`)
-
-Masonry-style grid of testimonial cards. Filter chips at top (All + any categories found in
-data). Cards animate in with stagger on load. "Show more" reveals next batch of 6.
-
-### Files
-
-- `blocks/testimonials-mosaic/testimonials-mosaic.js`
-  - Parse rows: col 0 = quote, col 1 = name, col 2 = role+company (e.g. "VP · Adobe"),
-    col 3 = category tag, col 4 = optional star rating (1–5)
-  - Build filter chips from unique categories
-  - Render cards with staggered `animation-delay` (0, 0.05s, 0.1s…)
-  - Filter click: add/remove `hidden` class on cards matching category, animate remaining
-  - "Show more" button: reveal next 6 hidden-by-count cards
-  - Stars: render filled/empty star spans
-
-- `blocks/testimonials-mosaic/testimonials-mosaic.css`
-  - Grid: `columns: 3` CSS multi-column masonry, gap 1.5rem, mobile → 1 column
-  - Cards: `break-inside: avoid`, white bg, border-radius 12px, box-shadow,
-    hover: lift (translateY(-4px))
-  - Stagger entrance: `@keyframes tm-card-in` (opacity 0→1, translateY 16px→0)
-  - Filter chips: pill buttons, active chip has #0070f3 bg
-  - Stars: color #f59e0b
-  - "Show more" button: centered, outline style
-
-- `blocks/testimonials-mosaic/_testimonials-mosaic.json`
-  - UE model: 5-cell row (quote text, name text, role text, category text, stars text)
-  - filters: empty
-
-### Add to `models/_section.json` filters array: "testimonials-mosaic"
+### 5. `miser-3d-orbit`
+Decorative 3D orbital / solar-system viz for hierarchy or milestones.
+Content format: `label|radius|speed|size|color` lines.
+- Central sphere + N orbital rings. Objects travel their ring each frame.
+- Rings drawn with `THREE.TorusGeometry`. Satellites are small spheres.
+- Auto-rotates slowly. Drag to tilt/spin. Scroll to zoom.
+- Labels float above each satellite via projected screen coords.
+- Speed is relative (1.0 = default). Set to 0 for a static ring diagram.
 
 ---
 
-## Part D — Wire up `demo/tokenmiser.html` additions and `demo/tokenmiser-dash.html`
+## File layout per block
 
-Add BELOW the existing `-tm` section in `demo/tokenmiser.html`:
-
-### Tabbed Feature Showcase demo
-
-```html
-<div class="tabbed-feature">
-  <div><div>Platform Analytics</div><div><picture><img src="/blocks/diagram-editor/filmstrip.html" alt="Analytics"></picture></div><div>Real-time insights</div><div>Track every token\nSee cost per run\nOptimize routing live</div></div>
-  <div><div>Smart Routing</div><div><picture><img src="" alt="Routing"></picture></div><div>Model ladder, automated</div><div>Free tools first\nHaiku for simple tasks\nOpus only when essential</div></div>
-  <div><div>Cost Dashboard</div><div><picture><img src="" alt="Dashboard"></picture></div><div>Know what you spend</div><div>Per-run breakdown\nSavings vs Opus 4\nExport to HTML</div></div>
-</div>
 ```
-
-### Scroll Narrative demo
-
-```html
-<div class="scroll-narrative">
-  <div><div>Step 1: Plan decomposes automatically</div><div>PLAN.md gets parsed by a lightweight Haiku call into a structured JobSpec with phases and parallel groups.</div></div>
-  <div><div>Step 2: Cheapest tool handles each step</div><div>bash for shell commands, codex for mechanical writes, fj.snippet for AEM JSON — no LLM needed.</div></div>
-  <div><div>Step 3: Parallel phases cut wall-clock time</div><div>Independent blocks build simultaneously across Node workers. Three blocks in the time of one.</div></div>
-</div>
-```
-
-### Testimonials Mosaic demo
-
-```html
-<div class="testimonials-mosaic">
-  <div><div>Tokenmiser cut our build costs by 80% on the first run.</div><div>Peter S.</div><div>Engineer · Adobe</div><div>Engineering</div><div>5</div></div>
-  <div><div>The parallel executor is a game-changer for multi-block sprints.</div><div>Demo User</div><div>Architect · EDS</div><div>Architecture</div><div>5</div></div>
-  <div><div>FluffyJaws + Codex combo produces clean AEM JSON every time.</div><div>Test Author</div><div>Content · AEM</div><div>AEM</div><div>4</div></div>
-  <div><div>MISER=8 gives 90% of Sonnet quality at Haiku prices.</div><div>Cost Analyst</div><div>Finance · Demo</div><div>Engineering</div><div>4</div></div>
-</div>
+blocks/miser-3d-<name>/
+  miser-3d-<name>.js      # decorate(block) function, Three.js scene
+  miser-3d-<name>.css     # .miser-3d-<name> { position:relative; width:100% }
+  _miser-3d-<name>.json   # XWalk model (<=4 fields, definitions+models+filters)
 ```
 
 ---
 
-## Part E — Verification
+## AEM model constraints (enforced)
+- Max 4 fields per model (`xwalk/max-cells` lint rule).
+- All JSON files must follow `definitions` + `models` + `filters` schema.
+- fj.mcp MUST be used for all `_*.json` files.
 
-1. `npm run build:json`
-2. `npm run lint` — 0 errors
-3. Confirm all three blocks load at `http://localhost:3000/demo/tokenmiser` (section "New Blocks")
+### Model field summary
+
+| Block              | Fields (<=4)                                 |
+|--------------------|----------------------------------------------|
+| miser-3d-force-graph | graphData (text-area), height (text), color (text) |
+| miser-3d-scatter   | csvData (text-area), height (text), pointSize (text) |
+| miser-3d-bars      | csvData (text-area), height (text), variant (text) |
+| miser-3d-globe     | markerData (text-area), color (text), height (text) |
+| miser-3d-orbit     | orbitData (text-area), color (text), height (text) |
+
+---
+
+## Demo page
+
+Create `demo/miser-3d-demo.html` with all 5 blocks with sample data:
+- force-graph: 6 nodes, 7 links (token cost network, same style as miser-demo-viz)
+- scatter: 10 sample points in 3D space with realistic X/Y/Z spread
+- bars: 6 categories with values
+- globe: 6 data markers at major cities (New York, London, Tokyo, Sydney, etc.)
+- orbit: 5 orbital bodies at varying radii and speeds
+
+---
+
+## Build + verify
+
+After all blocks built:
+1. `npm run build:json` — must pass (0 errors)
+2. `npm run lint` — must pass (0 errors; warnings OK)
+3. Verify block dirs exist: `ls blocks/miser-3d-*/`

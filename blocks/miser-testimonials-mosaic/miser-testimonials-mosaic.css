@@ -1,0 +1,159 @@
+/* ─── Miser Testimonials Mosaic ────────────────────────────────────────────── */
+
+.miser-testimonials-mosaic {
+  padding: 2rem 1.5rem;
+}
+
+/* Filter chips row */
+.tm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-end: 1.75rem;
+}
+
+.tm-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.9rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.tm-chip:hover:not(.is-active) {
+  border-color: #0070f3;
+  color: #0070f3;
+}
+
+.tm-chip.is-active {
+  background: #0070f3;
+  border-color: #0070f3;
+  color: #fff;
+  box-shadow: 0 2px 8px rgb(0 112 243 / 30%);
+}
+
+/* ─── Masonry grid ──────────────────────────────────────────────────────────── */
+
+.tm-grid {
+  column-count: 3;
+  column-gap: 1.5rem;
+}
+
+@media (width <= 768px) {
+  .tm-grid {
+    column-count: 1;
+  }
+}
+
+@media (768px < width <= 1024px) {
+  .tm-grid {
+    column-count: 2;
+  }
+}
+
+/* ─── Card ──────────────────────────────────────────────────────────────────── */
+
+.tm-card {
+  break-inside: avoid;
+  background: #fff;
+  border: 1px solid #f0f2f5;
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-block-end: 1.5rem;
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 6%),
+    0 4px 14px rgb(0 0 0 / 5%);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+  animation: tm-card-in 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: var(--tm-delay, 0s);
+}
+
+.tm-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 4px 10px rgb(0 0 0 / 6%),
+    0 12px 30px rgb(0 0 0 / 10%);
+}
+
+@keyframes tm-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Card internals ────────────────────────────────────────────────────────── */
+
+.tm-quote {
+  font-size: 0.975rem;
+  line-height: 1.65;
+  color: #1f2937;
+  margin-block-end: 1rem;
+}
+
+.tm-quote p {
+  margin: 0;
+}
+
+.tm-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tm-role {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-block: 0.15rem 0.75rem;
+}
+
+.tm-stars {
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  color: #f59e0b;
+}
+
+/* ─── Show-more button ──────────────────────────────────────────────────────── */
+
+.tm-show-more {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  margin: 0.5rem auto 0;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.tm-show-more:hover {
+  background: #0070f3;
+  transform: translateY(-1px);
+}
+
+.tm-show-more[hidden] {
+  display: none;
+}

@@ -1,0 +1,161 @@
+.tf-wrap {
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  gap: 0;
+  min-height: 400px;
+}
+
+.tf-tabs {
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+  border-right: 1px solid #1e293b;
+}
+
+.tf-tab {
+  position: relative;
+  padding: 1rem 1.25rem;
+  border: none;
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+  overflow: hidden;
+}
+
+.tf-tab:hover {
+  color: #e2e8f0;
+  background: rgb(255 255 255 / 4%);
+}
+
+.tf-tab.is-active {
+  border-left-color: #0070f3;
+  background: rgb(56 189 248 / 8%);
+  color: #f0f9ff;
+}
+
+.tf-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: #0070f3;
+  animation: tf-fill 5s linear forwards;
+}
+
+@keyframes tf-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Panel area */
+
+.tf-panel-wrap {
+  position: relative;
+  background: #0d1f36;
+  overflow: hidden;
+}
+
+.tf-panel {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.tf-panel.is-active {
+  display: flex;
+  animation: tf-slide-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tf-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.tf-panel-image {
+  flex-shrink: 0;
+  max-width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tf-panel-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.tf-panel h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f0f9ff;
+  line-height: 1.3;
+}
+
+.tf-panel-body {
+  color: #94a3b8;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.tf-panel-body p {
+  margin: 0;
+}
+
+.tf-panel-body ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.tf-panel-body ul li + li {
+  margin-top: 0.35rem;
+}
+
+/* Mobile */
+@media (width <= 640px) {
+  .tf-wrap {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .tf-tabs {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .tf-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .tf-tab.is-active {
+    border-left-color: transparent;
+    border-bottom-color: #0070f3;
+  }
+
+  .tf-progress {
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+  }
+}

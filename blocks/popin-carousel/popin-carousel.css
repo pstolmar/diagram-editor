@@ -1,0 +1,281 @@
+.pc-grid {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  overflow-anchor: none;
+}
+
+.pc-slot {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: #0a0a1a;
+}
+
+.pc-slot img,
+.pc-slot picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(1);
+}
+
+/* ── pop-in spring: slot scales from tiny → overshoot → settle ── */
+@keyframes pc-pop-slot {
+  0% {
+    transform: scale(0.02);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  62% {
+    transform: scale(1.18);
+  }
+
+  78% {
+    transform: scale(0.95);
+  }
+
+  90% {
+    transform: scale(1.06);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* All effects use CSS variable for per-slot stagger delay */
+.pc-slot.pc-enter {
+  animation: pc-pop-slot 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--pc-delay, 0s);
+}
+
+/* ── sizzle: greyscale → colour after 2s pause ── */
+@keyframes pc-sizzle {
+  0% {
+    filter: grayscale(1) contrast(1.1);
+  }
+
+  35% {
+    filter: grayscale(0.7) contrast(1.25) brightness(1.15);
+  }
+
+  65% {
+    filter: grayscale(0.25) contrast(1.1) brightness(1.05);
+  }
+
+  100% {
+    filter: grayscale(0) contrast(1) brightness(1);
+  }
+}
+
+/* radial fire glow sweeps during sizzle */
+@keyframes pc-sizzle-glow {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.2);
+  }
+
+  55% {
+    opacity: 0.35;
+    transform: scale(1.3);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+/* Default (sizzle) image animation — 2s pause then colour ignites */
+.pc-slot.pc-enter img,
+.pc-slot.pc-enter picture {
+  animation: pc-sizzle 1.8s ease-out both;
+  animation-delay: calc(var(--pc-delay, 0s) + 2s);
+}
+
+/* warm-orange radial overlay for sizzle fire feel */
+.pc-grid[data-effect="sizzle"] .pc-slot.pc-enter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgb(255 180 20 / 55%) 0%, rgb(255 80 0 / 25%) 45%, transparent 70%);
+  pointer-events: none;
+  animation: pc-sizzle-glow 1.8s ease-out both;
+  animation-delay: calc(var(--pc-delay, 0s) + 2s);
+}
+
+/* ── paint: full-colour floods in from top with curved wave ── */
+@keyframes pc-paint-flood {
+  0% {
+    clip-path: inset(0 0 100% 0 round 0 0 60% 0);
+    filter: grayscale(0);
+  }
+
+  70% {
+    clip-path: inset(0 0 0% 0 round 0 0 20% 0);
+    filter: grayscale(0);
+  }
+
+  100% {
+    clip-path: inset(0 0 0% 0 round 0);
+    filter: grayscale(0);
+  }
+}
+
+/* During 2s pause (fill-mode both): image is hidden via clip-path, slot shows dark bg.
+   Then colour floods in from the top with a curved leading edge. */
+.pc-grid[data-effect="paint"] .pc-slot.pc-enter img,
+.pc-grid[data-effect="paint"] .pc-slot.pc-enter picture {
+  animation: pc-paint-flood 1.1s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: calc(var(--pc-delay, 0s) + 2s);
+  filter: none;
+}
+
+/* ── grey: pop in, stay greyscale permanently ── */
+.pc-grid[data-effect="grey"] .pc-slot.pc-enter img,
+.pc-grid[data-effect="grey"] .pc-slot.pc-enter picture {
+  animation: none;
+  filter: grayscale(1);
+}
+
+/* ── shatter: outgoing image shatters and falls; JS adds this class ── */
+@keyframes pc-shatter-out {
+  0% {
+    transform: scale(1) rotate(0deg) translateY(0);
+    opacity: 1;
+    filter: brightness(1);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  }
+
+  15% {
+    filter: brightness(2.5) contrast(1.5);
+  }
+
+  35% {
+    clip-path: polygon(8% 0%, 92% 3%, 88% 97%, 5% 100%);
+    transform: scale(1.04) rotate(-1.5deg);
+    filter: brightness(1.5) saturate(0);
+  }
+
+  65% {
+    clip-path: polygon(20% 5%, 78% 0%, 82% 94%, 12% 99%);
+    transform: scale(0.88) rotate(3deg) translateY(8%);
+    opacity: 0.5;
+    filter: saturate(0);
+  }
+
+  100% {
+    clip-path: polygon(35% 15%, 65% 10%, 60% 85%, 40% 90%);
+    transform: scale(0.55) rotate(-6deg) translateY(40%);
+    opacity: 0;
+    filter: saturate(0);
+  }
+}
+
+.pc-shatter-out {
+  animation: pc-shatter-out 0.65s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* shatter: new image pops in with immediate sizzle (no extra delay) */
+.pc-grid[data-effect="shatter"] .pc-slot.pc-enter img,
+.pc-grid[data-effect="shatter"] .pc-slot.pc-enter picture {
+  animation: pc-sizzle 1.4s ease-out both;
+  animation-delay: var(--pc-delay, 0s);
+}
+
+/* ── paint-wipe (legacy): clip reveal from left ── */
+@keyframes pc-paint-wipe {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  100% {
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+.pc-grid[data-effect="paint-wipe"] .pc-slot.pc-enter img,
+.pc-grid[data-effect="paint-wipe"] .pc-slot.pc-enter picture {
+  animation: pc-paint-wipe 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;
+  filter: none;
+  animation-delay: var(--pc-delay, 0s);
+}
+
+/* ── bloom: brightness burst then settle ── */
+@keyframes pc-bloom {
+  0% {
+    transform: scale(0.55);
+    filter: brightness(4) blur(10px) grayscale(1);
+  }
+
+  60% {
+    transform: scale(1.05);
+    filter: brightness(1.3) blur(0) grayscale(0);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+.pc-grid[data-effect="bloom"] .pc-slot.pc-enter {
+  animation: none;
+}
+
+.pc-grid[data-effect="bloom"] .pc-slot.pc-enter img,
+.pc-grid[data-effect="bloom"] .pc-slot.pc-enter picture {
+  animation: pc-bloom 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--pc-delay, 0s);
+}
+
+/* ── glitch: RGB-split settle ── */
+@keyframes pc-glitch {
+  0% {
+    transform: translate(0, 0) scale(0.02);
+    filter: grayscale(1) hue-rotate(0deg);
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+    transform: translate(-3px, 2px) scale(1.1);
+    filter: grayscale(0.5) hue-rotate(45deg) saturate(2.5);
+  }
+
+  22% {
+    transform: translate(3px, -2px) scale(1.18);
+    filter: grayscale(0.2) hue-rotate(-30deg) saturate(3);
+  }
+
+  40% {
+    transform: translate(-2px, 1px) scale(1.05);
+    filter: grayscale(0.1) hue-rotate(20deg) saturate(1.5);
+  }
+
+  65% {
+    transform: translate(1px, -1px) scale(0.97);
+    filter: grayscale(0) hue-rotate(-5deg);
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+    filter: none;
+  }
+}
+
+.pc-grid[data-effect="glitch"] .pc-slot.pc-enter {
+  animation: none;
+}
+
+.pc-grid[data-effect="glitch"] .pc-slot.pc-enter img,
+.pc-grid[data-effect="glitch"] .pc-slot.pc-enter picture {
+  animation: pc-glitch 1.1s steps(2, end) both;
+  animation-delay: var(--pc-delay, 0s);
+}

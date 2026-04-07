@@ -1,0 +1,29 @@
+.miser-3d-scatter {
+  position: relative;
+  width: 100%;
+  height: 420px;
+}
+
+.miser-3d-scatter canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.miser-3d-scatter-tooltip {
+  position: absolute;
+  padding: 6px 10px;
+  background: rgb(0 0 0 / 75%);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.miser-3d-scatter-tooltip.visible {
+  opacity: 1;
+}

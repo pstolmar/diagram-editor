@@ -219,6 +219,36 @@
           }
         },
         {
+          "title": "CSV Chart",
+          "id": "csv-chart",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "CSV Chart",
+                  "model": "csv-chart"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "D3 Graph",
+          "id": "d3-graph",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "D3 Graph",
+                  "model": "d3-graph"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Filmstrip",
           "id": "filmstrip",
           "plugins": {
@@ -371,6 +401,336 @@
           }
         },
         {
+          "title": "3D Bars",
+          "id": "miser-3d-bars",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "3D Bars",
+                  "model": "miser-3d-bars"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Force Graph",
+          "id": "miser-3d-force-graph",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "3D Force Graph",
+                  "model": "miser-3d-force-graph"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Globe",
+          "id": "miser-3d-globe",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "3D Globe",
+                  "model": "miser-3d-globe"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Orbit",
+          "id": "miser-3d-orbit",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "3D Orbit",
+                  "model": "miser-3d-orbit"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "3D Scatter",
+          "id": "miser-3d-scatter",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "3D Scatter",
+                  "model": "miser-3d-scatter"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser CSV Chart",
+          "id": "miser-csv-chart",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser CSV Chart",
+                  "model": "miser-csv-chart"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser D3 Graph",
+          "id": "miser-d3-graph",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser D3 Graph",
+                  "model": "miser-d3-graph"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser Particle Field",
+          "id": "miser-particle-field",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser Particle Field",
+                  "model": "miser-particle-field"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser Pop-in Carousel",
+          "id": "miser-popin-carousel",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser Pop-in Carousel",
+                  "model": "miser-popin-carousel"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser Scroll Narrative",
+          "id": "miser-scroll-narrative",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser Scroll Narrative",
+                  "model": "miser-scroll-narrative"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser Tabbed Feature",
+          "id": "miser-tabbed-feature",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser Tabbed Feature",
+                  "model": "miser-tabbed-feature"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser Testimonials Mosaic",
+          "id": "miser-testimonials-mosaic",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser Testimonials Mosaic",
+                  "model": "miser-testimonials-mosaic"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Miser Threejs Scene",
+          "id": "miser-threejs-scene",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Miser Threejs Scene",
+                  "model": "miser-threejs-scene"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "CSV Chart",
+          "id": "miser-viz-csv-chart",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "CSV Chart",
+                  "model": "miser-viz-csv-chart"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "D3 Graph",
+          "id": "miser-viz-d3-graph",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "D3 Graph",
+                  "model": "miser-viz-d3-graph"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Particle Field",
+          "id": "miser-viz-particle-field",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Particle Field",
+                  "model": "miser-viz-particle-field"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Pop-in Carousel",
+          "id": "miser-viz-popin-carousel",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Pop-in Carousel",
+                  "model": "miser-viz-popin-carousel"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Scroll Narrative",
+          "id": "miser-viz-scroll-narrative",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Scroll Narrative",
+                  "model": "miser-viz-scroll-narrative"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Tabbed Feature",
+          "id": "miser-viz-tabbed-feature",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Tabbed Feature",
+                  "model": "miser-viz-tabbed-feature"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Testimonials Mosaic",
+          "id": "miser-viz-testimonials-mosaic",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Testimonials Mosaic",
+                  "model": "miser-viz-testimonials-mosaic"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Three.js Scene",
+          "id": "miser-viz-threejs-scene",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Three.js Scene",
+                  "model": "miser-viz-threejs-scene"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Particle Field",
+          "id": "particle-field",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Particle Field",
+                  "model": "particle-field"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Polaroid Corkboard",
           "id": "polaroid-corkboard",
           "plugins": {
@@ -395,6 +755,81 @@
                 "template": {
                   "name": "Polaroid Photo",
                   "model": "polaroid-photo"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Pop-in Carousel",
+          "id": "popin-carousel",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Pop-in Carousel",
+                  "model": "popin-carousel"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Scroll Narrative",
+          "id": "scroll-narrative",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Scroll Narrative",
+                  "model": "scroll-narrative"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Tabbed Feature",
+          "id": "tabbed-feature",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Tabbed Feature",
+                  "model": "tabbed-feature"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Testimonials Mosaic",
+          "id": "testimonials-mosaic",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Testimonials Mosaic",
+                  "model": "testimonials-mosaic"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Three.js Scene",
+          "id": "threejs-scene",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Three.js Scene",
+                  "model": "threejs-scene"
                 }
               }
             }

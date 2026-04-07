@@ -10,6 +10,20 @@ const PLAN_PATH = process.argv[2] ?? "PLAN.md";
 const MISER_LEVEL = parseInt(process.env.MISER_LEVEL ?? "5", 10);
 const MARKERS = process.env.MARKERS ?? "";
 const JOB_PATH = path.join(".claude", "job.json");
+const BRIDGE_ACTIVE = fs.existsSync(path.join(".claude", "mcp-bridge.active"));
+
+// Tool override: TM_PLAN_WITH controls which model decomposes the plan
+// "auto" = haiku at MISER>=5, sonnet otherwise
+// Accepted values: auto, haiku, sonnet, opus
+function resolvePlanModel(): string {
+  const override = (process.env.TM_PLAN_WITH ?? "auto").toLowerCase();
+  if (override === "sonnet") return "claude-sonnet-4-6";
+  if (override === "opus")   return "claude-opus-4-6";
+  if (override === "haiku")  return "claude-haiku-4-5-20251001";
+  // auto
+  return MISER_LEVEL >= 5 ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-6";
+}
+const PLAN_MODEL = resolvePlanModel();
 
 async function main() {
   if (!fs.existsSync(PLAN_PATH)) {
@@ -25,9 +39,16 @@ Your job is to decompose a PLAN.md into a JobSpec JSON object.
 Rules for tool selection:
 - bash: npm scripts, file operations, lint, build:json, playwright, any shell command
 - codex.patch: mechanical code writes where the spec is complete and unambiguous (new block JS/CSS)
-- fj.snippet: AEM model JSON / UE component definitions / short targeted snippets
+${BRIDGE_ACTIVE ? "- fj.mcp: AEM model JSON / UE component definitions / snippets needing AEM expert knowledge (MCP bridge ACTIVE — preferred over fj.snippet)" : "- fj.snippet: AEM model JSON / UE component definitions / short targeted snippets"}
 - haiku: reasoning tasks, integration work, debugging, anything needing judgment
 - sonnet: complex multi-file architecture decisions, when haiku would likely fail
+${BRIDGE_ACTIVE ? "\nMCP BRIDGE IS ACTIVE: Use fj.mcp instead of fj.snippet for ALL AEM content steps. fj.mcp calls real FluffyJaws — do NOT use haiku as a proxy." : ""}
+
+MANDATORY rule for AEM component model files:
+ANY step that creates or updates a file matching _*.json (e.g. _my-block.json, _section.json,
+component-models.json) MUST use ${BRIDGE_ACTIVE ? "fj.mcp" : "fj.snippet"} — never codex.patch or haiku.
+These files require exact AEM XWalk schema knowledge (resourceType, plugin structure, field component
+types) that only FluffyJaws knows reliably. This rule applies even when MISER is high.
 
 Rules for parallelism:
 - parallel: true — steps that touch DIFFERENT files/blocks with NO shared dependencies
@@ -55,8 +76,8 @@ The JSON must match this exact schema:
           "args": {
             "command": "shell cmd if bash",
             "prompt": "full instruction if haiku/sonnet/codex",
-            "target": "output file path if applicable",
-            "query": "question if fj.snippet",
+            "target": "REQUIRED for fj.snippet/codex/haiku steps that write a file — must be the exact output file path",
+            "query": "question if fj.snippet — must include the target file path in the text",
             "files": ["input files to read if haiku/sonnet"]
           }
         }
@@ -74,8 +95,9 @@ The JSON must match this exact schema:
 
   let raw: string;
   try {
+    console.log(`   model: ${PLAN_MODEL}`);
     const result = await execAsync(
-      `claude -p --model claude-haiku-4-5-20251001 < "${tmpFile}"`,
+      `claude -p --model ${PLAN_MODEL} < "${tmpFile}"`,
       { encoding: "utf8", maxBuffer: 2 * 1024 * 1024 }
     );
     raw = result.stdout.trim();

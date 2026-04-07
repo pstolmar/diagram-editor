@@ -1,0 +1,31 @@
+{
+  "definitions": [
+    {
+      "title": "Three.js Scene",
+      "id": "threejs-scene",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Three.js Scene",
+              "model": "threejs-scene"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "threejs-scene",
+      "fields": [
+        { "component": "text", "name": "scene", "label": "Scene preset (crystal · nebula · torus · cubes)" },
+        { "component": "text", "name": "colors", "label": "Color palette (blue · purple · green · sunset)" },
+        { "component": "text", "name": "lighting", "label": "Lighting mood (warm · cool · dramatic · neon)" },
+        { "component": "text", "name": "height", "label": "Height (e.g. 420px or 60vh)" }
+      ]
+    }
+  ],
+  "filters": []
+}

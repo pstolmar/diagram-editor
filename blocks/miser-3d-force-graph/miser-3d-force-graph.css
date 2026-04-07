@@ -1,0 +1,16 @@
+.miser-3d-force-graph {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.miser-3d-force-graph .fg-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+}
+
+.miser-3d-force-graph .fg-canvas:active {
+  cursor: grabbing;
+}

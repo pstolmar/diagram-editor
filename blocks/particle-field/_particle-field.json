@@ -1,0 +1,31 @@
+{
+  "definitions": [
+    {
+      "title": "Particle Field",
+      "id": "particle-field",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Particle Field",
+              "model": "particle-field"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "particle-field",
+      "fields": [
+        { "component": "text", "name": "headline", "label": "Headline" },
+        { "component": "text", "name": "subhead", "label": "Subheadline" },
+        { "component": "text", "name": "particles", "label": "Particle mode (stars · dots · web · fire)" },
+        { "component": "text", "name": "color", "label": "Color · Count (e.g. blue 150)" }
+      ]
+    }
+  ],
+  "filters": []
+}

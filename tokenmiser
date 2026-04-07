@@ -206,6 +206,34 @@ AUTO_APPROVE=0
 if echo "$MARKERS" | grep -q '\[AUTO_APPROVE\]'; then
   AUTO_APPROVE=1
 fi
+
+TDD_MODE=0
+if echo "$MARKERS" | grep -q '\[TDD\]'; then
+  TDD_MODE=1
+fi
+
+# Tool-routing overrides — default "auto" means let MISER/decompose decide
+TM_TESTS_WITH="auto"
+TM_PLAN_WITH="auto"
+TM_CODE_WITH="auto"
+if echo "$MARKERS" | grep -qE '\[TESTS_WITH=[^]]+\]'; then
+  TM_TESTS_WITH=$(echo "$MARKERS" | grep -oE '\[TESTS_WITH=[^]]+\]' | sed 's/\[TESTS_WITH=//;s/\]//' | tr '[:upper:]' '[:lower:]')
+fi
+if echo "$MARKERS" | grep -qE '\[PLAN_WITH=[^]]+\]'; then
+  TM_PLAN_WITH=$(echo "$MARKERS" | grep -oE '\[PLAN_WITH=[^]]+\]' | sed 's/\[PLAN_WITH=//;s/\]//' | tr '[:upper:]' '[:lower:]')
+fi
+if echo "$MARKERS" | grep -qE '\[CODE_WITH=[^]]+\]'; then
+  TM_CODE_WITH=$(echo "$MARKERS" | grep -oE '\[CODE_WITH=[^]]+\]' | sed 's/\[CODE_WITH=//;s/\]//' | tr '[:upper:]' '[:lower:]')
+fi
+export TM_TESTS_WITH TM_PLAN_WITH TM_CODE_WITH
+
+# Disable codex when rate-limited or explicitly requested
+DISABLE_CODEX=false
+if echo "$MARKERS" | grep -q '\[DISABLE_CODEX\]'; then
+  DISABLE_CODEX=true
+fi
+export DISABLE_CODEX
+
 # YOLO implies auto-approve
 if [ "$YOLO" -eq 1 ]; then
   AUTO_APPROVE=1
@@ -281,30 +309,136 @@ if [ "$USE_EXECUTOR" -eq 1 ]; then
       jq -r '.phases[] | "  \(if .parallel then "⚡" else "→" end) \(.name): \(.steps | length) steps [\([.steps[].tool] | unique | join("+")] | join(""))]"' .claude/job.json 2>/dev/null || true
     fi
     echo ""
+
+    # ── TDD: generate failing specs (red phase) ───────────────────────────────
+    TDD_SPECS=""
+    if [ "$TDD_MODE" -eq 1 ] && [ -f "tools/gen-tests.ts" ]; then
+      echo "🧪 [TDD] Extracting new block names from job spec..."
+      # Extract unique block names referenced in step args (paths like blocks/<name>)
+      BLOCK_NAMES=$(node -e "
+        try {
+          const j = JSON.parse(require('fs').readFileSync('.claude/job.json','utf8'));
+          const names = new Set();
+          j.phases.forEach(p => (p.steps||[]).forEach(s => {
+            const text = JSON.stringify(s.args||{});
+            for (const m of text.matchAll(/blocks\\/([a-z0-9-]+)/g)) names.add(m[1]);
+          }));
+          console.log([...names].join('\n'));
+        } catch(e) { /* no job.json yet */ }
+      " 2>/dev/null || true)
+
+      if [ -n "$BLOCK_NAMES" ]; then
+        while IFS= read -r BLOCK; do
+          [ -z "$BLOCK" ] && continue
+          echo "🧪 [TDD] Generating spec for: $BLOCK"
+          # Use || true so a non-zero exit from gen-tests never kills the parent (set -e safe)
+          SPEC_PATH=$(npx --yes tsx tools/gen-tests.ts "$BLOCK" "$PLAN_FILE" 2>&1 || true)
+          # The actual path is always printed as the last non-empty line
+          SPEC_PATH=$(echo "$SPEC_PATH" | grep -E '^tests/' | tail -1 || true)
+          if [ -n "$SPEC_PATH" ] && [ -f "$SPEC_PATH" ]; then
+            TDD_SPECS="${TDD_SPECS:+$TDD_SPECS }$SPEC_PATH"
+            echo "   ✅ spec: $SPEC_PATH"
+          else
+            echo "   ⚠️  spec generation failed for $BLOCK — skipping"
+          fi
+        done <<< "$BLOCK_NAMES"
+      fi
+
+      # Only attempt playwright if dev server is already up — don't block the build
+      TM_SERVER_UP=0
+      if curl -sf --max-time 2 http://localhost:3000 > /dev/null 2>&1; then
+        TM_SERVER_UP=1
+      fi
+
+      if [ -n "$TDD_SPECS" ] && [ "$TM_SERVER_UP" -eq 1 ]; then
+        echo ""
+        echo "🔴 [TDD] Verifying tests fail before build (red phase)..."
+        # shellcheck disable=SC2086
+        if npx playwright test $TDD_SPECS --reporter=list 2>&1; then
+          echo "⚠️  [TDD] Tests PASSED before building — specs may not be testing the right things."
+          echo "   Continuing anyway."
+        else
+          echo "✅ [TDD] Tests correctly failed (red). Proceeding with build..."
+        fi
+        echo ""
+      elif [ -n "$TDD_SPECS" ]; then
+        echo "⚠️  [TDD] Dev server not running — skipping red-phase check. Specs written; green check after build."
+        echo ""
+      fi
+    fi
+
     echo "⚙️  Executing job spec..."
-    mkdir -p .tokenmiser tokenmiser-data
+    mkdir -p .tokenmiser tokenmiser-data .claude
+    # Signal to executor that MCP bridge is available (this session can fulfill fj.mcp requests)
+    touch .claude/mcp-bridge.active
+    export MISER_LEVEL
     JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
     RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     RUN_DESC="$(grep -m1 '^[^#]' "$PLAN_FILE" | head -c 80 | sed 's/"/\\"/g')"
     printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\",\"description\":\"${RUN_DESC}\"}" >> .tokenmiser/runs.json
+    # Sync immediately so the dashboard shows the live running job
+    cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
     TMPOUT=$(mktemp)
-    npx --yes tsx tools/code-executor.ts 2>&1 | tee "$TMPOUT"
+    MISER_LEVEL="$MISER_LEVEL" npx --yes tsx tools/code-executor.ts 2>&1 | tee "$TMPOUT"
+    EXECUTOR_EXIT=${PIPESTATUS[0]}
     RUN_END="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    # Update run record status
+    EXEC_STATUS="ok"
+    [ "$EXECUTOR_EXIT" -ne 0 ] && EXEC_STATUS="failed"
+    # Update the specific "running" record for this JOB_ID (not just the last line —
+    # the executor also appends its own detailed record, making tail -1 wrong)
     if command -v jq &>/dev/null && [ -f ".tokenmiser/runs.json" ]; then
-      LAST_LINE=$(tail -1 .tokenmiser/runs.json)
-      if [ -n "$LAST_LINE" ]; then
-        UPDATED=$(echo "$LAST_LINE" | jq --arg end "$RUN_END" '. + {completedAt: $end, status: "ok"}' 2>/dev/null || echo "")
-        if [ -n "$UPDATED" ]; then
-          TMPFILE=$(mktemp)
-          head -n -1 .tokenmiser/runs.json > "$TMPFILE"
-          echo "$UPDATED" >> "$TMPFILE"
-          mv "$TMPFILE" .tokenmiser/runs.json
+      TMPFILE=$(mktemp)
+      while IFS= read -r _line; do
+        _lid=$(echo "$_line" | jq -r '.jobId // ""' 2>/dev/null)
+        _lst=$(echo "$_line" | jq -r '.status // ""' 2>/dev/null)
+        if [ "$_lid" = "$JOB_ID" ] && [ "$_lst" = "running" ]; then
+          echo "$_line" | jq --arg end "$RUN_END" --arg s "$EXEC_STATUS" \
+            '. + {completedAt: $end, status: $s}' 2>/dev/null || echo "$_line"
+        else
+          echo "$_line"
         fi
-      fi
+      done < ".tokenmiser/runs.json" > "$TMPFILE"
+      mv "$TMPFILE" .tokenmiser/runs.json
     fi
     cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
-    rm -f "$TMPOUT"
+    rm -f "$TMPOUT" .claude/mcp-bridge.active
+
+    # ── TDD: verify green + promote to critical path ──────────────────────────
+    # Re-check server in case it came up during the build
+    if curl -sf --max-time 2 http://localhost:3000 > /dev/null 2>&1; then
+      TM_SERVER_UP=1
+    fi
+    if [ "$TDD_MODE" -eq 1 ] && [ -n "$TDD_SPECS" ] && [ "$TM_SERVER_UP" -eq 1 ]; then
+      echo ""
+      echo "🟢 [TDD] Verifying tests pass after build (green phase)..."
+      # shellcheck disable=SC2086
+      if npx playwright test $TDD_SPECS --reporter=list 2>&1; then
+        echo ""
+        echo "✅ [TDD] Tests passed! Promoting to critical path..."
+        node -e "
+          const fs = require('fs');
+          const cpFile = 'tests/critical-path.json';
+          const existing = fs.existsSync(cpFile)
+            ? JSON.parse(fs.readFileSync(cpFile, 'utf8'))
+            : [];
+          const toAdd = '${TDD_SPECS}'.trim().split(/\s+/).filter(Boolean);
+          const updated = [...new Set([...existing, ...toAdd])];
+          fs.writeFileSync(cpFile, JSON.stringify(updated, null, 2) + '\n');
+          toAdd.forEach(s => console.log('  ✅ promoted:', s));
+        " 2>&1
+      else
+        echo ""
+        echo "❌ [TDD] Tests FAILED after build. Review the implementation."
+        echo "   Specs written to: $TDD_SPECS"
+        echo "   NOT promoted to critical path — fix failures first."
+      fi
+    elif [ "$TDD_MODE" -eq 1 ] && [ -n "$TDD_SPECS" ]; then
+      echo ""
+      echo "⚠️  [TDD] Dev server not running — skipping green-phase check."
+      echo "   Run manually: npx playwright test $TDD_SPECS"
+      echo "   Then promote passing specs: node -e \"const fs=require('fs'); const f='tests/critical-path.json'; const e=JSON.parse(fs.readFileSync(f)); fs.writeFileSync(f,JSON.stringify([...new Set([...e,...'${TDD_SPECS}'.split(' ')])],null,2)+'\\n')\""
+    fi
+
     # Skip the rest of the tokenmiser claude -p flow
     echo ""
     echo "✅ Executor pipeline complete."
@@ -362,6 +496,8 @@ JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | t
 RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 RUN_DESC="$(grep -m1 '^[^#]' "$PLAN_FILE" | head -c 80 | sed 's/"/\\"/g')"
 printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\",\"description\":\"${RUN_DESC}\"}" >> .tokenmiser/runs.json
+# Sync immediately so the dashboard live bar shows the running job
+cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
 
 # Capture output to temp file for token extraction
 TMPOUT=$(mktemp)

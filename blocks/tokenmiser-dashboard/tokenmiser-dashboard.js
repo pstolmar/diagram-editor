@@ -266,7 +266,7 @@ function wireInteractions(block, openRidRef) {
     const text = td.querySelector('.tm-desc-text');
     if (!text) return;
     td.addEventListener('mouseenter', () => {
-      const overflow = text.scrollWidth - td.clientWidth;
+      const overflow = text.scrollWidth - text.clientWidth;
       if (overflow <= 4) return; // nothing hidden
       text.style.setProperty('--tm-overflow', `-${overflow}px`);
       text.classList.add('is-scrolling');

@@ -1,0 +1,31 @@
+{
+  "definitions": [
+    {
+      "title": "Pop-in Carousel",
+      "id": "popin-carousel",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Pop-in Carousel",
+              "model": "popin-carousel"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "popin-carousel",
+      "fields": [
+        { "component": "text", "name": "grid", "label": "Grid (cols×rows, e.g. 4x3 · 3x2 · 5x3)" },
+        { "component": "text", "name": "effect", "label": "Entrance effect (sizzle · paint · grey · shatter · bloom · glitch · paint-wipe)" },
+        { "component": "text", "name": "interval", "label": "Cycle interval in seconds" },
+        { "component": "text", "name": "photos", "label": "Photo category (ocean · balloons · landscape) — or leave blank to use inline images" }
+      ]
+    }
+  ],
+  "filters": []
+}

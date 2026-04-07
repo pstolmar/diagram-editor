@@ -1,0 +1,10 @@
+.csv-chart-wrap {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.csv-chart-canvas {
+  max-height: 400px;
+}

@@ -1,0 +1,130 @@
+/* ===== Popin Carousel — miser-viz ===== */
+
+.pc-grid {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  overflow-anchor: none;
+}
+
+.pc-slot {
+  aspect-ratio: 4 / 3;
+  background: #0a0a1a;
+  overflow: hidden;
+  position: relative;
+}
+
+.pc-slot img,
+.pc-slot picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+}
+
+/* ===== sizzle ===================================================
+   Grey pause of (stagger + 2 s), then colour ignites with warm glow.
+   animation-delay uses var(--pc-delay) set per-slot by JS — never inherit.
+   ================================================================ */
+@keyframes pc-sizzle {
+  0%   { filter: grayscale(1) brightness(0.8); }
+  18%  { filter: grayscale(0.65) brightness(1.18) sepia(0.45) saturate(1.7); }
+  45%  { filter: grayscale(0.15) brightness(1.1) sepia(0.12) saturate(1.4); }
+  100% { filter: grayscale(0) brightness(1) sepia(0) saturate(1); }
+}
+
+[data-effect="sizzle"] .pc-slot.pc-enter img,
+[data-effect="sizzle"] .pc-slot.pc-enter picture {
+  animation: pc-sizzle 1.4s ease-out both;
+  animation-delay: calc(var(--pc-delay, 0s) + 2s);
+}
+
+/* ===== paint ====================================================
+   2 s dark silence (via animation-delay + fill-mode:both holding 0% state),
+   then colour floods in a top-down curved wave via ellipse clip-path.
+   ================================================================ */
+@keyframes pc-paint {
+  0% {
+    clip-path: ellipse(62% 0% at 50% 0%);
+    filter: grayscale(0) brightness(0);
+  }
+
+  22% {
+    clip-path: ellipse(64% 28% at 50% 8%);
+    filter: grayscale(0) brightness(0.45);
+  }
+
+  55% {
+    clip-path: ellipse(70% 65% at 50% 32%);
+    filter: grayscale(0) brightness(0.88);
+  }
+
+  100% {
+    clip-path: ellipse(105% 125% at 50% 0%);
+    filter: grayscale(0) brightness(1);
+  }
+}
+
+[data-effect="paint"] .pc-slot.pc-enter img,
+[data-effect="paint"] .pc-slot.pc-enter picture {
+  animation: pc-paint 1.8s cubic-bezier(0.35, 0, 0.2, 1) both;
+  animation-delay: calc(var(--pc-delay, 0s) + 2s);
+}
+
+/* ===== grey =====================================================
+   No colour animation — base grayscale(1) is permanent.
+   Subtle fade-in for entrance rhythm only.
+   ================================================================ */
+@keyframes pc-grey-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+[data-effect="grey"] .pc-slot.pc-enter img,
+[data-effect="grey"] .pc-slot.pc-enter picture {
+  animation: pc-grey-in 0.7s ease-out both;
+  animation-delay: var(--pc-delay, 0s);
+}
+
+/* ===== shatter ==================================================
+   Outgoing: polygon clip-path collapses to centre fragment while falling.
+   Incoming: immediate sizzle (delay = var(--pc-delay,0s) with no +2s offset
+             because JS sets --pc-delay:0s for individual slot swaps).
+   ================================================================ */
+@keyframes pc-shatter-out {
+  0%   {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+  28%  {
+    clip-path: polygon(4% 6%, 96% 2%, 98% 94%, 2% 98%);
+    transform: translateY(3%) scale(0.97) rotate(0.5deg);
+    opacity: 0.85;
+  }
+
+  65%  {
+    clip-path: polygon(18% 16%, 82% 11%, 84% 86%, 16% 89%);
+    transform: translateY(10%) scale(0.88) rotate(1.5deg);
+    opacity: 0.45;
+  }
+
+  100% {
+    clip-path: polygon(38% 34%, 62% 32%, 63% 66%, 37% 68%);
+    transform: translateY(28%) scale(0.7) rotate(3deg);
+    opacity: 0;
+  }
+}
+
+.pc-shatter-out {
+  animation: pc-shatter-out 0.65s ease-in both;
+}
+
+/* Incoming slot after shatter — immediate sizzle, no extra pause */
+[data-effect="shatter"] .pc-slot.pc-enter img,
+[data-effect="shatter"] .pc-slot.pc-enter picture {
+  animation: pc-sizzle 1.4s ease-out both;
+  animation-delay: var(--pc-delay, 0s);
+}

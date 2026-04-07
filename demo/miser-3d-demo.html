@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TokenMiser 3D Blocks — Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/styles/lazy-styles.css">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js" as="script" crossorigin>
+  <style>
+    body { background: #0d1117; color: #e2e8f0; font-family: system-ui, sans-serif; }
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .section { margin-bottom: 3rem; }
+    .section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin: 0 0 .75rem;
+      padding-bottom: .4rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .section p.desc {
+      font-size: .875rem;
+      color: #64748b;
+      margin: 0 0 1rem;
+    }
+    h1.page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin: 0 0 .25rem;
+    }
+    .page-subtitle {
+      font-size: .9375rem;
+      color: #64748b;
+      margin: 0 0 2.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header></header>
+  <main>
+
+    <h1 class="page-title">TokenMiser — 3D Visualisations</h1>
+    <p class="page-subtitle">All five 3D blocks rendered via Three.js from CDN. Drag to orbit, scroll to zoom.</p>
+
+    <!-- ── 1. Force Graph ──────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Force Graph — Token Cost Network</h2>
+      <p class="desc">6 nodes · 7 links · pipe-delimited source|target|weight. Node size = weighted degree; colour gradient cool→warm.</p>
+      <div class="miser-3d-force-graph block" data-block-name="miser-3d-force-graph">
+        <div><div>TokenMiser|Haiku|4
+TokenMiser|Sonnet 4.6|7
+TokenMiser|FluffyJaws|3
+Haiku|bash|5
+Sonnet 4.6|bash|6
+FluffyJaws|AEM JSON|3
+bash|EDS Site|8</div></div>
+        <div><div>150</div></div>
+        <div><div>440</div></div>
+      </div>
+    </div>
+
+    <!-- ── 2. Scatter Plot ─────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Scatter — Model Cost × Quality × Speed</h2>
+      <p class="desc">10 points · CSV with header label,x,y,z,color · axes = cost, quality, speed. Drag to rotate.</p>
+      <div class="miser-3d-scatter block" data-block-name="miser-3d-scatter">
+        <div><div>label,x,y,z,color
+Haiku 4.5,0.8,6.2,9.5,#059669
+Sonnet 4.6,3.8,8.5,7.1,#0070f3
+Opus 4.6,9.2,9.8,3.4,#7c3aed
+FluffyJaws,0.3,7.8,9.8,#d97706
+bash,0.1,5.5,9.9,#94a3b8
+GPT-4o Mini,0.9,6.8,8.9,#06b6d4
+GPT-4o,5.5,9.1,6.0,#3b82f6
+Gemini Flash,1.2,7.0,9.3,#f59e0b
+Gemini Pro,4.8,8.7,6.5,#e11d48
+Mistral Large,4.1,7.9,6.8,#8b5cf6</div></div>
+        <div><div>height</div><div>440</div></div>
+      </div>
+    </div>
+
+    <!-- ── 3. 3D Bars ─────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Bar Chart — Model Cost Index</h2>
+      <p class="desc">6 categories · CSV format category,value,color · isometric view with per-bar colour.</p>
+      <div class="miser-3d-bars block" data-block-name="miser-3d-bars">
+        <div><div>bars</div></div>
+        <div><div>440</div></div>
+        <div><div>Opus 4.6,100,#7c3aed
+Sonnet 4.6,38,#0070f3
+GPT-4o,42,#3b82f6
+Gemini Pro,35,#06b6d4
+Haiku 4.5,6,#059669
+bash / local,1,#94a3b8</div></div>
+      </div>
+    </div>
+
+    <!-- ── 4. Globe ───────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Globe — Global EDS Deploy Activity</h2>
+      <p class="desc">6 city markers · pipe-delimited label|lat|lon|value · blue palette. Drag to rotate the globe.</p>
+      <div class="miser-3d-globe block" data-block-name="miser-3d-globe">
+        <div><div>New York|40.71|-74.01|95
+London|51.51|-0.13|88
+Tokyo|35.69|139.69|72
+Sydney|-33.87|151.21|61
+São Paulo|-23.55|-46.64|54
+Dubai|25.20|55.27|78</div></div>
+        <div><div>blue</div></div>
+        <div><div>460</div></div>
+      </div>
+    </div>
+
+    <!-- ── 5. Orbit ───────────────────────────────────────────── -->
+    <div class="section">
+      <h2>3D Orbit — TokenMiser Model Constellation</h2>
+      <p class="desc">5 orbital bodies · pipe-delimited label|radius|speed|size|color · starfield backdrop. Animates in real-time.</p>
+      <div class="miser-3d-orbit block" data-block-name="miser-3d-orbit">
+        <div><div>Haiku 4.5|1.4|3.2|0.10|#059669</div></div>
+        <div><div>Sonnet 4.6|2.4|1.8|0.14|#0070f3</div></div>
+        <div><div>Opus 4.6|3.6|0.9|0.22|#7c3aed</div></div>
+        <div><div>FluffyJaws|4.8|1.4|0.12|#d97706</div></div>
+        <div><div>bash|5.8|2.6|0.08|#94a3b8</div></div>
+        <div><div>520</div></div>
+      </div>
+    </div>
+
+  </main>
+  <footer></footer>
+</body>
+</html>

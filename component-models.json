@@ -435,6 +435,26 @@
     ]
   },
   {
+    "id": "csv-chart",
+    "fields": [
+      {
+        "component": "text",
+        "name": "csvData",
+        "label": "CSV data or URL"
+      }
+    ]
+  },
+  {
+    "id": "d3-graph",
+    "fields": [
+      {
+        "component": "text",
+        "name": "graphData",
+        "label": "Graph data (pipe-separated rows)"
+      }
+    ]
+  },
+  {
     "id": "filmstrip-frame",
     "fields": [
       {
@@ -632,6 +652,498 @@
     ]
   },
   {
+    "id": "miser-3d-bars",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "csvData",
+        "label": "CSV Data",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "variant",
+        "label": "Variant",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-3d-force-graph",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "graphData",
+        "label": "Graph Data",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-3d-globe",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "markerData",
+        "label": "Marker Data",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-3d-orbit",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "orbitData",
+        "label": "Orbit Data",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-3d-scatter",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "csvData",
+        "label": "CSV Data",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "pointSize",
+        "label": "Point Size",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-csv-chart",
+    "fields": [
+      {
+        "component": "text",
+        "name": "csvData",
+        "label": "CSV Data",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-d3-graph",
+    "fields": [
+      {
+        "component": "text",
+        "name": "graphData",
+        "label": "Graph Data",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-particle-field",
+    "fields": [
+      {
+        "component": "text",
+        "name": "headline",
+        "label": "Headline"
+      },
+      {
+        "component": "text",
+        "name": "subhead",
+        "label": "Subhead"
+      },
+      {
+        "component": "text",
+        "name": "particles",
+        "label": "Particles"
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color"
+      }
+    ]
+  },
+  {
+    "id": "miser-popin-carousel",
+    "fields": [
+      {
+        "component": "text",
+        "name": "grid",
+        "label": "Grid (cols×rows, e.g. 4x3 · 3x2 · 5x3)"
+      },
+      {
+        "component": "text",
+        "name": "effect",
+        "label": "Entrance effect (sizzle · paint · grey · shatter · bloom · glitch · paint-wipe)"
+      },
+      {
+        "component": "text",
+        "name": "interval",
+        "label": "Cycle interval in seconds"
+      },
+      {
+        "component": "text",
+        "name": "photos",
+        "label": "Photo category (ocean · balloons · landscape) — or leave blank to use inline images"
+      }
+    ]
+  },
+  {
+    "id": "miser-scroll-narrative",
+    "fields": [
+      {
+        "component": "text",
+        "name": "leftContent",
+        "label": "Left (sticky) content"
+      },
+      {
+        "component": "text",
+        "name": "rightContent",
+        "label": "Right (scroll) content"
+      }
+    ]
+  },
+  {
+    "id": "miser-tabbed-feature",
+    "fields": [
+      {
+        "component": "text",
+        "name": "tabLabel",
+        "label": "Tab Label",
+        "valueType": "string"
+      },
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "valueType": "string",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "name": "heading",
+        "label": "Heading",
+        "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "body",
+        "label": "Body",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-testimonials-mosaic",
+    "fields": [
+      {
+        "component": "text",
+        "name": "quote",
+        "label": "Quote"
+      },
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name"
+      },
+      {
+        "component": "text",
+        "name": "role",
+        "label": "Role"
+      },
+      {
+        "component": "text",
+        "name": "category",
+        "label": "Category"
+      }
+    ]
+  },
+  {
+    "id": "miser-threejs-scene",
+    "fields": [
+      {
+        "component": "text",
+        "name": "scene",
+        "label": "Scene"
+      },
+      {
+        "component": "text",
+        "name": "colors",
+        "label": "Colors"
+      },
+      {
+        "component": "text",
+        "name": "lighting",
+        "label": "Lighting"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-csv-chart",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "csvData",
+        "label": "CSV Data",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-d3-graph",
+    "fields": [
+      {
+        "component": "text-area",
+        "name": "graphData",
+        "label": "Graph Data",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-particle-field",
+    "fields": [
+      {
+        "component": "text",
+        "name": "headline",
+        "label": "Headline",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "subhead",
+        "label": "Subhead",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "particles",
+        "label": "Particles",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-popin-carousel",
+    "fields": [
+      {
+        "component": "text",
+        "name": "grid",
+        "label": "Grid",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "effect",
+        "label": "Effect",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "interval",
+        "label": "Interval",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "photos",
+        "label": "Photos",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-scroll-narrative",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "leftContent",
+        "label": "Left Content",
+        "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "rightContent",
+        "label": "Right Content",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-tabbed-feature",
+    "fields": [
+      {
+        "component": "text",
+        "name": "tabLabel",
+        "label": "Tab Label",
+        "valueType": "string"
+      },
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "valueType": "string",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "name": "heading",
+        "label": "Heading",
+        "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "body",
+        "label": "Body",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-testimonials-mosaic",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "quote",
+        "label": "Quote",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "role",
+        "label": "Role",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "category",
+        "label": "Category",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "miser-viz-threejs-scene",
+    "fields": [
+      {
+        "component": "text",
+        "name": "scene",
+        "label": "Scene",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "colors",
+        "label": "Colors",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "lighting",
+        "label": "Lighting",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "particle-field",
+    "fields": [
+      {
+        "component": "text",
+        "name": "headline",
+        "label": "Headline"
+      },
+      {
+        "component": "text",
+        "name": "subhead",
+        "label": "Subheadline"
+      },
+      {
+        "component": "text",
+        "name": "particles",
+        "label": "Particle mode (stars · dots · web · fire)"
+      },
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Color · Count (e.g. blue 150)"
+      }
+    ]
+  },
+  {
     "id": "polaroid-photo",
     "fields": [
       {
@@ -689,6 +1201,122 @@
             "value": "both"
           }
         ]
+      }
+    ]
+  },
+  {
+    "id": "popin-carousel",
+    "fields": [
+      {
+        "component": "text",
+        "name": "grid",
+        "label": "Grid (cols×rows, e.g. 4x3 · 3x2 · 5x3)"
+      },
+      {
+        "component": "text",
+        "name": "effect",
+        "label": "Entrance effect (sizzle · paint · grey · shatter · bloom · glitch · paint-wipe)"
+      },
+      {
+        "component": "text",
+        "name": "interval",
+        "label": "Cycle interval in seconds"
+      },
+      {
+        "component": "text",
+        "name": "photos",
+        "label": "Photo category (ocean · balloons · landscape) — or leave blank to use inline images"
+      }
+    ]
+  },
+  {
+    "id": "scroll-narrative",
+    "fields": [
+      {
+        "component": "text",
+        "name": "leftContent",
+        "label": "Left (sticky) content"
+      },
+      {
+        "component": "text",
+        "name": "rightContent",
+        "label": "Right (scroll) content"
+      }
+    ]
+  },
+  {
+    "id": "tabbed-feature",
+    "fields": [
+      {
+        "component": "text",
+        "name": "tabLabel",
+        "label": "Tab Label"
+      },
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "text",
+        "name": "body",
+        "label": "Body (bullets, newline-separated)"
+      }
+    ]
+  },
+  {
+    "id": "testimonials-mosaic",
+    "fields": [
+      {
+        "component": "text",
+        "name": "quote",
+        "label": "Quote"
+      },
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name"
+      },
+      {
+        "component": "text",
+        "name": "role",
+        "label": "Role · Company"
+      },
+      {
+        "component": "text",
+        "name": "category",
+        "label": "Category · Stars (e.g. Engineering 5)"
+      }
+    ]
+  },
+  {
+    "id": "threejs-scene",
+    "fields": [
+      {
+        "component": "text",
+        "name": "scene",
+        "label": "Scene preset (crystal · nebula · torus · cubes)"
+      },
+      {
+        "component": "text",
+        "name": "colors",
+        "label": "Color palette (blue · purple · green · sunset)"
+      },
+      {
+        "component": "text",
+        "name": "lighting",
+        "label": "Lighting mood (warm · cool · dramatic · neon)"
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height (e.g. 420px or 60vh)"
       }
     ]
   },

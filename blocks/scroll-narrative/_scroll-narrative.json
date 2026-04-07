@@ -1,0 +1,29 @@
+{
+  "definitions": [
+    {
+      "title": "Scroll Narrative",
+      "id": "scroll-narrative",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Scroll Narrative",
+              "model": "scroll-narrative"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "scroll-narrative",
+      "fields": [
+        { "component": "text", "name": "leftContent", "label": "Left (sticky) content" },
+        { "component": "text", "name": "rightContent", "label": "Right (scroll) content" }
+      ]
+    }
+  ],
+  "filters": []
+}

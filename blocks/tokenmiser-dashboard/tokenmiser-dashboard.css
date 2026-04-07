@@ -335,6 +335,7 @@
 
 .tm-desc-text.is-scrolling {
   text-overflow: clip;
+  overflow: visible; /* let parent .tm-desc clip; translateX now reveals hidden right side */
   animation: tm-marquee 3.5s ease-in-out infinite alternate;
 }
 

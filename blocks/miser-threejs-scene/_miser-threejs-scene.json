@@ -1,0 +1,47 @@
+{
+  "definitions": [
+    {
+      "title": "Miser Threejs Scene",
+      "id": "miser-threejs-scene",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Miser Threejs Scene",
+              "model": "miser-threejs-scene"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "miser-threejs-scene",
+      "fields": [
+        {
+          "component": "text",
+          "name": "scene",
+          "label": "Scene"
+        },
+        {
+          "component": "text",
+          "name": "colors",
+          "label": "Colors"
+        },
+        {
+          "component": "text",
+          "name": "lighting",
+          "label": "Lighting"
+        },
+        {
+          "component": "text",
+          "name": "height",
+          "label": "Height"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}
