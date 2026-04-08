@@ -1,0 +1,100 @@
+.scroll-reveal {
+  display: flex;
+  gap: 1rem;
+  min-height: 100vh;
+}
+
+.scroll-reveal-sidebar {
+  position: sticky;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.scroll-reveal-panels {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.scroll-reveal-panel {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fade-in 400ms ease-out forwards;
+}
+
+.scroll-reveal-panel[data-visible="true"] {
+  opacity: 1;
+}
+
+.scroll-reveal-progress-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary, #0078d4), var(--color-accent, #107c10));
+  animation: slide-in 400ms ease-out;
+  z-index: 999;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+/* Mobile responsive: collapse sidebar to dots bar */
+@media (width <= 768px) {
+  .scroll-reveal {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .scroll-reveal-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--color-bg, #fff);
+    border-bottom: 1px solid var(--color-border, #e0e0e0);
+    z-index: 100;
+    overflow-y: visible;
+  }
+
+  .scroll-reveal-panels {
+    margin-top: 60px;
+    flex-direction: column;
+  }
+
+  .scroll-reveal-panel {
+    min-height: 100vh;
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "feedTitle": "Security Operations Dashboard",
+  "syncedAt": "2026-04-08T14:32:17Z",
+  "source": "SOC Management Platform",
+  "metrics": [
+    {
+      "label": "Threat Detection Rate",
+      "value": 98.7,
+      "delta": 2.3,
+      "trend": "up"
+    },
+    {
+      "label": "Mean Time to Detect (mins)",
+      "value": 4.2,
+      "delta": -0.8,
+      "trend": "down"
+    },
+    {
+      "label": "Incident Resolution Rate",
+      "value": 94.1,
+      "delta": 3.5,
+      "trend": "up"
+    },
+    {
+      "label": "False Positive Rate (%)",
+      "value": 2.1,
+      "delta": -1.2,
+      "trend": "down"
+    },
+    {
+      "label": "Active Alerts",
+      "value": 127,
+      "delta": -18,
+      "trend": "down"
+    },
+    {
+      "label": "Compliance Score (%)",
+      "value": 96.5,
+      "delta": 1.8,
+      "trend": "up"
+    }
+  ],
+  "note": "Last 24-hour metrics. All systems nominal. No critical incidents. Dashboard refreshed every 15 minutes."
+}

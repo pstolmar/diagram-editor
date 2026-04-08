@@ -2,7 +2,7 @@
 const RUNS_URLS = ['/tokenmiser-data/runs.json', '/.tokenmiser/runs.json'];
 const REFRESH_MS = 30000;
 const LIVE_REFRESH_MS = 5000;
-const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000; // 2 hours → treat as abandoned
+const STALE_THRESHOLD_MS = 20 * 60 * 1000; // 20 min → treat as abandoned (jobs rarely exceed this)
 
 // Opus 4 Extended pricing per million tokens
 const OPUS_INPUT_PER_M = 15;
@@ -57,7 +57,9 @@ function stepSummary(run) {
 function statusBadge(run) {
   const { status } = run;
   if (status === 'escalated') return '<span class="tm-badge tm-badge-warn">⚡ escalated</span>';
+  if (status === 'interrupted') return '<span class="tm-badge tm-badge-warn">⚡ interrupted</span>';
   if (status === 'failed' || status === 'error') return '<span class="tm-badge tm-badge-fail">✗ failed</span>';
+  if (run.failedSteps > 0) return `<span class="tm-badge tm-badge-fail">✗ ${run.failedSteps} failed</span>`;
   return '<span class="tm-badge tm-badge-ok">✓ ok</span>';
 }
 
@@ -143,13 +145,7 @@ function isStale(run) {
 }
 
 function renderLiveBar(activeRuns) {
-  if (activeRuns.length === 0) {
-    return `<div class="tm-live-bar tm-live-idle">
-      <span class="tm-live-dot tm-live-dot-idle"></span>
-      <span class="tm-live-label">idle</span>
-      <span class="tm-live-meta">no jobs running</span>
-    </div>`;
-  }
+  if (activeRuns.length === 0) return '';
   const items = activeRuns.map((run) => {
     const stale = isStale(run);
     const stateClass = stale ? 'tm-live-stale' : 'tm-live-active';

@@ -1,0 +1,86 @@
+[
+  {
+    "date": "Q1 2022",
+    "category": "Foundation",
+    "title": "Company Founded",
+    "body": "Three co-founders launched the company with a vision to transform data visualization in enterprise software.",
+    "icon": "🚀"
+  },
+  {
+    "date": "Q3 2022",
+    "category": "Product",
+    "title": "First Product Launch",
+    "body": "Released v1.0 of our core visualization platform, featuring real-time data rendering and collaborative dashboards.",
+    "icon": "📊"
+  },
+  {
+    "date": "Q4 2022",
+    "category": "Growth",
+    "title": "Series A Funding",
+    "body": "Secured $5M in Series A funding led by venture capital partners to accelerate product development and market expansion.",
+    "icon": "💰"
+  },
+  {
+    "date": "February 2023",
+    "category": "Team",
+    "title": "Expanded Engineering Team",
+    "body": "Hired 8 engineers to strengthen our platform architecture and expand feature development capabilities.",
+    "icon": "👥"
+  },
+  {
+    "date": "May 2023",
+    "category": "Partnership",
+    "title": "Strategic Integration with Adobe",
+    "body": "Launched native integration with Adobe Experience Cloud, enabling seamless workflow for enterprise customers.",
+    "icon": "🤝"
+  },
+  {
+    "date": "Q3 2023",
+    "category": "Product",
+    "title": "AI-Powered Insights Released",
+    "body": "Introduced machine learning-driven analytics engine for automated trend detection and predictive analysis.",
+    "icon": "🤖"
+  },
+  {
+    "date": "November 2023",
+    "category": "Recognition",
+    "title": "Gartner Magic Quadrant Recognition",
+    "body": "Named as a Visionary in the 2023 Gartner Magic Quadrant for analytics platforms.",
+    "icon": "⭐"
+  },
+  {
+    "date": "Q1 2024",
+    "category": "Market",
+    "title": "IPO Filing Announced",
+    "body": "Filed for initial public offering, marking transition from private venture to public company.",
+    "icon": "📈"
+  },
+  {
+    "date": "June 2024",
+    "category": "Milestone",
+    "title": "10,000+ Enterprise Customers",
+    "body": "Reached milestone of serving over 10,000 enterprise customers across EMEA, APAC, and North America regions.",
+    "icon": "🌍"
+  },
+  {
+    "date": "August 2024",
+    "category": "Product",
+    "title": "Real-time Collaboration 2.0",
+    "body": "Released enhanced collaboration features enabling teams to work simultaneously on dashboards with sub-second sync.",
+    "icon": "⚡"
+  },
+  {
+    "date": "Q4 2024",
+    "category": "Acquisition",
+    "title": "Acquired DataStream Analytics",
+    "body": "Strategic acquisition of DataStream Analytics to expand time-series data processing capabilities.",
+    "icon": "🎯"
+  },
+  {
+    "date": "March 2025",
+    "category": "Vision",
+    "title": "Next-Gen Platform Beta",
+    "body": "Launched beta of next-generation platform with quantum-inspired analytics algorithms and blockchain audit trails.",
+    "icon": "🔮"
+  }
+]

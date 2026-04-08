@@ -1,0 +1,335 @@
+/* Live Configurator Block */
+
+.live-configurator {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.live-configurator main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Progress Bar */
+.configurator-progress-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.configurator-progress-bar span {
+  flex: 1;
+  height: 4px;
+  background-color: #e8e8e8;
+  border-radius: 2px;
+  transition: background-color 200ms ease;
+}
+
+.configurator-progress-bar span.active {
+  background-color: #0078d4;
+}
+
+/* Steps */
+.configurator-step {
+  opacity: 1;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.configurator-step.hidden {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.configurator-step.slide-in-left {
+  animation: slide-in-from-left 200ms ease;
+}
+
+.configurator-step.slide-in-right {
+  animation: slide-in-from-right 200ms ease;
+}
+
+.configurator-step h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.configurator-step p {
+  margin: 0 0 2rem;
+  font-size: 1rem;
+  color: #595959;
+  line-height: 1.5;
+}
+
+/* Card Container */
+.configurator-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Card */
+.configurator-card {
+  position: relative;
+  padding: 1.5rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.configurator-card:hover {
+  border-color: #0078d4;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+.configurator-card.selected {
+  border-color: #0078d4;
+  border-width: 2px;
+  background-color: #eff6fc;
+}
+
+.configurator-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #0078d4;
+  color: white;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.configurator-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.configurator-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #595959;
+}
+
+/* Toggles */
+.configurator-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.configurator-toggle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.configurator-toggle-item label {
+  margin: 0;
+  font-size: 1rem;
+  color: #1a1a1a;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Toggle Switch */
+.configurator-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.configurator-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.configurator-toggle-switch .slider {
+  position: absolute;
+  inset: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.configurator-toggle-switch .slider::before {
+  content: '';
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 150ms ease;
+}
+
+.configurator-toggle-switch input:checked + .slider {
+  background-color: #0078d4;
+}
+
+.configurator-toggle-switch input:checked + .slider::before {
+  transform: translateX(24px);
+}
+
+/* Price Panel */
+.configurator-price-panel {
+  position: sticky;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+  min-width: 300px;
+}
+
+.configurator-price-panel h3 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Price Line Items */
+.configurator-price-line-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  font-size: 0.95rem;
+  color: #595959;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.configurator-price-line-item:last-child {
+  border-bottom: 2px solid #0078d4;
+  padding: 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.configurator-price-line-item span:first-child {
+  flex: 1;
+}
+
+.configurator-price-line-item span:last-child {
+  font-weight: 500;
+  color: #0078d4;
+}
+
+/* Button Styling */
+.configurator-step button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.configurator-step button.primary {
+  background-color: #0078d4;
+  color: white;
+}
+
+.configurator-step button.primary:hover {
+  background-color: #106ebe;
+}
+
+.configurator-step button.secondary {
+  background-color: white;
+  color: #0078d4;
+  border: 1px solid #0078d4;
+}
+
+.configurator-step button.secondary:hover {
+  background-color: #eff6fc;
+}
+
+/* Animations */
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive */
+@media (width <= 1024px) {
+  .live-configurator {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .configurator-price-panel {
+    position: static;
+    bottom: auto;
+    right: auto;
+  }
+}
+
+@media (width <= 640px) {
+  .live-configurator {
+    padding: 1rem;
+  }
+
+  .configurator-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .configurator-step h2 {
+    font-size: 1.25rem;
+  }
+
+  .configurator-price-panel {
+    min-width: auto;
+  }
+}

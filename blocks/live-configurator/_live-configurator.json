@@ -1,0 +1,47 @@
+{
+  "definitions": [
+    {
+      "title": "Live Configurator",
+      "id": "live-configurator",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Live Configurator",
+              "model": "live-configurator"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "live-configurator",
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "description": "Configurator title"
+        },
+        {
+          "name": "configUrl",
+          "type": "text",
+          "description": "JSON config URL"
+        },
+        {
+          "name": "submitCTA",
+          "type": "text",
+          "description": "Submit button label"
+        },
+        {
+          "name": "submitUrl",
+          "type": "text",
+          "description": "Submit target URL or #"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

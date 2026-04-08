@@ -1,0 +1,59 @@
+{
+  "steps": [
+    {
+      "id": "plan",
+      "title": "Choose your plan",
+      "type": "cards",
+      "options": [
+        {
+          "id": "starter",
+          "label": "Starter",
+          "desc": "Up to 5 users",
+          "price": 29
+        },
+        {
+          "id": "pro",
+          "label": "Professional",
+          "desc": "Up to 25 users",
+          "price": 79
+        },
+        {
+          "id": "enterprise",
+          "label": "Enterprise",
+          "desc": "Unlimited",
+          "price": "custom"
+        }
+      ]
+    },
+    {
+      "id": "addons",
+      "title": "Add-ons",
+      "type": "toggles",
+      "options": [
+        {
+          "id": "analytics",
+          "label": "Advanced Analytics",
+          "price": 15
+        },
+        {
+          "id": "support",
+          "label": "24/7 Support",
+          "price": 25
+        }
+      ]
+    },
+    {
+      "id": "team",
+      "title": "Team size",
+      "type": "slider",
+      "min": 1,
+      "max": 100,
+      "default": 10,
+      "pricePerUnit": 5
+    }
+  ],
+  "summary": {
+    "baseLabel": "Base plan",
+    "unitLabel": "per user/month"
+  }
+}

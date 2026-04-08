@@ -20,6 +20,22 @@ if (modifledPartials.length > 0) {
   await run('git add component-models.json component-definition.json component-filters.json');
 }
 
+// Always run lint — catches JS/CSS errors and xwalk rule violations before they reach CI
+const jsOrCssChanged = modifiedFiles.some(
+  (f) => f.endsWith('.js') || f.endsWith('.mjs') || f.endsWith('.css') || f.endsWith('.json'),
+);
+if (jsOrCssChanged) {
+  console.log('🔍 Running lint...');
+  try {
+    await run('npm run lint');
+    console.log('✅ Lint passed.');
+  } catch (err) {
+    console.error('❌ Lint FAILED — fix errors before committing.\n');
+    console.error(err.message || err);
+    process.exit(1);
+  }
+}
+
 // Run critical-path Playwright tests when any blocks/ files change.
 // Only runs if the dev server is already up (curl check) — avoids blocking
 // committers who aren't running the dev server locally.

@@ -1,0 +1,156 @@
+.timeline-story {
+  position: relative;
+  padding: 2rem 0;
+  max-width: 800px;
+}
+
+/* Vertical timeline line */
+.timeline-story::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--brand-color, #0078d4);
+  transform: translateX(-50%);
+}
+
+/* Content card styling */
+.timeline-content {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+  transition: all 400ms ease-out;
+  overflow: hidden;
+}
+
+.timeline-content:hover {
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+}
+
+/* Timeline entries with alternating left/right */
+.timeline-entry {
+  margin-bottom: 2rem;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.timeline-entry:nth-child(odd) .timeline-content {
+  margin-left: 0;
+  margin-right: auto;
+  width: 45%;
+  text-align: right;
+  padding-right: 2rem;
+}
+
+.timeline-entry:nth-child(even) .timeline-content {
+  margin-left: auto;
+  margin-right: 0;
+  width: 45%;
+  text-align: left;
+  padding-left: 2rem;
+}
+
+/* Timeline dot at center */
+.timeline-entry::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--brand-color, #0078d4);
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--brand-color, #0078d4);
+  z-index: 2;
+}
+
+/* Horizontal connector lines */
+.timeline-connector {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  background-color: var(--brand-color, #0078d4);
+  opacity: 0.3;
+  transform: translateY(-50%);
+}
+
+.timeline-entry:nth-child(odd) .timeline-connector {
+  left: 50%;
+  right: 0;
+  width: auto;
+}
+
+.timeline-entry:nth-child(even) .timeline-connector {
+  left: 0;
+  right: 50%;
+  width: auto;
+}
+
+/* Expand/collapse state transitions */
+.timeline-content.collapsed {
+  max-height: 0;
+  padding: 0 1.5rem;
+  opacity: 0;
+  transition: all 400ms ease-out;
+}
+
+.timeline-content.expanded {
+  max-height: 500px;
+  padding: 1.5rem;
+  opacity: 1;
+  transition: all 400ms ease-out;
+}
+
+/* Typography */
+.timeline-content h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.timeline-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #666;
+}
+
+/* Responsive: stack vertically on smaller screens */
+@media (width <= 640px) {
+  .timeline-story::before {
+    left: 1rem;
+  }
+
+  .timeline-entry::before {
+    left: 1rem;
+  }
+
+  .timeline-entry:nth-child(odd) .timeline-content,
+  .timeline-entry:nth-child(even) .timeline-content {
+    width: calc(100% - 3.5rem);
+    margin-left: auto;
+    text-align: left;
+    padding-left: 2rem;
+    padding-right: 1.5rem;
+  }
+
+  .timeline-connector {
+    width: 1rem !important;
+    left: 1rem !important;
+    right: auto !important;
+  }
+
+  .timeline-entry:nth-child(odd) .timeline-connector,
+  .timeline-entry:nth-child(even) .timeline-connector {
+    width: 1rem !important;
+    left: 1rem !important;
+    right: auto !important;
+  }
+}

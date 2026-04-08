@@ -455,6 +455,35 @@
     ]
   },
   {
+    "id": "data-explorer",
+    "fields": [
+      {
+        "component": "text",
+        "name": "dataUrl",
+        "value": "",
+        "label": "Data URL"
+      },
+      {
+        "component": "text",
+        "name": "columns",
+        "value": "",
+        "label": "Columns"
+      },
+      {
+        "component": "text",
+        "name": "filterableFields",
+        "value": "",
+        "label": "Filterable Fields"
+      },
+      {
+        "component": "text",
+        "name": "pageSize",
+        "value": "10",
+        "label": "Page Size"
+      }
+    ]
+  },
+  {
     "id": "filmstrip-frame",
     "fields": [
       {
@@ -572,6 +601,31 @@
         "name": "afterLabel",
         "label": "After Label",
         "value": "After"
+      }
+    ]
+  },
+  {
+    "id": "live-configurator",
+    "fields": [
+      {
+        "name": "title",
+        "type": "text",
+        "description": "Configurator title"
+      },
+      {
+        "name": "configUrl",
+        "type": "text",
+        "description": "JSON config URL"
+      },
+      {
+        "name": "submitCTA",
+        "type": "text",
+        "description": "Submit button label"
+      },
+      {
+        "name": "submitUrl",
+        "type": "text",
+        "description": "Submit target URL or #"
       }
     ]
   },
@@ -1461,6 +1515,10 @@
     ]
   },
   {
+    "id": "poll-widget",
+    "fields": []
+  },
+  {
     "id": "popin-carousel",
     "fields": [
       {
@@ -1497,6 +1555,104 @@
         "component": "text",
         "name": "rightContent",
         "label": "Right (scroll) content"
+      }
+    ]
+  },
+  {
+    "id": "scroll-reveal",
+    "fields": [
+      {
+        "component": "section",
+        "name": "panels",
+        "label": "Panels",
+        "description": "Add reveal panels that trigger on scroll. Each panel row contains label, heading, body, and visual elements.",
+        "required": true,
+        "fields": [
+          {
+            "component": "text",
+            "name": "label",
+            "label": "Label",
+            "description": "Optional small text above the heading (e.g., 'Step 1')",
+            "required": false
+          },
+          {
+            "component": "text",
+            "name": "heading",
+            "label": "Heading",
+            "description": "Main heading text for this panel",
+            "required": true
+          },
+          {
+            "component": "richtext",
+            "name": "body",
+            "label": "Body",
+            "description": "Description text or content for this panel",
+            "required": false
+          },
+          {
+            "component": "image",
+            "name": "image",
+            "label": "Visual / Image",
+            "description": "Image, illustration, or visual element for this panel",
+            "required": false
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "reveal-direction",
+        "label": "Reveal Direction",
+        "description": "Direction from which content reveals on scroll",
+        "default": "fade",
+        "required": false,
+        "options": [
+          {
+            "value": "fade",
+            "label": "Fade In"
+          },
+          {
+            "value": "slide-left",
+            "label": "Slide from Left"
+          },
+          {
+            "value": "slide-right",
+            "label": "Slide from Right"
+          },
+          {
+            "value": "slide-up",
+            "label": "Slide from Bottom"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "reveal-timing",
+        "label": "Reveal Timing",
+        "description": "When panels reveal relative to scroll position",
+        "default": "default",
+        "required": false,
+        "options": [
+          {
+            "value": "default",
+            "label": "Default (50% in viewport)"
+          },
+          {
+            "value": "early",
+            "label": "Early (80% in viewport)"
+          },
+          {
+            "value": "late",
+            "label": "Late (20% in viewport)"
+          }
+        ]
+      },
+      {
+        "component": "number",
+        "name": "stagger-delay",
+        "label": "Stagger Delay (ms)",
+        "description": "Delay between each panel reveal (0 for no stagger)",
+        "default": 100,
+        "required": false
       }
     ]
   },
@@ -1623,12 +1779,41 @@
     ]
   },
   {
+    "id": "timeline-story",
+    "fields": []
+  },
+  {
     "id": "tokenmiser-dashboard",
     "fields": []
   },
   {
     "id": "tokenmiser-live",
     "fields": []
+  },
+  {
+    "id": "video-panel",
+    "fields": [
+      {
+        "component": "text",
+        "name": "videoUrl",
+        "label": "Video URL"
+      },
+      {
+        "component": "text",
+        "name": "posterUrl",
+        "label": "Poster Image URL"
+      },
+      {
+        "component": "text",
+        "name": "overlayHeading",
+        "label": "Overlay Heading"
+      },
+      {
+        "component": "text",
+        "name": "ctaLabel",
+        "label": "CTA Label"
+      }
+    ]
   },
   {
     "id": "viz-analytics-pulse",

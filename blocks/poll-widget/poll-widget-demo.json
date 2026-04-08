@@ -1,0 +1,25 @@
+{
+  "question": "Which Adobe product do you use most?",
+  "options": [
+    {
+      "id": "photoshop",
+      "value": "Photoshop",
+      "label": "Photoshop"
+    },
+    {
+      "id": "illustrator",
+      "value": "Illustrator",
+      "label": "Illustrator"
+    },
+    {
+      "id": "premiere",
+      "value": "Premiere Pro",
+      "label": "Premiere Pro"
+    },
+    {
+      "id": "other",
+      "value": "Other",
+      "label": "Other"
+    }
+  ]
+}

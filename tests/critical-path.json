@@ -2,5 +2,6 @@
   "tests/smoke.spec.ts",
   "tests/image-compare.spec.ts",
   "tests/metrics-grid.spec.ts",
-  "tests/callout-panel.spec.ts"
+  "tests/callout-panel.spec.ts",
+  "tests/tokenmiser-live.spec.ts"
 ]

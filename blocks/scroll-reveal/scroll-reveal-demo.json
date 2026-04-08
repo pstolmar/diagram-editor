@@ -1,0 +1,34 @@
+{
+  "panels": [
+    {
+      "label": "The Present",
+      "heading": "Where We Stand Today",
+      "body": "Customer experience has evolved dramatically over the past decade. Today's consumers expect seamless, personalized interactions across all touchpoints. Businesses are investing heavily in digital transformation to meet these demands, yet many struggle with fragmented systems and siloed data that prevent truly unified experiences.",
+      "visual": "#3498db"
+    },
+    {
+      "label": "Emerging Trends",
+      "heading": "The Forces Shaping Tomorrow",
+      "body": "Artificial intelligence and machine learning are becoming table stakes for personalization. Real-time data processing enables microsecond-level decision making. Privacy-first architectures are reshaping how companies collect and leverage customer data. Voice, vision, and multimodal AI are expanding what's possible beyond traditional interfaces. Communities and peer networks are becoming as important as brand-to-customer relationships.",
+      "visual": "#2ecc71"
+    },
+    {
+      "label": "The Convergence",
+      "heading": "When Everything Connects",
+      "body": "The future of customer experience emerges at the intersection of technology, humanity, and commerce. Real-time AI will anticipate needs before customers articulate them. Composable architecture will let brands assemble experiences from best-in-class services. First-party data networks will replace cookie-dependent tracking. Hyper-personalization will feel effortless rather than intrusive. Every interaction will be an opportunity to deepen trust.",
+      "visual": "#9b59b6"
+    },
+    {
+      "label": "The Challenge",
+      "heading": "Bridging the Gap",
+      "body": "Getting there requires rethinking how organizations operate. Legacy systems must coexist with cloud-native architectures during lengthy migrations. Teams need new skills—data literacy, AI proficiency, customer empathy engineering. Privacy compliance will demand continuous investment. The cost of change is substantial, but the cost of inaction is existential. Winners will be those who move fast without losing sight of human values.",
+      "visual": "#e74c3c"
+    },
+    {
+      "label": "Our Path",
+      "heading": "Building the Future Together",
+      "body": "This is not a future that happens to us—it's one we build together. By starting with customer intent, embracing composable architecture, and investing in people and data, we create experiences that matter. The tools exist. The patterns are emerging. The time is now. Every decision made today shapes the experiences millions will rely on tomorrow.",
+      "visual": "#f39c12"
+    }
+  ]
+}

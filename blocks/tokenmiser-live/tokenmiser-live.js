@@ -40,34 +40,9 @@ function jobLabel(run) {
 
 function render(block, runs) {
   const active = runs.filter((r) => r.status === 'running' && !isStale(r));
-  const last = runs.filter((r) => r.status !== 'running').at(-1);
 
   if (active.length === 0) {
-    const lastDesc = last ? jobLabel(last) : '—';
-    const lastTime = last
-      ? (() => {
-        const ts = last.completedAt || last.startedAt || null;
-        if (!ts) return '';
-        const diffMin = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
-        if (diffMin < 2) return 'just now';
-        if (diffMin < 60) return `${diffMin}m ago`;
-        return `${Math.floor(diffMin / 60)}h ago`;
-      })()
-      : '';
-    const savings = last
-      ? (() => {
-        const opus = parseFloat(last.approxCostUsd || 0) * 5;
-        const actual = parseFloat(last.approxCostUsd || 0);
-        return opus > 0 ? `${Math.round(((opus - actual) / opus) * 100)}% saved` : '';
-      })()
-      : '';
-    block.innerHTML = `<div class="tl-widget tl-idle">
-      <span class="tl-dot tl-dot-idle"></span>
-      <span class="tl-status">idle</span>
-      ${last ? `<span class="tl-sep">·</span><span class="tl-last" title="${last.jobId || ''}">${lastDesc}</span>` : ''}
-      ${lastTime ? `<span class="tl-sep">·</span><span class="tl-time">${lastTime}</span>` : ''}
-      ${savings ? `<span class="tl-sep">·</span><span class="tl-savings">${savings}</span>` : ''}
-    </div>`;
+    block.innerHTML = '';
     return;
   }
 

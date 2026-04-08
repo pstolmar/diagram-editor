@@ -53,7 +53,13 @@
       "viz-pipeline",
       "viz-threat-map",
       "viz-analytics-pulse",
-      "viz-supply-chain"
+      "viz-supply-chain",
+      "video-panel",
+      "data-explorer",
+      "timeline-story",
+      "poll-widget",
+      "scroll-reveal",
+      "live-configurator"
     ]
   },
   {
