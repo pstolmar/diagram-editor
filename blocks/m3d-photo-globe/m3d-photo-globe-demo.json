@@ -1,0 +1,11 @@
+{
+  "locations": [
+    { "id": "sf", "lat": 37.77, "lon": -122.42, "label": "San Francisco", "caption": "Adobe HQ — San Jose Campus", "color": "#ff4081", "imageUrl": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&q=80" },
+    { "id": "ny", "lat": 40.71, "lon": -74.01, "label": "New York", "caption": "Adobe New York Studio", "color": "#40c4ff", "imageUrl": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&q=80" },
+    { "id": "ld", "lat": 51.51, "lon": -0.13, "label": "London", "caption": "Adobe London Design Hub", "color": "#69f0ae", "imageUrl": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&q=80" },
+    { "id": "tk", "lat": 35.68, "lon": 139.69, "label": "Tokyo", "caption": "Adobe Japan — Creative Cloud", "color": "#ffab40", "imageUrl": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&q=80" },
+    { "id": "sg", "lat": 1.35, "lon": 103.82, "label": "Singapore", "caption": "Adobe APAC Innovation Center", "color": "#ea80fc", "imageUrl": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400&q=80" },
+    { "id": "sy", "lat": -33.87, "lon": 151.21, "label": "Sydney", "caption": "Adobe Australia — ANZ Region", "color": "#ff6e40", "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80" },
+    { "id": "mu", "lat": 19.08, "lon": 72.88, "label": "Mumbai", "caption": "Adobe India — Experience Cloud", "color": "#b388ff", "imageUrl": "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=400&q=80" }
+  ]
+}

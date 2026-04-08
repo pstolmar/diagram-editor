@@ -206,27 +206,27 @@
 
 @media (width <= 640px) {
   .viz-supply-chain {
-    --sc-height: 340px;
-    --sc-panel-w: 160px;
-  }
+  --sc-height: 340px;
+  --sc-panel-w: 160px;
+}
 
   .sc-side-panel {
-    top: 8px;
-    right: 8px;
-    padding: 10px 12px;
-  }
+  top: 8px;
+  right: 8px;
+  padding: 10px 12px;
+}
 
   .sc-kpi-value {
     font-size: 1.1rem;
   }
 
   .sc-legend {
-    flex-wrap: wrap;
-    gap: 8px;
-    bottom: 8px;
-    left: 8px;
-    right: calc(var(--sc-panel-w) + 20px);
-  }
+  flex-wrap: wrap;
+  gap: 8px;
+  bottom: 8px;
+  left: 8px;
+  right: calc(var(--sc-panel-w) + 20px);
+}
 
   .sc-panel-title,
   .sc-legend-item {
@@ -236,24 +236,24 @@
 
 @media (width <= 400px) {
   .sc-side-panel {
-    position: static;
-    width: 100%;
-    border-radius: 0;
-    border-top: 1px solid var(--sc-border);
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
+  position: static;
+  width: 100%;
+  border-radius: 0;
+  border-top: 1px solid var(--sc-border);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
   .sc-panel-title {
-    width: 100%;
-    margin-bottom: 4px;
-  }
+  width: 100%;
+  margin-bottom: 4px;
+}
 
   .sc-kpi {
-    flex: 1 1 80px;
-    margin-bottom: 0;
-  }
+  flex: 1 1 80px;
+  margin-bottom: 0;
+}
 
   .sc-legend {
     right: 8px;
@@ -262,7 +262,33 @@
 
 -e 
 /* ── Empty state ── */
-.viz-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 240px; gap: 12px; padding: 2rem; color: #3d5a73; text-align: center; }
-.viz-empty-icon { font-size: 2.5rem; opacity: 0.4; }
-.viz-empty-title { font-family: "JetBrains Mono", monospace; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; }
-.viz-empty-hint { font-size: 0.75rem; opacity: 0.6; max-width: 280px; line-height: 1.5; }
+.viz-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  gap: 12px;
+  padding: 2rem;
+  color: #3d5a73;
+  text-align: center;
+}
+
+.viz-empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.4;
+}
+
+.viz-empty-title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.viz-empty-hint {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  max-width: 280px;
+  line-height: 1.5;
+}

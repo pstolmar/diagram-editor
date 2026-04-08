@@ -712,26 +712,25 @@
     "id": "m3d-mirror-sphere",
     "fields": [
       {
-        "id": "imageUrl",
+        "component": "text",
+        "name": "imageUrl",
         "label": "Image URL",
         "description": "URL of the image to display in the mirror sphere",
-        "type": "text",
-        "required": true
+        "valueType": "string"
       },
       {
-        "id": "caption",
+        "component": "text",
+        "name": "caption",
         "label": "Caption",
         "description": "Optional caption for the visualization",
-        "type": "text",
-        "required": false
+        "valueType": "string"
       },
       {
-        "id": "height",
-        "label": "Height",
+        "component": "text",
+        "name": "height",
+        "label": "Height (px)",
         "description": "Container height in pixels",
-        "type": "text",
-        "default": "480",
-        "required": false
+        "valueType": "string"
       }
     ]
   },
