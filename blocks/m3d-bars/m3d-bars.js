@@ -213,6 +213,28 @@ function addLabel(labelLayer, labelData, THREE, text, worldX, worldY, worldZ, ty
   return el;
 }
 
+// ─── empty state ────────────────────────────────────────────────────────────
+
+function renderEmpty(block, title) {
+  const container = document.createElement('div');
+  container.className = 'viz-empty-state';
+
+  const icon = document.createElement('div');
+  icon.className = 'viz-empty-icon';
+  icon.textContent = '◈';
+
+  const titleEl = document.createElement('h3');
+  titleEl.className = 'viz-empty-title';
+  titleEl.textContent = title;
+
+  const hint = document.createElement('p');
+  hint.className = 'viz-empty-hint';
+  hint.textContent = 'Add data to activate';
+
+  container.append(icon, titleEl, hint);
+  block.append(container);
+}
+
 // ─── main export ────────────────────────────────────────────────────────────
 
 export default async function decorate(block) {
@@ -227,6 +249,15 @@ export default async function decorate(block) {
 
   const barsData = isGrid ? null : parseBarsCsv(csvText);
   const gridData = isGrid ? parseGridCsv(csvText) : null;
+
+  // Check for empty data
+  const isEmpty = (!isGrid && (!barsData || barsData.length === 0))
+    || (isGrid && (!gridData || gridData.length === 0));
+  if (isEmpty) {
+    blockRows.forEach((r) => r.remove());
+    renderEmpty(block, 'Bars');
+    return;
+  }
 
   blockRows.forEach((r) => r.remove());
 

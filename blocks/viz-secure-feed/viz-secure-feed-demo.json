@@ -1,0 +1,14 @@
+{
+  "feedTitle": "Q2 FY26 Revenue Snapshot (Internal)",
+  "syncedAt": "2026-04-07T13:55:00Z",
+  "source": "Workday Financial API (via AEM sync job)",
+  "metrics": [
+    { "label": "ARR",          "value": "$4.82B",  "delta": "+14%",   "trend": "up" },
+    { "label": "New Logos Q2", "value": "284",     "delta": "+22%",   "trend": "up" },
+    { "label": "Churn Rate",   "value": "1.8%",    "delta": "-0.3pp", "trend": "down" },
+    { "label": "NPS",          "value": "68",      "delta": "+4",     "trend": "up" },
+    { "label": "Headcount",    "value": "29,842",  "delta": "+210",   "trend": "up" },
+    { "label": "Open Reqs",    "value": "1,140",   "delta": "-88",    "trend": "down" }
+  ],
+  "note": "CONFIDENTIAL — available on delivery edge only after author publish."
+}

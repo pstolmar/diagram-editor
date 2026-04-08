@@ -1,0 +1,49 @@
+{
+  "definitions": [
+    {
+      "title": "M3D Mirror Sphere",
+      "id": "m3d-mirror-sphere",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "M3D Mirror Sphere",
+              "model": "m3d-mirror-sphere"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "m3d-mirror-sphere",
+      "fields": [
+        {
+          "id": "imageUrl",
+          "label": "Image URL",
+          "description": "URL of the image to display in the mirror sphere",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "caption",
+          "label": "Caption",
+          "description": "Optional caption for the visualization",
+          "type": "text",
+          "required": false
+        },
+        {
+          "id": "height",
+          "label": "Height",
+          "description": "Container height in pixels",
+          "type": "text",
+          "default": "480",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

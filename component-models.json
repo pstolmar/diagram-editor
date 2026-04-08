@@ -678,6 +678,64 @@
     ]
   },
   {
+    "id": "m3d-image-cube",
+    "fields": [
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "description": "Canvas height in px (default: 480px)"
+      },
+      {
+        "component": "select",
+        "name": "speed",
+        "label": "Rotation Speed",
+        "options": [
+          {
+            "name": "Slow",
+            "value": "slow"
+          },
+          {
+            "name": "Normal",
+            "value": "normal"
+          },
+          {
+            "name": "Fast",
+            "value": "fast"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "m3d-mirror-sphere",
+    "fields": [
+      {
+        "id": "imageUrl",
+        "label": "Image URL",
+        "description": "URL of the image to display in the mirror sphere",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "caption",
+        "label": "Caption",
+        "description": "Optional caption for the visualization",
+        "type": "text",
+        "required": false
+      },
+      {
+        "id": "height",
+        "label": "Height",
+        "description": "Container height in pixels",
+        "type": "text",
+        "default": "480",
+        "required": false
+      }
+    ]
+  },
+  {
     "id": "m3d-orbit",
     "fields": [
       {
@@ -700,6 +758,51 @@
         "label": "Height",
         "valueType": "string",
         "description": "Canvas height in px (default: 420px)"
+      }
+    ]
+  },
+  {
+    "id": "m3d-photo-globe",
+    "fields": [
+      {
+        "component": "aem-content",
+        "name": "folderPath",
+        "label": "Photo Folder",
+        "description": "Browse and select a folder from DAM containing photos",
+        "contentType": "dam:Folder",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height",
+        "valueType": "string",
+        "value": "600",
+        "description": "Canvas height in px (default: 600px)"
+      },
+      {
+        "component": "select",
+        "name": "color",
+        "label": "Color Scheme",
+        "value": "blue",
+        "options": [
+          {
+            "name": "Blue (default)",
+            "value": "blue"
+          },
+          {
+            "name": "Green",
+            "value": "green"
+          },
+          {
+            "name": "Amber",
+            "value": "amber"
+          },
+          {
+            "name": "Purple",
+            "value": "purple"
+          }
+        ]
       }
     ]
   },
@@ -1562,6 +1665,10 @@
     ]
   },
   {
+    "id": "viz-crypto-pulse",
+    "fields": []
+  },
+  {
     "id": "viz-office-map",
     "fields": [
       {
@@ -1634,6 +1741,49 @@
         "description": "Canvas height in px (default: 500px)"
       }
     ]
+  },
+  {
+    "id": "viz-quake-feed",
+    "fields": [
+      {
+        "component": "text",
+        "name": "height",
+        "label": "Height (px)",
+        "description": "Height of the visualization in pixels",
+        "valueType": "string",
+        "value": "600"
+      },
+      {
+        "component": "text",
+        "name": "minMag",
+        "label": "Minimum Magnitude",
+        "description": "Minimum earthquake magnitude to display",
+        "valueType": "string",
+        "value": "1.0"
+      },
+      {
+        "component": "select",
+        "name": "theme",
+        "label": "Theme",
+        "description": "Visual theme for the visualization",
+        "valueType": "string",
+        "value": "dark",
+        "options": [
+          {
+            "name": "dark",
+            "value": "dark"
+          },
+          {
+            "name": "neon",
+            "value": "neon"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "viz-secure-feed",
+    "fields": []
   },
   {
     "id": "viz-supply-chain",

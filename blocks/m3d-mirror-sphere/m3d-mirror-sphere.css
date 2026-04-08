@@ -1,0 +1,116 @@
+/* =============================================================
+   m3d-mirror-sphere — Escher chrome sphere with envmap
+   Interactive 3D reflection visualization
+   ============================================================= */
+
+/* ── CSS Custom Properties ── */
+.mirror-sphere {
+  --ms-bg: #0a0a0a;
+  --ms-border: rgb(255 255 255 / 8%);
+  --ms-text: #e5e5e5;
+  --ms-text-dim: rgb(229 229 229 / 45%);
+  --ms-accent: #60a5fa;
+  --ms-font-display: -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial, sans-serif;
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--ms-bg);
+  font-family: var(--ms-font-display);
+  color: var(--ms-text);
+}
+
+/* ── Canvas container ── */
+.mirror-sphere-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  cursor: grab;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 30%);
+}
+
+.mirror-sphere-canvas:active {
+  cursor: grabbing;
+}
+
+/* ── Empty state ── */
+.mirror-sphere-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 600px;
+  gap: 16px;
+  padding: 40px 20px;
+  background: linear-gradient(
+    135deg,
+    rgb(10 10 10 / 80%),
+    rgb(20 20 30 / 80%)
+  );
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.mirror-sphere-empty-icon {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.mirror-sphere-empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ms-text);
+}
+
+.mirror-sphere-empty-hint {
+  font-size: 14px;
+  color: var(--ms-text-dim);
+  max-width: 400px;
+}
+
+.mirror-sphere-empty-instructions {
+  margin-top: 8px;
+  padding: 12px 20px;
+  background: rgb(96 165 250 / 10%);
+  border: 1px solid var(--ms-accent);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--ms-accent);
+  font-weight: 500;
+}
+
+/* ── Caption ── */
+.mirror-sphere-caption {
+  margin-top: 16px;
+  padding: 12px 0;
+  font-size: 14px;
+  color: var(--ms-text-dim);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (width <= 768px) {
+  .mirror-sphere-canvas {
+    aspect-ratio: 16 / 9;
+  }
+
+  .mirror-sphere-empty-state {
+    min-height: 400px;
+  }
+
+  .mirror-sphere-empty-icon {
+    font-size: 48px;
+  }
+
+  .mirror-sphere-empty-title {
+    font-size: 18px;
+  }
+
+  .mirror-sphere-empty-hint {
+    font-size: 13px;
+  }
+}

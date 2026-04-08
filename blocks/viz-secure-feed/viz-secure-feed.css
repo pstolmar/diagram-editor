@@ -1,0 +1,449 @@
+/* viz-secure-feed — metric cards · secure data feed aesthetic
+   Palette: dark navy card (#0c1826) · success green (#16a34a) · alert red (#dc2626) · amber warning (#f59e0b)
+   Type: monospace numerics, sans-serif labels
+   --------------------------------- */
+
+/* ── Custom properties ──────────────────────────────────────────── */
+.viz-secure-feed {
+  --feed-card-bg:      #0c1826;
+  --feed-card-border:  #1e293b;
+  --feed-text:         #e2e8f0;
+  --feed-label:        #94a3b8;
+  --feed-accent:       #3b82f6;
+  --feed-success:      #16a34a;
+  --feed-alert:        #dc2626;
+  --feed-warning:      #f59e0b;
+  --feed-muted:        #475569;
+  --feed-font-mono:    "Courier New", "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --feed-font-ui:      system-ui, -apple-system, "Segoe UI", sans-serif;
+  --feed-radius:       4px;
+  --feed-transition:   0.2s ease;
+
+  width: 100%;
+  background: var(--feed-card-bg);
+  color: var(--feed-text);
+  font-family: var(--feed-font-ui);
+  padding: 1.5rem;
+  border-radius: var(--feed-radius);
+  border: 1px solid var(--feed-card-border);
+}
+
+/* ── Container ───────────────────────────────────────────────────── */
+.feed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Metric cards grid ──────────────────────────────────────────── */
+.metric-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--feed-card-bg) 95%, var(--feed-accent) 5%);
+  border: 1px solid var(--feed-card-border);
+  border-radius: var(--feed-radius);
+  transition: all var(--feed-transition);
+  position: relative;
+}
+
+.metric-card:hover {
+  background: color-mix(in srgb, var(--feed-card-bg) 85%, var(--feed-accent) 15%);
+  border-color: var(--feed-accent);
+}
+
+.metric-card.alert {
+  border-color: var(--feed-alert);
+  background: color-mix(in srgb, var(--feed-card-bg) 90%, var(--feed-alert) 10%);
+}
+
+.metric-card.alert:hover {
+  background: color-mix(in srgb, var(--feed-card-bg) 80%, var(--feed-alert) 20%);
+}
+
+/* ── Label + Value pair ──────────────────────────────────────────── */
+.metric-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--feed-label);
+}
+
+.metric-value {
+  font-family: var(--feed-font-mono);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 500;
+  color: var(--feed-text);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  word-break: break-all;
+}
+
+.metric-card.alert .metric-value {
+  color: var(--feed-alert);
+}
+
+/* ── Delta indicator (with arrows) ──────────────────────────────── */
+.metric-delta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--feed-font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.delta-arrow {
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.metric-delta.up {
+  color: var(--feed-success);
+}
+
+.metric-delta.up .delta-arrow::before {
+  content: "▲";
+}
+
+.metric-delta.down {
+  color: var(--feed-alert);
+}
+
+.metric-delta.down .delta-arrow::before {
+  content: "▼";
+}
+
+.metric-delta.neutral {
+  color: var(--feed-muted);
+}
+
+.metric-delta.neutral .delta-arrow::before {
+  content: "→";
+}
+
+/* ── Metric table (alternative row-based layout) ────────────────── */
+.metric-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--feed-card-border);
+  border-radius: var(--feed-radius);
+  overflow: hidden;
+}
+
+.metric-table thead {
+  background: color-mix(in srgb, var(--feed-card-bg) 80%, var(--feed-accent) 20%);
+}
+
+.metric-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--feed-label);
+  border-bottom: 1px solid var(--feed-card-border);
+}
+
+.metric-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--feed-card-border);
+  font-size: 0.9rem;
+}
+
+.metric-table tbody tr {
+  transition: background var(--feed-transition);
+}
+
+.metric-table tbody tr:hover {
+  background: color-mix(in srgb, var(--feed-card-bg) 95%, var(--feed-accent) 5%);
+}
+
+.metric-table tbody tr.alert {
+  background: color-mix(in srgb, var(--feed-card-bg) 95%, var(--feed-alert) 10%);
+}
+
+.metric-table tbody tr.alert:hover {
+  background: color-mix(in srgb, var(--feed-card-bg) 85%, var(--feed-alert) 15%);
+}
+
+.metric-table .col-label {
+  color: var(--feed-label);
+  font-weight: 500;
+}
+
+.metric-table .col-value {
+  font-family: var(--feed-font-mono);
+  color: var(--feed-text);
+  font-weight: 500;
+}
+
+.metric-table .col-delta {
+  font-family: var(--feed-font-mono);
+  font-size: 0.85rem;
+}
+
+.metric-table .col-delta.up {
+  color: var(--feed-success);
+}
+
+.metric-table .col-delta.down {
+  color: var(--feed-alert);
+}
+
+/* ── Badge styles ───────────────────────────────────────────────── */
+.confidential-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: color-mix(in srgb, var(--feed-warning) 15%, transparent);
+  border: 1px solid var(--feed-warning);
+  border-radius: 2px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--feed-warning);
+  flex-shrink: 0;
+}
+
+.confidential-badge.critical {
+  background: color-mix(in srgb, var(--feed-alert) 15%, transparent);
+  border-color: var(--feed-alert);
+  color: var(--feed-alert);
+}
+
+.badge-icon::before {
+  content: "🔒";
+  font-size: 0.75em;
+}
+
+.confidential-badge.critical .badge-icon::before {
+  content: "⚠";
+}
+
+/* ── Status indicators ──────────────────────────────────────────– */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.synced {
+  background: var(--feed-success);
+}
+
+.status-dot.pending {
+  background: var(--feed-warning);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.status-dot.error {
+  background: var(--feed-alert);
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+/* ── Last synced footer ────────────────────────────────────────── */
+.feed-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--feed-card-bg) 95%, var(--feed-muted) 5%);
+  border-top: 1px solid var(--feed-card-border);
+  border-radius: 0 0 var(--feed-radius) var(--feed-radius);
+  font-size: 0.75rem;
+  color: var(--feed-label);
+  font-family: var(--feed-font-mono);
+  gap: 1rem;
+}
+
+.last-synced {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sync-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sync-status {
+  font-size: 0.7rem;
+  color: var(--feed-label);
+}
+
+.feed-footer-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.7rem;
+}
+
+/* ── Card header with title + badges ────────────────────────────── */
+.feed-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--feed-card-border);
+  gap: 0.5rem;
+}
+
+.feed-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--feed-text);
+}
+
+.badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────– */
+.feed-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
+  color: var(--feed-label);
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.feed-empty-icon {
+  font-size: 2rem;
+  opacity: 0.4;
+  margin-bottom: 0.5rem;
+}
+
+.feed-empty-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--feed-text);
+}
+
+.feed-empty-hint {
+  font-size: 0.8rem;
+  color: var(--feed-label);
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────– */
+@media (width <= 768px) {
+  .viz-secure-feed {
+    padding: 1rem;
+  }
+
+  .metric-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .metric-card {
+    padding: 0.75rem;
+  }
+
+  .metric-value {
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  }
+
+  .metric-table {
+    font-size: 0.85rem;
+  }
+
+  .metric-table th,
+  .metric-table td {
+    padding: 0.6rem;
+  }
+
+  .feed-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .feed-footer-meta {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}
+
+@media (width <= 480px) {
+  .viz-secure-feed {
+    padding: 0.75rem;
+  }
+
+  .metric-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card {
+    padding: 0.65rem;
+  }
+
+  .metric-value {
+    font-size: 1.2rem;
+  }
+
+  .metric-label {
+    font-size: 0.65rem;
+  }
+
+  .feed-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge-group {
+    width: 100%;
+  }
+
+  .metric-table {
+    font-size: 0.8rem;
+  }
+
+  .metric-table th,
+  .metric-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────– */
+@media (prefers-reduced-motion: reduce) {
+  .metric-card,
+  .metric-table tbody tr,
+  .status-dot.pending,
+  .status-dot.error {
+    transition: none;
+    animation: none;
+  }
+}

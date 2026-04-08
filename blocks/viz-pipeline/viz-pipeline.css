@@ -7,28 +7,29 @@
 
 /* ── Custom properties ─────────────────────────────────────────── */
 .viz-pipeline {
-  -vp-bg:           #07111d;
-  -vp-surface:      #0c1826;
-  -vp-surface-2:    #111f2e;
-  -vp-border:       #1a2d40;
-  -vp-border-hi:    #274560;
-  -vp-text:         #8fa8bf;
-  -vp-text-hi:      #cde0f0;
-  -vp-text-dim:     #3d5a73;
-  -vp-ok:           #00c97a;
-  -vp-warn:         #f5c842;
-  -vp-error:        #ff4d5e;
-  -vp-idle:         #3d5a73;
-  -vp-unknown:      #8a7ecf;
-  -vp-active:       #1d8bff;
-  -vp-panel-w:      320px;
-  -vp-legend-h:     36px;
-  -vp-radius:       4px;
-  -vp-font-ui:      'IBM Plex Sans', system-ui, sans-serif;
-  -vp-font-mono:    'JetBrains Mono', 'Courier New', monospace;
+  --vp-bg:           #07111d;
+  --vp-surface:      #0c1826;
+  --vp-surface-2:    #111f2e;
+  --vp-border:       #1a2d40;
+  --vp-border-hi:    #274560;
+  --vp-text:         #8fa8bf;
+  --vp-text-hi:      #cde0f0;
+  --vp-text-dim:     #3d5a73;
+  --vp-ok:           #00c97a;
+  --vp-warn:         #f5c842;
+  --vp-error:        #ff4d5e;
+  --vp-idle:         #3d5a73;
+  --vp-unknown:      #8a7ecf;
+  --vp-active:       #1d8bff;
+  --vp-panel-w:      320px;
+  --vp-legend-h:     36px;
+  --vp-radius:       4px;
+  --vp-font-ui:      'IBM Plex Sans', system-ui, sans-serif;
+  --vp-font-mono:    'JetBrains Mono', 'Courier New', monospace;
 
   /* scanline pulse — applied to canvas */
-  -vp-scan-opacity: 0.025;
+  --vp-scan-opacity: 0.025;
+
   position: relative;
   width: 100%;
   background: var(--vp-bg);
@@ -111,7 +112,8 @@
 
   /* top accent stripe — defaults to active;
   JS swaps via data-status */
-  -panel-accent: var(--vp-active);
+  --panel-accent: var(--vp-active);
+
   border-top: 2px solid var(--panel-accent);
   box-shadow:
     0 4px 24px rgb(0 0 0 / 55%),
@@ -452,7 +454,8 @@
 /* ── Responsive — mobile ───────────────────────────────────────── */
 @media (width <= 768px) {
   .viz-pipeline {
-  -vp-panel-w: 260px;
+  --vp-panel-w: 260px;
+
   border-radius: 0;
   border-left: none;
   border-right: none;
@@ -533,3 +536,10 @@
   border-top-color: var(--vp-text-dim);
 }
 }
+
+-e 
+/* ── Empty state ── */
+.viz-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 240px; gap: 12px; padding: 2rem; color: #3d5a73; text-align: center; }
+.viz-empty-icon { font-size: 2.5rem; opacity: 0.4; }
+.viz-empty-title { font-family: "JetBrains Mono", monospace; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.viz-empty-hint { font-size: 0.75rem; opacity: 0.6; max-width: 280px; line-height: 1.5; }

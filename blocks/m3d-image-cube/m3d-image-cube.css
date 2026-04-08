@@ -1,0 +1,113 @@
+/* =============================================================
+   m3d-image-cube — Interactive 3D image cube visualization
+   ============================================================= */
+
+/* ── CSS Custom Properties (dark theme defaults) ── */
+.m3d-image-cube {
+  --m3d-bg: #07080d;
+  --m3d-bg-alt: #0d0f18;
+  --m3d-border: rgb(255 255 255 / 8%);
+  --m3d-text: #c8cfe0;
+  --m3d-text-dim: rgb(200 207 224 / 45%);
+  --m3d-accent: #38bdf8;
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--m3d-bg);
+  font-family: "DM Sans", "IBM Plex Sans", system-ui, sans-serif;
+  color: var(--m3d-text);
+
+  /* Subtle scanline texture */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgb(0 0 0 / 4%) 2px,
+      rgb(0 0 0 / 4%) 4px
+    );
+}
+
+#m3d-cube-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Empty state styling */
+.m3d-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 600px;
+  gap: 16px;
+  padding: 40px;
+  background: linear-gradient(135deg, var(--m3d-bg) 0%, var(--m3d-bg-alt) 100%);
+  border: 1px solid var(--m3d-border);
+  border-radius: 8px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.empty-hint {
+  font-size: 14px;
+  color: var(--m3d-text-dim);
+  text-align: center;
+  max-width: 400px;
+}
+
+/* Neon theme variant */
+.m3d-image-cube.neon {
+  --m3d-bg: #020408;
+  --m3d-bg-alt: #040810;
+  --m3d-border: rgb(0 255 159 / 15%);
+  --m3d-text: #e0ffe8;
+  --m3d-text-dim: rgb(0 255 159 / 50%);
+  --m3d-accent: #00ff9f;
+}
+
+/* Corporate / Adobe theme */
+.m3d-image-cube.corporate {
+  --m3d-bg: #1a1a2e;
+  --m3d-bg-alt: #16213e;
+  --m3d-border: rgb(255 255 255 / 10%);
+  --m3d-text: #f0f4ff;
+  --m3d-text-dim: rgb(240 244 255 / 55%);
+  --m3d-accent: #e8411e;
+}
+
+/* Responsive adjustments */
+@media (width <= 768px) {
+  .m3d-image-cube {
+    min-height: 400px;
+  }
+
+  .m3d-empty-state {
+    min-height: 400px;
+    gap: 12px;
+  }
+
+  .empty-icon {
+    font-size: 36px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+  }
+
+  .empty-hint {
+    font-size: 12px;
+  }
+}

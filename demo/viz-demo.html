@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Viz Blocks Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/styles/lazy-styles.css">
+  <style>
+    body { background: #0d1117; color: #c9d1d9; }
+    h2 { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 0.75rem; font-weight: 600;
+         letter-spacing: 0.12em; text-transform: uppercase; color: #58a6ff; margin: 2rem 0 0.5rem;
+         padding: 0 1rem; }
+    .section { padding: 0 1rem 2rem; max-width: 1400px; margin: 0 auto; }
+    h1 { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 1.5rem;
+         color: #e6edf3; margin: 2rem 0 0.25rem; padding: 0 1rem; }
+    .section-label { font-size: 0.7rem; color: #8b949e; letter-spacing: 0.08em;
+                     text-transform: uppercase; padding: 0 1rem; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+  <header></header>
+  <main>
+
+    <!-- ── Quake Feed ──────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Real-World Data</h2>
+      <h1>USGS Earthquake Feed</h1>
+      <p class="section-label">Live USGS GeoJSON · drag to rotate · click panel entries to spin globe · auto-cycles every 5s</p>
+      <div class="viz-quake-feed block" data-block-name="viz-quake-feed" data-block-status="initialized">
+        <div><div>1.0</div></div>
+      </div>
+    </div>
+
+    <!-- ── Office Map ──────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Workplace</h2>
+      <h1>Office Occupancy Map</h1>
+      <p class="section-label">Adobe HQ Floor 18 · live zone occupancy · sign in to view</p>
+      <div class="viz-office-map block" data-block-name="viz-office-map" data-block-status="initialized">
+        <div><div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Threat Map ──────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Security</h2>
+      <h1>Global Threat Map</h1>
+      <p class="section-label">Live cyber threat intelligence · USGS earthquake adapter · auto-refreshes</p>
+      <div class="viz-threat-map block" data-block-name="viz-threat-map" data-block-status="initialized">
+        <div><div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Pipeline Monitor ────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Platform Engineering</h2>
+      <h1>Content Delivery Pipeline</h1>
+      <p class="section-label">AEM → Franklin → CDN · animated particle flow · click nodes for metrics</p>
+      <div class="viz-pipeline block" data-block-name="viz-pipeline" data-block-status="initialized">
+        <div><div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Analytics Pulse ─────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Marketing Analytics</h2>
+      <h1>Site Analytics Pulse</h1>
+      <p class="section-label">Active users · pageviews · top pages · region breakdown · live KPIs</p>
+      <div class="viz-analytics-pulse block" data-block-name="viz-analytics-pulse" data-block-status="initialized">
+        <div><div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Supply Chain ────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Operations</h2>
+      <h1>Global Supply Chain</h1>
+      <p class="section-label">TSMC → Foxconn → LA Port → AWS · animated routes · status alerts</p>
+      <div class="viz-supply-chain block" data-block-name="viz-supply-chain" data-block-status="initialized">
+        <div><div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Crypto Pulse ────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Live Markets</h2>
+      <h1>Crypto Pulse</h1>
+      <p class="section-label">BTC · ETH · SOL · Binance WebSocket stream · 60-point sparklines</p>
+      <div class="viz-crypto-pulse block" data-block-name="viz-crypto-pulse" data-block-status="initialized">
+        <div><div>btcusdt,ethusdt,solusdt</div></div>
+        <div><div>usd</div></div>
+      </div>
+    </div>
+
+    <!-- ── Secure Feed ─────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Internal Dashboard</h2>
+      <h1>Secure Data Feed</h1>
+      <p class="section-label">Authenticated source → AEM author sync → published DAM → EDS delivery (no credentials on edge)</p>
+      <div class="viz-secure-feed block" data-block-name="viz-secure-feed" data-block-status="initialized">
+        <div><div></div></div>
+      </div>
+    </div>
+
+    <!-- ── 3D Mirror Sphere ────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Interactive 3D</h2>
+      <h1>Mirror Sphere</h1>
+      <p class="section-label">Escher-style chrome sphere · drag to orbit · equirectangular env map</p>
+      <div class="m3d-mirror-sphere block" data-block-name="m3d-mirror-sphere" data-block-status="initialized">
+        <div><div>https://picsum.photos/seed/envmap/2048/1024</div></div>
+        <div><div>Milky Way reflection</div></div>
+        <div><div>480</div></div>
+      </div>
+    </div>
+
+    <!-- ── Photo Globe ─────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Interactive 3D</h2>
+      <h1>Photo Globe</h1>
+      <p class="section-label">DAM folder → photos pinned at geographic coords · click to lightbox · drag to rotate</p>
+      <div class="m3d-photo-globe block" data-block-name="m3d-photo-globe" data-block-status="initialized">
+        <div><div>/content/dam/site/photos</div></div>
+        <div><div>blue</div></div>
+        <div><div>480</div></div>
+      </div>
+    </div>
+
+    <!-- ── Image Cube ──────────────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Interactive 3D</h2>
+      <h1>Image Cube</h1>
+      <p class="section-label">6-face rotating cube · hover to slow · click to unbox and zoom</p>
+      <div class="m3d-image-cube block" data-block-name="m3d-image-cube" data-block-status="initialized">
+        <div><div>Front</div><div>https://picsum.photos/seed/cube1/800/800</div></div>
+        <div><div>Back</div><div>https://picsum.photos/seed/cube2/800/800</div></div>
+        <div><div>Left</div><div>https://picsum.photos/seed/cube3/800/800</div></div>
+        <div><div>Right</div><div>https://picsum.photos/seed/cube4/800/800</div></div>
+        <div><div>Top</div><div>https://picsum.photos/seed/cube5/800/800</div></div>
+        <div><div>Bottom</div><div>https://picsum.photos/seed/cube6/800/800</div></div>
+        <div><div>normal</div></div>
+      </div>
+    </div>
+
+  </main>
+  <footer></footer>
+</body>
+</html>

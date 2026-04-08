@@ -262,12 +262,30 @@ function ensureThree() {
   return threeReady;
 }
 
+// --- Empty state ---
+
+function renderEmpty(block, componentName) {
+  const emptyDiv = document.createElement('div');
+  emptyDiv.className = 'viz-empty-state';
+  emptyDiv.style.display = 'flex';
+  emptyDiv.style.alignItems = 'center';
+  emptyDiv.style.justifyContent = 'center';
+  emptyDiv.style.minHeight = '200px';
+  emptyDiv.textContent = `No data available for ${componentName}`;
+  block.append(emptyDiv);
+}
+
 // --- Main decorate ---
 
 export default async function decorate(block) {
   const { dataText, color, height } = parseRows(block);
 
   while (block.firstChild) block.removeChild(block.firstChild);
+
+  if (!dataText || !dataText.trim()) {
+    renderEmpty(block, 'Globe');
+    return;
+  }
 
   // Height
   const canvasHeight = Math.max(200, parseInt(height, 10) || 420);

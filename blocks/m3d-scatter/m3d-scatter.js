@@ -186,6 +186,21 @@ function makeRange(arr) {
 
 // ─── main decorate ────────────────────────────────────────────────────────────
 
+// ─── empty state ─────────────────────────────────────────────────────────────
+
+function renderEmpty(block, componentName) {
+  const emptyDiv = document.createElement('div');
+  emptyDiv.className = 'viz-empty-state';
+  emptyDiv.style.display = 'flex';
+  emptyDiv.style.alignItems = 'center';
+  emptyDiv.style.justifyContent = 'center';
+  emptyDiv.style.minHeight = '200px';
+  emptyDiv.textContent = `No data available for ${componentName}`;
+  block.append(emptyDiv);
+}
+
+// ─── main decorate ────────────────────────────────────────────────────────
+
 export default async function decorate(block) {
   // Extract CSV from block (pre/code tag or raw text)
   let csvText = null;
@@ -198,6 +213,11 @@ export default async function decorate(block) {
   }
 
   const data = (csvText && parseCSV(csvText)) || buildDemoData();
+
+  if (!data || !data.length) {
+    renderEmpty(block, 'Scatter');
+    return;
+  }
 
   const xRange = makeRange(data.map((r) => r.x));
   const yRange = makeRange(data.map((r) => r.y));

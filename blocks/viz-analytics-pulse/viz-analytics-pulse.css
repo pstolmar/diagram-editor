@@ -617,3 +617,129 @@
     animation: none;
   }
 }
+
+/* ── Top Pages Bar Chart ────────────────────────────────────────── */
+.top-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--pulse-border);
+}
+
+.page-bar-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 60px;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.page-name {
+  font-family: var(--pulse-font-ui);
+  font-size: 0.75rem;
+  color: var(--pulse-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-bar-outer {
+  height: 20px;
+  background: var(--pulse-surface);
+  border: 1px solid var(--pulse-border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.page-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pulse-accent), var(--pulse-secondary));
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 8px var(--pulse-glow-md);
+}
+
+.page-value {
+  font-family: var(--pulse-font-mono);
+  font-size: 0.7rem;
+  color: var(--pulse-accent);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* ── Crypto Prices ──────────────────────────────────────────────── */
+.crypto-prices {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--pulse-border);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.crypto-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--pulse-surface);
+  border: 1px solid var(--pulse-border);
+  border-radius: var(--pulse-radius);
+  min-width: 100px;
+  transition: all var(--pulse-speed) ease;
+}
+
+.crypto-card:hover {
+  background: color-mix(in srgb, var(--pulse-surface) 70%, var(--pulse-accent) 30%);
+  border-color: var(--pulse-accent);
+  box-shadow: 0 0 12px var(--pulse-glow-md);
+}
+
+.crypto-symbol {
+  font-family: var(--pulse-font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--pulse-accent);
+  text-transform: uppercase;
+}
+
+.crypto-price {
+  font-family: var(--pulse-font-mono);
+  font-size: 0.9rem;
+  color: var(--pulse-text);
+  font-weight: 600;
+}
+
+.crypto-change {
+  font-family: var(--pulse-font-mono);
+  font-size: 0.65rem;
+  color: var(--pulse-secondary);
+  transition: color var(--pulse-speed) ease;
+}
+
+.crypto-change.positive {
+  color: #16a34a;
+}
+
+.crypto-change.negative {
+  color: #dc2626;
+}
+
+/* ── Alert animation for KPI badges ─────────────────────────────── */
+@keyframes kpi-pulse-alert {
+  0%, 100% { background: color-mix(in srgb, var(--pulse-surface) 100%, var(--pulse-warn) 0%); }
+  50%      { background: color-mix(in srgb, var(--pulse-surface) 70%, var(--pulse-warn) 30%); }
+}
+
+.ticker-cell.alert {
+  animation: kpi-pulse-alert 2s ease-in-out infinite;
+}
+
+/* ── Empty state ── */
+.viz-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 240px; gap: 12px; padding: 2rem; color: #3d5a73; text-align: center; }
+.viz-empty-icon { font-size: 2.5rem; opacity: 0.4; }
+.viz-empty-title { font-family: "JetBrains Mono", monospace; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.viz-empty-hint { font-size: 0.75rem; opacity: 0.6; max-width: 280px; line-height: 1.5; }

@@ -1,0 +1,40 @@
+{
+  "_comment": "Demo data for viz-analytics-pulse. Schema matches JS renderTickerRow/renderRegionalLegend/renderTopPages expectations.",
+  "site": "adobe.com",
+  "window": "last-30-min",
+  "activeUsers": 28471,
+  "kpis": {
+    "activeUsers": 28471,
+    "activeUsersDelta": 14,
+    "pageViewsMin": 4280,
+    "pageViewsMinDelta": 8,
+    "bounceRate": 38,
+    "bounceRateDelta": -2,
+    "conversionRate": 2.4,
+    "conversionRateDelta": 11,
+    "errorRate": 0.4,
+    "errorRateDelta": 22,
+    "errorRateAlert": true
+  },
+  "sparklineData": [
+    24100, 24350, 24680, 24920, 25110, 25380, 25620, 25800,
+    26050, 26300, 26540, 26780, 26980, 27200, 27440, 27650,
+    27820, 28010, 28100, 28200, 28280, 28320, 28380, 28400,
+    28420, 28440, 28452, 28461, 28468, 28471
+  ],
+  "topPages": [
+    { "name": "/experience-cloud",  "value": 18420 },
+    { "name": "/photoshop",         "value": 14880 },
+    { "name": "/solutions/mktg",    "value": 12340 },
+    { "name": "/acrobat",           "value": 11200 },
+    { "name": "/creativecloud",     "value": 10800 }
+  ],
+  "regionData": {
+    "us":    8820,
+    "in":    4210,
+    "gb":    2140,
+    "de":    1840,
+    "jp":    1620,
+    "other": 9841
+  }
+}

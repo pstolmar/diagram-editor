@@ -1,0 +1,30 @@
+{
+  "_comment": "Demo data for viz-office-map. Adobe San Jose HQ floor plan with live occupancy.",
+  "refreshMs": 30000,
+  "building": "Adobe HQ — Tower 1, Floor 18",
+  "totalCapacity": 184,
+  "currentOccupancy": 112,
+  "lastUpdated": "2026-04-07T14:03:00Z",
+  "zones": [
+    { "id": "lobby",       "label": "Reception",        "type": "common",   "capacity": 8,   "occupied": 3,   "x": 0.46, "y": 0.08, "w": 0.12, "h": 0.10 },
+    { "id": "conf-a",      "label": "Summit Room",      "type": "meeting",  "capacity": 12,  "occupied": 10,  "x": 0.06, "y": 0.06, "w": 0.14, "h": 0.18, "status": "busy",  "event": "Q2 Planning" },
+    { "id": "conf-b",      "label": "Adobe Room",       "type": "meeting",  "capacity": 8,   "occupied": 0,   "x": 0.24, "y": 0.06, "w": 0.12, "h": 0.14, "status": "free" },
+    { "id": "conf-c",      "label": "Firefly Room",     "type": "meeting",  "capacity": 6,   "occupied": 6,   "x": 0.60, "y": 0.06, "w": 0.12, "h": 0.14, "status": "busy",  "event": "Design Crit" },
+    { "id": "conf-d",      "label": "Express Room",     "type": "meeting",  "capacity": 4,   "occupied": 2,   "x": 0.78, "y": 0.06, "w": 0.10, "h": 0.12, "status": "partial" },
+    { "id": "pod-nw",      "label": "DX Engineering",   "type": "openplan", "capacity": 32,  "occupied": 18,  "x": 0.06, "y": 0.28, "w": 0.24, "h": 0.30 },
+    { "id": "pod-n",       "label": "Platform Eng.",    "type": "openplan", "capacity": 28,  "occupied": 22,  "x": 0.32, "y": 0.28, "w": 0.20, "h": 0.30 },
+    { "id": "pod-ne",      "label": "UX & Research",    "type": "openplan", "capacity": 24,  "occupied": 14,  "x": 0.62, "y": 0.28, "w": 0.22, "h": 0.30 },
+    { "id": "pod-sw",      "label": "Product Management","type": "openplan","capacity": 20,  "occupied": 16,  "x": 0.06, "y": 0.62, "w": 0.18, "h": 0.26 },
+    { "id": "pod-s",       "label": "Developer Relations","type": "openplan","capacity": 18, "occupied": 9,   "x": 0.34, "y": 0.62, "w": 0.18, "h": 0.26 },
+    { "id": "pod-se",      "label": "Sales Engineering","type": "openplan", "capacity": 16,  "occupied": 11,  "x": 0.60, "y": 0.62, "w": 0.20, "h": 0.26 },
+    { "id": "kitchen",     "label": "Kitchen",          "type": "amenity",  "capacity": 0,   "occupied": 8,   "x": 0.84, "y": 0.28, "w": 0.10, "h": 0.20 },
+    { "id": "lounge",      "label": "Creative Lounge",  "type": "amenity",  "capacity": 16,  "occupied": 4,   "x": 0.84, "y": 0.52, "w": 0.10, "h": 0.18 },
+    { "id": "phone-1",     "label": "Focus Pod A",      "type": "phone",    "capacity": 1,   "occupied": 1,   "x": 0.88, "y": 0.62, "w": 0.05, "h": 0.06 },
+    { "id": "phone-2",     "label": "Focus Pod B",      "type": "phone",    "capacity": 1,   "occupied": 0,   "x": 0.88, "y": 0.70, "w": 0.05, "h": 0.06 },
+    { "id": "phone-3",     "label": "Focus Pod C",      "type": "phone",    "capacity": 1,   "occupied": 0,   "x": 0.88, "y": 0.78, "w": 0.05, "h": 0.06 }
+  ],
+  "heatmap": {
+    "resolution": 10,
+    "note": "10×10 grid, values 0–1 represent occupancy density for background heatmap rendering"
+  }
+}

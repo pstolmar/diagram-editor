@@ -73,3 +73,9 @@
     right: 16px;
   }
 }
+-e 
+/* ── Empty state ── */
+.viz-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 240px; gap: 12px; padding: 2rem; color: #3d5a73; text-align: center; }
+.viz-empty-icon { font-size: 2.5rem; opacity: 0.4; }
+.viz-empty-title { font-family: "JetBrains Mono", monospace; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.viz-empty-hint { font-size: 0.75rem; opacity: 0.6; max-width: 280px; line-height: 1.5; }

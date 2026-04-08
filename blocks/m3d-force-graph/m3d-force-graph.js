@@ -128,6 +128,17 @@ async function loadThree() {
   });
 }
 
+function renderEmpty(block, title) {
+  const empty = document.createElement('div');
+  empty.className = 'viz-empty-state';
+  empty.innerHTML = `
+    <div class="viz-empty-icon">📊</div>
+    <div class="viz-empty-title">${title}</div>
+    <div class="viz-empty-hint">No nodes or data available</div>
+  `;
+  block.replaceChildren(empty);
+}
+
 export default async function decorate(block) {
   // Read optional CSV from block content
   const pre = block.querySelector('pre');
@@ -165,6 +176,13 @@ export default async function decorate(block) {
   // Graph data
   const edges = parseCSV(csvText);
   const { nodes, links } = buildGraph(edges);
+
+  // Empty state check
+  if (!nodes || nodes.length === 0) {
+    renderEmpty(block, 'Force Graph');
+    return;
+  }
+
   runPhysics(nodes, links, 15);
 
   const maxDeg = Math.max(...nodes.map((n) => n.degree));

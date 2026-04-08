@@ -1,5 +1,10 @@
 /* m3d-orbit — THREE.js orbital system block */
 
+function renderEmpty(block, label) {
+  block.innerHTML = `<div class="viz-empty-state"><div class="viz-empty-icon">🪐</div>
+    <div class="viz-empty-title">${label} Unavailable</div></div>`;
+}
+
 const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js';
 const BASE_SPEED = 0.25; // radians/sec at speed=1.0
 
@@ -109,6 +114,11 @@ function buildBody(THREE, scene, body, initAngle) {
 export default async function decorate(block) {
   const csvText = readBlockCSV(block);
   const bodies = parseCSV(csvText) || parseCSV(DEMO_CSV);
+
+  if (!bodies || !bodies.length) {
+    renderEmpty(block, 'Orbit');
+    return;
+  }
 
   // DOM setup
   block.innerHTML = '';
