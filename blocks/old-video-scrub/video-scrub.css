@@ -1,0 +1,63 @@
+mkdir -p /Users/pstolmar/dev/eds/diagram-editor/blocks/video-scrub
+cat > /Users/pstolmar/dev/eds/diagram-editor/blocks/video-scrub/video-scrub.css << 'EOF'
+.video-scrub-player {
+  width: 100%;
+  max-width: 100%;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.video-scrub-player video {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.video-scrub-speed-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.video-scrub-button {
+  padding: 8px 12px;
+  border: 1px solid #0078d4;
+  background-color: #fff;
+  color: #0078d4;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.video-scrub-button:hover {
+  background-color: #f0f0f0;
+  border-color: #005a9e;
+  color: #005a9e;
+}
+
+.video-scrub-button.active {
+  background-color: #0078d4;
+  color: #fff;
+  border-color: #0078d4;
+}
+
+.viz-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #666;
+  font-size: 16px;
+  text-align: center;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+EOF

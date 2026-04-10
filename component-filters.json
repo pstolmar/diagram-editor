@@ -82,6 +82,13 @@
       "live-configurator"
     ]
   },
+  "video-scrub",
+  "photo-effects",
+  "image-table",
+  "image-explorer",
+  "wave-terrain",
+  "orbit-ring",
+  "photo-cubes",
   {
     "id": "card-reveal-hero",
     "components": [

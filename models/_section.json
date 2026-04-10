@@ -116,6 +116,13 @@
         "viz-secure-feed",
         "live-configurator"
       ]
-    }
+    },
+    "video-scrub",
+    "photo-effects",
+    "image-table",
+    "image-explorer",
+    "wave-terrain",
+    "orbit-ring",
+    "photo-cubes"
   ]
 }

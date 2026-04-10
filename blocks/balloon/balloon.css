@@ -1,0 +1,8 @@
+.balloon-widget {
+  pointer-events: none;
+}
+
+.balloon-widget svg {
+  pointer-events: all;
+  user-select: none;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Balloon Block Demo</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+    <script nonce="aem" type="module" src="/scripts/scripts.js"></script>
+  </head>
+  <body>
+    <main>
+      <div class="section">
+        <h1>Balloon Demo</h1>
+        <p>The balloon is fixed to the bottom-right corner. Double-click it to pop. Drag it to feel the spring. Scroll the page to see the bounce impulse.</p>
+      </div>
+
+      <div class="section">
+        <h2>Default — Adobe Red, Bottom Right, Sticky</h2>
+        <div class="balloon">
+          <div><div>color</div><div>#EB1000</div></div>
+          <div><div>position</div><div>bottom-right</div></div>
+        </div>
+      </div>
+
+      <div class="section" style="height:60vh">
+        <h2>Scroll down to test bounce impulse</h2>
+        <p>Spring physics: acc = -stiffness × displacement - damping × velocity</p>
+        <p>Scroll causes a downward velocity impulse on the balloon.</p>
+      </div>
+
+      <div class="section" style="height:60vh">
+        <h2>More content below</h2>
+        <p>Keep scrolling to see the balloon respond.</p>
+      </div>
+    </main>
+  </body>
+</html>

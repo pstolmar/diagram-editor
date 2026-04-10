@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Interactive Blocks — Token Reduction Validation</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+    <style>
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 2rem 1rem;
+            padding: 1rem 0;
+        }
+        .block-section {
+            margin: 3rem 0;
+        }
+        .block-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #666;
+            margin: 2rem 1rem 0.5rem;
+            font-weight: 600;
+        }
+        .video-scrub {
+            height: 600px;
+            background: #000;
+            overflow: hidden;
+        }
+        .video-scrub picture,
+        .video-scrub img,
+        .video-scrub video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+    <main>
+        <h1 class="page-title">New Interactive Blocks — Token Reduction Validation</h1>
+
+        <!-- video-scrub -->
+        <div class="block-section">
+            <div class="block-label">video-scrub (full-width, 600px, cover)</div>
+            <div class="block video-scrub">
+                <picture>
+                    <source srcset="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                    <img src="https://peach.blender.org/wp-content/uploads/image-19.png?x11217" alt="BigBuckBunny">
+                </picture>
+            </div>
+        </div>
+
+        <!-- image-table -->
+        <div class="block-section">
+            <div class="block-label">image-table</div>
+            <div class="block image-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Thumbnail</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Widget Pro</td>
+                            <td>![Product](https://picsum.photos/120/80?random=1)</td>
+                            <td>Advanced widget for professionals</td>
+                            <td>$99.99</td>
+                        </tr>
+                        <tr>
+                            <td>Widget Plus</td>
+                            <td>![Product](https://picsum.photos/120/80?random=2)</td>
+                            <td>Enhanced features package</td>
+                            <td>$149.99</td>
+                        </tr>
+                        <tr>
+                            <td>Widget Elite</td>
+                            <td>![Product](https://picsum.photos/120/80?random=3)</td>
+                            <td>Premium all-inclusive bundle</td>
+                            <td>$299.99</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- photo-effects -->
+        <div class="block-section">
+            <div class="block-label">photo-effects</div>
+            <div class="block photo-effects">
+                <div>
+                    <p>![Scenic](https://picsum.photos/600/400?random=4)</p>
+                    <p>Effect: Vintage Filter</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- video-panel -->
+        <div class="block-section">
+            <div class="block-label">video-panel</div>
+            <div class="block video-panel">
+                <div>
+                    <h3>Featured Content</h3>
+                    <p>High-quality video demonstration</p>
+                </div>
+                <div>
+                    <video controls width="500" height="350">
+                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <!-- data-explorer -->
+        <div class="block-section">
+            <div class="block-label">data-explorer</div>
+            <div class="block data-explorer">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Region</th>
+                            <th>Q1 Revenue</th>
+                            <th>Q2 Revenue</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>North America</td>
+                            <td>$2.5M</td>
+                            <td>$2.8M</td>
+                            <td>+12%</td>
+                        </tr>
+                        <tr>
+                            <td>Europe</td>
+                            <td>$1.8M</td>
+                            <td>$2.1M</td>
+                            <td>+16.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Asia-Pacific</td>
+                            <td>$1.2M</td>
+                            <td>$1.6M</td>
+                            <td>+33.3%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- timeline-story -->
+        <div class="block-section">
+            <div class="block-label">timeline-story</div>
+            <div class="block timeline-story">
+                <div>
+                    <h4>2024 Q1</h4>
+                    <p>Platform launch with core features</p>
+                </div>
+                <div>
+                    <h4>2024 Q3</h4>
+                    <p>Expanded analytics and reporting capabilities</p>
+                </div>
+                <div>
+                    <h4>2025 Q1</h4>
+                    <p>AI-powered recommendations released</p>
+                </div>
+                <div>
+                    <h4>2026 Q2</h4>
+                    <p>Enterprise integrations now available</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- poll-widget -->
+        <div class="block-section">
+            <div class="block-label">poll-widget (single-select)</div>
+            <div class="block poll-widget">
+                <div>
+                    <h3>Which feature matters most to you?</h3>
+                </div>
+                <div>
+                    <ul>
+                        <li>Real-time Collaboration</li>
+                        <li>Advanced Analytics</li>
+                        <li>Mobile Optimization</li>
+                        <li>AI Integration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- scroll-reveal -->
+        <div class="block-section">
+            <div class="block-label">scroll-reveal (5 panels)</div>
+            <div class="block scroll-reveal">
+                <div>
+                    <picture>
+                        <source srcset="https://picsum.photos/400/300?random=5">
+                        <img src="https://picsum.photos/400/300?random=5" alt="Panel 1">
+                    </picture>
+                    <h4>Innovation</h4>
+                    <p>Cutting-edge solutions</p>
+                </div>
+                <div>
+                    <picture>
+                        <source srcset="https://picsum.photos/400/300?random=6">
+                        <img src="https://picsum.photos/400/300?random=6" alt="Panel 2">
+                    </picture>
+                    <h4>Performance</h4>
+                    <p>Lightning-fast delivery</p>
+                </div>
+                <div>
+                    <picture>
+                        <source srcset="https://picsum.photos/400/300?random=7">
+                        <img src="https://picsum.photos/400/300?random=7" alt="Panel 3">
+                    </picture>
+                    <h4>Security</h4>
+                    <p>Enterprise-grade protection</p>
+                </div>
+                <div>
+                    <picture>
+                        <source srcset="https://picsum.photos/400/300?random=8">
+                        <img src="https://picsum.photos/400/300?random=8" alt="Panel 4">
+                    </picture>
+                    <h4>Scale</h4>
+                    <p>Grow without limits</p>
+                </div>
+                <div>
+                    <picture>
+                        <source srcset="https://picsum.photos/400/300?random=9">
+                        <img src="https://picsum.photos/400/300?random=9" alt="Panel 5">
+                    </picture>
+                    <h4>Support</h4>
+                    <p>Always here to help</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- live-configurator -->
+        <div class="block-section">
+            <div class="block-label">live-configurator (3-step plan)</div>
+            <div class="block live-configurator">
+                <div>
+                    <h4>Step 1: Select Plan</h4>
+                    <ul>
+                        <li>Starter ($29/mo)</li>
+                        <li>Professional ($99/mo)</li>
+                        <li>Enterprise (Custom)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Step 2: Add Features</h4>
+                    <ul>
+                        <li>Advanced Analytics</li>
+                        <li>Team Collaboration</li>
+                        <li>API Access</li>
+                        <li>Priority Support</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Step 3: Review & Confirm</h4>
+                    <p>Your custom plan is ready for checkout</p>
+                    <p>Total: Starting from $29/month</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- viz-office-map -->
+        <div class="block-section">
+            <div class="block-label">viz-office-map (IMS login fix)</div>
+            <div class="block viz-office-map">
+                <div>
+                    <h3>Global Office Locations</h3>
+                    <p>Access office information and team directories</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script type="module" src="/scripts/scripts.js"></script>
+</body>
+</html>

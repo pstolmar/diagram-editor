@@ -1,0 +1,25 @@
+{
+  "assetPath": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+  "assetName": "Mountain landscape",
+  "availableEffects": [
+    "bokeh",
+    "blur",
+    "negative",
+    "grain",
+    "monochrome",
+    "vibrant"
+  ],
+  "fallback": {
+    "importMetaUrl": "file:///Users/pstolmar/dev/eds/diagram-editor/blocks/photo-effects/photo-effects.js",
+    "baseUrl": "https://localhost:3000/blocks/photo-effects/",
+    "localAssetPath": "./assets/sample-landscape.jpg",
+    "cdnAssetPath": "https://cdn.example.com/assets/photo-effects/sample-landscape.jpg"
+  },
+  "metadata": {
+    "width": 800,
+    "height": 533,
+    "format": "jpeg",
+    "source": "unsplash",
+    "attribution": "Photo by Matthew Hamilton on Unsplash"
+  }
+}

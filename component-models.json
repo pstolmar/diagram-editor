@@ -142,6 +142,22 @@
     ]
   },
   {
+    "id": "image-table",
+    "fields": []
+  },
+  {
+    "id": "photo-effects",
+    "fields": []
+  },
+  {
+    "id": "video-scrub",
+    "fields": []
+  },
+  {
+    "id": "balloon",
+    "fields": []
+  },
+  {
     "id": "callout-panel-tm",
     "fields": [
       {
@@ -603,6 +619,10 @@
         "value": "After"
       }
     ]
+  },
+  {
+    "id": "image-table",
+    "fields": []
   },
   {
     "id": "live-configurator",
@@ -1429,6 +1449,22 @@
     ]
   },
   {
+    "id": "image-table",
+    "fields": []
+  },
+  {
+    "id": "photo-effects",
+    "fields": []
+  },
+  {
+    "id": "video-scrub",
+    "fields": []
+  },
+  {
+    "id": "orbit-ring",
+    "fields": []
+  },
+  {
     "id": "particle-field",
     "fields": [
       {
@@ -1452,6 +1488,14 @@
         "label": "Color · Count (e.g. blue 150)"
       }
     ]
+  },
+  {
+    "id": "photo-cubes",
+    "fields": []
+  },
+  {
+    "id": "photo-effects",
+    "fields": []
   },
   {
     "id": "polaroid-photo",
@@ -1816,6 +1860,10 @@
     ]
   },
   {
+    "id": "video-scrub",
+    "fields": []
+  },
+  {
     "id": "viz-analytics-pulse",
     "fields": [
       {
@@ -2058,5 +2106,9 @@
         ]
       }
     ]
+  },
+  {
+    "id": "wave-terrain",
+    "fields": []
   }
 ]

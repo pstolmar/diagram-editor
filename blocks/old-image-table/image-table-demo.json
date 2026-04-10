@@ -1,0 +1,60 @@
+{
+  "images": [
+    {
+      "id": "img-001",
+      "name": "Mountain Landscape",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
+      "colorTags": ["blue", "green", "white"],
+      "aiKeywords": ["landscape", "mountain", "nature", "peak", "scenic"],
+      "width": 1920,
+      "height": 1080,
+      "format": "jpeg"
+    },
+    {
+      "id": "img-002",
+      "name": "Forest Stream",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&h=200&fit=crop",
+      "colorTags": ["green", "blue", "brown"],
+      "aiKeywords": ["forest", "tree", "water", "nature", "stream", "woodland"],
+      "width": 1920,
+      "height": 1440,
+      "format": "jpeg"
+    },
+    {
+      "id": "img-003",
+      "name": "Sunset Over Ocean",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&h=200&fit=crop",
+      "colorTags": ["red", "orange", "blue", "yellow"],
+      "aiKeywords": ["sunset", "ocean", "beach", "sky", "horizon", "water"],
+      "width": 1920,
+      "height": 1080,
+      "format": "jpeg"
+    },
+    {
+      "id": "img-004",
+      "name": "Desert Dunes",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=300&h=200&fit=crop",
+      "colorTags": ["red", "brown", "yellow", "orange"],
+      "aiKeywords": ["desert", "sand", "dunes", "landscape", "arid", "nature"],
+      "width": 1920,
+      "height": 1440,
+      "format": "jpeg"
+    },
+    {
+      "id": "img-005",
+      "name": "Winter Snow Pine Trees",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
+      "colorTags": ["white", "blue", "green"],
+      "aiKeywords": ["winter", "snow", "tree", "nature", "forest", "pine", "cold"],
+      "width": 1920,
+      "height": 1080,
+      "format": "jpeg"
+    }
+  ],
+  "metadata": {
+    "totalCount": 5,
+    "source": "Unsplash API (demo data)",
+    "lastUpdated": "2026-04-09T00:00:00Z",
+    "fallbackNote": "For import.meta.url fallback, replace thumbnailUrl with: new URL('../assets/images/thumbnail-{id}.jpg', import.meta.url).href"
+  }
+}

@@ -1,0 +1,115 @@
+.video-scrub {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.video-scrub-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-scrub-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video-scrub-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.video-scrub-progress {
+  width: 100%;
+  height: 8px;
+  background-color: #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-scrub-progress:hover {
+  height: 12px;
+}
+
+.video-scrub-progress-bar {
+  height: 100%;
+  background-color: #0078d4;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.video-scrub-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #333;
+}
+
+.video-scrub-time-current,
+.video-scrub-time-duration {
+  font-weight: 500;
+}
+
+.video-scrub-speed-btn {
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  text-align: center;
+}
+
+.video-scrub-speed-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #999;
+}
+
+.video-scrub-speed-btn:active {
+  background-color: #0078d4;
+  color: #fff;
+  border-color: #0078d4;
+}
+
+@media (width <= 768px) {
+  .video-scrub {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .video-scrub-progress {
+    height: 6px;
+  }
+
+  .video-scrub-progress:hover {
+    height: 10px;
+  }
+
+  .video-scrub-time {
+    font-size: 0.8125rem;
+  }
+
+  .video-scrub-speed-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
