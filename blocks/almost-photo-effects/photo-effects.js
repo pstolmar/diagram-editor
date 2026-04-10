@@ -7,6 +7,14 @@
 
 const EFFECTS = ['bokeh', 'blur', 'negative', 'grain', 'monochrome', 'vibrant'];
 
+function showToast(message, isError = false) {
+  const toast = document.createElement('div');
+  toast.className = `photo-effects-toast${isError ? ' photo-effects-toast-error' : ''}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
 /**
  * Check if user is authenticated
  * @returns {Promise<boolean>}
@@ -37,6 +45,7 @@ async function loadDemoData() {
       return await response.json();
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn('Could not load demo data:', error);
   }
 
@@ -102,7 +111,7 @@ function applyEffects(img, selectedEffects) {
  */
 async function uploadToAEM(imageUrl, selectedEffects, isAuthenticated) {
   if (!isAuthenticated) {
-    alert('Please log in to upload effects to AEM.');
+    showToast('Please log in to upload effects to AEM.', true);
     return;
   }
 
@@ -139,17 +148,19 @@ async function uploadToAEM(imageUrl, selectedEffects, isAuthenticated) {
 
     if (uploadResponse.ok) {
       const result = await uploadResponse.json();
-      alert('Effect uploaded to AEM successfully!');
+      showToast('Effect uploaded to AEM successfully!');
       // eslint-disable-next-line no-use-before-define
       showPreviewModal(result);
     } else {
-      const error = await uploadResponse.text();
-      console.error('Upload failed:', error);
-      alert('Failed to upload effect to AEM.');
+      const errorText = await uploadResponse.text();
+      // eslint-disable-next-line no-console
+      console.error('Upload failed:', errorText);
+      showToast('Failed to upload effect to AEM.', true);
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Upload error:', error);
-    alert('Error uploading effect to AEM.');
+    showToast('Error uploading effect to AEM.', true);
   }
 }
 

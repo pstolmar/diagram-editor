@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const DEMO_JSON_PATH = 'image-explorer-demo.json';
 
 async function loadImageData(block) {

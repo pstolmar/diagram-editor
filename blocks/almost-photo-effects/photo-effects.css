@@ -194,3 +194,34 @@
     padding: 1.5rem;
   }
 }
+
+.photo-effects-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background: #333;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  z-index: 9999;
+  pointer-events: none;
+  animation: toast-in 0.2s ease;
+}
+
+.photo-effects-toast-error {
+  background: #c00;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

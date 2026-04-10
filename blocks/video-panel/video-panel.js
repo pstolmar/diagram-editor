@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export default async function decorate(block) {
   const DEMO = new URL('video-panel-demo.json', import.meta.url);
   let cfg = {};

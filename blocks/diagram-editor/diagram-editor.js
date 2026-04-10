@@ -1,4 +1,5 @@
 /* Minimal Diagram Editor block – v0: Mermaid-only */
+/* eslint-disable no-console */
 
 const MERMAID_ESM = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 

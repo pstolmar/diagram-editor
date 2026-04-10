@@ -80,6 +80,7 @@ export default async function decorate(block) {
     const emptyState = document.createElement('div');
     emptyState.className = 'viz-empty-state';
     block.appendChild(emptyState);
+    // eslint-disable-next-line no-console
     console.error('Error loading image table:', error);
   }
 }

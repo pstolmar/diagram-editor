@@ -3,3 +3,8 @@ dompurify.min.js
 tokenmiser-data/
 .tokenmiser/
 tools/
+blocks/old-*/
+.worktrees/
+component-models.json
+component-definition.json
+component-filters.json

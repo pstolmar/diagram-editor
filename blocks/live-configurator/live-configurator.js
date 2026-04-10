@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 async function decorate(block) {
   const configUrl = block.querySelector('a')?.href || null;
   let config;

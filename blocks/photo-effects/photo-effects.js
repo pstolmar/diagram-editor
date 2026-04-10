@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export default async function decorate(block) {
   let config;
 

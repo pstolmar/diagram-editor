@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign */
+/* eslint-disable no-param-reassign, no-console */
 
 /**
  * Viz Analytics Pulse Block

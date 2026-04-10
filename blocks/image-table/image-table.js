@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 async function loadDemoData() {

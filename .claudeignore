@@ -1,0 +1,33 @@
+# Aggregated AEM model JSONs — huge (65KB+), never needed as step context
+component-models.json
+component-definition.json
+component-filters.json
+
+# Tokenmiser run data — logs, not code
+.tokenmiser/
+tokenmiser-data/
+
+# MCP bridge transient files
+.claude/mcp-requests/
+.claude/mcp-responses/
+.claude/mcp-bridge.active
+
+# Playwright logs and snapshots
+.playwright-mcp/
+
+# Superpowers brainstorm output
+.superpowers/
+
+# Misc temp/one-off scripts
+benchplan
+failmd
+md
+old2planmd
+demo.sh
+
+# Node dependencies
+node_modules/
+
+# Large demo HTML files (reference only, not code)
+blocks/diagram-editor/filmstrip.html
+blocks/diagram-editor/corkboard.html

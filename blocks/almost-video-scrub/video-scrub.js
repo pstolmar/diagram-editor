@@ -14,6 +14,7 @@ async function decorate(block) {
       config = await response.json();
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn('Could not load video-scrub-demo.json:', error);
   }
 
