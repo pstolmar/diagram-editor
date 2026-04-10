@@ -109,18 +109,46 @@ function buildPopup(block, loc) {
   block.querySelector('.m3d-photo-globe-canvas-container').append(popup);
 }
 
+/**
+ * Parse location rows authored in the block table.
+ * Each row: | Label | lat,lon | Image URL | Caption | Color |
+ * Returns null if the block has no authored rows.
+ */
+const LOCATION_COLORS = ['#ff4081', '#40c4ff', '#69f0ae', '#ffab40', '#ea80fc', '#ff6e40', '#b388ff'];
+
+function parseBlockLocations(block) {
+  const rows = [...block.querySelectorAll(':scope > div')];
+  if (!rows.length) return null;
+  const locations = rows.map((row, i) => {
+    const cells = [...row.querySelectorAll(':scope > div')];
+    const label = cells[0]?.textContent.trim() || `Location ${i + 1}`;
+    const latlon = (cells[1]?.textContent.trim() || '0,0').split(',');
+    const lat = parseFloat(latlon[0]) || 0;
+    const lon = parseFloat(latlon[1]) || 0;
+    const imageUrl = cells[2]?.querySelector('img')?.src || cells[2]?.textContent.trim() || '';
+    const caption = cells[3]?.textContent.trim() || '';
+    const color = LOCATION_COLORS[i % LOCATION_COLORS.length];
+    return {
+      id: `loc-${i}`, lat, lon, label, caption, color, imageUrl,
+    };
+  }).filter((loc) => loc.label);
+  return locations.length ? { locations } : null;
+}
+
 export default async function decorate(block) {
-  // Load data
-  let data;
-  try {
-    const url = new URL('./m3d-photo-globe-demo.json', import.meta.url).href;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data = await res.json();
-  } catch (e) {
-    block.innerHTML = `<div class="m3d-photo-globe-empty">
-      <div>🌍</div><div>Globe data unavailable: ${e.message}</div></div>`;
-    return;
+  // Prefer authored block content; fall back to demo JSON
+  let data = parseBlockLocations(block);
+  if (!data) {
+    try {
+      const url = new URL('./m3d-photo-globe-demo.json', import.meta.url).href;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    } catch (e) {
+      block.innerHTML = `<div class="m3d-photo-globe-empty">
+        <div>🌍</div><div>Globe data unavailable: ${e.message}</div></div>`;
+      return;
+    }
   }
 
   const THREE = await loadThreeJS();

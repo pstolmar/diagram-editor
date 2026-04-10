@@ -5,7 +5,7 @@
   "description": "Starter project for Adobe Helix",
   "scripts": {
     "code": "npx tsx tools/code-executor.ts",
-    "lint:js": "eslint . --ext .json,.js,.mjs",
+    "lint:js": "eslint . --ext .json,.js,.mjs --max-warnings 0",
     "lint:css": "stylelint \"blocks/**/*.css\" \"styles/*.css\"",
     "lint": "npm run lint:js && npm run lint:css",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix",
@@ -13,6 +13,8 @@
     "build:json:models": "merge-json-cli -i \"models/_component-models.json\" -o \"component-models.json\"",
     "build:json:definitions": "merge-json-cli -i \"models/_component-definition.json\" -o \"component-definition.json\"",
     "build:json:filters": "merge-json-cli -i \"models/_component-filters.json\" -o \"component-filters.json\"",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
     "prepare": "husky"
   },
   "repository": {

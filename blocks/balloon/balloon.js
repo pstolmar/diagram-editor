@@ -256,17 +256,19 @@ function attachBalloon(container, color, floatUp) {
 }
 
 export default async function decorate(block) {
-  const params = {};
+  // Config: block.dataset.* (UE) takes priority; key=value rows are the DA Live fallback
+  const rows = {};
   block.querySelectorAll(':scope > div').forEach((row) => {
     const cells = row.querySelectorAll(':scope > div');
-    if (cells.length >= 2) {
-      params[cells[0].textContent.trim()] = cells[1].textContent.trim();
-    }
+    if (cells.length >= 2) rows[cells[0].textContent.trim()] = cells[1].textContent.trim();
   });
 
-  const color = params.color || ADOBE_RED;
-  const position = params.position || 'bottom-right';
-  const sticky = params.sticky !== 'false';
+  const color = block.dataset.color || rows.color || ADOBE_RED;
+  const position = block.dataset.position || rows.position || 'bottom-right';
+  const stickyAttr = block.dataset.sticky;
+  const sticky = stickyAttr !== undefined
+    ? (stickyAttr === 'on' || stickyAttr === 'true')
+    : rows.sticky !== 'false';
 
   block.innerHTML = '';
   block.style.display = 'none';

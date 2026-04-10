@@ -155,7 +155,42 @@
   },
   {
     "id": "balloon",
-    "fields": []
+    "fields": [
+      {
+        "component": "text",
+        "name": "color",
+        "label": "Colour",
+        "description": "Hex colour e.g. #EB1000. Default: Adobe red."
+      },
+      {
+        "component": "select",
+        "name": "position",
+        "label": "Position",
+        "options": [
+          {
+            "name": "Bottom Right",
+            "value": "bottom-right"
+          },
+          {
+            "name": "Bottom Left",
+            "value": "bottom-left"
+          },
+          {
+            "name": "Top Right",
+            "value": "top-right"
+          },
+          {
+            "name": "Top Left",
+            "value": "top-left"
+          }
+        ]
+      },
+      {
+        "component": "checkbox",
+        "name": "sticky",
+        "label": "Sticky (fixed position)"
+      }
+    ]
   },
   {
     "id": "callout-panel-tm",
@@ -558,32 +593,26 @@
     "id": "image-compare-tm",
     "fields": [
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "beforeImage",
+        "component": "aem-assets",
+        "name": "before",
         "label": "Before Image",
-        "multi": false
+        "accept": "image/*"
       },
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "afterImage",
+        "component": "aem-assets",
+        "name": "after",
         "label": "After Image",
-        "multi": false
+        "accept": "image/*"
       },
       {
         "component": "text",
-        "valueType": "string",
         "name": "beforeLabel",
-        "label": "Before Label",
-        "value": "Before"
+        "label": "Before Label"
       },
       {
         "component": "text",
-        "valueType": "string",
         "name": "afterLabel",
-        "label": "After Label",
-        "value": "After"
+        "label": "After Label"
       }
     ]
   },
@@ -591,32 +620,26 @@
     "id": "image-compare",
     "fields": [
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "beforeImage",
+        "component": "aem-assets",
+        "name": "before",
         "label": "Before Image",
-        "multi": false
+        "accept": "image/*"
       },
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "afterImage",
+        "component": "aem-assets",
+        "name": "after",
         "label": "After Image",
-        "multi": false
+        "accept": "image/*"
       },
       {
         "component": "text",
-        "valueType": "string",
         "name": "beforeLabel",
-        "label": "Before Label",
-        "value": "Before"
+        "label": "Before Label"
       },
       {
         "component": "text",
-        "valueType": "string",
         "name": "afterLabel",
-        "label": "After Label",
-        "value": "After"
+        "label": "After Label"
       }
     ]
   },
@@ -838,42 +861,30 @@
     "id": "m3d-photo-globe",
     "fields": [
       {
-        "component": "aem-content",
-        "name": "folderPath",
-        "label": "Photo Folder",
-        "description": "Browse and select a folder from DAM containing photos",
-        "contentType": "dam:Folder",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "name": "height",
-        "label": "Height",
-        "valueType": "string",
-        "value": "600",
-        "description": "Canvas height in px (default: 600px)"
-      },
-      {
-        "component": "select",
-        "name": "color",
-        "label": "Color Scheme",
-        "value": "blue",
-        "options": [
+        "component": "multifield",
+        "name": "locations",
+        "label": "Locations",
+        "fields": [
           {
-            "name": "Blue (default)",
-            "value": "blue"
+            "component": "text",
+            "name": "label",
+            "label": "Label"
           },
           {
-            "name": "Green",
-            "value": "green"
+            "component": "text",
+            "name": "coordinates",
+            "label": "Lat, Lon"
           },
           {
-            "name": "Amber",
-            "value": "amber"
+            "component": "aem-assets",
+            "name": "image",
+            "label": "Photo",
+            "accept": "image/*"
           },
           {
-            "name": "Purple",
-            "value": "purple"
+            "component": "text",
+            "name": "caption",
+            "label": "Caption"
           }
         ]
       }
@@ -1491,7 +1502,21 @@
   },
   {
     "id": "photo-cubes",
-    "fields": []
+    "fields": [
+      {
+        "component": "multifield",
+        "name": "photos",
+        "label": "Photos",
+        "fields": [
+          {
+            "component": "aem-assets",
+            "name": "src",
+            "label": "Image",
+            "accept": "image/*"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "photo-effects",
@@ -1750,25 +1775,32 @@
     "id": "tabbed-feature",
     "fields": [
       {
-        "component": "text",
-        "name": "tabLabel",
-        "label": "Tab Label"
-      },
-      {
-        "component": "reference",
-        "name": "image",
-        "label": "Image",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "name": "heading",
-        "label": "Heading"
-      },
-      {
-        "component": "text",
-        "name": "body",
-        "label": "Body (bullets, newline-separated)"
+        "component": "multifield",
+        "name": "tabs",
+        "label": "Tabs",
+        "fields": [
+          {
+            "component": "text",
+            "name": "label",
+            "label": "Tab Label"
+          },
+          {
+            "component": "aem-assets",
+            "name": "image",
+            "label": "Image",
+            "accept": "image/*"
+          },
+          {
+            "component": "text",
+            "name": "heading",
+            "label": "Heading"
+          },
+          {
+            "component": "text",
+            "name": "body",
+            "label": "Body Text"
+          }
+        ]
       }
     ]
   },

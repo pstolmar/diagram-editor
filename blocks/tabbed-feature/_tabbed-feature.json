@@ -1,31 +1,20 @@
 {
-  "definitions": [
-    {
-      "title": "Tabbed Feature",
-      "id": "tabbed-feature",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block",
-            "template": {
-              "name": "Tabbed Feature",
-              "model": "tabbed-feature"
-            }
-          }
-        }
+  "definitions": [{"title":"Tabbed Feature","id":"tabbed-feature","plugins":{"xwalk":{"page":{"resourceType":"core/franklin/components/block/v1/block","template":{"name":"Tabbed Feature","model":"tabbed-feature"}}}}}],
+  "models": [{
+    "id": "tabbed-feature",
+    "fields": [
+      {
+        "component": "multifield",
+        "name": "tabs",
+        "label": "Tabs",
+        "fields": [
+          { "component": "text",       "name": "label",   "label": "Tab Label" },
+          { "component": "aem-assets", "name": "image",   "label": "Image",    "accept": "image/*" },
+          { "component": "text",       "name": "heading", "label": "Heading"   },
+          { "component": "text",       "name": "body",    "label": "Body Text" }
+        ]
       }
-    }
-  ],
-  "models": [
-    {
-      "id": "tabbed-feature",
-      "fields": [
-        { "component": "text", "name": "tabLabel", "label": "Tab Label" },
-        { "component": "reference", "name": "image", "label": "Image", "multi": false },
-        { "component": "text", "name": "heading", "label": "Heading" },
-        { "component": "text", "name": "body", "label": "Body (bullets, newline-separated)" }
-      ]
-    }
-  ],
+    ]
+  }],
   "filters": []
 }

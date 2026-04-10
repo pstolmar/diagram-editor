@@ -114,15 +114,16 @@
         "viz-crypto-pulse",
         "viz-quake-feed",
         "viz-secure-feed",
-        "live-configurator"
+        "live-configurator",
+        "photo-cubes",
+        "orbit-ring",
+        "wave-terrain",
+        "balloon",
+        "video-scrub",
+        "photo-effects",
+        "image-table",
+        "image-explorer"
       ]
-    },
-    "video-scrub",
-    "photo-effects",
-    "image-table",
-    "image-explorer",
-    "wave-terrain",
-    "orbit-ring",
-    "photo-cubes"
+    }
   ]
 }

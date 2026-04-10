@@ -534,7 +534,7 @@
           }
         },
         {
-          "title": "3D Photo Globe",
+          "title": "M3d Photo Globe",
           "id": "m3d-photo-globe",
           "plugins": {
             "xwalk": {

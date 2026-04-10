@@ -1,55 +1,13 @@
 {
-  "definitions": [
-    {
-      "title": "Image Compare",
-      "id": "image-compare",
-      "plugins": {
-        "xwalk": {
-          "page": {
-            "resourceType": "core/franklin/components/block/v1/block",
-            "template": {
-              "name": "Image Compare",
-              "model": "image-compare"
-            }
-          }
-        }
-      }
-    }
-  ],
-  "models": [
-    {
-      "id": "image-compare",
-      "fields": [
-        {
-          "component": "reference",
-          "valueType": "string",
-          "name": "beforeImage",
-          "label": "Before Image",
-          "multi": false
-        },
-        {
-          "component": "reference",
-          "valueType": "string",
-          "name": "afterImage",
-          "label": "After Image",
-          "multi": false
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "beforeLabel",
-          "label": "Before Label",
-          "value": "Before"
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "afterLabel",
-          "label": "After Label",
-          "value": "After"
-        }
-      ]
-    }
-  ],
+  "definitions": [{"title":"Image Compare","id":"image-compare","plugins":{"xwalk":{"page":{"resourceType":"core/franklin/components/block/v1/block","template":{"name":"Image Compare","model":"image-compare"}}}}}],
+  "models": [{
+    "id": "image-compare",
+    "fields": [
+      { "component": "aem-assets", "name": "before", "label": "Before Image", "accept": "image/*" },
+      { "component": "aem-assets", "name": "after",  "label": "After Image",  "accept": "image/*" },
+      { "component": "text", "name": "beforeLabel", "label": "Before Label" },
+      { "component": "text", "name": "afterLabel",  "label": "After Label"  }
+    ]
+  }],
   "filters": []
 }
