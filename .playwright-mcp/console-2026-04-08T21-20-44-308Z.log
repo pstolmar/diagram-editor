@@ -1,0 +1,34 @@
+[     123ms] [ERROR] failed to load module for live-configurator ReferenceError: stepDiv is not defined
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:212:27)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/scripts/aem.js:591
+[  312949ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Connecting%20people,%20data,%20and%20creativity.:0
+[  313001ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Learn%20More:0
+[  313003ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Experience%20the%20Future%20of%20Work:0
+[  313887ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/600:0
+[  313965ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/cover:0
+[  393342ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Experience%20the%20Future%20of%20Work:0
+[  393346ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Connecting%20people,%20data,%20and%20creativity.:0
+[  393379ms] [ERROR] failed to load module for scroll-reveal TypeError: Cannot read properties of null (reading 'remove')
+    at Module.decorate (http://localhost:3000/blocks/scroll-reveal/scroll-reveal.js:30:9)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/scripts/aem.js:591
+[  393389ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Learn%20More:0
+[  393447ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/cover:0
+[  393447ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/600:0
+[  417526ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Connecting%20people,%20data,%20and%20creativity.:0
+[  417527ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Experience%20the%20Future%20of%20Work:0
+[  417527ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/600:0
+[  417527ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Learn%20More:0
+[  417528ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/cover:0
+[  417591ms] [ERROR] failed to load module for poll-widget SyntaxError: Identifier 'headerCells' has already been declared @ http://localhost:3000/scripts/aem.js:591
+[  417597ms] [ERROR] failed to load module for scroll-reveal TypeError: Cannot read properties of null (reading 'remove')
+    at Module.decorate (http://localhost:3000/blocks/scroll-reveal/scroll-reveal.js:30:9)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/scripts/aem.js:591
+[  454357ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Connecting%20people,%20data,%20and%20creativity.:0
+[  454390ms] [ERROR] failed to load module for poll-widget SyntaxError: Identifier 'headerCells' has already been declared @ http://localhost:3000/scripts/aem.js:591
+[  454405ms] [ERROR] failed to load module for scroll-reveal TypeError: Cannot read properties of null (reading 'remove')
+    at Module.decorate (http://localhost:3000/blocks/scroll-reveal/scroll-reveal.js:30:9)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/scripts/aem.js:591
+[  454409ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Learn%20More:0
+[  454411ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/Experience%20the%20Future%20of%20Work:0
+[  454427ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/600:0
+[  454427ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/demo/cover:0

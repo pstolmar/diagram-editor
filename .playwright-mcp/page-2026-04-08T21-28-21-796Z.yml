@@ -1,0 +1,265 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - heading "New Interactive Blocks" [level=1] [ref=e23]
+      - paragraph [ref=e24]: Token reduction validation · 6 new blocks + IMS fix
+    - generic [ref=e25]:
+      - heading "Video Panel" [level=2] [ref=e27]
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - button "Toggle video sound" [ref=e32] [cursor=pointer]: 🔇
+          - button "Play video" [ref=e33] [cursor=pointer]: ▶
+        - generic [ref=e35]: ▶
+        - generic [ref=e36]:
+          - button "Toggle video sound" [ref=e38] [cursor=pointer]: 🔇
+          - button "Play video" [ref=e39] [cursor=pointer]: ▶
+        - generic [ref=e40]:
+          - button "Toggle video sound" [ref=e42] [cursor=pointer]: 🔇
+          - button "Play video" [ref=e43] [cursor=pointer]: ▶
+        - generic [ref=e44]:
+          - button "Toggle video sound" [ref=e46] [cursor=pointer]: 🔇
+          - button "Play video" [ref=e47] [cursor=pointer]: ▶
+        - generic [ref=e48]:
+          - button "Toggle video sound" [ref=e50] [cursor=pointer]: 🔇
+          - button "Play video" [ref=e51] [cursor=pointer]: ▶
+    - generic [ref=e52]:
+      - heading "Data Explorer" [level=2] [ref=e54]
+      - generic [ref=e56]:
+        - searchbox "Search…" [ref=e57]
+        - table [ref=e58]:
+          - rowgroup [ref=e59]:
+            - row "name region revenue status product year" [ref=e60]:
+              - columnheader "name" [ref=e61]
+              - columnheader "region" [ref=e62]
+              - columnheader "revenue" [ref=e63]
+              - columnheader "status" [ref=e64]
+              - columnheader "product" [ref=e65]
+              - columnheader "year" [ref=e66]
+          - rowgroup [ref=e67]:
+            - row "Acme Corp EMEA-0 EMEA 280000 Active Cloud Suite 2024" [ref=e68]:
+              - cell "Acme Corp EMEA-0" [ref=e69]
+              - cell "EMEA" [ref=e70]
+              - cell "280000" [ref=e71]
+              - cell "Active" [ref=e72]
+              - cell "Cloud Suite" [ref=e73]
+              - cell "2024" [ref=e74]
+            - row "TechVision Inc AMER-1 AMER 480000 Active Analytics Pro 2023" [ref=e75]:
+              - cell "TechVision Inc AMER-1" [ref=e76]
+              - cell "AMER" [ref=e77]
+              - cell "480000" [ref=e78]
+              - cell "Active" [ref=e79]
+              - cell "Analytics Pro" [ref=e80]
+              - cell "2023" [ref=e81]
+            - row "Digital Solutions APAC-2 APAC 150000 Pending Commerce Max 2024" [ref=e82]:
+              - cell "Digital Solutions APAC-2" [ref=e83]
+              - cell "APAC" [ref=e84]
+              - cell "150000" [ref=e85]
+              - cell "Pending" [ref=e86]
+              - cell "Commerce Max" [ref=e87]
+              - cell "2024" [ref=e88]
+            - row "Enterprise Systems LATAM-3 LATAM 85000 Inactive Marketing Hub 2022" [ref=e89]:
+              - cell "Enterprise Systems LATAM-3" [ref=e90]
+              - cell "LATAM" [ref=e91]
+              - cell "85000" [ref=e92]
+              - cell "Inactive" [ref=e93]
+              - cell "Marketing Hub" [ref=e94]
+              - cell "2022" [ref=e95]
+            - row "CloudBase Ltd AMER-4 AMER 520000 Active Security Plus 2024" [ref=e96]:
+              - cell "CloudBase Ltd AMER-4" [ref=e97]
+              - cell "AMER" [ref=e98]
+              - cell "520000" [ref=e99]
+              - cell "Active" [ref=e100]
+              - cell "Security Plus" [ref=e101]
+              - cell "2024" [ref=e102]
+            - row "InnovateTech EMEA-5 EMEA 320000 Active Integration Pack 2023" [ref=e103]:
+              - cell "InnovateTech EMEA-5" [ref=e104]
+              - cell "EMEA" [ref=e105]
+              - cell "320000" [ref=e106]
+              - cell "Active" [ref=e107]
+              - cell "Integration Pack" [ref=e108]
+              - cell "2023" [ref=e109]
+            - row "DataStream Co APAC-6 APAC 180000 Active Cloud Suite 2022" [ref=e110]:
+              - cell "DataStream Co APAC-6" [ref=e111]
+              - cell "APAC" [ref=e112]
+              - cell "180000" [ref=e113]
+              - cell "Active" [ref=e114]
+              - cell "Cloud Suite" [ref=e115]
+              - cell "2022" [ref=e116]
+            - row "NextGen Industries LATAM-7 LATAM 95000 Pending Analytics Pro 2023" [ref=e117]:
+              - cell "NextGen Industries LATAM-7" [ref=e118]
+              - cell "LATAM" [ref=e119]
+              - cell "95000" [ref=e120]
+              - cell "Pending" [ref=e121]
+              - cell "Analytics Pro" [ref=e122]
+              - cell "2023" [ref=e123]
+            - row "FutureScale AMER-8 AMER 450000 Inactive Commerce Max 2024" [ref=e124]:
+              - cell "FutureScale AMER-8" [ref=e125]
+              - cell "AMER" [ref=e126]
+              - cell "450000" [ref=e127]
+              - cell "Inactive" [ref=e128]
+              - cell "Commerce Max" [ref=e129]
+              - cell "2024" [ref=e130]
+            - row "VelocityOps EMEA-9 EMEA 290000 Active Marketing Hub 2024" [ref=e131]:
+              - cell "VelocityOps EMEA-9" [ref=e132]
+              - cell "EMEA" [ref=e133]
+              - cell "290000" [ref=e134]
+              - cell "Active" [ref=e135]
+              - cell "Marketing Hub" [ref=e136]
+              - cell "2024" [ref=e137]
+        - generic [ref=e138]:
+          - button "← Prev" [disabled] [ref=e139]
+          - text: 1–10 of 30
+          - button "Next →" [ref=e140] [cursor=pointer]
+    - generic [ref=e141]:
+      - heading "Timeline Story" [level=2] [ref=e143]
+      - generic [ref=e145]:
+        - generic [ref=e146]:
+          - button "All" [ref=e147] [cursor=pointer]
+          - button "Foundation" [ref=e148] [cursor=pointer]
+          - button "Product" [ref=e149] [cursor=pointer]
+          - button "Growth" [ref=e150] [cursor=pointer]
+          - button "Team" [ref=e151] [cursor=pointer]
+          - button "Partnership" [ref=e152] [cursor=pointer]
+          - button "Recognition" [ref=e153] [cursor=pointer]
+          - button "Market" [ref=e154] [cursor=pointer]
+          - button "Milestone" [ref=e155] [cursor=pointer]
+          - button "Acquisition" [ref=e156] [cursor=pointer]
+          - button "Vision" [ref=e157] [cursor=pointer]
+        - generic [ref=e158]:
+          - generic [ref=e160]:
+            - generic [ref=e161]: 🚀
+            - generic [ref=e162]:
+              - generic [ref=e163]: Q1 2022
+              - text: Foundation
+              - heading "Company Founded" [level=3] [ref=e164]
+            - generic [ref=e165]: Three co-founders launched the company with a vision to transform data visualization in enterprise software.
+          - generic [ref=e167]:
+            - generic [ref=e168]: 📊
+            - generic [ref=e169]:
+              - generic [ref=e170]: Q3 2022
+              - text: Product
+              - heading "First Product Launch" [level=3] [ref=e171]
+            - generic [ref=e172]: Released v1.0 of our core visualization platform, featuring real-time data rendering and collaborative dashboards.
+          - generic [ref=e174]:
+            - generic [ref=e175]: 💰
+            - generic [ref=e176]:
+              - generic [ref=e177]: Q4 2022
+              - text: Growth
+              - heading "Series A Funding" [level=3] [ref=e178]
+            - generic [ref=e179]: Secured $5M in Series A funding led by venture capital partners to accelerate product development and market expansion.
+          - generic [ref=e181]:
+            - generic [ref=e182]: 👥
+            - generic [ref=e183]:
+              - generic [ref=e184]: February 2023
+              - text: Team
+              - heading "Expanded Engineering Team" [level=3] [ref=e185]
+            - generic [ref=e186]: Hired 8 engineers to strengthen our platform architecture and expand feature development capabilities.
+          - generic [ref=e188]:
+            - generic [ref=e189]: 🤝
+            - generic [ref=e190]:
+              - generic [ref=e191]: May 2023
+              - text: Partnership
+              - heading "Strategic Integration with Adobe" [level=3] [ref=e192]
+            - generic [ref=e193]: Launched native integration with Adobe Experience Cloud, enabling seamless workflow for enterprise customers.
+          - generic [ref=e195]:
+            - generic [ref=e196]: 🤖
+            - generic [ref=e197]:
+              - generic [ref=e198]: Q3 2023
+              - text: Product
+              - heading "AI-Powered Insights Released" [level=3] [ref=e199]
+            - generic [ref=e200]: Introduced machine learning-driven analytics engine for automated trend detection and predictive analysis.
+          - generic [ref=e202]:
+            - generic [ref=e203]: ⭐
+            - generic [ref=e204]:
+              - generic [ref=e205]: November 2023
+              - text: Recognition
+              - heading "Gartner Magic Quadrant Recognition" [level=3] [ref=e206]
+            - generic [ref=e207]: Named as a Visionary in the 2023 Gartner Magic Quadrant for analytics platforms.
+          - generic [ref=e209]:
+            - generic [ref=e210]: 📈
+            - generic [ref=e211]:
+              - generic [ref=e212]: Q1 2024
+              - text: Market
+              - heading "IPO Filing Announced" [level=3] [ref=e213]
+            - generic [ref=e214]: Filed for initial public offering, marking transition from private venture to public company.
+          - generic [ref=e216]:
+            - generic [ref=e217]: 🌍
+            - generic [ref=e218]:
+              - generic [ref=e219]: June 2024
+              - text: Milestone
+              - heading "10,000+ Enterprise Customers" [level=3] [ref=e220]
+            - generic [ref=e221]: Reached milestone of serving over 10,000 enterprise customers across EMEA, APAC, and North America regions.
+          - generic [ref=e223]:
+            - generic [ref=e224]: ⚡
+            - generic [ref=e225]:
+              - generic [ref=e226]: August 2024
+              - text: Product
+              - heading "Real-time Collaboration 2.0" [level=3] [ref=e227]
+            - generic [ref=e228]: Released enhanced collaboration features enabling teams to work simultaneously on dashboards with sub-second sync.
+          - generic [ref=e230]:
+            - generic [ref=e231]: 🎯
+            - generic [ref=e232]:
+              - generic [ref=e233]: Q4 2024
+              - text: Acquisition
+              - heading "Acquired DataStream Analytics" [level=3] [ref=e234]
+            - generic [ref=e235]: Strategic acquisition of DataStream Analytics to expand time-series data processing capabilities.
+          - generic [ref=e237]:
+            - generic [ref=e238]: 🔮
+            - generic [ref=e239]:
+              - generic [ref=e240]: March 2025
+              - text: Vision
+              - heading "Next-Gen Platform Beta" [level=3] [ref=e241]
+            - generic [ref=e242]: Launched beta of next-generation platform with quantum-inspired analytics algorithms and blockchain audit trails.
+    - heading "Poll Widget" [level=2] [ref=e245]
+    - heading "Scroll Reveal" [level=2] [ref=e250]
+    - generic [ref=e253]:
+      - heading "Live Configurator" [level=2] [ref=e255]
+      - generic [ref=e259]:
+        - generic [ref=e260]:
+          - generic [ref=e261]: "1"
+          - generic [ref=e262]: "2"
+          - generic [ref=e263]: "3"
+        - generic [ref=e264]:
+          - generic [ref=e265]: Price Summary
+          - strong [ref=e267]: "Total: $0"
+        - generic [ref=e269]:
+          - heading "Choose your plan" [level=2] [ref=e270]
+          - generic [ref=e271]:
+            - generic [ref=e273]:
+              - heading "Starter" [level=3] [ref=e274]
+              - paragraph [ref=e275]: undefined
+              - text: $29
+              - generic [ref=e276]: ✓
+            - generic [ref=e278]:
+              - heading "Professional" [level=3] [ref=e279]
+              - paragraph [ref=e280]: undefined
+              - text: $79
+              - generic [ref=e281]: ✓
+            - generic [ref=e283]:
+              - heading "Enterprise" [level=3] [ref=e284]
+              - paragraph [ref=e285]: undefined
+              - text: $custom
+              - generic [ref=e286]: ✓
+        - generic [ref=e287]:
+          - button "Previous" [disabled] [ref=e288]
+          - button "Next" [disabled] [ref=e289]
+    - generic [ref=e290]:
+      - heading "Viz Office Map (IMS Fix)" [level=2] [ref=e292]
+      - generic [ref=e296]:
+        - generic [ref=e297]: 🔒
+        - generic [ref=e298]: Authenticated Access Only
+        - generic [ref=e299]: This floor occupancy data is restricted to Adobe employees. Sign in with your Adobe ID to view live occupancy.
+        - button "Sign In with Adobe ID" [ref=e300] [cursor=pointer]
+        - generic [ref=e301]: Already signed in via Sidekick? This section will unlock automatically.
+  - contentinfo [ref=e302]:
+    - paragraph [ref=e307]: Copyright © 2021 Adobe. All rights reserved.

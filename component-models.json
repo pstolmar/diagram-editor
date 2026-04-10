@@ -429,21 +429,35 @@
     ]
   },
   {
-    "id": "card",
+    "id": "cards",
     "fields": [
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "image",
-        "label": "Image",
-        "multi": false
-      },
-      {
-        "component": "richtext",
-        "name": "text",
-        "value": "",
-        "label": "Text",
-        "valueType": "string"
+        "component": "multifield",
+        "name": "items",
+        "label": "Cards",
+        "fields": [
+          {
+            "component": "aem-assets",
+            "name": "image",
+            "label": "Image",
+            "accept": "image/*"
+          },
+          {
+            "component": "text",
+            "name": "title",
+            "label": "Title"
+          },
+          {
+            "component": "text",
+            "name": "body",
+            "label": "Body"
+          },
+          {
+            "component": "text",
+            "name": "link",
+            "label": "Link"
+          }
+        ]
       }
     ]
   },
@@ -467,21 +481,24 @@
     ]
   },
   {
-    "id": "corkboard-card",
+    "id": "corkboard",
     "fields": [
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "image",
-        "label": "Image",
-        "multi": false
-      },
-      {
-        "component": "richtext",
-        "name": "text",
-        "value": "",
-        "label": "Caption",
-        "valueType": "string"
+        "component": "multifield",
+        "name": "items",
+        "label": "Items",
+        "fields": [
+          {
+            "component": "text",
+            "name": "text",
+            "label": "Note Text"
+          },
+          {
+            "component": "text",
+            "name": "color",
+            "label": "Color"
+          }
+        ]
       }
     ]
   },
@@ -535,21 +552,25 @@
     ]
   },
   {
-    "id": "filmstrip-frame",
+    "id": "filmstrip",
     "fields": [
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "image",
-        "label": "Image",
-        "multi": false
-      },
-      {
-        "component": "text",
-        "valueType": "string",
-        "name": "caption",
-        "label": "Caption",
-        "value": ""
+        "component": "multifield",
+        "name": "items",
+        "label": "Items",
+        "fields": [
+          {
+            "component": "aem-assets",
+            "name": "image",
+            "label": "Image",
+            "accept": "image/*"
+          },
+          {
+            "component": "text",
+            "name": "caption",
+            "label": "Caption"
+          }
+        ]
       }
     ]
   },
@@ -567,25 +588,25 @@
     "id": "hero",
     "fields": [
       {
-        "component": "reference",
-        "valueType": "string",
+        "component": "aem-assets",
         "name": "image",
         "label": "Image",
-        "multi": false
+        "accept": "image/*"
       },
       {
         "component": "text",
-        "valueType": "string",
-        "name": "imageAlt",
-        "label": "Alt",
-        "value": ""
+        "name": "heading",
+        "label": "Heading"
       },
       {
-        "component": "richtext",
-        "name": "text",
-        "value": "",
-        "label": "Text",
-        "valueType": "string"
+        "component": "text",
+        "name": "body",
+        "label": "Body Text"
+      },
+      {
+        "component": "text",
+        "name": "cta",
+        "label": "CTA Text"
       }
     ]
   },
@@ -644,8 +665,65 @@
     ]
   },
   {
+    "id": "image-explorer",
+    "fields": [
+      {
+        "component": "multifield",
+        "name": "items",
+        "label": "Images",
+        "fields": [
+          {
+            "component": "aem-assets",
+            "name": "src",
+            "label": "Image",
+            "accept": "image/*"
+          },
+          {
+            "component": "text",
+            "name": "title",
+            "label": "Title"
+          },
+          {
+            "component": "text",
+            "name": "tags",
+            "label": "Tags"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "image-table",
-    "fields": []
+    "fields": [
+      {
+        "component": "multifield",
+        "name": "items",
+        "label": "Rows",
+        "fields": [
+          {
+            "component": "aem-assets",
+            "name": "thumbnail",
+            "label": "Thumbnail",
+            "accept": "image/*"
+          },
+          {
+            "component": "text",
+            "name": "title",
+            "label": "Title"
+          },
+          {
+            "component": "text",
+            "name": "date",
+            "label": "Date"
+          },
+          {
+            "component": "text",
+            "name": "size",
+            "label": "Size"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "live-configurator",
@@ -674,136 +752,19 @@
   },
   {
     "id": "m3d-bars",
-    "fields": [
-      {
-        "component": "text-area",
-        "name": "csvData",
-        "label": "Bar Data (CSV: category,value,color or row,col,value)",
-        "valueType": "string",
-        "description": "Inline CSV rows. Or enter a DAM path to a .csv/.txt/.pdf file."
-      },
-      {
-        "component": "text",
-        "name": "height",
-        "label": "Height",
-        "valueType": "string",
-        "description": "Canvas height in px (default: 420px)"
-      },
-      {
-        "component": "select",
-        "name": "variant",
-        "label": "Variant",
-        "options": [
-          {
-            "name": "Bars (category/value)",
-            "value": "bars"
-          },
-          {
-            "name": "Grid heatmap (row/col/value)",
-            "value": "grid"
-          }
-        ]
-      }
-    ]
+    "fields": []
   },
   {
     "id": "m3d-force-graph",
-    "fields": [
-      {
-        "component": "text-area",
-        "name": "graphData",
-        "label": "Graph Data (CSV: Source,Target,Weight)",
-        "valueType": "string",
-        "description": "Inline CSV rows — one edge per line. Or enter a DAM path to a .csv/.txt/.pdf file."
-      },
-      {
-        "component": "text",
-        "name": "height",
-        "label": "Height",
-        "valueType": "string",
-        "description": "Canvas height in px (default: 420px)"
-      },
-      {
-        "component": "text",
-        "name": "color",
-        "label": "Color Scheme",
-        "valueType": "string",
-        "description": "Node color palette: blue (default), green, amber, purple"
-      }
-    ]
+    "fields": []
   },
   {
     "id": "m3d-globe",
-    "fields": [
-      {
-        "component": "text-area",
-        "name": "markerData",
-        "label": "Marker Data (CSV: label,lat,lon,value)",
-        "valueType": "string",
-        "description": "Inline CSV rows — one marker per line. Or enter a DAM path to a .csv/.txt/.pdf file."
-      },
-      {
-        "component": "select",
-        "name": "color",
-        "label": "Color Scheme",
-        "options": [
-          {
-            "name": "Blue (default)",
-            "value": "blue"
-          },
-          {
-            "name": "Green",
-            "value": "green"
-          },
-          {
-            "name": "Amber",
-            "value": "amber"
-          },
-          {
-            "name": "Purple",
-            "value": "purple"
-          }
-        ]
-      },
-      {
-        "component": "text",
-        "name": "height",
-        "label": "Height",
-        "valueType": "string",
-        "description": "Canvas height in px (default: 420px)"
-      }
-    ]
+    "fields": []
   },
   {
     "id": "m3d-image-cube",
-    "fields": [
-      {
-        "component": "text",
-        "name": "height",
-        "label": "Height",
-        "valueType": "string",
-        "description": "Canvas height in px (default: 480px)"
-      },
-      {
-        "component": "select",
-        "name": "speed",
-        "label": "Rotation Speed",
-        "options": [
-          {
-            "name": "Slow",
-            "value": "slow"
-          },
-          {
-            "name": "Normal",
-            "value": "normal"
-          },
-          {
-            "name": "Fast",
-            "value": "fast"
-          }
-        ]
-      }
-    ]
+    "fields": []
   },
   {
     "id": "m3d-mirror-sphere",
@@ -833,29 +794,7 @@
   },
   {
     "id": "m3d-orbit",
-    "fields": [
-      {
-        "component": "text-area",
-        "name": "orbitData",
-        "label": "Orbit Data (CSV: label,radius,speed,size,color)",
-        "valueType": "string",
-        "description": "Inline CSV rows — one orbital body per line. Or enter a DAM path to a .csv/.txt/.pdf file."
-      },
-      {
-        "component": "text",
-        "name": "color",
-        "label": "Color Scheme",
-        "valueType": "string",
-        "description": "Palette for orbital bodies: blue (default), green, amber, purple"
-      },
-      {
-        "component": "text",
-        "name": "height",
-        "label": "Height",
-        "valueType": "string",
-        "description": "Canvas height in px (default: 420px)"
-      }
-    ]
+    "fields": []
   },
   {
     "id": "m3d-photo-globe",
@@ -892,29 +831,7 @@
   },
   {
     "id": "m3d-scatter",
-    "fields": [
-      {
-        "component": "text-area",
-        "name": "csvData",
-        "label": "Point Data (CSV: label,x,y,z,color)",
-        "valueType": "string",
-        "description": "Inline CSV rows with header. Or enter a DAM path to a .csv/.txt/.pdf file."
-      },
-      {
-        "component": "text",
-        "name": "height",
-        "label": "Height",
-        "valueType": "string",
-        "description": "Canvas height in px (default: 420px)"
-      },
-      {
-        "component": "text",
-        "name": "pointSize",
-        "label": "Point Size",
-        "valueType": "string",
-        "description": "Radius of each point in scene units (default: 0.05)"
-      }
-    ]
+    "fields": []
   },
   {
     "id": "metrics-grid-tm",
@@ -1520,64 +1437,33 @@
   },
   {
     "id": "photo-effects",
-    "fields": []
-  },
-  {
-    "id": "polaroid-photo",
     "fields": [
       {
-        "component": "reference",
-        "valueType": "string",
-        "name": "image",
+        "component": "aem-assets",
+        "name": "imageUrl",
         "label": "Image",
-        "multi": false
-      },
+        "accept": "image/*"
+      }
+    ]
+  },
+  {
+    "id": "polaroid-corkboard",
+    "fields": [
       {
-        "component": "text",
-        "valueType": "string",
-        "name": "caption",
-        "label": "Caption",
-        "value": ""
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "state",
-        "label": "Photo State",
-        "value": "aged",
-        "options": [
+        "component": "multifield",
+        "name": "items",
+        "label": "Items",
+        "fields": [
           {
-            "name": "Aged (high contrast mono)",
-            "value": "aged"
+            "component": "aem-assets",
+            "name": "src",
+            "label": "Photo",
+            "accept": "image/*"
           },
           {
-            "name": "Faded (soft mono)",
-            "value": "faded"
-          },
-          {
-            "name": "Cracked (damaged mono)",
-            "value": "cracked"
-          }
-        ]
-      },
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "interaction",
-        "label": "Interaction",
-        "value": "both",
-        "options": [
-          {
-            "name": "Hover reveals color",
-            "value": "hover-reveal"
-          },
-          {
-            "name": "Click zooms toward camera",
-            "value": "click-zoom"
-          },
-          {
-            "name": "Both",
-            "value": "both"
+            "component": "text",
+            "name": "caption",
+            "label": "Caption"
           }
         ]
       }
@@ -1591,24 +1477,32 @@
     "id": "popin-carousel",
     "fields": [
       {
-        "component": "text",
-        "name": "grid",
-        "label": "Grid (cols×rows, e.g. 4x3 · 3x2 · 5x3)"
-      },
-      {
-        "component": "text",
-        "name": "effect",
-        "label": "Entrance effect (sizzle · paint · grey · shatter · bloom · glitch · paint-wipe)"
-      },
-      {
-        "component": "text",
-        "name": "interval",
-        "label": "Cycle interval in seconds"
-      },
-      {
-        "component": "text",
-        "name": "photos",
-        "label": "Photo category (ocean · balloons · landscape) — or leave blank to use inline images"
+        "component": "multifield",
+        "name": "items",
+        "label": "Items",
+        "fields": [
+          {
+            "component": "aem-assets",
+            "name": "image",
+            "label": "Image",
+            "accept": "image/*"
+          },
+          {
+            "component": "text",
+            "name": "heading",
+            "label": "Heading"
+          },
+          {
+            "component": "text",
+            "name": "body",
+            "label": "Body"
+          },
+          {
+            "component": "text",
+            "name": "cta",
+            "label": "CTA Text"
+          }
+        ]
       }
     ]
   },
@@ -1616,14 +1510,27 @@
     "id": "scroll-narrative",
     "fields": [
       {
-        "component": "text",
-        "name": "leftContent",
-        "label": "Left (sticky) content"
-      },
-      {
-        "component": "text",
-        "name": "rightContent",
-        "label": "Right (scroll) content"
+        "component": "multifield",
+        "name": "items",
+        "label": "Slides",
+        "fields": [
+          {
+            "component": "aem-assets",
+            "name": "image",
+            "label": "Image",
+            "accept": "image/*"
+          },
+          {
+            "component": "text",
+            "name": "heading",
+            "label": "Heading"
+          },
+          {
+            "component": "text",
+            "name": "body",
+            "label": "Body"
+          }
+        ]
       }
     ]
   },
@@ -1631,97 +1538,21 @@
     "id": "scroll-reveal",
     "fields": [
       {
-        "component": "section",
-        "name": "panels",
+        "component": "multifield",
+        "name": "items",
         "label": "Panels",
-        "description": "Add reveal panels that trigger on scroll. Each panel row contains label, heading, body, and visual elements.",
-        "required": true,
         "fields": [
           {
             "component": "text",
-            "name": "label",
-            "label": "Label",
-            "description": "Optional small text above the heading (e.g., 'Step 1')",
-            "required": false
+            "name": "heading",
+            "label": "Heading"
           },
           {
             "component": "text",
-            "name": "heading",
-            "label": "Heading",
-            "description": "Main heading text for this panel",
-            "required": true
-          },
-          {
-            "component": "richtext",
             "name": "body",
-            "label": "Body",
-            "description": "Description text or content for this panel",
-            "required": false
-          },
-          {
-            "component": "image",
-            "name": "image",
-            "label": "Visual / Image",
-            "description": "Image, illustration, or visual element for this panel",
-            "required": false
+            "label": "Body"
           }
         ]
-      },
-      {
-        "component": "select",
-        "name": "reveal-direction",
-        "label": "Reveal Direction",
-        "description": "Direction from which content reveals on scroll",
-        "default": "fade",
-        "required": false,
-        "options": [
-          {
-            "value": "fade",
-            "label": "Fade In"
-          },
-          {
-            "value": "slide-left",
-            "label": "Slide from Left"
-          },
-          {
-            "value": "slide-right",
-            "label": "Slide from Right"
-          },
-          {
-            "value": "slide-up",
-            "label": "Slide from Bottom"
-          }
-        ]
-      },
-      {
-        "component": "select",
-        "name": "reveal-timing",
-        "label": "Reveal Timing",
-        "description": "When panels reveal relative to scroll position",
-        "default": "default",
-        "required": false,
-        "options": [
-          {
-            "value": "default",
-            "label": "Default (50% in viewport)"
-          },
-          {
-            "value": "early",
-            "label": "Early (80% in viewport)"
-          },
-          {
-            "value": "late",
-            "label": "Late (20% in viewport)"
-          }
-        ]
-      },
-      {
-        "component": "number",
-        "name": "stagger-delay",
-        "label": "Stagger Delay (ms)",
-        "description": "Delay between each panel reveal (0 for no stagger)",
-        "default": 100,
-        "required": false
       }
     ]
   },
@@ -1808,24 +1639,32 @@
     "id": "testimonials-mosaic",
     "fields": [
       {
-        "component": "text",
-        "name": "quote",
-        "label": "Quote"
-      },
-      {
-        "component": "text",
-        "name": "name",
-        "label": "Name"
-      },
-      {
-        "component": "text",
-        "name": "role",
-        "label": "Role · Company"
-      },
-      {
-        "component": "text",
-        "name": "category",
-        "label": "Category · Stars (e.g. Engineering 5)"
+        "component": "multifield",
+        "name": "items",
+        "label": "Testimonials",
+        "fields": [
+          {
+            "component": "text",
+            "name": "quote",
+            "label": "Quote"
+          },
+          {
+            "component": "text",
+            "name": "author",
+            "label": "Author"
+          },
+          {
+            "component": "text",
+            "name": "role",
+            "label": "Role"
+          },
+          {
+            "component": "aem-assets",
+            "name": "image",
+            "label": "Image",
+            "accept": "image/*"
+          }
+        ]
       }
     ]
   },
@@ -1856,7 +1695,30 @@
   },
   {
     "id": "timeline-story",
-    "fields": []
+    "fields": [
+      {
+        "component": "multifield",
+        "name": "items",
+        "label": "Events",
+        "fields": [
+          {
+            "component": "text",
+            "name": "date",
+            "label": "Date"
+          },
+          {
+            "component": "text",
+            "name": "title",
+            "label": "Title"
+          },
+          {
+            "component": "text",
+            "name": "description",
+            "label": "Description"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "tokenmiser-dashboard",
@@ -1873,27 +1735,18 @@
         "component": "text",
         "name": "videoUrl",
         "label": "Video URL"
-      },
-      {
-        "component": "text",
-        "name": "posterUrl",
-        "label": "Poster Image URL"
-      },
-      {
-        "component": "text",
-        "name": "overlayHeading",
-        "label": "Overlay Heading"
-      },
-      {
-        "component": "text",
-        "name": "ctaLabel",
-        "label": "CTA Label"
       }
     ]
   },
   {
     "id": "video-scrub",
-    "fields": []
+    "fields": [
+      {
+        "component": "text",
+        "name": "videoUrl",
+        "label": "Video URL"
+      }
+    ]
   },
   {
     "id": "viz-analytics-pulse",

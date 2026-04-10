@@ -1,0 +1,33 @@
+[      64ms] [ERROR] failed to load module for data-explorer SyntaxError: Unexpected token '.' @ http://localhost:3000/scripts/aem.js:591
+[      72ms] [ERROR] failed to load module for poll-widget TypeError: Failed to resolve module specifier "@playwright/test". Relative references must start with either "/", "./", or "../". @ http://localhost:3000/scripts/aem.js:591
+[      76ms] [ERROR] failed to load module for scroll-reveal TypeError: Failed to resolve module specifier "@playwright/test". Relative references must start with either "/", "./", or "../". @ http://localhost:3000/scripts/aem.js:591
+[      83ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/live-configurator/demo.json:0
+[      83ms] [ERROR] Failed to load configurator config: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:13:31)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/blocks/live-configurator/live-configurator.js:15
+[      85ms] [ERROR] failed to load module for viz-office-map SyntaxError: Unexpected identifier 'see' @ http://localhost:3000/scripts/aem.js:591
+[   57197ms] [ERROR] failed to load module for data-explorer SyntaxError: Unexpected token '.' @ http://localhost:3000/scripts/aem.js:591
+[   57215ms] [ERROR] failed to load module for poll-widget TypeError: Failed to resolve module specifier "@playwright/test". Relative references must start with either "/", "./", or "../". @ http://localhost:3000/scripts/aem.js:591
+[   57248ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/live-configurator/demo.json:0
+[   57248ms] [ERROR] Failed to load configurator config: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:13:31)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/blocks/live-configurator/live-configurator.js:15
+[   57254ms] [ERROR] failed to load module for viz-office-map SyntaxError: Unexpected identifier 'see' @ http://localhost:3000/scripts/aem.js:591
+[   93138ms] [ERROR] failed to load module for data-explorer SyntaxError: Unexpected token '.' @ http://localhost:3000/scripts/aem.js:591
+[   93217ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/live-configurator/demo.json:0
+[   93217ms] [ERROR] Failed to load configurator config: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:13:31)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/blocks/live-configurator/live-configurator.js:15
+[   93236ms] [ERROR] failed to load module for viz-office-map SyntaxError: Unexpected identifier 'see' @ http://localhost:3000/scripts/aem.js:591
+[  106132ms] [ERROR] failed to load module for data-explorer SyntaxError: Unexpected token '.' @ http://localhost:3000/scripts/aem.js:591
+[  106181ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/live-configurator/demo.json:0
+[  106181ms] [ERROR] Failed to load configurator config: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:13:31)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/blocks/live-configurator/live-configurator.js:15
+[  142765ms] [ERROR] failed to load module for data-explorer SyntaxError: Unexpected token '.' @ http://localhost:3000/scripts/aem.js:591
+[  142832ms] [ERROR] failed to load module for live-configurator ReferenceError: stepDiv is not defined
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:212:27)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/scripts/aem.js:591
+[  189141ms] [ERROR] failed to load module for live-configurator ReferenceError: stepDiv is not defined
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:212:27)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/scripts/aem.js:591

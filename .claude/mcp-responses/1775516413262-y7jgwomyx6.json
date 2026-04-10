@@ -1,0 +1,1 @@
+{"stepId": "1775516413262-y7jgwomyx6", "status": "ok", "content": "{\n  \"id\": \"scroll-narrative\",\n  \"resourceType\": \"core/franklin/components/block/v1/block\",\n  \"fields\": [\n    {\n      \"id\": \"leftContent\",\n      \"type\": \"text\"\n    },\n    {\n      \"id\": \"rightContent\",\n      \"type\": \"text\"\n    }\n  ],\n  \"filters\": []\n}"}

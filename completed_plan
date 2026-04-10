@@ -1,0 +1,138 @@
+# [MISER=8] Build 3 Real Interactive 3D Viz Blocks
+
+Build 3 new `m3d-` prefixed EDS blocks. All have real Three.js 3D
+interactivity (mouse rotate/zoom). All visualize actual data in 3D space.
+All show colorful interactive realistic or real and exceptional looking
+demo content if author does not set a data source or set data inline.
+All are authorable in UE or DA Live block authoring. All support inline
+data definition with guidance, pointing at a path in AEM, or uploading
+a CSV file or even PDF report to visualize in 3d.
+Blocks live at `blocks/m3d-<name>/`. Do NOT overwrite any existing block.
+
+---
+
+## Blocks
+
+### 1. `m3d-force-graph`
+Real data in 3D space. Three.js force-directed graph where nodes and links float
+in 3D. Mouse drag rotates the whole graph. Graph rotates slowly by default around
+x and z axes so a diagonal obvious slow rotation. Pause this auto rotation on hover
+Placeholder renders a sample. Content format: Options are Inline, DAM Path, Upload 
+Inline: CSV format `Source,Target,Weight` 
+(one per row in block cell).
+DAM Path: Browser or enter DAM Path to CSV or txt or PDF file
+Upload: Upload a new file which will be created in DAM or as a new sheet
+if authoring on DA live, not inlined to the page.
+- CDN: `https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js`
+- Orbit controls via inline mini-implementation (no CDN dep for controls)
+- Nodes: textured 3d shapes, color by degree. Links: `THREE.Line`. Labels.
+- Canvas fills block height (default `420px`, override via `height` field).
+- **Constraint**: layout runs 15 spring iterations then freezes for perf.
+
+### 2. `m3d-scatter`
+Real data in 3D space. Three.js 3D scatter plot with labelled axes.
+Content format: CSV rows `label,x,y,z,color` (first row = header, ignored).
+- Axes drawn with `THREE.LineSegments`. Tick marks every 20% of range.
+- Points: `THREE.Points` with `THREE.BufferGeometry`. Size controlled by field.
+- Mouse orbit + zoom. Tooltip on hover shows label+coords via raycasting.
+- Canvas height via field (default `420px`).
+- Color defaults to random from primary colors if column absent.
+- High quality lighting and point-cloud effects, fog, readable text faces camera
+
+### 3. `m3d-bars`
+Isometric 3D bar chart. Three.js box geometries arranged in a grid.
+Content format: Inline, DAM Path, Upload (hint these may be reusable)
+Inline means whole CSV in a cell, DAM Path or upload support CSV txt or PDF
+CSV `category,value,color` (multiline in single cell) or
+`row,col,value` for a 2D grid heatmap variant selected by variant field.
+- Bars extruded upward from a flat grid plane. Top face slightly lighter shade.
+- Axes labels on X and Z edges. Value label floats above each bar.
+- Variant field: `bars` (default) or `grid` (heatmap grid, color by value).
+- Rotate on drag, zoom on scroll.
+- Lighting and load-in animation growing the bars from ground on scroll visible.
+
+### 4. `m3d-globe`
+Elabore 3d interactive globe with terrain continents and data markers.
+Content format: Inline, DAM Path, Upload as usual going to DAM or sheet. 
+`label,lat,lon,value` lines (one per row).
+Upload supports CSV, txt, PDF
+- Sphere with wireframe overlay (`THREE.WireframeGeometry`). Subtle auto-rotation.
+- Textures for multicolor terrain snow-capped mountains light green plains
+- Exceptional ocean rendering, moving animated even responds a bit turbulently
+- Markers: small `THREE.SphereGeometry` pins placed at lat/lon positions.
+- Color and size of pin driven by `value` (normalized 0-1 scale).
+- Drag to rotate, scroll to zoom. Click marker shows label in DOM tooltip.
+- Default color scheme field: `blue` | `green` | `amber` | `purple`.
+- Draw great looking accurate continents, subtle pro lighting and textures
+- Globe spins slowlly on proper tilted earth-axis with pole visible by default
+- Spinning stops on hover/entry then globe can be spun around and data points
+- Clicking points opens detail panels on click with nearest city, label and value
+- Points use 3d shapes chosen by the author or random sensible ones based on quick
+analysis of the data subject or a default set that looks great
+
+### 5. `m3d-orbit`
+Decorative 3D orbital / solar-system viz for hierarchy or milestones.
+Content format: Inline, DAM Path, Upload as usual (this should be reused)
+`label,radius,speed,size,color` lines.
+- Central sphere + N orbital rings. Objects travel their ring each frame.
+- Rings drawn with `THREE.TorusGeometry`. Satellites are small spheres.
+- Auto-rotates slowly. Drag to tilt/spin. Scroll to zoom.
+- Labels float above each satellite via projected screen coords.
+- Speed is relative (1.0 = default). Set to 0 for a static ring diagram.
+
+---
+
+## File layout per block
+
+```
+blocks/m3d-<name>/
+  m3d-<name>.js      # decorate(block) function, Three.js scene
+  m3d-<name>.css     # .m3d-<name> { position:relative; width:100% }
+  _m3d-<name>.json   # XWalk model (<=4 fields, definitions+models+filters)
+```
+
+---
+
+## AEM model constraints (enforced)
+- Max 4 fields per model (`xwalk/max-cells` lint rule). OVERRIDE if needed!
+- Or alternately use the controls in the main UE dropdown of component
+- Also use subcomponents when it makes sense
+- All JSON files must follow `definitions` + `models` + `filters` schema.
+- fj.mcp MUST be used for all `_*.json` files.
+
+### Model field summary
+
+| Block              | Fields (<=4)                                 |
+|--------------------|----------------------------------------------|
+| m3d-force-graph | graphData (text-area), height (text), color (text) |
+| m3d-scatter   | csvData (text-area), height (text), pointSize (text) |
+| m3d-bars      | csvData (text-area), height (text), variant (text) |
+| m3d-globe     | markerData (text-area), color (text), height (text) |
+| m3d-orbit     | orbitData (text-area), color (text), height (text) |
+
+---
+
+NOTE: You will have to add options for the swapping toggles meaning
+if author chooses Inline, then these are the fields, if they choose
+DAM Path, we need to swap to a UE path browser, if they choose
+Upload we need to handle the upload. In block editor we can support
+inline URLs for assets AND the Asset Selector / crosswalk DAM browser.
+
+
+## Demo page
+
+Create `demo/m3d-demo.html` with all 5 blocks with sample data:
+- force-graph: 6 nodes, 7 links (token cost network, same style as miser-demo-viz)
+- scatter: 50 sample points in 3D space with realistic X/Y/Z spread
+- bars: 7 categories with values
+- globe: 25 data markers at major cities (New York, London, Tokyo, Sydney, etc.)
+- orbit: 9 orbital bodies at varying radii and speeds
+
+---
+
+## Build + verify
+
+After all blocks built:
+1. `npm run build:json` — must pass (0 errors)
+2. `npm run lint` — must pass (0 errors; warnings OK)
+3. Verify block dirs exist: `ls blocks/m3d-*/`

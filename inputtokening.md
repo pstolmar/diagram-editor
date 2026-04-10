@@ -1,0 +1,334 @@
+# [MISER=8] Six new interactive blocks + IMS login fix + demo page
+
+Validate the `--no-tools` token reduction fix introduced this session. Six genuinely complex
+new EDS blocks plus a bug fix in viz-office-map. All blocks must follow the standard rules:
+- Use `import.meta.url` for demo JSON fallback URL
+- Show `<div class="viz-empty-state">` when no data
+- Three.js blocks: `loadScript` from `../../scripts/aem.js`, then `window.THREE`
+
+---
+
+## Phase 1: Fix viz-office-map in-experience login (no page refresh)
+
+### Step 1a: viz-office-map.js — fix waitForAuth
+
+Target: `blocks/viz-office-map/viz-office-map.js`
+
+Current bug: after `window.adobeIMS.signIn()` the IMS modal completes sign-in, but the
+`waitForAuth` poll stops after 10 tries × 600ms = 6 seconds — before the modal finishes.
+The user has to refresh the page to see the map.
+
+Fix:
+1. In `waitForAuth`, remove the `tries > 10` poll cap so polling continues indefinitely
+   until auth is detected (clear the interval only on success, never on timeout).
+2. Also listen for these additional IMS post-sign-in events on `window`:
+   - `'token:received'`
+   - `'token:refresh'`
+   - `'PROFILE:READY'`
+   - `'adobeIMS:signedIn'`
+3. Also poll `window.adobeIMS?.getProfile` completion — after signIn(), IMS calls onReady
+   callbacks. Add: `if (window.adobeIMS?.isSignedInUser) window.adobeIMS.onReady?.(() => check())`.
+4. Increase poll interval to 1000ms (no rush; IMS modal takes 5-30s).
+5. Keep the existing `IMS:Ready`, `sidekick-ready`, `sidekick:loaded` listeners.
+
+Result: once the user completes IMS sign-in in the modal, the block detects auth within
+≤1s and animates the gate away without any page reload.
+
+---
+
+## Phase 2: Six new EDS blocks
+
+All new blocks go in `blocks/<name>/`. Each needs `.js`, `.css`, `_<name>.json` (component
+model), and `<name>-demo.json` (demo data fallback).
+
+### Step 2a: video-panel block
+
+Target files:
+- `blocks/video-panel/video-panel.js`
+- `blocks/video-panel/video-panel.css`
+- `blocks/video-panel/_video-panel.json`
+- `blocks/video-panel/video-panel-demo.json`
+
+Block reads rows from the authored table:
+- Row 0: video URL — DAM mp4 path (e.g. `/content/dam/videos/hero.mp4`) or absolute URL.
+  This is the "media bus" field — the author drops a DAM video asset here in Universal Editor.
+- Row 1: poster image URL (optional — used as `poster` attribute and shown before playback)
+- Row 2: overlay content — heading text (first cell), body text (second cell)
+- Row 3: CTA label | CTA URL (two cells)
+- Row 4: height in px (default 600)
+- Row 5: mode — `cover` (fill frame, crop edges) or `contain` (letterbox with black bars)
+
+JavaScript behavior:
+- Render `<video autoplay muted loop playsinline>` behind a semi-transparent overlay
+- On mode=cover: `object-fit: cover; width: 100%; height: 100%`
+- On mode=contain: `object-fit: contain; width: 100%; height: 100%; background: #000`
+  giving letterbox bars on sides or top/bottom as needed
+- Unmute button: fixed bottom-right of the block, shows 🔇 when muted / 🔊 when unmuted.
+  Button is always visible, large enough to tap (44×44px min). Clicking toggles `video.muted`.
+- Video fires `play` event — if autoplay is blocked by browser, show a large centered play
+  button overlay instead of the unmute button; click plays + unmutes.
+- Overlay content (heading, body, CTA) floats above video at z-index 2, centered or
+  bottom-left depending on a CSS custom property `--video-panel-align` (default: bottom-left).
+- Empty state: show placeholder rectangle with a ▶ icon and "Add a video URL to the first row"
+
+CSS:
+- `.video-panel` → `position: relative; overflow: hidden; min-height: 200px`
+- `.video-panel video` → `position: absolute; inset: 0; width: 100%; height: 100%`
+- `.video-panel-overlay` → `position: absolute; inset: 0; z-index: 2; display: flex;
+  flex-direction: column; justify-content: flex-end; padding: 2rem 2.5rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)`
+- `.video-panel-unmute` → `position: absolute; bottom: 1rem; right: 1rem; z-index: 3;
+  background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 44px; height: 44px;
+  cursor: pointer; font-size: 1.25rem; color: #fff; display: flex; align-items: center;
+  justify-content: center`
+
+Component model (`_video-panel.json`):
+- Fields: videoUrl (text, "Video URL — DAM mp4 path or absolute URL"),
+  posterUrl (text, "Poster image URL"),
+  overlayHeading (text, "Overlay heading"),
+  overlayBody (text-area, "Overlay body text"),
+  ctaLabel (text, "CTA button label"),
+  ctaUrl (text, "CTA URL"),
+  height (text, "Height in px (default 600)"),
+  mode (select: cover/contain, "Video fit mode")
+
+Demo JSON (`video-panel-demo.json`):
+```json
+{
+  "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "posterUrl": "",
+  "overlayHeading": "Experience the Future of Work",
+  "overlayBody": "Connecting people, data, and creativity across every touchpoint.",
+  "ctaLabel": "Learn More",
+  "ctaUrl": "#",
+  "height": 600,
+  "mode": "cover"
+}
+```
+
+### Step 2b: data-explorer block
+
+Target files:
+- `blocks/data-explorer/data-explorer.js`
+- `blocks/data-explorer/data-explorer.css`
+- `blocks/data-explorer/_data-explorer.json`
+- `blocks/data-explorer/data-explorer-demo.json`
+
+Block reads:
+- Row 0: data URL (JSON endpoint returning array of objects) | fallback to demo JSON
+- Row 1: columns config — comma-separated list of `field:Label` pairs
+  e.g. `name:Name,region:Region,revenue:Revenue,status:Status`
+- Row 2: filterable fields — comma-separated field names for filter chips
+- Row 3: page size (default 10)
+
+JavaScript behavior:
+- Fetch JSON array, render as a sortable table with column headers (click to sort asc/desc,
+  shows ▲▼ indicator)
+- Filter chips above the table: one chip group per filterable field showing all unique values.
+  Clicking a chip toggles it; multiple chips within a field are OR'd; across fields are AND'd.
+- Search bar: live text filter across all visible text fields
+- Pagination: Prev/Next buttons + "Showing X–Y of Z" counter
+- Row click → expand inline detail panel below the row showing all fields (including hidden ones)
+- Export button (CSV): download current filtered+sorted data as CSV
+- All state (sort, filters, page, search) is tracked in URL hash so sharing works
+- Empty state: show "No results match your filters" with a "Clear filters" button
+
+CSS: clean table design, alternating row shading, sticky header, responsive (collapses to
+card view on mobile < 600px), filter chips with toggle states.
+
+Demo JSON (`data-explorer-demo.json`): 30 objects with fields:
+name, region (EMEA/APAC/AMER/LATAM), revenue (number), status (Active/Inactive/Pending),
+product (string), year (2022/2023/2024).
+
+Component model fields: dataUrl, columns, filterableFields, pageSize.
+
+### Step 2c: timeline-story block
+
+Target files:
+- `blocks/timeline-story/timeline-story.js`
+- `blocks/timeline-story/timeline-story.css`
+- `blocks/timeline-story/_timeline-story.json`
+- `blocks/timeline-story/timeline-story-demo.json`
+
+Block reads each row as a timeline entry:
+- Col 0: date string (e.g. "Q1 2024" or "March 2024")
+- Col 1: category (used for filter chips)
+- Col 2: title
+- Col 3: body text
+- Col 4: icon/emoji (optional)
+
+JavaScript behavior:
+- Render a vertical timeline with entries staggered left/right (desktop) or single-column (mobile)
+- Category filter pills above timeline — clicking filters to show only matching entries
+- Each entry animates in (slide + fade) when scrolled into view via IntersectionObserver
+- Clicking an entry expands to show full body; clicking again collapses
+- A vertical progress bar on the side fills as you scroll down
+- "Jump to year" quick-nav if entries span multiple years (auto-detected)
+- Keyboard navigable: arrow keys move between entries, Enter expands/collapses
+
+CSS: timeline line in brand color, alternating left/right entries connected by horizontal
+connector lines, entry cards with subtle box-shadow, smooth expand/collapse transition.
+
+Demo JSON: 12 entries spanning 2022–2025 covering a fictional company milestones.
+
+### Step 2d: poll-widget block
+
+Target files:
+- `blocks/poll-widget/poll-widget.js`
+- `blocks/poll-widget/poll-widget.css`
+- `blocks/poll-widget/_poll-widget.json`
+- `blocks/poll-widget/poll-widget-demo.json`
+
+Block reads:
+- Row 0: poll question (heading text)
+- Row 1+: each row is an option — col 0: option label, col 1: option value/id
+- Block attribute or last row: `multiselect` flag (allow multiple choices)
+
+JavaScript behavior:
+- Render question + option buttons (radio or checkbox based on multiselect)
+- On vote: store choice in `localStorage` keyed by poll ID (derived from question text hash)
+- If already voted: immediately show results view (animated horizontal bar chart)
+- Results: each option shows a bar whose width % animates from 0 to the vote share,
+  label shows "42% (18 votes)". Bars use CSS transitions, not JS animation loops.
+- Simulated peer votes: on first load, initialize localStorage with realistic seed counts
+  (so bars aren't empty on first demo). Seed counts derived from option labels deterministically.
+- "Change my vote" link re-shows the options form
+- "Share results" button copies a URL with `?poll-result=...` hash to clipboard
+- If multiselect: submit button appears after at least one option selected
+- Accessibility: fieldset/legend for the options group, proper ARIA roles
+
+Demo JSON: question + 4 options about "Which Adobe product do you use most?"
+
+### Step 2e: scroll-reveal block
+
+Target files:
+- `blocks/scroll-reveal/scroll-reveal.js`
+- `blocks/scroll-reveal/scroll-reveal.css`
+- `blocks/scroll-reveal/_scroll-reveal.json`
+- `blocks/scroll-reveal/scroll-reveal-demo.json`
+
+Block reads each row as a content panel:
+- Col 0: panel label (used in sticky side nav)
+- Col 1: panel heading
+- Col 2: panel body (rich text / paragraphs)
+- Col 3: panel visual — image URL or CSS color for a colored accent block
+
+JavaScript behavior:
+- Sticky left sidebar with panel labels; active label highlights as corresponding panel
+  scrolls into view (IntersectionObserver with threshold array for smooth transitions)
+- Each panel animates in: heading slides from left, body fades up, visual zooms in slightly
+  (CSS transition classes toggled by IntersectionObserver)
+- Progress bar at top of block fills as user scrolls through panels
+- "Back to top" button appears after first panel passes viewport top
+- On mobile: sidebar collapses to a top progress dots bar, panels stack vertically
+
+CSS: two-column layout (sidebar 200px | panels flex-grow), smooth scroll behavior,
+transition durations ~400ms ease-out for all animations.
+
+Demo JSON: 5 panels covering "The Future of Customer Experience" narrative.
+
+### Step 2f: live-configurator block
+
+Target files:
+- `blocks/live-configurator/live-configurator.js`
+- `blocks/live-configurator/live-configurator.css`
+- `blocks/live-configurator/_live-configurator.json`
+- `blocks/live-configurator/live-configurator-demo.json`
+
+Block reads:
+- Row 0: configurator title | subtitle
+- Row 1: JSON config URL (or uses demo JSON)
+- Row 2: submit CTA label | submit URL (or "#")
+
+Demo JSON structure:
+```json
+{
+  "steps": [
+    {
+      "id": "step1",
+      "title": "Choose your plan",
+      "type": "cards",
+      "options": [{ "id": "starter", "label": "Starter", "desc": "Up to 5 users", "price": 29 }, ...]
+    },
+    {
+      "id": "step2",
+      "title": "Add-ons",
+      "type": "toggles",
+      "options": [{ "id": "analytics", "label": "Advanced Analytics", "price": 15 }, ...]
+    },
+    {
+      "id": "step3",
+      "title": "Team size",
+      "type": "slider",
+      "min": 1, "max": 100, "default": 10, "pricePerUnit": 5
+    }
+  ],
+  "summary": { "baseLabel": "Base plan", "unitLabel": "per user/month" }
+}
+```
+
+JavaScript behavior:
+- Multi-step wizard: step indicator row at top (1 → 2 → 3) with completed/active/upcoming states
+- Step types:
+  - `cards`: grid of selectable option cards (single-select, highlight on click, check icon)
+  - `toggles`: list of toggle switches with label + price delta
+  - `slider`: range input with live price preview updating as dragged
+- Live price summary panel (sticky bottom or right sidebar on desktop):
+  shows base + each add-on line item + total, updates instantly on every interaction
+- Prev/Next buttons; Next is disabled until a required selection is made
+- Final step: animated summary card showing all choices + total price
+- Submit button opens `submitUrl` or fires a `configurator:submit` custom event with selections
+- All state persisted to `sessionStorage` so refreshing preserves choices
+
+CSS: step progress bar, card selection states with border highlight, toggle switch styling,
+price panel with line-item list, smooth step transitions (slide left/right).
+
+Demo JSON: 3-step plan configurator (plan tier → add-ons → team size).
+
+---
+
+## Phase 3: Demo page
+
+### Step 3a: demo/new.html
+
+Target: `demo/new.html`
+
+Create a complete standalone demo HTML page that showcases all 6 new blocks and the fixed
+viz-office-map. Use the same HTML structure as existing demo pages (e.g. `demo/viz-blocks.html`).
+
+Include in this order:
+1. Page header: "New Interactive Blocks — Token Reduction Validation"
+2. `video-panel` block (full-width, 600px tall, cover mode with BigBuckBunny fallback)
+3. `data-explorer` block (with demo data, all columns visible)
+4. `timeline-story` block (with demo data)
+5. `poll-widget` block (with demo data, single-select)
+6. `scroll-reveal` block (5 panels with demo data)
+7. `live-configurator` block (3-step plan configurator)
+8. `viz-office-map` block (with its existing demo data — shows the now-working IMS login fix)
+
+Use `<link rel="stylesheet" href="/styles/styles.css">` and load each block's JS/CSS via
+`<script type="module">` imports exactly as other demo pages do. Each block should load
+its demo JSON automatically via import.meta.url fallback.
+
+---
+
+## Phase 4: Models and build
+
+### Step 4a: Add new blocks to section model filters
+
+Target: `models/_section.json`
+
+Add to the `components` array in the filters section:
+`video-panel`, `data-explorer`, `timeline-story`, `poll-widget`, `scroll-reveal`, `live-configurator`
+
+### Step 4b: Lint and fix
+
+```bash
+npm run lint:fix 2>&1 | tail -30
+```
+
+### Step 4c: Build aggregated JSON
+
+```bash
+npm run build:json
+```

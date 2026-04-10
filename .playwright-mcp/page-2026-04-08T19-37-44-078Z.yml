@@ -1,0 +1,416 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - heading "TokenMiser Dashboard" [level=1] [ref=e23]
+        - paragraph [ref=e24]: Live view of all TokenMiser runs, costs, and savings vs Opus 4 baseline. Auto-refreshes every 30s. Click any row to expand step detail.
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - heading "TokenMiser Runs" [level=2] [ref=e29]
+          - generic [ref=e30]:
+            - generic [ref=e31]: 28 runs
+            - generic [ref=e32]:
+              - strong [ref=e33]: 94% saved
+              - text: · $92.00 vs Opus 4
+        - generic [ref=e34]:
+          - generic [ref=e35]:
+            - generic [ref=e36]: 94%
+            - generic [ref=e37]: saved vs Opus 4 Extended
+          - generic [ref=e38]:
+            - generic [ref=e39]: $92.00
+            - generic [ref=e40]: total saved (28 runs)
+          - generic [ref=e41]:
+            - generic [ref=e42]: $6.0714
+            - generic [ref=e43]: actual spend
+          - generic [ref=e44]:
+            - generic [ref=e45]: $98.07
+            - generic [ref=e46]: Opus 4 would have cost
+        - table [ref=e48]:
+          - rowgroup [ref=e58]:
+            - row "# Time Task ↕ Model Steps Cost Savings Status" [ref=e59]:
+              - columnheader "#" [ref=e60]
+              - columnheader "Time" [ref=e61]
+              - columnheader "Task ↕" [ref=e62]
+              - columnheader "Model" [ref=e63]
+              - columnheader "Steps" [ref=e64]
+              - columnheader "Cost" [ref=e65]
+              - columnheader "Savings" [ref=e66]
+              - columnheader "Status" [ref=e67]
+          - rowgroup [ref=e68]:
+            - 'row "28 11 min ago 2026-04-08 Validate the `--no-tools` token reduction fix introduced this session. Six genui haiku — $0.0000 $0.0000 (0%) ✓ ok" [ref=e69] [cursor=pointer]':
+              - cell "28" [ref=e70]
+              - cell "11 min ago 2026-04-08" [ref=e71]:
+                - text: 11 min ago
+                - generic [ref=e72]: 2026-04-08
+              - 'cell "Validate the `--no-tools` token reduction fix introduced this session. Six genui" [ref=e73]':
+                - generic [ref=e74]: "Validate the `--no-tools` token reduction fix introduced this session. Six genui"
+              - cell "haiku" [ref=e75]
+              - cell "—" [ref=e76]
+              - cell "$0.0000" [ref=e77]
+              - cell "$0.0000 (0%)" [ref=e78]
+              - cell "✓ ok" [ref=e79]:
+                - generic [ref=e80]: ✓ ok
+            - 'row "27 25 min ago 2026-04-08 Validate the `--no-tools` token reduction fix introduced this session. Six genui haiku — $0.0000 $0.0000 (0%) ⚡ interrupted" [ref=e81] [cursor=pointer]':
+              - cell "27" [ref=e82]
+              - cell "25 min ago 2026-04-08" [ref=e83]:
+                - text: 25 min ago
+                - generic [ref=e84]: 2026-04-08
+              - 'cell "Validate the `--no-tools` token reduction fix introduced this session. Six genui" [ref=e85]':
+                - generic [ref=e86]: "Validate the `--no-tools` token reduction fix introduced this session. Six genui"
+              - cell "haiku" [ref=e87]
+              - cell "—" [ref=e88]
+              - cell "$0.0000" [ref=e89]
+              - cell "$0.0000 (0%)" [ref=e90]
+              - cell "⚡ interrupted" [ref=e91]:
+                - generic [ref=e92]: ⚡ interrupted
+            - row "26 34 min ago 2026-04-08 six-new-blocks-and-viz-fix-miser8 haiku 2 ok / 27 fail / 0 skip $0.0000 $0.0000 (0%) ✗ 27 failed" [ref=e93] [cursor=pointer]:
+              - cell "26" [ref=e94]
+              - cell "34 min ago 2026-04-08" [ref=e95]:
+                - text: 34 min ago
+                - generic [ref=e96]: 2026-04-08
+              - cell "six-new-blocks-and-viz-fix-miser8" [ref=e97]:
+                - generic [ref=e98]: six-new-blocks-and-viz-fix-miser8
+              - cell "haiku" [ref=e99]
+              - cell "2 ok / 27 fail / 0 skip" [ref=e100]
+              - cell "$0.0000" [ref=e101]
+              - cell "$0.0000 (0%)" [ref=e102]
+              - cell "✗ 27 failed" [ref=e103]:
+                - generic [ref=e104]: ✗ 27 failed
+            - 'row "25 34 min ago 2026-04-08 Validate the `--no-tools` token reduction fix introduced this session. Six genui haiku — $0.0000 $0.0000 (0%) ✓ ok" [ref=e105] [cursor=pointer]':
+              - cell "25" [ref=e106]
+              - cell "34 min ago 2026-04-08" [ref=e107]:
+                - text: 34 min ago
+                - generic [ref=e108]: 2026-04-08
+              - 'cell "Validate the `--no-tools` token reduction fix introduced this session. Six genui" [ref=e109]':
+                - generic [ref=e110]: "Validate the `--no-tools` token reduction fix introduced this session. Six genui"
+              - cell "haiku" [ref=e111]
+              - cell "—" [ref=e112]
+              - cell "$0.0000" [ref=e113]
+              - cell "$0.0000 (0%)" [ref=e114]
+              - cell "✓ ok" [ref=e115]:
+                - generic [ref=e116]: ✓ ok
+            - row "24 1 hr ago 2026-04-08 update-eds-login-visualizers-MISER8 haiku 7 ok / 0 fail / 0 skip $0.3312 $5.8787 (95%) ✓ ok" [ref=e117] [cursor=pointer]:
+              - cell "24" [ref=e118]
+              - cell "1 hr ago 2026-04-08" [ref=e119]:
+                - text: 1 hr ago
+                - generic [ref=e120]: 2026-04-08
+              - cell "update-eds-login-visualizers-MISER8" [ref=e121]:
+                - generic [ref=e122]: update-eds-login-visualizers-MISER8
+              - cell "haiku" [ref=e123]
+              - cell "7 ok / 0 fail / 0 skip" [ref=e124]
+              - cell "$0.3312" [ref=e125]
+              - cell "$5.8787 (95%)" [ref=e126]
+              - cell "✓ ok" [ref=e127]:
+                - generic [ref=e128]: ✓ ok
+            - row "23 51 min ago 2026-04-08 There already exists a component at viz-office-map and it mostly works well with haiku — $0.0000 $0.0000 (0%) ⚡ interrupted" [ref=e129] [cursor=pointer]:
+              - cell "23" [ref=e130]
+              - cell "51 min ago 2026-04-08" [ref=e131]:
+                - text: 51 min ago
+                - generic [ref=e132]: 2026-04-08
+              - cell "There already exists a component at viz-office-map and it mostly works well with" [ref=e133]:
+                - generic [ref=e134]: There already exists a component at viz-office-map and it mostly works well with
+              - cell "haiku" [ref=e135]
+              - cell "—" [ref=e136]
+              - cell "$0.0000" [ref=e137]
+              - cell "$0.0000 (0%)" [ref=e138]
+              - cell "⚡ interrupted" [ref=e139]:
+                - generic [ref=e140]: ⚡ interrupted
+            - row "22 20 hr ago 2026-04-07 eds-viz-suite-full [MISER=8] haiku 30 ok / 5 fail / 0 skip $1.8350 $32.5707 (95%) ✗ 5 failed" [ref=e141] [cursor=pointer]:
+              - cell "22" [ref=e142]
+              - cell "20 hr ago 2026-04-07" [ref=e143]:
+                - text: 20 hr ago
+                - generic [ref=e144]: 2026-04-07
+              - cell "eds-viz-suite-full [MISER=8]" [ref=e145]:
+                - generic [ref=e146]: eds-viz-suite-full [MISER=8]
+              - cell "haiku" [ref=e147]
+              - cell "30 ok / 5 fail / 0 skip" [ref=e148]
+              - cell "$1.8350" [ref=e149]
+              - cell "$32.5707 (95%)" [ref=e150]
+              - cell "✗ 5 failed" [ref=e151]:
+                - generic [ref=e152]: ✗ 5 failed
+            - row "21 18 hr ago 2026-04-07 Build all remaining JS for viz blocks, add 3 new m3d blocks, 2 new live-API bloc haiku — $0.0000 $0.0000 (0%) ✓ ok" [ref=e153] [cursor=pointer]:
+              - cell "21" [ref=e154]
+              - cell "18 hr ago 2026-04-07" [ref=e155]:
+                - text: 18 hr ago
+                - generic [ref=e156]: 2026-04-07
+              - cell "Build all remaining JS for viz blocks, add 3 new m3d blocks, 2 new live-API bloc" [ref=e157]:
+                - generic [ref=e158]: Build all remaining JS for viz blocks, add 3 new m3d blocks, 2 new live-API bloc
+              - cell "haiku" [ref=e159]
+              - cell "—" [ref=e160]
+              - cell "$0.0000" [ref=e161]
+              - cell "$0.0000 (0%)" [ref=e162]
+              - cell "✓ ok" [ref=e163]:
+                - generic [ref=e164]: ✓ ok
+            - row "20 21 hr ago 2026-04-07 MISER=8-build-5-viz-blocks haiku 11 ok / 8 fail / 0 skip $0.5059 $8.9792 (95%) ✗ 8 failed" [ref=e165] [cursor=pointer]:
+              - cell "20" [ref=e166]
+              - cell "21 hr ago 2026-04-07" [ref=e167]:
+                - text: 21 hr ago
+                - generic [ref=e168]: 2026-04-07
+              - cell "MISER=8-build-5-viz-blocks" [ref=e169]:
+                - generic [ref=e170]: MISER=8-build-5-viz-blocks
+              - cell "haiku" [ref=e171]
+              - cell "11 ok / 8 fail / 0 skip" [ref=e172]
+              - cell "$0.5059" [ref=e173]
+              - cell "$8.9792 (95%)" [ref=e174]
+              - cell "✗ 8 failed" [ref=e175]:
+                - generic [ref=e176]: ✗ 8 failed
+            - 'row "19 21 hr ago 2026-04-07 Build 5 new `viz-` prefixed EDS blocks. All use real Three.js or Canvas renderin haiku — $0.0000 $0.0000 (0%) ⚡ interrupted" [ref=e177] [cursor=pointer]':
+              - cell "19" [ref=e178]
+              - cell "21 hr ago 2026-04-07" [ref=e179]:
+                - text: 21 hr ago
+                - generic [ref=e180]: 2026-04-07
+              - 'cell "Build 5 new `viz-` prefixed EDS blocks. All use real Three.js or Canvas renderin" [ref=e181]':
+                - generic [ref=e182]: "Build 5 new `viz-` prefixed EDS blocks. All use real Three.js or Canvas renderin"
+              - cell "haiku" [ref=e183]
+              - cell "—" [ref=e184]
+              - cell "$0.0000" [ref=e185]
+              - cell "$0.0000 (0%)" [ref=e186]
+              - cell "⚡ interrupted" [ref=e187]:
+                - generic [ref=e188]: ⚡ interrupted
+            - row "18 22 hr ago 2026-04-07 m3d-globe-repair-miser8 sonnet 7 ok / 1 fail / 0 skip $0.1525 $2.7065 (95%) ✗ 1 failed" [ref=e189] [cursor=pointer]:
+              - cell "18" [ref=e190]
+              - cell "22 hr ago 2026-04-07" [ref=e191]:
+                - text: 22 hr ago
+                - generic [ref=e192]: 2026-04-07
+              - cell "m3d-globe-repair-miser8" [ref=e193]:
+                - generic [ref=e194]: m3d-globe-repair-miser8
+              - cell "sonnet" [ref=e195]
+              - cell "7 ok / 1 fail / 0 skip" [ref=e196]
+              - cell "$0.1525" [ref=e197]
+              - cell "$2.7065 (95%)" [ref=e198]
+              - cell "✗ 1 failed" [ref=e199]:
+                - generic [ref=e200]: ✗ 1 failed
+            - row "17 22 hr ago 2026-04-07 m3d-globe-repair-miser8 sonnet 10 ok / 1 fail / 0 skip $0.2119 $3.7614 (95%) ✗ 1 failed" [ref=e201] [cursor=pointer]:
+              - cell "17" [ref=e202]
+              - cell "22 hr ago 2026-04-07" [ref=e203]:
+                - text: 22 hr ago
+                - generic [ref=e204]: 2026-04-07
+              - cell "m3d-globe-repair-miser8" [ref=e205]:
+                - generic [ref=e206]: m3d-globe-repair-miser8
+              - cell "sonnet" [ref=e207]
+              - cell "10 ok / 1 fail / 0 skip" [ref=e208]
+              - cell "$0.2119" [ref=e209]
+              - cell "$3.7614 (95%)" [ref=e210]
+              - cell "✗ 1 failed" [ref=e211]:
+                - generic [ref=e212]: ✗ 1 failed
+            - 'row "16 22 hr ago 2026-04-07 Blocks live at `blocks/m3d-/`. Do NOT overwrite any existing block haiku — $0.0000 $0.0000 (0%) ✗ failed" [ref=e213] [cursor=pointer]':
+              - cell "16" [ref=e214]
+              - cell "22 hr ago 2026-04-07" [ref=e215]:
+                - text: 22 hr ago
+                - generic [ref=e216]: 2026-04-07
+              - 'cell "Blocks live at `blocks/m3d-/`. Do NOT overwrite any existing block" [ref=e217]':
+                - generic [ref=e218]: "Blocks live at `blocks/m3d-/`. Do NOT overwrite any existing block"
+              - cell "haiku" [ref=e219]
+              - cell "—" [ref=e220]
+              - cell "$0.0000" [ref=e221]
+              - cell "$0.0000 (0%)" [ref=e222]
+              - cell "✗ failed" [ref=e223]:
+                - generic [ref=e224]: ✗ failed
+            - row "15 23 hr ago 2026-04-07 m3d-blocks-MISER8 haiku 12 ok / 7 fail / 0 skip $0.5054 $8.9702 (95%) ✗ 7 failed" [ref=e225] [cursor=pointer]:
+              - cell "15" [ref=e226]
+              - cell "23 hr ago 2026-04-07" [ref=e227]:
+                - text: 23 hr ago
+                - generic [ref=e228]: 2026-04-07
+              - cell "m3d-blocks-MISER8" [ref=e229]:
+                - generic [ref=e230]: m3d-blocks-MISER8
+              - cell "haiku" [ref=e231]
+              - cell "12 ok / 7 fail / 0 skip" [ref=e232]
+              - cell "$0.5054" [ref=e233]
+              - cell "$8.9702 (95%)" [ref=e234]
+              - cell "✗ 7 failed" [ref=e235]:
+                - generic [ref=e236]: ✗ 7 failed
+            - 'row "14 23 hr ago 2026-04-07 Build 3 new `m3d-` prefixed EDS blocks. All have real Three.js 3D haiku — $0.0000 $0.0000 (0%) ✗ failed" [ref=e237] [cursor=pointer]':
+              - cell "14" [ref=e238]
+              - cell "23 hr ago 2026-04-07" [ref=e239]:
+                - text: 23 hr ago
+                - generic [ref=e240]: 2026-04-07
+              - 'cell "Build 3 new `m3d-` prefixed EDS blocks. All have real Three.js 3D" [ref=e241]':
+                - generic [ref=e242]: "Build 3 new `m3d-` prefixed EDS blocks. All have real Three.js 3D"
+              - cell "haiku" [ref=e243]
+              - cell "—" [ref=e244]
+              - cell "$0.0000" [ref=e245]
+              - cell "$0.0000 (0%)" [ref=e246]
+              - cell "✗ failed" [ref=e247]:
+                - generic [ref=e248]: ✗ failed
+            - row "13 yesterday 2026-04-07 [MISER=8] Build 5 Interactive 3D haiku 18 ok / 1 fail / 0 skip $0.8716 $15.4710 (95%) ✗ 1 failed" [ref=e249] [cursor=pointer]:
+              - cell "13" [ref=e250]
+              - cell "yesterday 2026-04-07" [ref=e251]:
+                - text: yesterday
+                - generic [ref=e252]: 2026-04-07
+              - cell "[MISER=8] Build 5 Interactive 3D" [ref=e253]:
+                - generic [ref=e254]: "[MISER=8] Build 5 Interactive 3D"
+              - cell "haiku" [ref=e255]
+              - cell "18 ok / 1 fail / 0 skip" [ref=e256]
+              - cell "$0.8716" [ref=e257]
+              - cell "$15.4710 (95%)" [ref=e258]
+              - cell "✗ 1 failed" [ref=e259]:
+                - generic [ref=e260]: ✗ 1 failed
+            - 'row "12 yesterday 2026-04-06 Build 5 new `miser-3d-` prefixed EDS blocks. All have real Three.js 3D haiku — $0.0000 $0.0000 (0%) ✗ failed" [ref=e261] [cursor=pointer]':
+              - cell "12" [ref=e262]
+              - cell "yesterday 2026-04-06" [ref=e263]:
+                - text: yesterday
+                - generic [ref=e264]: 2026-04-06
+              - 'cell "Build 5 new `miser-3d-` prefixed EDS blocks. All have real Three.js 3D" [ref=e265]':
+                - generic [ref=e266]: "Build 5 new `miser-3d-` prefixed EDS blocks. All have real Three.js 3D"
+              - cell "haiku" [ref=e267]
+              - cell "—" [ref=e268]
+              - cell "$0.0000" [ref=e269]
+              - cell "$0.0000 (0%)" [ref=e270]
+              - cell "✗ failed" [ref=e271]:
+                - generic [ref=e272]: ✗ failed
+            - row "11 yesterday 2026-04-07 miser-viz-blocks-MISER8 haiku 18 ok / 10 fail / 0 skip $0.5259 $9.3346 (95%) ✗ 10 failed" [ref=e273] [cursor=pointer]:
+              - cell "11" [ref=e274]
+              - cell "yesterday 2026-04-07" [ref=e275]:
+                - text: yesterday
+                - generic [ref=e276]: 2026-04-07
+              - cell "miser-viz-blocks-MISER8" [ref=e277]:
+                - generic [ref=e278]: miser-viz-blocks-MISER8
+              - cell "haiku" [ref=e279]
+              - cell "18 ok / 10 fail / 0 skip" [ref=e280]
+              - cell "$0.5259" [ref=e281]
+              - cell "$9.3346 (95%)" [ref=e282]
+              - cell "✗ 10 failed" [ref=e283]:
+                - generic [ref=e284]: ✗ 10 failed
+            - 'row "10 yesterday 2026-04-06 Create 8 new `miser-viz-` prefixed blocks based on the existing miser- prefixed haiku — $0.0000 $0.0000 (0%) ✓ ok" [ref=e285] [cursor=pointer]':
+              - cell "10" [ref=e286]
+              - cell "yesterday 2026-04-06" [ref=e287]:
+                - text: yesterday
+                - generic [ref=e288]: 2026-04-06
+              - 'cell "Create 8 new `miser-viz-` prefixed blocks based on the existing miser- prefixed" [ref=e289]':
+                - generic [ref=e290]: "Create 8 new `miser-viz-` prefixed blocks based on the existing miser- prefixed"
+              - cell "haiku" [ref=e291]
+              - cell "—" [ref=e292]
+              - cell "$0.0000" [ref=e293]
+              - cell "$0.0000 (0%)" [ref=e294]
+              - cell "✓ ok" [ref=e295]:
+                - generic [ref=e296]: ✓ ok
+            - row "9 yesterday 2026-04-07 miser-demo-viz-MISER8 haiku 26 ok / 2 fail / 0 skip $0.0000 $0.0000 (0%) ✗ 2 failed" [ref=e297] [cursor=pointer]:
+              - cell "9" [ref=e298]
+              - cell "yesterday 2026-04-07" [ref=e299]:
+                - text: yesterday
+                - generic [ref=e300]: 2026-04-07
+              - cell "miser-demo-viz-MISER8" [ref=e301]:
+                - generic [ref=e302]: miser-demo-viz-MISER8
+              - cell "haiku" [ref=e303]
+              - cell "26 ok / 2 fail / 0 skip" [ref=e304]
+              - cell "$0.0000" [ref=e305]
+              - cell "$0.0000 (0%)" [ref=e306]
+              - cell "✗ 2 failed" [ref=e307]:
+                - generic [ref=e308]: ✗ 2 failed
+            - 'row "8 yesterday 2026-04-06 Create 8 new `miser-` prefixed blocks based on the existing viz blocks, with all haiku — $0.0000 $0.0000 (0%) ✗ failed" [ref=e309] [cursor=pointer]':
+              - cell "8" [ref=e310]
+              - cell "yesterday 2026-04-06" [ref=e311]:
+                - text: yesterday
+                - generic [ref=e312]: 2026-04-06
+              - 'cell "Create 8 new `miser-` prefixed blocks based on the existing viz blocks, with all" [ref=e313]':
+                - generic [ref=e314]: "Create 8 new `miser-` prefixed blocks based on the existing viz blocks, with all"
+              - cell "haiku" [ref=e315]
+              - cell "—" [ref=e316]
+              - cell "$0.0000" [ref=e317]
+              - cell "$0.0000 (0%)" [ref=e318]
+              - cell "✗ failed" [ref=e319]:
+                - generic [ref=e320]: ✗ failed
+            - row "7 yesterday 2026-04-06 eds-7-blocks-build-miser8 sonnet 4 ok / 26 fail / 0 skip $0.0000 $0.0000 (0%) ✗ 26 failed" [ref=e321] [cursor=pointer]:
+              - cell "7" [ref=e322]
+              - cell "yesterday 2026-04-06" [ref=e323]:
+                - text: yesterday
+                - generic [ref=e324]: 2026-04-06
+              - cell "eds-7-blocks-build-miser8" [ref=e325]:
+                - generic [ref=e326]: eds-7-blocks-build-miser8
+              - cell "sonnet" [ref=e327]
+              - cell "4 ok / 26 fail / 0 skip" [ref=e328]
+              - cell "$0.0000" [ref=e329]
+              - cell "$0.0000 (0%)" [ref=e330]
+              - cell "✗ 26 failed" [ref=e331]:
+                - generic [ref=e332]: ✗ 26 failed
+            - row "6 yesterday 2026-04-06 Build **seven** new EDS blocks for the diagram-editor site. All are standalone, haiku — $0.0000 $0.0000 (0%) ✗ failed" [ref=e333] [cursor=pointer]:
+              - cell "6" [ref=e334]
+              - cell "yesterday 2026-04-06" [ref=e335]:
+                - text: yesterday
+                - generic [ref=e336]: 2026-04-06
+              - cell "Build **seven** new EDS blocks for the diagram-editor site. All are standalone," [ref=e337]:
+                - generic [ref=e338]: Build **seven** new EDS blocks for the diagram-editor site. All are standalone,
+              - cell "haiku" [ref=e339]
+              - cell "—" [ref=e340]
+              - cell "$0.0000" [ref=e341]
+              - cell "$0.0000 (0%)" [ref=e342]
+              - cell "✗ failed" [ref=e343]:
+                - generic [ref=e344]: ✗ failed
+            - row "5 yesterday 2026-04-06 viz 8 blocks · tabbed-feature scroll-narrative testimonials-mosaic csv-chart threejs-scene d3-graph particle-field popin-carousel haiku 0 ok / 0 fail / 0 skip $0.0420 $-0.0420 (0%) ✓ ok" [ref=e345] [cursor=pointer]:
+              - cell "5" [ref=e346]
+              - cell "yesterday 2026-04-06" [ref=e347]:
+                - text: yesterday
+                - generic [ref=e348]: 2026-04-06
+              - cell "viz 8 blocks · tabbed-feature scroll-narrative testimonials-mosaic csv-chart threejs-scene d3-graph particle-field popin-carousel" [ref=e349]:
+                - generic [ref=e350]: viz 8 blocks · tabbed-feature scroll-narrative testimonials-mosaic csv-chart threejs-scene d3-graph particle-field popin-carousel
+              - cell "haiku" [ref=e351]
+              - cell "0 ok / 0 fail / 0 skip" [ref=e352]
+              - cell "$0.0420" [ref=e353]
+              - cell "$-0.0420 (0%)" [ref=e354]
+              - cell "✓ ok" [ref=e355]:
+                - generic [ref=e356]: ✓ ok
+            - row "4 yesterday 2026-04-06 [MISER=8] Build 7 EDS visualization sonnet 27 ok / 2 fail / 0 skip $0.0000 $0.0000 (0%) ✗ 2 failed" [ref=e357] [cursor=pointer]:
+              - cell "4" [ref=e358]
+              - cell "yesterday 2026-04-06" [ref=e359]:
+                - text: yesterday
+                - generic [ref=e360]: 2026-04-06
+              - cell "[MISER=8] Build 7 EDS visualization" [ref=e361]:
+                - generic [ref=e362]: "[MISER=8] Build 7 EDS visualization"
+              - cell "sonnet" [ref=e363]
+              - cell "27 ok / 2 fail / 0 skip" [ref=e364]
+              - cell "$0.0000" [ref=e365]
+              - cell "$0.0000 (0%)" [ref=e366]
+              - cell "✗ 2 failed" [ref=e367]:
+                - generic [ref=e368]: ✗ 2 failed
+            - row "3 2 days ago 2026-04-06 phase 3 · dashboard · image-compare metrics-grid callout-panel -tm sonnet — $0.4869 $1.9506 (80%) ✓ ok" [ref=e369] [cursor=pointer]:
+              - cell "3" [ref=e370]
+              - cell "2 days ago 2026-04-06" [ref=e371]:
+                - text: 2 days ago
+                - generic [ref=e372]: 2026-04-06
+              - cell "phase 3 · dashboard · image-compare metrics-grid callout-panel -tm" [ref=e373]:
+                - generic [ref=e374]: phase 3 · dashboard · image-compare metrics-grid callout-panel -tm
+              - cell "sonnet" [ref=e375]
+              - cell "—" [ref=e376]
+              - cell "$0.4869" [ref=e377]
+              - cell "$1.9506 (80%)" [ref=e378]
+              - cell "✓ ok" [ref=e379]:
+                - generic [ref=e380]: ✓ ok
+            - row "2 3 days ago 2026-04-05 phase 2 · routing · MISER ladder · run logging sonnet — $0.3520 $1.4090 (80%) ✓ ok" [ref=e381] [cursor=pointer]:
+              - cell "2" [ref=e382]
+              - cell "3 days ago 2026-04-05" [ref=e383]:
+                - text: 3 days ago
+                - generic [ref=e384]: 2026-04-05
+              - cell "phase 2 · routing · MISER ladder · run logging" [ref=e385]:
+                - generic [ref=e386]: phase 2 · routing · MISER ladder · run logging
+              - cell "sonnet" [ref=e387]
+              - cell "—" [ref=e388]
+              - cell "$0.3520" [ref=e389]
+              - cell "$1.4090 (80%)" [ref=e390]
+              - cell "✓ ok" [ref=e391]:
+                - generic [ref=e392]: ✓ ok
+            - row "1 3 days ago 2026-04-05 phase 1 · flag updates · t/tokenmiser CLI sonnet — $0.2512 $1.0070 (80%) ✓ ok" [ref=e393] [cursor=pointer]:
+              - cell "1" [ref=e394]
+              - cell "3 days ago 2026-04-05" [ref=e395]:
+                - text: 3 days ago
+                - generic [ref=e396]: 2026-04-05
+              - cell "phase 1 · flag updates · t/tokenmiser CLI" [ref=e397]:
+                - generic [ref=e398]: phase 1 · flag updates · t/tokenmiser CLI
+              - cell "sonnet" [ref=e399]
+              - cell "—" [ref=e400]
+              - cell "$0.2512" [ref=e401]
+              - cell "$1.0070 (80%)" [ref=e402]
+              - cell "✓ ok" [ref=e403]:
+                - generic [ref=e404]: ✓ ok
+        - generic [ref=e405]: Powered by TokenMiser v2 · MISER routing active · click any row to expand
+  - contentinfo [ref=e406]:
+    - paragraph [ref=e411]: Copyright © 2021 Adobe. All rights reserved.

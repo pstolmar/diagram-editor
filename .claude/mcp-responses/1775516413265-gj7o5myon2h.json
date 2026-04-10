@@ -1,0 +1,1 @@
+{"stepId": "1775516413265-gj7o5myon2h", "status": "ok", "content": "{\n  \"id\": \"d3-graph\",\n  \"resourceType\": \"core/franklin/components/block/v1/block\",\n  \"fields\": [\n    {\n      \"id\": \"graphData\",\n      \"type\": \"text\"\n    }\n  ],\n  \"filters\": []\n}"}

@@ -1,0 +1,34 @@
+# PLAN.md
+
+## Task
+
+Implement a new EDS / UE **image-compare** block for the diagram-editor site:
+
+- Authorable in UE with two image slots (`beforeImage`, `afterImage`) and optional captions.
+- Frontend UX: draggable vertical slider with "Before" and "After" labels overlaid and smooth animated transitions.
+- Accessibility: keyboard controllable (left/right arrows), ARIA roles/labels for the slider, WCAG colour contrast, no text baked into images.
+- Performance: lazy-load images and avoid layout shifts.
+
+## Requirements
+
+- Block code:
+  - `blocks/image-compare/image-compare.js`
+  - `blocks/image-compare/image-compare.css`
+- UE models:
+  - `blocks/image-compare/_image-compare.json` with definitions/models/filters
+  - Verified in the merged `component-*` JSONs via `npm run build:json`
+- Tests:
+  - `tests/image-compare.spec.ts` Playwright spec that:
+    - Navigates to a dedicated demo page (e.g. `/demo/image-compare`)
+    - Verifies both images render and slider moves with mouse + keyboard.
+- Lint + tests:
+  - `npm run build:json`
+  - `npm run lint`
+  - `npx playwright test tests/image-compare.spec.ts`
+
+## Constraints
+
+- Use PATCH mode: avoid rewriting existing blocks; create / adjust only what's needed for the new block.
+- Use local fixers (`eslint --fix`, `stylelint --fix`) and Playwright helpers where possible.
+- Keep the Claude planning cost low: one plan, then use the harness and other engines for heavy lifting.
+

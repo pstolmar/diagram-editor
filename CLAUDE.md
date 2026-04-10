@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm i                  # Install dependencies
+npm test               # Run Playwright tests (requires aem up)
 npm run lint           # Run JS + CSS linting
 npm run lint:fix       # Auto-fix linting issues
 npm run lint:js        # ESLint only
@@ -14,7 +15,21 @@ npm run build:json     # Merge component model JSON files
 aem up                 # Start local dev proxy at http://localhost:3000 (requires AEM CLI)
 ```
 
-There are no unit tests or a runtime build step — this is a static site served by Adobe Edge Delivery Services.
+There is no build step — this is a static site served by Adobe Edge Delivery Services.
+
+## TDD — mandatory for all changes
+
+**Write the test first. Watch it fail. Then fix the code. No exceptions.**
+
+This project uses **Playwright** for all block-level tests (`tests/*.spec.ts`). Before touching any block:
+
+1. Write a failing Playwright test that demonstrates the bug or desired behavior
+2. Run `npm test tests/your-spec.spec.ts` and confirm it fails for the right reason
+3. Write the minimal code to make it pass
+4. Run again and confirm green
+5. Add the spec to `tests/critical-path.json` so the pre-commit hook runs it
+
+The pre-commit hook auto-runs critical-path tests when `blocks/` files change (if `aem up` is running). Never claim a fix is done without running the test. Never skip step 2.
 
 ## Architecture
 
@@ -43,29 +58,10 @@ The `models/` directory holds XWalk/WYSIWYG component definitions split by block
 
 ESLint uses airbnb-base + json + xwalk plugins. Import paths require explicit `.js` extensions. CSS uses stylelint-config-standard. Pre-commit hooks enforce both via Husky.
 
-## Token & Context Budgets (Agent Rules)
+## Token budget (interactive sessions only)
 
-   When planning multi-step work:
-
-   - Use **Opus** *only* for planning (`/model opusplan`), not for implementation.
-   - Target each plan phase to fit within **≤ 50k context tokens**.
-   - After each major phase:
-     - Run `/context` and `/cost`.
-     - If context usage > 75% or this phase has likely cost > \$5, **pause and ask me** before continuing.
-   - Prefer:
-     - Reading specific files over scanning entire repos.
-     - Using skills (e.g., `writing-plans`, `executing-plans`, `systematic-debugging`) instead of ad-hoc prolonged discussion.
-   - For AEM / Adobe I/O / EDS tasks:
-     - First, produce a short, numbered **checklist** of actions and affected components.
-     - Then, execute the checklist in phases (one phase per component / layer) instead of one giant end-to-end plan.
-
-   If you notice cost or context increasing faster than expected, stop and ask me whether to:
-   - Compact and continue,
-   - Start a new session with a summarized context, or
-   - Move mechanical work to a cheaper tool (Codex / ChatGPT / Haiku).
-
-
-When inspecting static demos, use cat blocks/diagram-editor/filmstrip.html and cat blocks/diagram-editor/corkboard.html (not root filmstrip.html)
+Use Opus only for planning. Target ≤50k context per phase. If cost exceeds $5/phase, pause.
+Prefer specific file reads over repo scans. See `.claude/planning-notes.md` for full rules.
 
 
 When the task description begins with markers like `[PATCH]` or `[MISER=N]`, interpret them as follows:

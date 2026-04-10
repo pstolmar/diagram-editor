@@ -1,0 +1,482 @@
+[     283ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[    1125ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[    1150ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[    1555ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[    1555ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[    1743ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[    1752ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[    1933ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[   74298ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[   74847ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[   74863ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[   75275ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[   75276ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[   75507ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[   75508ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[   75673ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  533028ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  534568ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  534593ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  535101ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  535101ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  535339ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  535339ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  535516ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  544778ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  546842ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  546867ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  548207ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  548208ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  548492ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  549411ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  549469ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  549872ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  549872ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  550150ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  550150ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  550252ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  552984ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  554246ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  554266ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  554980ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  554993ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  555251ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  555261ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  555355ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  607195ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  609201ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  609201ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  609935ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  609935ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  610219ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  610220ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  610317ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  663489ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  664835ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  664879ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  665349ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  665350ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  665704ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  665717ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  665738ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  667813ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  669252ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  669253ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  669816ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  669826ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  670102ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  670102ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  670190ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  677084ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  678167ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678160ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  678182ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  678259ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678589ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678590ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678604ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678618ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678603ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  678603ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  678867ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678862ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  678872ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678862ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  678894ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  678986ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679051ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  679086ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679188ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679287ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679387ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679486ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679586ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679686ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679787ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679886ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  679986ms] TypeError: THREE.Vector3 is not a constructor
+    at latLonToPoint (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:144:10)
+    at createArcAnimation (http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:243:17)
+    at http://localhost:3000/blocks/viz-threat-map/viz-threat-map.js:301:22
+[  684103ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  685055ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  685097ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  685485ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  685485ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  685736ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  685749ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  685883ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  687014ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  687824ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  687856ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  688207ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  688208ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  688410ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  688419ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  688597ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  692752ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  693636ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  693675ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  694067ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  694077ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  694302ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  694312ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  694466ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  694763ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  695791ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  695827ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  696207ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  696215ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  696499ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  696509ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  696583ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  702743ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  703537ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  703569ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  703939ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  703940ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  704138ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  704147ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  704398ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  705354ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  705386ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  705769ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  705770ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  706019ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  706030ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  706151ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  714503ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  715621ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  715647ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  715807ms] [ERROR] failed to load module for viz-analytics-pulse ReferenceError: fetchData is not defined
+    at pollData (http://localhost:3000/blocks/viz-analytics-pulse/viz-analytics-pulse.js:351:20)
+    at Module.decorate (http://localhost:3000/blocks/viz-analytics-pulse/viz-analytics-pulse.js:365:11)
+    at http://localhost:3000/scripts/aem.js:588:32 @ http://localhost:3000/scripts/aem.js:591
+[  716242ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  716249ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  716533ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  716541ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  716613ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  716634ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  716634ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  716634ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27)
+    at CryptoPulse.startRESTFallback (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:161:5)
+    at ws.onerror (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:102:14) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  727102ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[  728402ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[  728422ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[  729167ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[  729167ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[  729416ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[  729428ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[  729515ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[  729532ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  729533ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  729533ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27)
+    at CryptoPulse.startRESTFallback (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:161:5)
+    at ws.onerror (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:102:14) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  744535ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  744535ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  744535ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  759531ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  759531ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  759532ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  774548ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  774548ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  774548ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  939536ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  939537ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  939537ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  954536ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  954536ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  954536ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  969538ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  969538ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  969538ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  984532ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  984532ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  984532ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[  999538ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[  999538ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[  999538ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1239542ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1239542ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1239542ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1254542ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1254542ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1254542ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1269544ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1269544ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1269545ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1284545ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1284545ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1284545ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1299543ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1299543ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1299543ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1539547ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1539547ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1539547ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1554552ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1554552ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1554552ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1569549ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1569549ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1569549ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1584548ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1584548ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1584548ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1599549ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1599550ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1599550ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1687153ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1688570ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1688570ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1689068ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1689068ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1689383ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1689383ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1689414ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1703772ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1705068ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1705069ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1705565ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1705565ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1705905ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1705913ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1705920ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1707571ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1708579ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1708620ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1709000ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1709001ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1709320ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1709335ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1709398ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1710743ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1711881ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1711915ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1712321ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1712322ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1712595ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1712607ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1712697ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1715931ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1717110ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1717131ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1717783ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1717784ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1718081ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1718086ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1718149ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1720280ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1721449ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1721472ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1721940ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1721941ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1722186ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1722196ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1722331ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1902351ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1902351ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1902352ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1917355ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1917355ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1917355ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1932351ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1932352ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1932352ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1943170ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1944527ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1944532ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1945101ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1945102ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1945438ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1945438ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1945498ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1945528ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1945528ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1945528ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27)
+    at CryptoPulse.startRESTFallback (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:161:5)
+    at ws.onerror (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:102:14) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1960532ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 1960532ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 1960532ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 1990441ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1991627ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1991645ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1992169ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1992170ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1992515ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1992515ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1992547ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1995014ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1996135ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1996166ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 1996763ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 1996763ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 1997150ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 1997189ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 1997189ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 1998698ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 1999827ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 1999848ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 2000350ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 2000350ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 2000657ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 2000665ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 2000730ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 2052067ms] [WARNING] Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation @ https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js:0
+[ 2053412ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js:0
+[ 2053412ms] [ERROR] failed to load module for viz-pipeline TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-pipeline/viz-pipeline.js @ http://localhost:3000/scripts/aem.js:591
+[ 2053889ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js:0
+[ 2053898ms] [ERROR] failed to load module for viz-secure-feed TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/viz-secure-feed/viz-secure-feed.js @ http://localhost:3000/scripts/aem.js:591
+[ 2054222ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js:0
+[ 2054233ms] [ERROR] failed to load module for m3d-photo-globe TypeError: Failed to fetch dynamically imported module: http://localhost:3000/blocks/m3d-photo-globe/m3d-photo-globe.js @ http://localhost:3000/scripts/aem.js:591
+[ 2054284ms] [ERROR] WebSocket connection to 'wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker/solusdt@miniTicker' failed: Error during WebSocket handshake: Unexpected response code: 451 @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:85
+[ 2339303ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2339303ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2339304ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2354312ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2354312ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2354312ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2369316ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2369316ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2369316ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2384304ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2384304ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2384304ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2399309ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2399309ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2399309ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2639309ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2639309ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2639309ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2654310ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2654311ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2654311ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2669308ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2669308ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2669308ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2684316ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2684316ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2684316ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2699311ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2699311ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2699312ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2939344ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2939344ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2939345ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2954355ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2954355ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2954356ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2969349ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2969349ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2969349ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2984345ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2984345ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2984345ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 2999356ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 2999356ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 2999356ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139
+[ 3239352ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/demo/viz-demo.html:0
+[ 3239352ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=btc,eth,sol&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true:0
+[ 3239353ms] [ERROR] REST fetch error: TypeError: Failed to fetch
+    at fetchPrices (http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:121:27) @ http://localhost:3000/blocks/viz-crypto-pulse/viz-crypto-pulse.js:139

@@ -1,0 +1,30 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - heading "New Interactive Blocks — Token Reduction Validation" [level=1] [ref=e3]
+    - paragraph [ref=e4]: Showcasing 6 new interactive blocks and viz-office-map IMS login fix
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - heading "1. Video Panel" [level=2] [ref=e7]
+      - paragraph [ref=e8]: Full-width video player with BigBuckBunny fallback
+      - generic [ref=e10]:
+        - paragraph [ref=e11]: https://commondatastorage.googleapis.com/gtv-videos-library/sample/BigBuckBunny.mp4
+        - paragraph [ref=e12]: "600"
+        - paragraph [ref=e13]: cover
+    - generic [ref=e14]:
+      - heading "2. Data Explorer" [level=2] [ref=e15]
+      - paragraph [ref=e16]: Interactive data table with all columns visible
+    - generic [ref=e17]:
+      - heading "3. Timeline Story" [level=2] [ref=e18]
+      - paragraph [ref=e19]: Timeline with 12 story entries
+    - generic [ref=e20]:
+      - heading "4. Poll Widget" [level=2] [ref=e21]
+      - paragraph [ref=e22]: Single-select polling interface
+    - generic [ref=e23]:
+      - heading "5. Scroll Reveal" [level=2] [ref=e24]
+      - paragraph [ref=e25]: Reveal animations on scroll — 5 panels
+    - generic [ref=e26]:
+      - heading "6. Live Configurator" [level=2] [ref=e27]
+      - paragraph [ref=e28]: 3-step interactive configuration
+    - generic [ref=e29]:
+      - heading "7. Viz Office Map (IMS Login Fix)" [level=2] [ref=e30]
+      - paragraph [ref=e31]: Office location visualization with fixed IMS authentication

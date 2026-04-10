@@ -1,0 +1,11 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]
+  - main [ref=e3]:
+    - generic [ref=e5]:
+      - img [ref=e6]:
+        - generic [ref=e7]: "404"
+      - heading "Page Not Found" [level=2] [ref=e8]
+      - paragraph [ref=e9]:
+        - link "Go home" [ref=e10] [cursor=pointer]:
+          - /url: /
+  - contentinfo [ref=e11]

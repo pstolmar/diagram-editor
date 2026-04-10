@@ -1,0 +1,73 @@
+<h2>Tokenmiser Intelligent Routing Architecture</h2>
+<p class="subtitle">Multi-model pipeline with signal-based escalation. Propose 2 variants — pick the one that fits your mental model.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="pipeline" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:14px;font-size:11px;font-family:monospace;min-height:200px">
+      <div style="color:#94a3b8;margin-bottom:8px;font-size:10px;letter-spacing:.05em">VARIANT A — LINEAR PIPELINE</div>
+      <!-- Row 1: PLAN.md -->
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div style="background:#1e293b;border:1px solid #334155;padding:4px 10px;border-radius:4px;color:#e2e8f0">PLAN.md</div>
+        <div style="color:#475569">→ analyze →</div>
+        <div style="background:#1e3a5f;border:1px solid #2563eb;padding:4px 10px;border-radius:4px;color:#93c5fd">Router<br><span style="font-size:9px;color:#64748b">keyword + complexity</span></div>
+      </div>
+      <!-- Row 2: annotated job -->
+      <div style="background:#1e293b;border:1px dashed #475569;padding:6px;border-radius:4px;margin-bottom:6px;color:#94a3b8;font-size:10px">
+        job.json steps annotated with <span style="color:#fbbf24">model:</span> haiku | sonnet | fj+codex | bash
+      </div>
+      <!-- Row 3: executor lanes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:6px">
+        <div style="background:#14532d;border:1px solid #16a34a;padding:4px;border-radius:3px;text-align:center;color:#86efac;font-size:9px">🆓 bash<br>lint/build<br>test</div>
+        <div style="background:#14532d;border:1px solid #16a34a;padding:4px;border-radius:3px;text-align:center;color:#86efac;font-size:9px">🆓 Codex<br>file writes<br>patches</div>
+        <div style="background:#0c2340;border:1px solid #1d4ed8;padding:4px;border-radius:3px;text-align:center;color:#93c5fd;font-size:9px">FJ→Codex<br>AEM snippets<br>→ patch</div>
+        <div style="background:#312e81;border:1px solid #6366f1;padding:4px;border-radius:3px;text-align:center;color:#c7d2fe;font-size:9px">🧠 Haiku<br>simple<br>planning</div>
+      </div>
+      <!-- Row 4: escalation -->
+      <div style="background:#450a0a;border:1px solid #dc2626;padding:6px;border-radius:4px;color:#fca5a5;font-size:10px">
+        ⚡ Escalation signals → <span style="color:#f87171">Sonnet</span> / <span style="color:#ef4444">Opus</span><br>
+        <span style="color:#6b7280">retry≥2 · blocked · DESIGN · duration>30m · frustration</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Router-first pipeline</h3>
+      <p>Router annotates every step before execution. Each step knows its model upfront. Escalation is a step type that re-routes. Clean, predictable, easy to log and dashboard.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="reactive" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:14px;font-size:11px;font-family:monospace;min-height:200px">
+      <div style="color:#94a3b8;margin-bottom:8px;font-size:10px;letter-spacing:.05em">VARIANT B — REACTIVE / SIGNAL-DRIVEN</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <div style="background:#1e293b;border:1px solid #334155;padding:4px 8px;border-radius:4px;color:#e2e8f0;font-size:10px">PLAN.md</div>
+        <div style="color:#475569;font-size:10px;align-self:center">→</div>
+        <div style="background:#14532d;border:1px solid #16a34a;padding:4px 8px;border-radius:4px;color:#86efac;font-size:10px">Default:<br>Codex + bash</div>
+      </div>
+      <div style="background:#1e293b;border:1px solid #475569;padding:6px;border-radius:4px;margin-bottom:6px;font-size:10px">
+        <div style="color:#fbbf24;margin-bottom:3px">Signal bus watches every step:</div>
+        <div style="color:#94a3b8">exit_code≠0 × 2 → <span style="color:#818cf8">Sonnet</span></div>
+        <div style="color:#94a3b8">keyword DECISION/DESIGN → <span style="color:#818cf8">Sonnet</span></div>
+        <div style="color:#94a3b8">AEM model/XWalk step → <span style="color:#38bdf8">FJ oracle</span> → Codex</div>
+        <div style="color:#94a3b8">duration > 30m → <span style="color:#f87171">Opus</span></div>
+        <div style="color:#94a3b8">N retries failed → <span style="color:#f87171">Opus</span></div>
+      </div>
+      <div style="background:#312e81;border:1px solid #6366f1;padding:4px 8px;border-radius:4px;color:#c7d2fe;font-size:10px;text-align:center">Sonnet/Opus only ever invoked reactively</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Signal-driven reactive</h3>
+      <p>Everything defaults to Codex+bash (free). A signal bus watches for failure patterns, keywords, and time. LLMs are invoked reactively when signals fire. Most jobs never touch Sonnet.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px">
+  <h3>FJ → Codex snippet pipeline (shared by both)</h3>
+  <div style="background:#0f172a;border:1px solid #1e293b;padding:12px;border-radius:6px;font-family:monospace;font-size:11px">
+    <div style="color:#38bdf8">step: {tool: "fj.snippet", prompt: "XWalk model for callout-panel with icon field"}</div>
+    <div style="color:#475569;margin-left:16px">↓ FluffyJaws returns 8 lines of JSON</div>
+    <div style="color:#4ade80;margin-left:16px">step: {tool: "codex.patch", target: "blocks/callout-panel/_callout-panel.json", from: "fj.output"}</div>
+    <div style="color:#475569;margin-left:32px">↓ Codex patches file — FREE, accurate, minimal context</div>
+    <div style="color:#fbbf24;margin-left:32px">result: AEM-correct model, $0.00</div>
+  </div>
+</div>

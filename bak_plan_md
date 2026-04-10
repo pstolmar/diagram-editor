@@ -1,0 +1,85 @@
+# [MISER=8] Repair a Real Interactive 3D Viz Globe EDS Block
+
+Blocks live at `blocks/m3d-<name>/`. Do NOT overwrite any existing block
+except for blocks/m3d-globe/ files which are what needs repair.
+
+The m3d-globe component renders on the page as just the data text. There
+is no globe or interactivitiy rendered. You can see that 
+blocks/miser-3d-globe/ however DOES render the globe, use that info
+to repair fully the m3d-globe component but this component should be
+much more visually updated with more variation and lighting and real
+continents compared to the miser-3d-globe ensure these updates are also verified.
+
+
+---
+
+## Blocks
+
+### 4. `m3d-globe`
+Elabore 3d interactive globe with terrain continents and data markers.
+Content format: Inline, DAM Path, Upload as usual going to DAM or sheet. 
+`label,lat,lon,value` lines (one per row).
+Upload supports CSV, txt, PDF
+- Sphere with wireframe overlay (`THREE.WireframeGeometry`). Subtle auto-rotation.
+- Textures for multicolor terrain snow-capped mountains light green plains
+- Exceptional ocean rendering, moving animated even responds a bit turbulently
+- Markers: small `THREE.SphereGeometry` pins placed at lat/lon positions.
+- Color and size of pin driven by `value` (normalized 0-1 scale).
+- Drag to rotate, scroll to zoom. Click marker shows label in DOM tooltip.
+- Default color scheme field: `blue` | `green` | `amber` | `purple`.
+- Draw great looking accurate continents, subtle pro lighting and textures
+- Globe spins slowlly on proper tilted earth-axis with pole visible by default
+- Spinning stops on hover/entry then globe can be spun around and data points
+- Clicking points opens detail panels on click with nearest city, label and value
+- Points use 3d shapes chosen by the author or random sensible ones based on quick
+analysis of the data subject or a default set that looks great
+
+---
+
+## File layout per block
+
+```
+blocks/m3d-<name>/
+  m3d-<name>.js      # decorate(block) function, Three.js scene
+  m3d-<name>.css     # .m3d-<name> { position:relative; width:100% }
+  _m3d-<name>.json   # XWalk model (<=4 fields, definitions+models+filters)
+```
+
+---
+
+## AEM model constraints (enforced)
+- Max 4 fields per model (`xwalk/max-cells` lint rule). OVERRIDE if needed!
+- Or alternately use the controls in the main UE dropdown of component
+- Also use subcomponents when it makes sense
+- All JSON files must follow `definitions` + `models` + `filters` schema.
+- fj.mcp MUST be used for all `_*.json` files.
+
+### Model field summary
+
+| Block              | Fields (<=4)                                 |
+|--------------------|----------------------------------------------|
+| m3d-globe     | markerData (text-area), color (text), height (text) |
+
+---
+
+NOTE: You will have to add options for the swapping toggles meaning
+if author chooses Inline, then these are the fields, if they choose
+DAM Path, we need to swap to a UE path browser, if they choose
+Upload we need to handle the upload. In block editor we can support
+inline URLs for assets AND the Asset Selector / crosswalk DAM browser.
+
+
+## Demo page
+
+Update `demo/m3d-demo.html` if needed so globe displays with sample data:
+- globe: 20 data markers at major cities (New York, London, Tokyo, Sydney, etc.)
+
+---
+
+## Build + verify
+
+After all blocks built:
+1. `npm run build:json` — must pass (0 errors)
+2. `npm run lint` — must pass (0 errors; warnings OK)
+3. Verify block dirs exist: `ls blocks/m3d-*/`
+4. Validate http://localhost:3000/demo/m3d-demo.html under 3D GLOBE shows a globe

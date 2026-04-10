@@ -1,0 +1,188 @@
+# [MISER=8] Build 5 Live Business Data Visualization Blocks
+
+Build 5 new `viz-` prefixed EDS blocks. All use real Three.js or Canvas rendering,
+all pull live data from a URL at page-load (with graceful inline fallback), all look
+exceptional and business-realistic. Authoring via Universal Editor — one URL field,
+one optional inline fallback field, cosmetic controls. Blocks live at `blocks/viz-<name>/`.
+Do NOT overwrite any existing block.
+
+Data loading strategy (shared across all blocks):
+- `dataUrl` field → fetch JSON/CSV at page render time (no server-side proxy needed)
+- `inlineData` field → CSV/JSON fallback shown if fetch fails or field is empty
+- Author sets one or both; block prefers live URL, falls back to inline
+- No auth tokens in fields — public endpoints or CORS-enabled APIs only
+- For real-time blocks: author sets a WebSocket or SSE URL; block connects client-side
+
+---
+
+## Block 1: `viz-office-map`
+
+**Concept:** Animated 3D globe showing company office locations with live headcount,
+status (open/closed/remote-day), and a live "pulse" animation on active offices.
+Clicking a pin opens a sidebar with office details, local time, and a sparkline of
+recent activity. Looks incredible on an About Us or Careers page.
+
+**Data format (JSON from URL):**
+```json
+[{"id":"sf","label":"San Francisco","lat":37.77,"lon":-122.41,"headcount":420,
+  "status":"open","timezone":"America/Los_Angeles","activity":[12,18,34,41,38,29]}]
+```
+Inline fallback: 8 hard-coded Adobe office locations with realistic data.
+
+**Rendering:**
+- Three.js sphere with subtle day/night shader based on current UTC time
+  (sunlit hemisphere glows, dark side dims)
+- Office pins: glowing animated THREE.PointLight halos, color by status
+  (green=open, amber=hybrid, grey=closed)
+- Click pin → slide-in panel with local clock (live), headcount badge, activity sparkline
+- Globe auto-tilts to show most offices; drag/zoom enabled; slow auto-rotation pauses on hover
+
+**Fields:** `dataUrl` (text), `inlineData` (text-area), `height` (text), `theme` (select: dark/light)
+
+---
+
+## Block 2: `viz-pipeline`
+
+**Concept:** Animated SVG/Canvas logistics or data pipeline diagram. Nodes are stages
+(Ingest → Process → Validate → Publish → Archive). Animated particles flow along edges
+showing throughput. Live counts update from a polling URL. Perfect for an Operations or
+Platform Engineering page — shows your actual data infra moving.
+
+**Data format (JSON from URL, polled every 10s):**
+```json
+{"nodes":[{"id":"ingest","label":"Ingest","count":1420,"status":"healthy"},...],
+ "edges":[{"from":"ingest","to":"process","rate":980},...]}
+```
+Inline fallback: 6-node "Content Supply Chain" pipeline with realistic Adobe-style counts.
+
+**Rendering:**
+- Nodes: rounded rectangles with status color ring (green/amber/red) + live counter
+- Edges: bezier curves with animated dashed particles (Canvas RAF)
+- Particle speed proportional to `rate` — bottlenecks visible at a glance
+- Click node → expands to show error rate, p99 latency, last-updated timestamp
+- Layout: left-to-right DAG, positions auto-calculated from edge topology
+
+**Fields:** `dataUrl` (text), `pollInterval` (text, default 10s), `inlineData` (text-area), `height` (text)
+
+---
+
+## Block 3: `viz-threat-map`
+
+**Concept:** Real-time global cyberattack / network threat visualization. Animated arcs
+fly from attacker origin to target on a dark globe. Inspired by Norse/Akamai threat maps.
+Connects to a public CORS-enabled JSON endpoint returning recent events, or a WebSocket
+stream. Spectacular on a Security or SOC landing page.
+
+**Data format (JSON from URL, refreshed every 5s, or WSS stream):**
+```json
+[{"srcLat":39.9,"srcLon":116.4,"dstLat":37.4,"dstLon":-122.1,
+  "type":"brute-force","severity":3,"ts":1712345678}]
+```
+Inline fallback: 40 pre-baked attack arcs (CN→US, RU→DE, BR→UK, etc.) replaying in a
+loop to look live.
+
+**Rendering:**
+- Three.js dark globe with faint grid overlay and subtle atmosphere glow
+- Attack arcs: THREE.QuadraticBezierCurve3 arcs color by type
+  (red=brute-force, orange=DDoS, yellow=scan, purple=exfil)
+- Arc animates src→dst then fades; newest attacks brightest
+- Bottom ticker: scrolling log of recent events with flag emoji + attack type
+- Counter badges: total attacks, attacks/min, top source country (live-updating)
+
+**Fields:** `dataUrl` (text), `wsUrl` (text, optional WebSocket), `inlineData` (text-area),
+`height` (text), `theme` (select: dark/neon/corporate)
+
+---
+
+## Block 4: `viz-analytics-pulse`
+
+**Concept:** Live site analytics as an immersive block — not a boring table.
+Shows pageviews, active sessions, top pages, and geographic traffic as a pulsing
+heatmap ring. Connects to a public analytics JSON endpoint (thin proxy over Adobe
+Analytics, GA4, or Plausible). Stunning on a Marketing or Data page.
+
+**Data format (JSON from URL, polled every 30s):**
+```json
+{"activeUsers":1842,"pageviewsToday":48200,
+ "topPages":[{"path":"/products","views":9200,"trend":"+12%"},
+             {"path":"/pricing","views":6100,"trend":"+3%"}],
+ "byRegion":[{"region":"NA","pct":41},{"region":"EU","pct":33},
+             {"region":"APAC","pct":19},{"region":"LATAM","pct":7}]}
+```
+Inline fallback: realistic Adobe.com-scale numbers (tens of thousands of sessions).
+
+**Rendering:**
+- Center: large animated count of active users with subtle pulse ring (Canvas)
+- Right: horizontal sparkline bars for top 5 pages, animate in and update smoothly
+- Bottom: Canvas arc/donut for regional split, segments glow on hover
+- Top ticker: pageviews-today counter ticking up in real-time (estimated from rate)
+- Author-selectable accent color; defaults to electric blue on dark
+
+**Fields:** `dataUrl` (text), `refreshSeconds` (text, default 30), `inlineData` (text-area),
+`accentColor` (text)
+
+---
+
+## Block 5: `viz-supply-chain`
+
+**Concept:** Animated world map (Three.js PlaneGeometry + public domain map texture or
+pure Canvas Mercator projection) showing factories → distribution centers → markets.
+Curved animated routes show goods in transit; hover shows shipment details.
+Designed for an Operations, Sustainability, or Investor Relations page.
+
+**Data format (JSON from URL):**
+```json
+{"nodes":[{"id":"factory-sg","label":"Singapore Factory","type":"factory",
+           "lat":1.35,"lon":103.82,"output":4200},...],
+ "routes":[{"from":"factory-sg","to":"dc-la","volume":840,"eta":"2d","status":"on-time"},...]}
+```
+Inline fallback: 12-node global chain (Asia factories → US/EU DCs → retail markets)
+modeled on a realistic electronics supply chain.
+
+**Rendering:**
+- Flat world map on THREE.PlaneGeometry with a CC0 map texture
+- Node icons by type rendered as canvas sprites: factory ⚙, DC 🏭, market 🏪
+- Routes: animated dashed THREE.CatmullRomCurve3 arcs, color by status
+  (green=on-time, amber=delayed, red=disrupted)
+- Animated "shipment" dots travel each route at speed proportional to volume
+- Side panel: total shipments in transit, on-time %, disruption alerts
+
+**Fields:** `dataUrl` (text), `inlineData` (text-area), `height` (text),
+`showLabels` (select: always/hover/never)
+
+---
+
+## File layout per block
+
+```
+blocks/viz-<name>/
+  viz-<name>.js      # decorate(block) — fetch helper + rendering scene
+  viz-<name>.css     # layout, dark theme base, panel styles
+  _viz-<name>.json   # XWalk model (definitions + models + filters: [])
+```
+
+## Shared data-fetch pattern (inline per block, no separate module)
+
+Each block includes a ~15-line `async function fetchData(url, fallback)`:
+1. If `url` is empty → return parsed `fallback`
+2. `fetch(url, { signal: AbortSignal.timeout(5000) })` → parse JSON or CSV
+3. On any error → `console.warn(...)` + return parsed `fallback`
+
+No shared module — self-contained per EDS block convention.
+
+## AEM model constraints
+
+- Max 4 fields per `models[]` entry (xwalk lint rule — split into sub-models if needed)
+- All `_viz-*.json`: `definitions` + `models` + `filters: []`
+- Add all 5 block IDs to `models/_section.json` filters after creation
+- Run `npm run build:json` after touching any model JSON
+- Run `npm run lint:fix` after writing JS; must have 0 errors before job completes
+
+## Demo page
+
+Create `demo/viz-demo.html` with all 5 blocks using inline fallback data:
+- office-map: 8 global Adobe offices with realistic headcounts and timezones
+- pipeline: Adobe content supply chain (6 stages, realistic throughput numbers)
+- threat-map: 40 replay attack arcs, looks live without a real feed
+- analytics-pulse: adobe.com-scale traffic snapshot (tens of thousands of sessions)
+- supply-chain: 12-node electronics chain, Asia→US/EU→retail

@@ -1,0 +1,13 @@
+[     111ms] TypeError: Cannot read properties of null (reading 'dataset')
+    at loadSection (http://localhost:3000/scripts/aem.js:682:26)
+    at loadEager (http://localhost:3000/scripts/scripts.js:99:11)
+    at loadPage (http://localhost:3000/scripts/scripts.js:143:9)
+    at http://localhost:3000/scripts/scripts.js:148:1
+[   46539ms] [ERROR] failed to load module for data-explorer SyntaxError: Unexpected token '.' @ http://localhost:3000/scripts/aem.js:591
+[   46564ms] [ERROR] failed to load module for poll-widget TypeError: Failed to resolve module specifier "@playwright/test". Relative references must start with either "/", "./", or "../". @ http://localhost:3000/scripts/aem.js:591
+[   46588ms] [ERROR] failed to load module for scroll-reveal TypeError: Failed to resolve module specifier "@playwright/test". Relative references must start with either "/", "./", or "../". @ http://localhost:3000/scripts/aem.js:591
+[   46859ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/blocks/live-configurator/demo.json:0
+[   46859ms] [ERROR] Failed to load configurator config: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at Module.decorate (http://localhost:3000/blocks/live-configurator/live-configurator.js:13:31)
+    at async http://localhost:3000/scripts/aem.js:588:15 @ http://localhost:3000/blocks/live-configurator/live-configurator.js:15
+[   46874ms] [ERROR] failed to load module for viz-office-map SyntaxError: Unexpected identifier 'see' @ http://localhost:3000/scripts/aem.js:591

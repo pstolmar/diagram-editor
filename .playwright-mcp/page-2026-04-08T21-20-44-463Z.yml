@@ -1,0 +1,120 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - heading "New Interactive Blocks" [level=1] [ref=e23]
+      - paragraph [ref=e24]: Token reduction validation · 6 new blocks + IMS fix
+    - heading "Video Panel" [level=2] [ref=e27]
+    - generic [ref=e28]:
+      - heading "Data Explorer" [level=2] [ref=e30]
+      - generic [ref=e32]:
+        - searchbox "Search…" [ref=e33]
+        - table [ref=e34]:
+          - rowgroup [ref=e35]:
+            - row "name region revenue status product year" [ref=e36]:
+              - columnheader "name" [ref=e37]
+              - columnheader "region" [ref=e38]
+              - columnheader "revenue" [ref=e39]
+              - columnheader "status" [ref=e40]
+              - columnheader "product" [ref=e41]
+              - columnheader "year" [ref=e42]
+          - rowgroup [ref=e43]:
+            - row "Acme Corp EMEA-0 EMEA 280000 Active Cloud Suite 2024" [ref=e44]:
+              - cell "Acme Corp EMEA-0" [ref=e45]
+              - cell "EMEA" [ref=e46]
+              - cell "280000" [ref=e47]
+              - cell "Active" [ref=e48]
+              - cell "Cloud Suite" [ref=e49]
+              - cell "2024" [ref=e50]
+            - row "TechVision Inc AMER-1 AMER 480000 Active Analytics Pro 2023" [ref=e51]:
+              - cell "TechVision Inc AMER-1" [ref=e52]
+              - cell "AMER" [ref=e53]
+              - cell "480000" [ref=e54]
+              - cell "Active" [ref=e55]
+              - cell "Analytics Pro" [ref=e56]
+              - cell "2023" [ref=e57]
+            - row "Digital Solutions APAC-2 APAC 150000 Pending Commerce Max 2024" [ref=e58]:
+              - cell "Digital Solutions APAC-2" [ref=e59]
+              - cell "APAC" [ref=e60]
+              - cell "150000" [ref=e61]
+              - cell "Pending" [ref=e62]
+              - cell "Commerce Max" [ref=e63]
+              - cell "2024" [ref=e64]
+            - row "Enterprise Systems LATAM-3 LATAM 85000 Inactive Marketing Hub 2022" [ref=e65]:
+              - cell "Enterprise Systems LATAM-3" [ref=e66]
+              - cell "LATAM" [ref=e67]
+              - cell "85000" [ref=e68]
+              - cell "Inactive" [ref=e69]
+              - cell "Marketing Hub" [ref=e70]
+              - cell "2022" [ref=e71]
+            - row "CloudBase Ltd AMER-4 AMER 520000 Active Security Plus 2024" [ref=e72]:
+              - cell "CloudBase Ltd AMER-4" [ref=e73]
+              - cell "AMER" [ref=e74]
+              - cell "520000" [ref=e75]
+              - cell "Active" [ref=e76]
+              - cell "Security Plus" [ref=e77]
+              - cell "2024" [ref=e78]
+            - row "InnovateTech EMEA-5 EMEA 320000 Active Integration Pack 2023" [ref=e79]:
+              - cell "InnovateTech EMEA-5" [ref=e80]
+              - cell "EMEA" [ref=e81]
+              - cell "320000" [ref=e82]
+              - cell "Active" [ref=e83]
+              - cell "Integration Pack" [ref=e84]
+              - cell "2023" [ref=e85]
+            - row "DataStream Co APAC-6 APAC 180000 Active Cloud Suite 2022" [ref=e86]:
+              - cell "DataStream Co APAC-6" [ref=e87]
+              - cell "APAC" [ref=e88]
+              - cell "180000" [ref=e89]
+              - cell "Active" [ref=e90]
+              - cell "Cloud Suite" [ref=e91]
+              - cell "2022" [ref=e92]
+            - row "NextGen Industries LATAM-7 LATAM 95000 Pending Analytics Pro 2023" [ref=e93]:
+              - cell "NextGen Industries LATAM-7" [ref=e94]
+              - cell "LATAM" [ref=e95]
+              - cell "95000" [ref=e96]
+              - cell "Pending" [ref=e97]
+              - cell "Analytics Pro" [ref=e98]
+              - cell "2023" [ref=e99]
+            - row "FutureScale AMER-8 AMER 450000 Inactive Commerce Max 2024" [ref=e100]:
+              - cell "FutureScale AMER-8" [ref=e101]
+              - cell "AMER" [ref=e102]
+              - cell "450000" [ref=e103]
+              - cell "Inactive" [ref=e104]
+              - cell "Commerce Max" [ref=e105]
+              - cell "2024" [ref=e106]
+            - row "VelocityOps EMEA-9 EMEA 290000 Active Marketing Hub 2024" [ref=e107]:
+              - cell "VelocityOps EMEA-9" [ref=e108]
+              - cell "EMEA" [ref=e109]
+              - cell "290000" [ref=e110]
+              - cell "Active" [ref=e111]
+              - cell "Marketing Hub" [ref=e112]
+              - cell "2024" [ref=e113]
+        - generic [ref=e114]:
+          - button "← Prev" [disabled] [ref=e115]
+          - text: 1–10 of 30
+          - button "Next →" [ref=e116] [cursor=pointer]
+    - generic [ref=e117]:
+      - heading "Timeline Story" [level=2] [ref=e119]
+      - button "All" [ref=e123] [cursor=pointer]
+    - heading "Poll Widget" [level=2] [ref=e126]
+    - heading "Scroll Reveal" [level=2] [ref=e131]
+    - heading "Live Configurator" [level=2] [ref=e136]
+    - generic [ref=e139]:
+      - heading "Viz Office Map (IMS Fix)" [level=2] [ref=e141]
+      - generic [ref=e145]:
+        - generic [ref=e146]: 🔒
+        - generic [ref=e147]: Authenticated Access Only
+        - generic [ref=e148]: This floor occupancy data is restricted to Adobe employees. Sign in with your Adobe ID to view live occupancy.
+        - button "Sign In with Adobe ID" [ref=e149] [cursor=pointer]
+        - generic [ref=e150]: Already signed in via Sidekick? This section will unlock automatically.
+  - contentinfo [ref=e151]:
+    - paragraph [ref=e156]: Copyright © 2021 Adobe. All rights reserved.

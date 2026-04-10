@@ -97,12 +97,6 @@
     ]
   },
   {
-    "id": "cards",
-    "components": [
-      "card"
-    ]
-  },
-  {
     "id": "columns",
     "components": [
       "column"
@@ -118,18 +112,6 @@
     ]
   },
   {
-    "id": "corkboard",
-    "components": [
-      "corkboard-card"
-    ]
-  },
-  {
-    "id": "filmstrip",
-    "components": [
-      "filmstrip-frame"
-    ]
-  },
-  {
     "id": "metrics-grid-tm",
     "components": [
       "metrics-grid-tm-item"
@@ -139,12 +121,6 @@
     "id": "metrics-grid",
     "components": [
       "metrics-grid-item"
-    ]
-  },
-  {
-    "id": "polaroid-corkboard",
-    "components": [
-      "polaroid-photo"
     ]
   },
   {

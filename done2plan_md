@@ -1,0 +1,97 @@
+# [MISER=8] Missing Viz Block JS — 4 files
+
+Four JS files are missing. Demo data and CSS already exist for each. Write JS only.
+
+All blocks must:
+- Use `import.meta.url` to build demo JSON fallback URL: `new URL('./blockname-demo.json', import.meta.url).href`
+- Show a visible empty state `<div class="viz-empty-state">` when no data/content
+- Three.js blocks: use `loadScript` from `../../scripts/aem.js`, then `const THREE = window.THREE`
+
+---
+
+## Phase 1 (parallel): Write the 4 missing JS files
+
+### Step 1a: viz-pipeline.js
+
+Target: `blocks/viz-pipeline/viz-pipeline.js`
+
+Write a full block JS for an AEM→CDN pipeline monitor. Reads demo data from
+`blocks/viz-pipeline/viz-pipeline-demo.json` (has nodes[] and edges[] with lat/lon, type,
+status, label fields). Renders as an animated SVG/canvas force-directed graph with:
+- Nodes as labeled boxes colored by `type` (cdn=blue, origin=orange, cache=purple, edge=green)
+- Edges as animated lines showing `rps` traffic flow with arrow direction
+- Status `"error"` nodes pulsing red
+- Click node → side panel shows metrics (rps, p99Ms, errorPct)
+- Empty state when no data
+
+CSS is at `blocks/viz-pipeline/viz-pipeline.css` — use its custom properties (`--vp-*`).
+Do NOT use Three.js — use SVG or Canvas2D only.
+
+### Step 1b: viz-office-map.js
+
+Target: `blocks/viz-office-map/viz-office-map.js`
+
+Write a floor map block. Reads demo data from `blocks/viz-office-map/viz-office-map-demo.json`
+(has zones[] with id, label, type, x, y, w, h (0-1 normalized), occupied, capacity fields).
+Renders as a canvas floor plan:
+- Zones as colored rectangles (meeting=blue, open-plan=green, amenity=gray)
+- Fill opacity based on `occupied/capacity` ratio (0%=dim, 100%=bright)
+- Label + "12/20" occupancy text in each zone
+- Auto-refreshes every 30s (re-fetches demo JSON with jitter to simulate live changes)
+- Hover tooltip with zone name and full occupancy details
+- Empty state when no data
+
+CSS is at `blocks/viz-office-map/viz-office-map.css`.
+
+### Step 1c: viz-secure-feed.js
+
+Target: `blocks/viz-secure-feed/viz-secure-feed.js`
+
+Write a block that demonstrates the authenticated-source-to-EDS pattern. Reads from
+`blocks/viz-secure-feed/viz-secure-feed-demo.json` (has feedTitle, syncedAt, source,
+metrics[] with label/value/delta/trend, note fields).
+Renders as a dark card:
+- Title bar with lock icon + feedTitle
+- "Synced: <syncedAt>" timestamp + source label
+- Grid of metric tiles: label, value in large text, delta badge (▲/▼) colored green/red
+- Italic note at bottom
+- No live polling — just display the static JSON (simulates "data pushed by AEM sync job")
+- Empty state when no data
+
+CSS is at `blocks/viz-secure-feed/viz-secure-feed.css`.
+
+### Step 1d: m3d-photo-globe.js
+
+Target: `blocks/m3d-photo-globe/m3d-photo-globe.js`
+
+Write a Three.js photo globe. Reads block row 0 as a DAM folder path (or falls back to
+empty state with instructions). Since we can't actually fetch DAM in demo, render a demo
+globe using 8 placeholder photos from `https://picsum.photos/seed/{n}/400/300` at
+hard-coded lat/lon positions.
+
+Use Three.js (`loadScript` from `../../scripts/aem.js`, then `window.THREE`).
+- IcosahedronGeometry for the globe, MeshBasicMaterial with a canvas-drawn ocean/land texture
+- Each photo: load as a Sprite (SpriteMaterial with THREE.TextureLoader), position at lat/lon
+  using standard spherical coords `(radius * cos(lat) * sin(lon), radius * sin(lat), radius * cos(lat) * cos(lon))`
+- Click a sprite → pause rotation, show lightbox overlay with full image + close button
+- Drag to rotate (mouse orbit)
+- Height from row 2 (default 480)
+- Empty state: "Choose a DAM folder in the block to load photos"
+
+CSS is at `blocks/m3d-photo-globe/m3d-photo-globe.css`.
+
+---
+
+## Phase 2 (serial): Lint and build
+
+### Step 2a: lint:fix
+
+```bash
+npm run lint:fix 2>&1 | tail -20
+```
+
+### Step 2b: build:json
+
+```bash
+npm run build:json
+```

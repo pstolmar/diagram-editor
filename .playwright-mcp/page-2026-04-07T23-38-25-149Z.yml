@@ -1,0 +1,74 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - heading "Security" [level=2] [ref=e23]
+        - heading "Global Threat Map" [level=1] [ref=e24]
+        - paragraph [ref=e25]: Live cyber threat intelligence · USGS earthquake adapter · auto-refreshes
+      - generic [ref=e28]:
+        - generic [ref=e29]: 📡
+        - generic [ref=e30]: Data Unavailable
+        - generic [ref=e31]: "Error: undefined"
+    - generic [ref=e33]:
+      - heading "Platform Engineering" [level=2] [ref=e34]
+      - heading "Content Delivery Pipeline" [level=1] [ref=e35]
+      - paragraph [ref=e36]: AEM → Franklin → CDN · animated particle flow · click nodes for metrics
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - heading "Marketing Analytics" [level=2] [ref=e41]
+        - heading "Site Analytics Pulse" [level=1] [ref=e42]
+        - paragraph [ref=e43]: Active users · pageviews · top pages · region breakdown · live KPIs
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - text: LIVE
+          - generic [ref=e48]:
+            - generic [ref=e49]: Active Users
+            - generic: NaN
+          - generic [ref=e50]:
+            - generic [ref=e51]: Page Views/min
+            - generic: NaN
+          - generic [ref=e52]:
+            - generic [ref=e53]: Bounce Rate
+            - generic: NaN
+          - generic [ref=e54]:
+            - generic [ref=e55]: Conversion
+            - generic: NaN
+          - generic [ref=e56]:
+            - generic [ref=e57]: Error Rate
+            - generic: NaN
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - generic [ref=e65]: "0"
+            - generic [ref=e66]: Active Users
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - text: undefined
+              - generic [ref=e73]: undefined
+            - generic [ref=e74]:
+              - generic [ref=e75]: undefined
+              - generic [ref=e78]: undefined
+            - generic [ref=e79]:
+              - generic [ref=e80]: undefined
+              - generic [ref=e81]: undefined
+            - generic [ref=e82]:
+              - generic [ref=e83]: undefined
+              - generic [ref=e84]: undefined
+            - generic [ref=e85]:
+              - generic [ref=e86]: undefined
+              - generic [ref=e89]: undefined
+        - generic [ref=e92]:
+          - generic [ref=e93]: LIVE
+          - generic [ref=e95]:
+            - text: "Last update:"
+            - time [ref=e96]: 4:38:25 PM
+  - contentinfo

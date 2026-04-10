@@ -41,6 +41,141 @@ _tm_savings_pct() {
   awk "BEGIN { if ($opus > 0) printf \"%d\", ($opus - $actual) / $opus * 100; else print \"0\" }"
 }
 
+# Mark any lingering "running" records as "interrupted" before starting a new run.
+# Only one tokenmiser job can run at a time, so a pre-existing "running" record
+# is always a crash relic — never a live job.
+_tm_cleanup_running() {
+  local rf=".tokenmiser/runs.json"
+  [ -f "$rf" ] || return 0
+  command -v node &>/dev/null || return 0
+  local now
+  now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  node -e "
+    const fs = require('fs');
+    const now = '$now';
+    const lines = fs.readFileSync('$rf', 'utf8').split('\n').filter(Boolean);
+    const out = lines.map(l => {
+      try {
+        const r = JSON.parse(l);
+        if (r.status === 'running') {
+          return JSON.stringify({ ...r, status: 'interrupted', completedAt: now });
+        }
+        return l;
+      } catch { return l; }
+    });
+    fs.writeFileSync('$rf', out.join('\n') + '\n');
+  " 2>/dev/null || true
+  cp "$rf" tokenmiser-data/runs.json 2>/dev/null || true
+  rm -f .claude/mcp-bridge.active
+}
+
+# Global EXIT trap: always clean up "running" records and bridge file on exit,
+# regardless of how or where the script terminates (crash, set -e, normal exit).
+trap '_tm_cleanup_running' EXIT
+
+
+# ── _tm_commit_and_deploy: run after a successful executor job ───────────────
+# Called with: _tm_commit_and_deploy "$JOB_ID" "$COMMIT" "$DEPLOY_EDS" "$DEPLOY_RDE"
+_tm_commit_and_deploy() {
+  local job_id="$1" do_commit="$2" do_eds="$3" do_rde="$4"
+
+  if [ "$do_commit" -eq 1 ]; then
+    echo ""
+    echo "🧪 [COMMIT] Checking AEM at localhost:3000..."
+    if curl -sL --max-time 5 -o /dev/null http://localhost:3000; then
+      echo "   AEM is up. Running critical-path tests..."
+      CRITICAL_SPECS=""
+      if [ -f "tests/critical-path.json" ] && command -v node &>/dev/null; then
+        CRITICAL_SPECS=$(node -e "
+          try {
+            const s = JSON.parse(require('fs').readFileSync('tests/critical-path.json','utf8'));
+            console.log(s.join(' '));
+          } catch { console.log(''); }
+        " 2>/dev/null || true)
+      fi
+      TESTS_PASSED=1
+      if [ -n "$CRITICAL_SPECS" ]; then
+        # shellcheck disable=SC2086
+        if ! npx playwright test $CRITICAL_SPECS --reporter=list 2>&1; then
+          echo "❌ [COMMIT] Critical-path tests FAILED — not committing."
+          TESTS_PASSED=0
+        fi
+      else
+        echo "   ⚠️  No critical-path.json or empty — committing without tests."
+      fi
+      if [ "$TESTS_PASSED" -eq 1 ]; then
+        GIT_MSG="feat(tokenmiser): ${job_id}"
+        git add -A
+        if git commit -m "$GIT_MSG" 2>/dev/null; then
+          echo "✅ [COMMIT] Committed: $GIT_MSG"
+        else
+          echo "   ℹ️  Nothing to commit."
+        fi
+        if [ "$do_eds" -eq 1 ]; then
+          echo "🚀 [DEPLOY_EDS] Pushing to origin..."
+          git push
+          echo "✅ [DEPLOY_EDS] Pushed — EDS CDN will replicate; UE sees changes on next page load."
+        fi
+      fi
+    else
+      echo "   ⚠️  [COMMIT] AEM not running at localhost:3000 — skipping commit."
+      echo "        Run: aem up && npx playwright test \$(node -e \"console.log(JSON.parse(require('fs').readFileSync('tests/critical-path.json','utf8')).join(' '))\" 2>/dev/null)"
+    fi
+  fi
+
+  if [ "$do_rde" -eq 1 ]; then
+    echo ""
+    echo "🏗️  [DEPLOY_RDE] Building and deploying to AEM RDE..."
+    if command -v mvn &>/dev/null; then
+      if docker info &>/dev/null 2>&1; then
+        docker run --rm -v "$PWD":/app -w /app --memory=4g eclipse-temurin:17 \
+          mvn package -PautoInstallPackage -q && echo "   ✅ mvn build complete"
+      else
+        mvn package -PautoInstallPackage -q && echo "   ✅ mvn build complete"
+      fi
+      if command -v aio &>/dev/null; then
+        RDE_ZIP=$(find . -name "*.zip" -path "*/target/*" | head -1 || true)
+        if [ -n "$RDE_ZIP" ]; then
+          aio aem:rde:install "$RDE_ZIP"
+          echo "✅ [DEPLOY_RDE] Installed $RDE_ZIP to RDE"
+        else
+          echo "⚠️  [DEPLOY_RDE] No zip found in target/ — check mvn build"
+        fi
+      else
+        echo "⚠️  [DEPLOY_RDE] aio CLI not found. Install: npm install -g @adobe/aio-cli"
+      fi
+    else
+      echo "⚠️  [DEPLOY_RDE] mvn not found — skipping RDE deploy"
+    fi
+  fi
+}
+
+
+# ── _tm_redeploy: re-ship already-built artifacts without a new commit ────────
+# Called with: _tm_redeploy "$REDEPLOY_EDS" "$REDEPLOY_RDE"
+_tm_redeploy() {
+  local do_eds="$1" do_rde="$2"
+  if [ "$do_eds" -eq 1 ]; then
+    echo "🚀 [REDEPLOY_EDS] Pushing HEAD to origin (no new commit)..."
+    git push
+    echo "✅ [REDEPLOY_EDS] Pushed. EDS CDN will replicate; UE sees changes on next page load."
+  fi
+  if [ "$do_rde" -eq 1 ]; then
+    echo "🏗️  [REDEPLOY_RDE] Re-installing existing zip to AEM RDE (no mvn build)..."
+    if command -v aio &>/dev/null; then
+      RDE_ZIP=$(find . -name "*.zip" -path "*/target/*" | head -1 || true)
+      if [ -n "$RDE_ZIP" ]; then
+        aio aem:rde:install "$RDE_ZIP"
+        echo "✅ [REDEPLOY_RDE] Installed $RDE_ZIP to RDE"
+      else
+        echo "⚠️  [REDEPLOY_RDE] No zip in target/ — run 't --deploy-rde' to build first"
+      fi
+    else
+      echo "⚠️  [REDEPLOY_RDE] aio CLI not found. Install: npm install -g @adobe/aio-cli"
+    fi
+  fi
+}
+
 if [ "${MARKERS:-}" = "--status" ]; then
   if [ ! -f "$RUNS_FILE" ]; then
     echo "No runs found (${RUNS_FILE} missing)."
@@ -187,11 +322,23 @@ fi
 
 # Extract special markers
 DEPLOY=0
+COMMIT=1         # default ON — disabled by [NO_COMMIT]
+DEPLOY_EDS=0
+DEPLOY_RDE=0
 VALIDATE_CMD=""
 YOLO=0
 
+if echo "$MARKERS" | grep -q '\[NO_COMMIT\]'; then
+  COMMIT=0
+fi
 if echo "$MARKERS" | grep -q '\[DEPLOY\]'; then
-  DEPLOY=1
+  DEPLOY=1; DEPLOY_EDS=1; DEPLOY_RDE=1
+fi
+if echo "$MARKERS" | grep -q '\[DEPLOY_EDS\]'; then
+  DEPLOY_EDS=1
+fi
+if echo "$MARKERS" | grep -q '\[DEPLOY_RDE\]'; then
+  DEPLOY_RDE=1
 fi
 if echo "$MARKERS" | grep -qE '\[VALIDATE=([^]]+)\]'; then
   VALIDATE_CMD=$(echo "$MARKERS" | grep -oE '\[VALIDATE=([^]]+)\]' | sed 's/\[VALIDATE=//;s/\]//')
@@ -199,7 +346,18 @@ elif echo "$MARKERS" | grep -q '\[VALIDATE\]'; then
   VALIDATE_CMD="npx playwright test"
 fi
 if echo "$MARKERS" | grep -q '\[YOLO\]'; then
-  YOLO=1
+  YOLO=1; COMMIT=1; DEPLOY_EDS=1; DEPLOY_RDE=1
+fi
+
+REDEPLOY_EDS=0
+REDEPLOY_RDE=0
+if echo "$MARKERS" | grep -q '\[REDEPLOY_EDS\]'; then REDEPLOY_EDS=1; fi
+if echo "$MARKERS" | grep -q '\[REDEPLOY_RDE\]'; then REDEPLOY_RDE=1; fi
+
+# --redeploy flags act immediately — no plan execution needed
+if [ "$REDEPLOY_EDS" -eq 1 ] || [ "$REDEPLOY_RDE" -eq 1 ]; then
+  _tm_redeploy "$REDEPLOY_EDS" "$REDEPLOY_RDE"
+  exit 0
 fi
 
 AUTO_APPROVE=0
@@ -233,6 +391,14 @@ if echo "$MARKERS" | grep -q '\[DISABLE_CODEX\]'; then
   DISABLE_CODEX=true
 fi
 export DISABLE_CODEX
+
+# Resume: skip steps already completed in a prior (failed) run
+TM_RESUME=0
+if echo "$MARKERS" | grep -q '\[RESUME\]'; then
+  TM_RESUME=1
+  echo "🔄 Resume mode: will skip already-completed steps"
+fi
+export TM_RESUME
 
 # YOLO implies auto-approve
 if [ "$YOLO" -eq 1 ]; then
@@ -300,6 +466,14 @@ if command -v npx &>/dev/null && [ -f "tools/decompose.ts" ]; then
 fi
 
 if [ "$USE_EXECUTOR" -eq 1 ]; then
+  # Write "running" record BEFORE decompose so the dashboard shows activity immediately
+  mkdir -p .tokenmiser tokenmiser-data
+  _tm_cleanup_running
+  JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
+  RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  RUN_DESC="$(grep -m1 '^[^#]' "$PLAN_FILE" | head -c 80 | sed 's/"/\\"/g')"
+  printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\",\"description\":\"${RUN_DESC}\"}" >> .tokenmiser/runs.json
+  cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
   echo ""
   echo "🔬 Decomposing PLAN.md into job spec (haiku)..."
   if MISER_LEVEL="$MISER_LEVEL" MARKERS="$MARKERS" npx --yes tsx tools/decompose.ts "$PLAN_FILE" 2>&1; then
@@ -346,7 +520,7 @@ if [ "$USE_EXECUTOR" -eq 1 ]; then
 
       # Only attempt playwright if dev server is already up — don't block the build
       TM_SERVER_UP=0
-      if curl -sf --max-time 2 http://localhost:3000 > /dev/null 2>&1; then
+      if curl -sL --max-time 3 -o /dev/null http://localhost:3000; then
         TM_SERVER_UP=1
       fi
 
@@ -370,42 +544,41 @@ if [ "$USE_EXECUTOR" -eq 1 ]; then
     echo "⚙️  Executing job spec..."
     mkdir -p .tokenmiser tokenmiser-data .claude
     # Signal to executor that MCP bridge is available (this session can fulfill fj.mcp requests)
+    # Trap ensures bridge.active is removed AND running record is cleared on any exit
+    trap '_tm_cleanup_running' EXIT
     touch .claude/mcp-bridge.active
     export MISER_LEVEL
-    JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
-    RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    RUN_DESC="$(grep -m1 '^[^#]' "$PLAN_FILE" | head -c 80 | sed 's/"/\\"/g')"
-    printf '%s\n' "{\"jobId\":\"${JOB_ID}\",\"startedAt\":\"${RUN_START}\",\"miserLevel\":${MISER_LEVEL},\"modelTier\":\"${ROUTE_TIER}\",\"status\":\"running\",\"description\":\"${RUN_DESC}\"}" >> .tokenmiser/runs.json
-    # Sync immediately so the dashboard shows the live running job
-    cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
+    # JOB_ID/RUN_START already set before decompose — reuse them here
     TMPOUT=$(mktemp)
-    MISER_LEVEL="$MISER_LEVEL" npx --yes tsx tools/code-executor.ts 2>&1 | tee "$TMPOUT"
+    MISER_LEVEL="$MISER_LEVEL" npx --yes tsx tools/code-executor.ts 2>&1 | tee "$TMPOUT" || true
     EXECUTOR_EXIT=${PIPESTATUS[0]}
     RUN_END="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     EXEC_STATUS="ok"
     [ "$EXECUTOR_EXIT" -ne 0 ] && EXEC_STATUS="failed"
-    # Update the specific "running" record for this JOB_ID (not just the last line —
-    # the executor also appends its own detailed record, making tail -1 wrong)
-    if command -v jq &>/dev/null && [ -f ".tokenmiser/runs.json" ]; then
-      TMPFILE=$(mktemp)
-      while IFS= read -r _line; do
-        _lid=$(echo "$_line" | jq -r '.jobId // ""' 2>/dev/null)
-        _lst=$(echo "$_line" | jq -r '.status // ""' 2>/dev/null)
-        if [ "$_lid" = "$JOB_ID" ] && [ "$_lst" = "running" ]; then
-          echo "$_line" | jq --arg end "$RUN_END" --arg s "$EXEC_STATUS" \
-            '. + {completedAt: $end, status: $s}' 2>/dev/null || echo "$_line"
-        else
-          echo "$_line"
-        fi
-      done < ".tokenmiser/runs.json" > "$TMPFILE"
-      mv "$TMPFILE" .tokenmiser/runs.json
+    # Update the specific "running" record for this JOB_ID using Node (more reliable
+    # than a bash jq loop — set -e + pipefail can cause the loop to exit silently)
+    if command -v node &>/dev/null && [ -f ".tokenmiser/runs.json" ]; then
+      node -e "
+        const fs = require('fs');
+        const jid = '$JOB_ID', end = '$RUN_END', st = '$EXEC_STATUS';
+        const lines = fs.readFileSync('.tokenmiser/runs.json','utf8').split('\n').filter(Boolean);
+        const out = lines.map(l => {
+          try {
+            const r = JSON.parse(l);
+            if (r.jobId === jid && r.status === 'running')
+              return JSON.stringify({...r, status: st, completedAt: end});
+            return l;
+          } catch { return l; }
+        });
+        fs.writeFileSync('.tokenmiser/runs.json', out.join('\n') + '\n');
+      " 2>/dev/null || true
     fi
     cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
     rm -f "$TMPOUT" .claude/mcp-bridge.active
 
     # ── TDD: verify green + promote to critical path ──────────────────────────
     # Re-check server in case it came up during the build
-    if curl -sf --max-time 2 http://localhost:3000 > /dev/null 2>&1; then
+    if curl -sL --max-time 3 -o /dev/null http://localhost:3000; then
       TM_SERVER_UP=1
     fi
     if [ "$TDD_MODE" -eq 1 ] && [ -n "$TDD_SPECS" ] && [ "$TM_SERVER_UP" -eq 1 ]; then
@@ -442,6 +615,14 @@ if [ "$USE_EXECUTOR" -eq 1 ]; then
     # Skip the rest of the tokenmiser claude -p flow
     echo ""
     echo "✅ Executor pipeline complete."
+
+    # ── Post-build: commit + optional deploy ─────────────────────────────────
+    if [ "$EXEC_STATUS" = "ok" ]; then
+      _tm_commit_and_deploy "$JOB_ID" "$COMMIT" "$DEPLOY_EDS" "$DEPLOY_RDE"
+    else
+      echo "⚠️  Job had failures — skipping commit/deploy."
+    fi
+
     exit 0
   else
     echo "⚠️  Decompose failed, falling back to claude -p"
@@ -492,6 +673,8 @@ echo ""
 
 # ── Write initial run record before dispatch ─────────────────────────────────
 mkdir -p .tokenmiser tokenmiser-data
+# Clean up any stale "running" records from a previous crashed run
+_tm_cleanup_running
 JOB_ID="$(date +%Y%m%d_%H%M%S)_$(head -3 "$PLAN_FILE" | tail -1 | tr ' ' '_' | tr -dc '[:alnum:]_' | cut -c1-24)"
 RUN_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 RUN_DESC="$(grep -m1 '^[^#]' "$PLAN_FILE" | head -c 80 | sed 's/"/\\"/g')"
@@ -558,26 +741,17 @@ fi
 rm -f "$TMPOUT"
 cp .tokenmiser/runs.json tokenmiser-data/runs.json 2>/dev/null || true
 
-# Post-completion: deploy if requested
-if [ "$DEPLOY" -eq 1 ]; then
-  echo ""
-  echo "🚀 [DEPLOY] Committing and pushing changes..."
-  git add -A
-  git commit -m "chore: tokenmiser auto-deploy"
-  git push
-  PUSHED_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  PUSHED_COMMIT=$(git rev-parse --short HEAD)
-  echo "✅ [DEPLOY] Pushed branch '$PUSHED_BRANCH' at commit $PUSHED_COMMIT"
+# Post-completion: commit + deploy (fallback claude -p path)
+_tm_commit_and_deploy "$JOB_ID" "$COMMIT" "$DEPLOY_EDS" "$DEPLOY_RDE"
 
-  # Validate if requested
-  if [ -n "$VALIDATE_CMD" ]; then
-    echo ""
-    echo "🧪 [VALIDATE] Running: $VALIDATE_CMD"
-    if eval "$VALIDATE_CMD"; then
-      echo "✅ [VALIDATE] Passed: $VALIDATE_CMD"
-    else
-      echo "❌ [VALIDATE] Failed: $VALIDATE_CMD" >&2
-      exit 1
-    fi
+# Legacy validate hook
+if [ -n "$VALIDATE_CMD" ]; then
+  echo ""
+  echo "🧪 [VALIDATE] Running: $VALIDATE_CMD"
+  if eval "$VALIDATE_CMD"; then
+    echo "✅ [VALIDATE] Passed: $VALIDATE_CMD"
+  else
+    echo "❌ [VALIDATE] Failed: $VALIDATE_CMD" >&2
+    exit 1
   fi
 fi

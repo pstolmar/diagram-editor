@@ -1,0 +1,64 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Real-World Data" [level=2] [ref=e6]
+        - heading "USGS Earthquake Feed" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Live USGS GeoJSON · magnitude-scaled ripples · last 10 events
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: Recent Earthquakes
+          - generic [ref=e16]: ● Live
+        - generic [ref=e17]:
+          - generic [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: "2.5"
+            - generic [ref=e20]:
+              - generic [ref=e21]: 8 km NNW of Verden, Oklahoma
+              - generic [ref=e22]: 45m ago
+          - generic [ref=e23] [cursor=pointer]:
+            - generic [ref=e24]: "2.2"
+            - generic [ref=e25]:
+              - generic [ref=e26]: 16 km S of Guánica, Puerto Rico
+              - generic [ref=e27]: 38m ago
+          - generic [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]: "2.0"
+            - generic [ref=e30]:
+              - generic [ref=e31]: 16 km WNW of Union City, Oklahoma
+              - generic [ref=e32]: 36m ago
+          - generic [ref=e33] [cursor=pointer]:
+            - generic [ref=e34]: "2.0"
+            - generic [ref=e35]:
+              - generic [ref=e36]: 13 km SE of Pāhala, Hawaii
+              - generic [ref=e37]: 41m ago
+          - generic [ref=e38] [cursor=pointer]:
+            - generic [ref=e39]: "1.9"
+            - generic [ref=e40]:
+              - generic [ref=e41]: 48 km S of Whites City, New Mexico
+              - generic [ref=e42]: 37m ago
+          - generic [ref=e43] [cursor=pointer]:
+            - generic [ref=e44]: "1.7"
+            - generic [ref=e45]:
+              - generic [ref=e46]: 11 km S of Las Flores, CA
+              - generic [ref=e47]: 48m ago
+          - generic [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]: "1.6"
+            - generic [ref=e50]:
+              - generic [ref=e51]: 2 km ESE of Jobos, Puerto Rico
+              - generic [ref=e52]: 15m ago
+          - generic [ref=e53] [cursor=pointer]:
+            - generic [ref=e54]: "1.4"
+            - generic [ref=e55]:
+              - generic [ref=e56]: 71 km E of Cantwell, Alaska
+              - generic [ref=e57]: 35m ago
+          - generic [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]: "1.4"
+            - generic [ref=e60]:
+              - generic [ref=e61]: 4 km NW of Boron, CA
+              - generic [ref=e62]: 25m ago
+          - generic [ref=e63] [cursor=pointer]:
+            - generic [ref=e64]: "1.0"
+            - generic [ref=e65]:
+              - generic [ref=e66]: 9 km E of Fox, Alaska
+              - generic [ref=e67]: 53m ago
+  - contentinfo

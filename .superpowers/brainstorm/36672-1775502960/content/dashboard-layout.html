@@ -1,0 +1,58 @@
+<h2>Tokenmiser Dashboard — Where should it live?</h2>
+<p class="subtitle">Each option has trade-offs for authoring, deployment, and cost tracking.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:12px;font-family:monospace;font-size:11px;color:#94a3b8;min-height:120px">
+      <div style="color:#38bdf8;margin-bottom:6px">📁 /dashboard.html</div>
+      <div style="background:#1e293b;padding:8px;border-radius:4px;color:#e2e8f0">
+        <div style="color:#4ade80">✦ Tokenmiser v0.3</div>
+        <div style="margin-top:4px">Last run: 3 components · $0.04</div>
+        <div>vs Opus 4: ~$0.52 saved (92%)</div>
+        <div style="margin-top:6px;display:flex;gap:8px">
+          <span style="background:#1d4ed8;padding:2px 8px;border-radius:10px;font-size:10px">12 runs</span>
+          <span style="background:#065f46;padding:2px 8px;border-radius:10px;font-size:10px">$0.18 total</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Standalone HTML file</h3>
+      <p>Self-contained file at repo root. Open via <code>open dashboard.html</code> or served at <code>localhost:3000/dashboard.html</code> by <code>aem up</code>. No deploy needed. Reads a companion <code>.tokenmiser/runs.json</code> log file.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:12px;font-family:monospace;font-size:11px;color:#94a3b8;min-height:120px">
+      <div style="color:#38bdf8;margin-bottom:6px">🌐 /demo/tokenmiser-dash</div>
+      <div style="background:#1e293b;padding:8px;border-radius:4px">
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <div style="flex:1;background:#1e3a5f;padding:6px;border-radius:3px;color:#93c5fd;font-size:10px">📊 Runs<br><span style="color:#fff;font-size:14px">12</span></div>
+          <div style="flex:1;background:#14532d;padding:6px;border-radius:3px;color:#86efac;font-size:10px">💰 Saved<br><span style="color:#fff;font-size:14px">92%</span></div>
+          <div style="flex:1;background:#431407;padding:6px;border-radius:3px;color:#fdba74;font-size:10px">⏱ Time<br><span style="color:#fff;font-size:14px">4m</span></div>
+        </div>
+        <div style="color:#e2e8f0;font-size:10px">image-compare · metrics-grid · callout-panel</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — AEM EDS page</h3>
+      <p>A real page at <code>/demo/tokenmiser-dash</code> served by your EDS stack. Uses a custom block to render run data. Deployable, shareable. Requires <code>aem up</code> to view locally and a push to see live.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:12px;font-family:monospace;font-size:11px;color:#94a3b8;min-height:120px">
+      <div style="color:#38bdf8;margin-bottom:6px">$ t --status</div>
+      <div style="background:#1e293b;padding:8px;border-radius:4px;color:#e2e8f0">
+        <div style="color:#4ade80">Last: 3 blocks · 4m22s · $0.042</div>
+        <div style="color:#facc15">Savings vs Opus4: $0.51 (92%)</div>
+        <div style="color:#94a3b8;margin-top:4px">t --cost   → cost breakdown</div>
+        <div style="color:#94a3b8">t --history → last 10 runs</div>
+        <div style="color:#94a3b8">t --export  → open dashboard.html</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Terminal-first + HTML export</h3>
+      <p>Primary interface is <code>t --status</code> / <code>t --cost</code> / <code>t --history</code> in the terminal. HTML dashboard is generated on demand via <code>t --export</code>. Lowest overhead, most tokenmiser-native.</p>
+    </div>
+  </div>
+</div>

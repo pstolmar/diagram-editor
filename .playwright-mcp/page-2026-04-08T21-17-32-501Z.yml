@@ -1,0 +1,26 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - heading "New Interactive Blocks" [level=1] [ref=e23]
+      - paragraph [ref=e24]: Token reduction validation · 6 new blocks + IMS fix
+    - heading "Video Panel" [level=2] [ref=e27]
+    - heading "Data Explorer" [level=2] [ref=e30]
+    - generic [ref=e31]:
+      - heading "Timeline Story" [level=2] [ref=e33]
+      - button "All" [ref=e37] [cursor=pointer]
+    - heading "Poll Widget" [level=2] [ref=e40]
+    - heading "Scroll Reveal" [level=2] [ref=e45]
+    - heading "Live Configurator" [level=2] [ref=e50]
+    - heading "Viz Office Map (IMS Fix)" [level=2] [ref=e55]
+  - contentinfo [ref=e58]:
+    - paragraph [ref=e63]: Copyright © 2021 Adobe. All rights reserved.

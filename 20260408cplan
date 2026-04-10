@@ -1,0 +1,297 @@
+# [MISER=5] Three Premium Three.js Blocks — wave-terrain, orbit-ring, photo-cubes
+
+**CRITICAL NOTE TO DECOMPOSER:** All Three.js `.js` implementation steps MUST use tool `sonnet`.
+Three.js spatial math, quaternion rotation, and UV mapping reliably fail with haiku.
+CSS files use `haiku`. Component model JSON files use `bash` (exact heredoc template, no LLM).
+
+Standard rules apply to all blocks:
+- `import.meta.url` for demo JSON fallback URL
+- Show `<div class="viz-empty-state">` when no data or Three.js fails to load
+- Three.js: `loadScript('../../scripts/aem.js')` then `window.THREE`
+- CSS: flat kebab-case class names only (no BEM `__` or `--` in selectors)
+
+---
+
+## Phase 0: TDD — write failing tests first (mandatory)
+
+**No implementation until every test is RED.**
+
+### Step 0a: Write specs
+
+Use tool `haiku`. Write `tests/threejs-blocks.spec.ts` with one describe per block, all pointing
+to `http://localhost:3000/demo/premium-blocks` with `{ waitUntil: 'domcontentloaded' }` +
+`waitForTimeout(2000)` (Three.js needs extra hydration time).
+
+Tests:
+- `wave-terrain`: `.wave-terrain canvas` exists
+- `orbit-ring`: `.orbit-ring canvas` exists
+- `photo-cubes`: `.photo-cubes canvas` exists and `[data-cubelets]` attribute is `"27"`
+
+### Step 0b: Confirm RED
+
+Tool: `playwright.test.red`
+Spec: `tests/threejs-blocks.spec.ts`
+
+Expected: all fail — demo page and blocks don't exist yet.
+
+---
+
+## Phase 1: wave-terrain block (builds first — appears at BOTTOM of demo page)
+
+Target: `blocks/wave-terrain/`
+
+### 1a: Component model JSON (bash)
+
+```bash
+mkdir -p blocks/wave-terrain && cat > blocks/wave-terrain/_wave-terrain.json << 'ENDJSON'
+{"definitions":[{"title":"Wave Terrain","id":"wave-terrain","plugins":{"xwalk":{"page":{"resourceType":"core/franklin/components/block/v1/block","template":{"name":"Wave Terrain","model":"wave-terrain"}}}}}],"models":[{"id":"wave-terrain","fields":[]}],"filters":[]}
+ENDJSON
+```
+
+### 1b: Demo data (bash)
+
+```bash
+mkdir -p blocks/wave-terrain && cat > blocks/wave-terrain/wave-terrain-demo.json << 'ENDJSON'
+{"color":"#00aaff","speed":"1.0","segments":"60"}
+ENDJSON
+```
+
+### 1c: JS implementation (sonnet — THREE.js required)
+
+Target: `blocks/wave-terrain/wave-terrain.js`
+
+Animated wireframe terrain using Three.js. Full spec:
+
+- Read optional config from block table rows: `color` (default `#00aaff`), `speed` (default `1.0`), `segments` (default `60`).
+  If block table is empty, fetch demo JSON via `new URL('wave-terrain-demo.json', import.meta.url)`.
+- `loadScript('../../scripts/aem.js')` → resolve `window.THREE`.
+  On failure show `<div class="viz-empty-state">Wave Terrain requires WebGL</div>` and return.
+- Create a full-width THREE.js canvas (height: 400px). Renderer: `antialias:true, alpha:true`.
+- Geometry: `THREE.PlaneGeometry(10, 10, segments, segments)` rotated `-Math.PI/2`.
+- On each animation frame, displace each vertex's Y: `sin(x * 1.5 + time * speed) * cos(z * 1.5 + time * speed) * 0.5`.
+- Two layers: solid `MeshBasicMaterial({color, wireframe:false, transparent:true, opacity:0.15})` filled plane BELOW a `WireframeGeometry` + `LineSegments` in `color` at full opacity.
+- Camera: `PerspectiveCamera(60)` at `(0, 4, 8)` looking at `(0,0,0)`.
+- Mouse move on canvas: smoothly tilt camera (`x ±0.5`, `y 3–5`) using lerp factor 0.05.
+- `requestAnimationFrame` loop; disconnect/stop on `block.remove` (use `ResizeObserver` for canvas sizing).
+- Export `default async function decorate(block)`.
+
+### 1d: CSS (haiku)
+
+Target: `blocks/wave-terrain/wave-terrain.css`
+
+Full-width block, canvas fills container at 400px height. `.viz-empty-state` centered, muted text.
+No BEM.
+
+---
+
+## Phase 2: orbit-ring block (builds second — appears MIDDLE of demo page)
+
+Target: `blocks/orbit-ring/`
+
+### 2a: Component model JSON (bash)
+
+```bash
+mkdir -p blocks/orbit-ring && cat > blocks/orbit-ring/_orbit-ring.json << 'ENDJSON'
+{"definitions":[{"title":"Orbit Ring","id":"orbit-ring","plugins":{"xwalk":{"page":{"resourceType":"core/franklin/components/block/v1/block","template":{"name":"Orbit Ring","model":"orbit-ring"}}}}}],"models":[{"id":"orbit-ring","fields":[]}],"filters":[]}
+ENDJSON
+```
+
+### 2b: Demo data (bash)
+
+```bash
+mkdir -p blocks/orbit-ring && cat > blocks/orbit-ring/orbit-ring-demo.json << 'ENDJSON'
+{"images":["https://picsum.photos/seed/a/400/400","https://picsum.photos/seed/b/400/400","https://picsum.photos/seed/c/400/400","https://picsum.photos/seed/d/400/400","https://picsum.photos/seed/e/400/400","https://picsum.photos/seed/f/400/400"]}
+ENDJSON
+```
+
+### 2c: JS implementation (sonnet — THREE.js required)
+
+Target: `blocks/orbit-ring/orbit-ring.js`
+
+3D orbital image gallery. Full spec:
+
+- Read image URLs from block table rows (one URL per row). If empty, fetch demo JSON via
+  `new URL('orbit-ring-demo.json', import.meta.url)` and read `.images` array.
+- `loadScript('../../scripts/aem.js')` → `window.THREE`. On failure show `.viz-empty-state`.
+- Canvas height: 500px, full width. Background: transparent (black renderer clear color, alpha).
+- Create one `THREE.Mesh(THREE.PlaneGeometry(1.6, 1.6), MeshBasicMaterial({map: texture, side: DoubleSide}))` per image.
+  Load textures with `TextureLoader`; `crossOrigin='anonymous'`.
+- Arrange images on a torus path: for N images, image `i` sits at angle `(2π * i / N)` on a ring of
+  radius `3.5`, tilted `15°` from vertical. Each mesh faces the camera using `lookAt`.
+- Auto-rotate the whole ring group: `group.rotation.y += 0.005 * speed` per frame.
+- On `pointerenter` on canvas: pause rotation. On `pointerleave`: resume.
+- On `click` or `tap` on canvas: raycaster picks closest mesh; selected image lerps to `(0, 0, 2.5)` 
+  (camera-center) over 0.5s and scales `1→2.2`; others dim to `opacity 0.3`. Second click or click-elsewhere
+  returns to orbit. 
+- Camera: `PerspectiveCamera(50)` at `(0, 1.5, 7)`.
+- Export `default async function decorate(block)`.
+
+### 2d: CSS (haiku)
+
+Target: `blocks/orbit-ring/orbit-ring.css`
+
+Full-width block, canvas fills container 500px tall. Cursor pointer on canvas. `.viz-empty-state` centered.
+
+---
+
+## Phase 3: photo-cubes block (builds LAST — appears FIRST at TOP of demo page)
+
+Target: `blocks/photo-cubes/`
+
+### 3a: Component model JSON (bash)
+
+```bash
+mkdir -p blocks/photo-cubes && cat > blocks/photo-cubes/_photo-cubes.json << 'ENDJSON'
+{"definitions":[{"title":"Photo Cubes","id":"photo-cubes","plugins":{"xwalk":{"page":{"resourceType":"core/franklin/components/block/v1/block","template":{"name":"Photo Cubes","model":"photo-cubes"}}}}}],"models":[{"id":"photo-cubes","fields":[]}],"filters":[]}
+ENDJSON
+```
+
+### 3b: Demo data (bash)
+
+```bash
+mkdir -p blocks/photo-cubes && cat > blocks/photo-cubes/photo-cubes-demo.json << 'ENDJSON'
+{
+  "mode": "single",
+  "images": ["https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/generated/Firefly_Generate%20an%20image%20of%20a%20Blue%20Heeler%20dog%20making%20coffee%20using%20a%20siphon%20598415.png"],
+  "speed": "1.0",
+  "monochrome": "false"
+}
+ENDJSON
+```
+
+### 3c: JS implementation (sonnet — complex THREE.js + quaternion math required)
+
+Target: `blocks/photo-cubes/photo-cubes.js`
+
+A 3×3×3 Rubik's cube that scrambles and solves on viewport entry. **Full spec:**
+
+#### Block table parsing
+Read rows as key→value pairs: `mode` (single|many, default single), `image` (one or many rows),
+`speed` (float default 1.0), `monochrome` (true|false default false).
+If block table empty: fetch `new URL('photo-cubes-demo.json', import.meta.url)`.
+
+#### Three.js bootstrap
+`loadScript('../../scripts/aem.js')` → `window.THREE`.
+On failure: show `<div class="viz-empty-state">Photo Cubes requires WebGL</div>` and return.
+
+#### Cube construction
+- 27 `THREE.Mesh` with `THREE.BoxGeometry(0.85, 0.85, 0.85)` placed at `(x, y, z)` where each
+  of x, y, z ∈ `{-1, 0, 1}` (gap = 0.15 between cubelets, so center-to-center = 1.0).
+- Each mesh has an array of 6 `THREE.MeshBasicMaterial` (one per face index: +x right, -x left, +y top, -y bottom, +z front, -z back).
+- Default face colors (no image): right=0xb71234, left=0xff5800, top=0xffffff, bottom=0xffd500, front=0x009b48, back=0x0046ad. Interior faces (faces not on the outer surface of the 3×3 block): 0x111111.
+- A face is "on the outer surface" if the cubelet's coordinate in that axis is ±1 (e.g., cubelet at x=1 has its +x face on the surface).
+
+#### SINGLE MODE — image tiling
+One image URL. The image is replicated across **all 6 faces** of the big cube as a photo-cube effect.
+For each outer face of each cubelet:
+- Determine which big-cube face this is (e.g., the +x face of the big cube = all cubelets at x=1, looking at their +x face material).
+- The 9 cubelets on that big-cube face form a 3×3 grid. Assign each cubelet a row/col in 0–2.
+- Apply `texture.repeat.set(1/3, 1/3)` and `texture.offset.set(col/3, row/3)` so together the 9 cubelets tile the image across the full face.
+- Use `THREE.TextureLoader` with `crossOrigin='anonymous'`. All 6 big-cube faces get the same image URL but different UV offsets per cubelet face.
+- If `monochrome=true`: apply a grayscale shader or set `material.color = new THREE.Color(0.5, 0.5, 0.5)` on texture materials until solve completes, then tween color to `(1,1,1)`.
+
+#### MANY MODE — per-sticker images
+Up to 54 image URLs. A sticker slot = (big-face index 0–5, position 0–8). Map each sticker slot
+to a cubelet face material. If fewer than 54 images provided, cycle through the array but try to
+spread duplicates: use an interleave algorithm — for N images filling 54 slots, cycle
+`images[i % N]` but shuffle the slot assignment order so sequential duplicates are on different faces.
+Each sticker material gets its own `TextureLoader`.
+
+#### Layer rotation mechanic
+A "move" = `{ axis: 'x'|'y'|'z', layer: -1|0|1, dir: 1|-1 }`.
+- `axis='x', layer=1, dir=1` = rotate the right face (all cubelets with `x === 1`) 90° around +X axis.
+- Collect the 9 cubelets matching `cubelet.gridPos[axis] === layer`.
+- Create a temporary pivot `THREE.Group`, add those 9 cubelets, rotate the group's quaternion
+  by `dir * Math.PI/2` over `duration` ms using requestAnimationFrame lerp.
+- After rotation completes: snap quaternion to nearest 90°, update each cubelet's `gridPos`
+  to reflect new position (rotate the (x,y,z) coordinate vector by the same rotation), remove from
+  pivot group and re-add to scene.
+- **Important**: store `gridPos` as an integer vector `{x,y,z}` on each mesh to track position correctly.
+  After rotating the right layer (x=1) by +90° around X axis: `(x,y,z) → (x, -z, y)`.
+  After rotating the top layer (y=1) by +90° around Y: `(x,y,z) → (z, y, -x)`.
+  After rotating the front layer (z=1) by +90° around Z: `(x,y,z) → (-y, x, z)`.
+  Adjust for -1 layers and negative directions accordingly.
+
+#### Scramble + solve animation
+- Triggered by `IntersectionObserver` (threshold 0.3) when block enters viewport.
+- Generate 12 random moves: random axis, random layer (-1,0,1), random dir (±1).
+  Store the move sequence for reversal.
+- **Scramble**: execute all 12 moves sequentially, `duration = 80ms * (1/speed)` each.
+- **Pause**: 300ms.
+- **Solve**: execute the 12 moves in REVERSE ORDER, each reversed direction, `duration = 350ms * (1/speed)` each.
+- After solve completes: if `monochrome=true`, fade colors from gray to full over 600ms.
+- Only trigger once per page load (guard with a `solved` flag).
+
+#### Canvas and camera
+- Canvas: full width of block, height 520px. Renderer: `antialias:true, alpha:true`.
+- Camera: `PerspectiveCamera(45)` at `(4, 3, 5)` looking at `(0,0,0)`.
+- Gentle idle auto-rotation of the whole cube group: `group.rotation.y += 0.003` per frame
+  (paused during scramble/solve).
+- Ambient light + directional light from `(5,10,7)`.
+- Attach `data-cubelets="27"` to the block element after scene creation (used by Playwright test).
+- Export `default async function decorate(block)`.
+
+### 3d: CSS (haiku)
+
+Target: `blocks/photo-cubes/photo-cubes.css`
+
+Full-width block, canvas 520px tall, centered. `.viz-empty-state` centered, muted.
+
+---
+
+## Phase 4: Demo page
+
+### Step 4a: Create `demo/premium-blocks.html`
+
+Use tool `haiku`. Target: `demo/premium-blocks.html`
+
+Use same shell as other demo pages. Load `/scripts/scripts.js` and `/styles/styles.css`.
+Import each block's JS and CSS. Sections in this order (top to bottom):
+
+1. Page header: "Premium Three.js Blocks"
+2. **photo-cubes** section (top — built last, most impressive)
+3. **orbit-ring** section  
+4. **wave-terrain** section (bottom — built first)
+
+Each section: `<h2>Block Name</h2>` then a standard EDS block div with the block class and demo table.
+For `photo-cubes`: include a two-column table row `mode | single` and image row with the demo URL.
+
+---
+
+## Phase 5: Models and build
+
+### Step 5a: Add new blocks to section model filters (bash)
+
+```bash
+node -e "
+const fs = require('fs');
+const f = 'models/_section.json';
+const j = JSON.parse(fs.readFileSync(f,'utf8'));
+const add = ['wave-terrain','orbit-ring','photo-cubes'];
+const filters = j.filters ?? j;
+const arr = Array.isArray(filters) ? filters : (filters.components ?? []);
+add.forEach(id => { if (!arr.includes(id)) arr.push(id); });
+if (Array.isArray(filters)) { j.filters = arr; } else { filters.components = arr; }
+fs.writeFileSync(f, JSON.stringify(j, null, 2));
+console.log('added:', add.join(', '));
+"
+```
+
+### Step 5b: Lint and fix
+
+```bash
+npm run lint:fix 2>&1 | tail -30
+```
+
+### Step 5c: Build aggregated JSON
+
+```bash
+npm run build:json
+```
+
+---
+
+## Phase 6: TDD GREEN — all tests must pass
+
+Use `playwright.test` tool (NOT bash) with `spec: "tests/threejs-blocks.spec.ts"`.
+All 3 tests must be GREEN. If any fail, fix implementation first.

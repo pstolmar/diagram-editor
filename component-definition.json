@@ -212,22 +212,7 @@
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
                   "name": "Cards",
-                  "filter": "cards"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Card",
-          "id": "card",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Card",
-                  "model": "card"
+                  "model": "cards"
                 }
               }
             }
@@ -257,22 +242,7 @@
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
                   "name": "Corkboard",
-                  "filter": "corkboard"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Corkboard Card",
-          "id": "corkboard-card",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Corkboard Card",
-                  "model": "corkboard-card"
+                  "model": "corkboard"
                 }
               }
             }
@@ -332,22 +302,7 @@
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
                   "name": "Filmstrip",
-                  "filter": "filmstrip"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Filmstrip Frame",
-          "id": "filmstrip-frame",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Filmstrip Frame",
-                  "model": "filmstrip-frame"
+                  "model": "filmstrip"
                 }
               }
             }
@@ -414,6 +369,21 @@
           }
         },
         {
+          "title": "Image Explorer",
+          "id": "image-explorer",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Image Explorer",
+                  "model": "image-explorer"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Image Table",
           "id": "image-table",
           "plugins": {
@@ -444,14 +414,14 @@
           }
         },
         {
-          "title": "3D Bar Chart",
+          "title": "M3D Bars",
           "id": "m3d-bars",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "M3d Bars",
+                  "name": "M3D Bars",
                   "model": "m3d-bars"
                 }
               }
@@ -459,14 +429,14 @@
           }
         },
         {
-          "title": "3D Force Graph",
+          "title": "M3D Force Graph",
           "id": "m3d-force-graph",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "M3d Force Graph",
+                  "name": "M3D Force Graph",
                   "model": "m3d-force-graph"
                 }
               }
@@ -474,14 +444,14 @@
           }
         },
         {
-          "title": "3D Globe",
+          "title": "M3D Globe",
           "id": "m3d-globe",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "M3d Globe",
+                  "name": "M3D Globe",
                   "model": "m3d-globe"
                 }
               }
@@ -489,14 +459,14 @@
           }
         },
         {
-          "title": "3D Image Cube",
+          "title": "M3D Image Cube",
           "id": "m3d-image-cube",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "M3d Image Cube",
+                  "name": "M3D Image Cube",
                   "model": "m3d-image-cube"
                 }
               }
@@ -519,14 +489,14 @@
           }
         },
         {
-          "title": "3D Orbit",
+          "title": "M3D Orbit",
           "id": "m3d-orbit",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "M3d Orbit",
+                  "name": "M3D Orbit",
                   "model": "m3d-orbit"
                 }
               }
@@ -549,14 +519,14 @@
           }
         },
         {
-          "title": "3D Scatter Plot",
+          "title": "M3D Scatter",
           "id": "m3d-scatter",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "M3d Scatter",
+                  "name": "M3D Scatter",
                   "model": "m3d-scatter"
                 }
               }
@@ -1054,22 +1024,7 @@
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
                   "name": "Polaroid Corkboard",
-                  "filter": "polaroid-corkboard"
-                }
-              }
-            }
-          }
-        },
-        {
-          "title": "Polaroid Photo",
-          "id": "polaroid-photo",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/franklin/components/block/v1/block/item",
-                "template": {
-                  "name": "Polaroid Photo",
-                  "model": "polaroid-photo"
+                  "model": "polaroid-corkboard"
                 }
               }
             }
@@ -1091,14 +1046,14 @@
           }
         },
         {
-          "title": "Pop-in Carousel",
+          "title": "PopIn Carousel",
           "id": "popin-carousel",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block",
                 "template": {
-                  "name": "Pop-in Carousel",
+                  "name": "PopIn Carousel",
                   "model": "popin-carousel"
                 }
               }

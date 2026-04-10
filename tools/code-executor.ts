@@ -4,6 +4,7 @@ import { promisify } from "util";
 import { exec as execCb } from "child_process";
 import crypto from "crypto";
 import { mcpRequest, isBridgeActive } from "./mcp-bridge.js";
+import { fjMcp } from "./fj-mcp-client.js";
 
 const execAsync = promisify(execCb);
 
@@ -46,11 +47,50 @@ type StepResult = {
   errorMessage?: string;
   inputTokens?: number;
   outputTokens?: number;
+  /** Set when this result came from an automatic escalation retry */
+  escalatedFrom?: string;
 };
 
 const JOB_PATH = path.join(".claude", "job.json");
 const LOG_DIR = path.join(".claude", "logs");
 const REPORT_PATH = "REPORT.md";
+const CHECKPOINT_PATH = path.join(".claude", "job-resume.json");
+
+// Resume mode: skip steps that already completed in a prior (failed) run
+const TM_RESUME = process.env.TM_RESUME === "1" || process.env.TM_RESUME === "true";
+
+interface Checkpoint {
+  jobSpecId: string;
+  completed: string[]; // "phaseName::stepName"
+}
+
+// Module-level sets — populated in main() when TM_RESUME is true
+let resumeSet = new Set<string>();
+const completedSet = new Set<string>();
+
+function loadCheckpoint(jobSpecId: string): void {
+  if (!TM_RESUME || !fs.existsSync(CHECKPOINT_PATH)) return;
+  try {
+    const cp: Checkpoint = JSON.parse(fs.readFileSync(CHECKPOINT_PATH, "utf8"));
+    if (cp.jobSpecId === jobSpecId) {
+      resumeSet = new Set(cp.completed);
+      console.log(`🔄 Resume: skipping ${resumeSet.size} already-completed step(s)`);
+    } else {
+      console.log(`🔄 Resume: checkpoint is for a different job — starting fresh`);
+    }
+  } catch {
+    // corrupt checkpoint — ignore
+  }
+}
+
+function saveCheckpoint(jobSpecId: string): void {
+  const cp: Checkpoint = { jobSpecId, completed: [...completedSet] };
+  fs.writeFileSync(CHECKPOINT_PATH, JSON.stringify(cp, null, 2), "utf8");
+}
+
+function clearCheckpoint(): void {
+  fs.unlink(CHECKPOINT_PATH, () => {});
+}
 
 /**
  * TM_CODE_WITH: override the tool used for every non-bash step.
@@ -107,7 +147,7 @@ const RUNS_LOG = path.join(TOKENMISER_DIR, "runs.json");
 
 /** Infer model tier from tool name */
 function inferModel(tool: string): string {
-  if (["bash", "bash.check", "npmScript", "eds.buildJson", "eds.lint", "playwright.test"].includes(tool)) return "bash";
+  if (["bash", "bash.check", "npmScript", "eds.buildJson", "eds.lint", "playwright.test", "playwright.test.red"].includes(tool)) return "bash";
   if (["codex.write", "codex.patch"].includes(tool)) return "codex";
   if (tool === "fj.snippet") return "fj";
   if (tool === "fj.mcp") return "fj.mcp";
@@ -131,6 +171,44 @@ function computeStepCost(tool: string, inp: number, out: number): number {
   const tier = inferModel(tool);
   const rates = COST_RATES[tier] ?? COST_RATES["haiku"];
   return (inp / 1e6) * rates.in + (out / 1e6) * rates.out;
+}
+
+// ─── Escalation ladder ───────────────────────────────────────────────────────
+// Maps each LLM tool to the next tier when the current one fails.
+const ESCALATION_LADDER: Record<string, string> = {
+  haiku: "sonnet",
+  sonnet: "opus",       // only reached if MISER allows
+  "fj.snippet": "sonnet",
+  "codex.patch": "haiku",
+  "codex.write": "haiku",
+};
+
+// MISER thresholds for automatic escalation
+// haiku→sonnet: allowed when MISER ≤ 7 (8+ locks to haiku; no point escalating)
+// sonnet→opus:  allowed when MISER ≤ 3  (expensive; only at near-zero cost mode)
+// timeout-triggered: escalate one level regardless of MISER (timeout = haiku is stuck)
+const ESCALATION_MISER_LIMIT: Record<string, number> = {
+  haiku:        7,   // haiku→sonnet: MISER 0–7
+  sonnet:       3,   // sonnet→opus:  MISER 0–3
+  "fj.snippet": 7,
+  "codex.patch": 9,
+  "codex.write": 9,
+};
+
+function getEscalationTarget(
+  tool: string,
+  miserLevel: number,
+  isTimeout: boolean,
+): string | null {
+  const next = ESCALATION_LADDER[tool];
+  if (!next) return null;
+  const limit = ESCALATION_MISER_LIMIT[tool] ?? 5;
+  // Timeouts bypass MISER limit by one level (haiku stuck = sonnet even at MISER 8)
+  const effectiveLimit = isTimeout ? Math.min(limit + 1, 9) : limit;
+  if (miserLevel > effectiveLimit) return null;
+  // Never escalate to opus unless explicitly in ladder AND MISER ≤ 3
+  if (next === "opus" && miserLevel > 3) return null;
+  return next;
 }
 
 function ensureDirs() {
@@ -184,7 +262,8 @@ async function runCommand(
 async function handleStep(
   phase: JobPhase,
   step: JobStep,
-  constraints: JobConstraints
+  constraints: JobConstraints,
+  _opts: { isEscalation?: boolean } = {}
 ): Promise<StepResult> {
   const start = Date.now();
   const startedAt = nowIso();
@@ -207,6 +286,19 @@ async function handleStep(
 
   const phasePrefix = `[${phase.name}]`;
   const label = `${phasePrefix} ${stepName} (${stepTool.tool})`;
+
+  // Resume: skip steps that completed in a prior run
+  const stepKey = `${phase.name}::${stepName}`;
+  if (resumeSet.has(stepKey)) {
+    console.log(`⏭ [resume] skipping: ${stepKey}`);
+    return {
+      ...resultBase,
+      status: "skipped",
+      endedAt: nowIso(),
+      durationMs: 0,
+      errorMessage: "skipped (resume)",
+    };
+  }
 
   console.log(`\n🚀 ${label}`);
 
@@ -236,10 +328,22 @@ async function handleStep(
       }
 
       case "bash": {
-        const cmd = step.args?.command;
+        let cmd = step.args?.command;
         if (!cmd || typeof cmd !== "string") {
           throw new Error("bash step requires args.command:string");
         }
+        // Guard: "npm test <spec>" always means playwright — rewrite to npx to avoid
+        // running the full test suite or failing on missing aem up.
+        cmd = cmd.replace(/^npm\s+test\s+(tests\/\S+)/, "npx playwright test $1");
+        // Guard: auto-mkdir for any "cat > path" or "cat >> path" that lacks mkdir -p.
+        // Parallel steps that write to a new block dir race against the step that creates it.
+        cmd = cmd.replace(/\bcat\s+>{1,2}\s+(blocks\/[^\s<]+)/g, (match, filePath) => {
+          const dir = filePath.substring(0, filePath.lastIndexOf('/'));
+          if (dir && !cmd.includes(`mkdir -p ${dir}`) && !cmd.includes('mkdir -p $(dirname')) {
+            return `mkdir -p ${dir} && ${match}`;
+          }
+          return match;
+        });
         command = cmd;
         console.log(`$ ${cmd}`);
         const out = await runCommand(cmd, perStepTimeout);
@@ -318,11 +422,52 @@ async function handleStep(
       case "playwright.test": {
         const spec = step.args?.spec ?? "";
         const extra = step.args?.extraArgs ?? "";
+        // AEM is expected to be running at localhost:3000 — hard-fail if not, never silently skip.
+        try {
+          await runCommand("curl -sf --max-time 5 http://localhost:3000 -o /dev/null", 8);
+        } catch {
+          throw new Error(
+            `AEM dev server not running at http://localhost:3000. ` +
+            `Start it with 'aem up' before running playwright tests. ` +
+            `Test spec: ${spec}`
+          );
+        }
         command = `npx playwright test ${spec} ${extra}`.trim();
         console.log(`$ ${command}`);
         const out = await runCommand(command, perStepTimeout);
         stdout = out.stdout;
         stderr = out.stderr;
+        break;
+      }
+
+      // TDD RED phase: run a playwright test and REQUIRE it to fail.
+      // Step succeeds when the test is red (feature not yet implemented).
+      // Step fails hard if the test already passes — that means TDD was skipped.
+      case "playwright.test.red": {
+        const spec = step.args?.spec ?? "";
+        const extra = step.args?.extraArgs ?? "";
+        command = `npx playwright test ${spec} ${extra}`.trim();
+        console.log(`$ [TDD RED] ${command}`);
+        let redOut: { stdout: string; stderr: string };
+        let testPassed = false;
+        try {
+          redOut = await runCommand(command, perStepTimeout);
+          testPassed = true; // command exited 0 → test passed → BAD for RED phase
+          stdout = redOut.stdout;
+          stderr = redOut.stderr;
+        } catch (e: any) {
+          // Non-zero exit = test failed = GOOD (we're in RED)
+          stdout = e.stdout ?? "";
+          stderr = e.stderr ?? "";
+        }
+        if (testPassed) {
+          // Test already passes → TDD not followed → hard fail
+          throw new Error(
+            `TDD violation: test '${spec}' already passes before implementation. ` +
+            `Write a test for NEW behavior that does not yet exist.`
+          );
+        }
+        console.log(`  ✓ RED confirmed — test fails as expected. Proceed to implement.`);
         break;
       }
 
@@ -397,23 +542,33 @@ async function handleStep(
       }
 
       case "fj.mcp": {
-        // Use real FluffyJaws MCP via the file-based bridge (parent CC session fulfills)
         const fjMcpQuery = step.args?.query ?? step.description ?? stepName;
         const fjMcpTarget = (step.args?.target as string | undefined) ?? (() => {
           const m = fjMcpQuery.match(/\b(blocks\/[\w-]+\/[\w.-]+|demo\/[\w-]+\.html|models\/[\w.-]+\.json)/);
           return m?.[1];
         })();
         const fjTool = (step.args?.fjTool as string | undefined) ?? "fluffyjaws_chat";
-        const bridgeStepId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         console.log(`  🌐 fj.mcp [${fjTool}]: ${fjMcpQuery.substring(0, 60)}`);
-        // Bridge timeout 120s — gives cron at least one full fire window
-        const res = await mcpRequest(
-          { stepId: bridgeStepId, tool: fjTool, args: { message: fjMcpQuery }, targetFile: fjMcpTarget, description: stepName },
-          120_000,
-        );
-        if (res.status === "error") throw new Error(res.errorMessage ?? "fj.mcp bridge returned error");
-        stdout = res.content ?? "";
-        // Estimate tokens from query + response (bridge is a black box)
+
+        // Try direct MCP client first (no parent session needed, works when on VPN)
+        const fjDirect = await fjMcp.init();
+        if (fjDirect) {
+          stdout = await fjMcp.callTool(fjTool, { message: fjMcpQuery }, 90_000);
+          console.log(`     ↳ direct mcp`);
+        } else if (isBridgeActive()) {
+          // Fall back to file-based bridge (parent Claude Code session)
+          const bridgeStepId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          const res = await mcpRequest(
+            { stepId: bridgeStepId, tool: fjTool, args: { message: fjMcpQuery }, targetFile: fjMcpTarget, description: stepName },
+            180_000,
+          );
+          if (res.status === "error") throw new Error(res.errorMessage ?? "fj.mcp bridge returned error");
+          stdout = res.content ?? "";
+          console.log(`     ↳ file bridge`);
+        } else {
+          throw new Error("fj.mcp: no VPN connection and no active bridge — cannot reach FluffyJaws");
+        }
+
         inputTokens = Math.ceil(fjMcpQuery.length / 4);
         outputTokens = Math.ceil(stdout.length / 4);
         if (fjMcpTarget && stdout) {
@@ -425,21 +580,26 @@ async function handleStep(
       }
 
       case "fj.snippet": {
-        // Auto-route through MCP bridge when the parent session has real FJ access
-        if (isBridgeActive()) {
-          return handleStep(phase, { ...step, tool: "fj.mcp" }, constraints);
-        }
         const query = step.args?.query ?? step.description ?? stepName;
-        // Explicit target wins; fall back to extracting a file path from the query string
         const extractedTarget = (() => {
           const m = query.match(/\b(blocks\/[\w-]+\/[\w.-]+|demo\/[\w-]+\.html|models\/[\w.-]+\.json)/);
           return m?.[1];
         })();
         const target = (step.args?.target as string | undefined) ?? extractedTarget;
+        console.log(`  🔍 fj.snippet: ${query.substring(0, 60)}`);
+
+        // Priority: direct MCP client → file bridge → haiku fallback
+        const fjSnippetDirect = await fjMcp.init();
+        if (fjSnippetDirect || isBridgeActive()) {
+          // Route to fj.mcp handler (direct or bridge)
+          return handleStep(phase, { ...step, tool: "fj.mcp" }, constraints);
+        }
+
+        // Haiku fallback — no MCP access available
+        console.log(`     ↳ haiku fallback (no VPN, no bridge)`);
         const fjPrompt = `You are an AEM Edge Delivery Services expert. Output ONLY the requested code or JSON, no explanation, no markdown fences.\n\nRequest: ${query}`;
         const fjTmp = await writeTmp(fjPrompt);
-        command = `claude -p --model claude-haiku-4-5-20251001 --output-format json < "${fjTmp}"`;
-        console.log(`  🔍 fj.snippet: ${query.substring(0, 60)}`);
+        command = `claude -p --model claude-haiku-4-5-20251001 --output-format json --system-prompt "You are an AEM EDS expert. Output ONLY the requested code or JSON. No prose, no markdown fences." --strict-mcp-config --mcp-config '{"mcpServers":{}}' < "${fjTmp}"`;
         try {
           const fjOut = await runCommand(command, perStepTimeout);
           stderr = fjOut.stderr;
@@ -465,11 +625,11 @@ async function handleStep(
 
       case "haiku":
       case "sonnet": {
-        const modelId = step.tool === "haiku" ? "claude-haiku-4-5-20251001" : "";
+        const modelId = stepTool.tool === "haiku" ? "claude-haiku-4-5-20251001" : "";
         const modelFlag = modelId ? `--model ${modelId}` : "";
         let llmPrompt = step.args?.prompt ?? step.description ?? stepName;
-        const files = step.args?.files as string[] | undefined;
-        if (files?.length) {
+        const files = (step.args?.files as string[] | undefined) ?? [];
+        if (files.length) {
           const contents = await Promise.all(
             files.map(async (f) => {
               try {
@@ -479,10 +639,16 @@ async function handleStep(
               }
             })
           );
-          llmPrompt += contents.join("");
+          // Anti-double-read: files are already inlined above — prevent Claude from
+          // re-reading them via tools (which would double the input token cost).
+          llmPrompt += contents.join("")
+            + "\n\nNOTE: The file contents listed above are already provided in full. "
+            + "Do NOT use Read/Glob/Grep tools to re-read them — proceed directly with the task.";
         }
         const llmTmp = await writeTmp(llmPrompt);
-        command = `claude -p ${modelFlag} --output-format json --permission-mode acceptEdits < "${llmTmp}"`.trim();
+        // --tools "": file content is already inlined in the prompt; disabling tools
+        // prevents re-reads that would double input token cost.
+        command = `claude -p ${modelFlag} --output-format json --tools "" --system-prompt "You are a code generator for Adobe AEM Edge Delivery Services. Output ONLY the requested file content. No prose, no explanation." --strict-mcp-config --mcp-config '{"mcpServers":{}}' < "${llmTmp}"`.trim();
         console.log(`  🤖 ${step.tool}: ${llmPrompt.substring(0, 60)}...`);
         try {
           const llmOut = await runCommand(command, perStepTimeout);
@@ -501,6 +667,47 @@ async function handleStep(
           }
         } finally {
           await fs.promises.unlink(llmTmp).catch(() => {});
+        }
+        // Write output to target file if specified (mirrors fj.snippet behaviour).
+        // Strip markdown code fences that haiku wraps around code output.
+        const haikiTarget = step.args?.target as string | undefined;
+        if (haikiTarget && stdout) {
+          const ext = path.extname(haikiTarget);
+          let fileContent = stdout;
+          // Strip leading/trailing markdown fences (```lang ... ```)
+          const fenceMatch = stdout.match(/^```[\w.-]*\n([\s\S]*?)```\s*$/m);
+          if (fenceMatch) {
+            fileContent = fenceMatch[1];
+          } else if (ext === '.json') {
+            // For JSON: extract first {...} or [...] block
+            const jsonMatch = stdout.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+            if (jsonMatch) fileContent = jsonMatch[1];
+          }
+          // Validate JSON files before writing — reject prose that would corrupt them
+          if (ext === '.json') {
+            let parsed: any;
+            try { parsed = JSON.parse(fileContent); } catch {
+              throw new Error(
+                `haiku output is not valid JSON for target '${haikiTarget}'. ` +
+                `Ensure the prompt asks for pure JSON output only.`
+              );
+            }
+            // Validate AEM component model files (_*.json) have the required structure
+            const isComponentModel = path.basename(haikiTarget).startsWith('_') && haikiTarget.includes('blocks/');
+            if (isComponentModel) {
+              const missing = ['definitions', 'models', 'filters'].filter(k => !(k in parsed));
+              if (missing.length) {
+                throw new Error(
+                  `AEM component model '${haikiTarget}' is missing required keys: ${missing.join(', ')}. ` +
+                  `Required structure: { "definitions": [...], "models": [...], "filters": [] }. ` +
+                  `The prompt must include the exact template from decompose.ts.`
+                );
+              }
+            }
+          }
+          await fs.promises.mkdir(path.dirname(path.resolve(haikiTarget)), { recursive: true });
+          await fs.promises.writeFile(haikiTarget, fileContent, "utf8");
+          console.log(`  → wrote to ${haikiTarget}`);
         }
         break;
       }
@@ -592,6 +799,9 @@ async function handleStep(
 
     console.log(`✅ ${label} completed in ${durationMs}ms`);
 
+    // Checkpoint this step so --resume can skip it next time
+    completedSet.add(stepKey);
+
     return {
       ...resultBase,
       status: "ok",
@@ -637,6 +847,33 @@ async function handleStep(
       .filter(Boolean)
       .join("\n");
     await fs.promises.writeFile(logFile, logContent, "utf8");
+
+    // ── Automatic escalation retry ───────────────────────────────────────────
+    // Don't escalate if: this IS already an escalation, the tool isn't an LLM,
+    // or the MISER level disallows it.
+    if (!_opts.isEscalation && LLM_TOOLS.has(stepTool.tool)) {
+      const isTimeout = message.toLowerCase().includes("timeout") || message.toLowerCase().includes("timed out");
+      const escalateTo = getEscalationTarget(stepTool.tool, ENV_MISER, isTimeout);
+
+      if (escalateTo) {
+        const reason = isTimeout ? `timeout after ${durationMs}ms` : `failure: ${message.substring(0, 80)}`;
+        console.log(`\x1b[33m  ⚡ escalating ${stepTool.tool} → ${escalateTo} (${reason})\x1b[0m`);
+
+        const escalatedResult = await handleStep(
+          phase,
+          { ...step, tool: escalateTo },
+          constraints,
+          { isEscalation: true },
+        );
+
+        if (escalatedResult.status === "ok") {
+          console.log(`\x1b[32m  ✅ escalation to ${escalateTo} succeeded\x1b[0m`);
+          return { ...escalatedResult, escalatedFrom: stepTool.tool };
+        }
+        console.log(`\x1b[31m  ❌ escalation to ${escalateTo} also failed\x1b[0m`);
+      }
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     return {
       ...resultBase,
@@ -770,6 +1007,10 @@ async function main() {
       maxRuntimeSeconds: job.constraints?.maxRuntimeSeconds,
     };
 
+    // Resume: load which steps already completed
+    const jobSpecId = job.id ?? "unknown";
+    loadCheckpoint(jobSpecId);
+
     const results: StepResult[] = [];
     const escalations: string[] = [];
 
@@ -781,13 +1022,19 @@ async function main() {
       const phaseResults = await runPhase(phase, constraints);
       results.push(...phaseResults);
 
-      // Collect escalation messages from log.escalate steps
+      // Collect escalation messages — from explicit log.escalate steps AND automatic retries
       for (const res of phaseResults) {
+        if (res.escalatedFrom) {
+          escalations.push(`⚡ auto-escalated: ${res.escalatedFrom} → ${res.tool} · step: ${res.stepName} [${res.status}]`);
+        }
         const stepRef = phase.steps.find((s) => (s.name || s.tool) === res.stepName);
         if (stepRef?.tool === "log.escalate" && res.status === "ok" && res.stdout) {
           escalations.push(res.stdout);
         }
       }
+
+      // Save checkpoint after each phase so --resume can skip completed steps
+      if (completedSet.size > 0) saveCheckpoint(jobSpecId);
 
       if (constraints.stopOnError && phaseResults.some((r) => r.status === "failed")) {
         console.log(`⚠️ Stopping job because a phase failed and stopOnError=true`);
@@ -825,6 +1072,7 @@ async function main() {
         model: inferModel(r.tool),
         durationMs: r.durationMs,
         status: r.status,
+        ...(r.escalatedFrom && { escalatedFrom: r.escalatedFrom }),
         ...(r.inputTokens !== undefined && { inputTokens: r.inputTokens, outputTokens: r.outputTokens }),
       })),
       totalDurationMs,
@@ -854,8 +1102,12 @@ async function main() {
       console.error(
         `\n❌ Job completed with ${failed.length} failed step(s). See REPORT.md and .claude/logs/ for details.`
       );
+      if (completedSet.size > 0) {
+        console.log(`💡 Re-run with \`t --resume\` to skip the ${completedSet.size} completed step(s) and retry from the first failure.`);
+      }
       process.exitCode = 1;
     } else {
+      clearCheckpoint();
       console.log(
         `\n✅ Job completed successfully. See REPORT.md and .claude/logs/ for details.`
       );
@@ -866,7 +1118,11 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(`\n💥 Unhandled executor error:`, err);
-  process.exitCode = 1;
-});
+main()
+  .catch((err) => {
+    console.error(`\n💥 Unhandled executor error:`, err);
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    fjMcp.shutdown();
+  });

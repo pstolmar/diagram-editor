@@ -1,0 +1,1 @@
+[      74ms] [ERROR] failed to load module for poll-widget SyntaxError: Identifier 'questionText' has already been declared @ http://localhost:3000/scripts/aem.js:591

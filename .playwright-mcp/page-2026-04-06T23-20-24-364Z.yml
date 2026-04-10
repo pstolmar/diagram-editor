@@ -1,0 +1,41 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - heading "Particle Field Hero" [level=1] [ref=e23]
+      - generic [ref=e28]:
+        - heading "TokenMiser" [level=2] [ref=e29]
+        - paragraph [ref=e30]: Build faster. Spend less. Ship beautiful.
+    - heading "Three.js Scene — Crystal" [level=1] [ref=e33]
+    - heading "Three.js Scene — Nebula" [level=1] [ref=e39]
+    - generic [ref=e43]:
+      - heading "D3 Force Graph" [level=1] [ref=e45]
+      - img [ref=e48]
+    - generic [ref=e49]:
+      - heading "D3 Bar Chart" [level=1] [ref=e51]
+      - img [ref=e54]
+    - heading "CSV Chart — Bar" [level=1] [ref=e57]
+    - heading "CSV Chart — Line" [level=1] [ref=e63]
+    - generic [ref=e68]:
+      - heading "Pop-in Carousel — 3×3 Sizzle" [level=1] [ref=e70]
+      - generic [ref=e73]:
+        - img "boardroom meeting" [ref=e75]
+        - img "office building" [ref=e77]
+        - img "team collaboration" [ref=e79]
+        - img "corporate campus" [ref=e81]
+        - img "executive portrait" [ref=e83]
+        - img "business professional" [ref=e85]
+        - img "open office space" [ref=e87]
+        - img "conference presentation" [ref=e89]
+        - img "data analytics desk" [ref=e91]
+  - contentinfo [ref=e92]:
+    - paragraph [ref=e97]: Copyright © 2021 Adobe. All rights reserved.

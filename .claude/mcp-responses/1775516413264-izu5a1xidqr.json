@@ -1,0 +1,1 @@
+{"stepId": "1775516413264-izu5a1xidqr", "status": "ok", "content": "{\n  \"id\": \"csv-chart\",\n  \"resourceType\": \"core/franklin/components/block/v1/block\",\n  \"fields\": [\n    {\n      \"id\": \"csvData\",\n      \"type\": \"text\"\n    }\n  ],\n  \"filters\": []\n}"}

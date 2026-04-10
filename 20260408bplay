@@ -1,0 +1,147 @@
+# [MISER=8] FINAL COMPARISON RUN — strict-mcp-config token fix validation
+
+Validate the complete `--strict-mcp-config --mcp-config '{"mcpServers":{}}'` token reduction fix.
+This is run 3 of 3: old- (no fix), almost- (partial fix with bugs), and this final clean run.
+All blocks must follow the standard rules:
+- Use `import.meta.url` for demo JSON fallback URL
+- Show `<div class="viz-empty-state">` when no data
+- Three.js blocks: `loadScript` from `../../scripts/aem.js`, then `window.THREE`
+
+---
+
+## Phase 0: TDD — write failing tests first (mandatory)
+
+**No implementation code until every test below is RED.**
+
+Each step writes a Playwright spec, then the executor runs `playwright.test.red` to confirm
+the test fails. The job aborts if any test already passes (that would mean TDD was skipped).
+
+### Step 0a: Write specs for three new blocks
+
+Use tool `haiku` to write `tests/image-video-blocks.spec.ts` containing one test per block:
+
+```
+tests/image-video-blocks.spec.ts  — one describe per block:
+  - video-scrub: navigates to demo page, asserts .video-scrub exists and contains a <video>
+  - image-table: asserts .image-explorer table renders with >0 rows
+  - photo-effects: asserts at least one image shows and AEM buttons show only when logged-in
+```
+
+All tests point to `http://localhost:3000/demo/new` (created in Phase 3).
+Use `{ waitUntil: 'domcontentloaded' }` + `waitForTimeout(1500)` for block hydration.
+
+### Step 0b: Confirm RED
+
+Tool: `playwright.test.red`
+Spec: `tests/image-video-blocks.spec.ts`
+
+Expected: all tests fail because `demo/new.html` and the blocks don't exist yet.
+If any test passes, the job aborts — fix the test to target real new behavior.
+
+---
+
+## Phase 1: Implement Video Scrub block that allows videos to be scrubbed
+
+Target: `blocks/video-scrub/`
+
+Implement a video scrub component that lets author browse for video in DAM and on
+published page visitors can precisely scrub through the video and play back sections
+at 1/2 or 1/4 speed or 2x speed.
+
+---
+
+## Phase 2: More new EDS blocks
+
+All new blocks go in `blocks/<name>/`. Each needs `.js`, `.css`, `_<name>.json` (component
+model), and `<name>-demo.json` (demo data fallback).
+
+### Step 2b: image-table block
+
+Render a table from a browsed to folder in DAM with all of the image thumbnails and names
+in the first column and metadata image info that is not sensitive and not system info wil
+be shown on the page so it will be a listing of images and public metadata including
+color tags and the ai generated keywords description all that stuff.
+
+### Step 2c: photo-effects block
+
+Target files:
+- `blocks/photo-effects/photo-effects.js`
+- `blocks/photo-effects/photo-effects.css`
+- `blocks/photo-effects/_photo-effects.json`
+
+Author selects a DAM asset or sets image URL and we offer several photo effects like bokeh blur
+negative grain monochrome vibrant and so on. The author multi-selects which effects will be available
+to choose on the page. On page logged-out users see the photo and can choose effects. Logged-in users
+also see an AEM upload button that lets them upload the asset back to AEM as a new version of it.
+ONLY logged in users can reupload the image and if it already exists with that effect we simply return OK
+and possibly the published image URL or just load a preview of the new asset in a modal.
+
+---
+
+## Phase 3: Demo page
+
+### Step 3a: demo/new.html
+
+Target: `demo/new.html`
+
+Create a complete standalone demo HTML page that showcases all 6 new blocks and the fixed
+viz-office-map. Use the same HTML structure as existing demo pages (e.g. `demo/viz-blocks.html`).
+
+Include in this order:
+1. Page header: "New Interactive Blocks — Token Reduction Validation"
+2. `video-panel` block (full-width, 600px tall, cover mode with BigBuckBunny fallback)
+3. `data-explorer` block (with demo data, all columns visible)
+4. `timeline-story` block (with demo data)
+5. `poll-widget` block (with demo data, single-select)
+6. `scroll-reveal` block (5 panels with demo data)
+7. `live-configurator` block (3-step plan configurator)
+8. `viz-office-map` block (with its existing demo data — shows the now-working IMS login fix)
+
+Use `<link rel="stylesheet" href="/styles/styles.css">` and load each block's JS/CSS via
+`<script type="module">` imports exactly as other demo pages do. Each block should load
+its demo JSON automatically via import.meta.url fallback.
+
+---
+
+## Phase 4: Models and build
+
+### Step 4a: Add new blocks to section model filters
+
+Use `bash` tool (NOT haiku) with this exact node command — no LLM needed for JSON array edits:
+
+```bash
+node -e "
+const fs = require('fs');
+const f = 'models/_section.json';
+const j = JSON.parse(fs.readFileSync(f,'utf8'));
+const add = ['video-scrub','photo-effect','image-table'];
+const filters = j.filters ?? j;
+const arr = Array.isArray(filters) ? filters : (filters.components ?? []);
+add.forEach(id => { if (!arr.includes(id)) arr.push(id); });
+if (Array.isArray(filters)) { j.filters = arr; } else { filters.components = arr; }
+fs.writeFileSync(f, JSON.stringify(j, null, 2));
+console.log('added:', add.join(', '));
+"
+```
+
+### Step 4b: Lint and fix
+
+```bash
+npm run lint:fix 2>&1 | tail -30
+```
+
+### Step 4c: Build aggregated JSON
+
+```bash
+npm run build:json
+```
+
+---
+
+## Phase 5: TDD GREEN — all tests must pass
+
+Use the `playwright.test` executor tool (NOT bash) with `spec: "tests/image-video-blocks.spec.ts"`.
+This runs `npx playwright test tests/image-video-blocks.spec.ts` and fails hard on any test failure.
+
+All 7 tests written in Phase 0 must be GREEN. If any fail, fix the implementation first.
+Do not claim done without this step passing.

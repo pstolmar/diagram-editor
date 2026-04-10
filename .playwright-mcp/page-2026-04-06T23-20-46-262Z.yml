@@ -1,0 +1,23 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e5]:
+      - paragraph [ref=e8]:
+        - link "Button" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Examples
+        - listitem [ref=e14]: Getting Started
+        - listitem [ref=e15]: Documentation
+      - paragraph [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - heading "Particle Field Hero" [level=1] [ref=e23]
+      - generic [ref=e28]:
+        - heading "TokenMiser" [level=2] [ref=e29]
+        - paragraph [ref=e30]: Build faster. Spend less. Ship beautiful.
+    - heading "Three.js Scene — Crystal" [level=1] [ref=e33]
+    - heading "Three.js Scene — Nebula" [level=1] [ref=e39]
+    - generic [ref=e43]:
+      - heading "D3 Force Graph" [level=1] [ref=e45]
+      - paragraph [ref=e50]: TokenMiser|Haiku|3 TokenMiser|Codex|2 TokenMiser|FluffyJaws|2 Haiku|Sonnet|1 Codex|bash|2 FluffyJaws|AEM JSON|3 Sonnet|Opus|1 AEM JSON|EDS Site|4 bash|EDS Site|3
+  - contentinfo
