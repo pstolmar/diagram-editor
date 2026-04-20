@@ -12,7 +12,7 @@ test.describe('photo-cubes authorable layouts', () => {
     await expect(block).toHaveAttribute('data-photo-cubes-layout', 'face-grid');
     await expect(block).toHaveAttribute('data-photo-cubes-image-count', '9');
     await expect(block.locator('canvas')).toBeVisible();
-    await expect(page.locator('.photo-cubes-demo__caption')).toContainText('face-grid variant');
+    await expect(page.locator('.photo-cubes-demo-caption')).toContainText('face-grid variant');
   });
 
   test('shows the authoring sidebar and warning for the 10-image layout demo', async ({ page }) => {
@@ -21,13 +21,13 @@ test.describe('photo-cubes authorable layouts', () => {
     });
     await page.waitForTimeout(2000);
 
-    const sidebar = page.locator('.photo-cubes-demo__sidebar').first();
+    const sidebar = page.locator('.photo-cubes-demo-sidebar').first();
     await expect(sidebar).toBeVisible();
-    await expect(sidebar.locator('.photo-cubes-demo__field')).toHaveCount(10);
+    await expect(sidebar.locator('.photo-cubes-demo-field')).toHaveCount(10);
 
     const block = page.locator('.photo-cubes').first();
     await expect(block).toBeVisible();
     await expect(block).toHaveAttribute('data-photo-cubes-layout', 'sticker');
-    await expect(block.locator('.photo-cubes__notice')).toContainText('54-slot layout');
+    await expect(block.locator('.photo-cubes-notice')).toContainText('54-slot layout');
   });
 });

@@ -314,7 +314,7 @@ function createNotice(block, imageCount, layout, isAuthoring) {
   if (!isAuthoring || !imageCount) return;
 
   const notice = document.createElement('div');
-  notice.className = 'photo-cubes__notice';
+  notice.className = 'photo-cubes-notice';
   let layoutLabel = '54-slot layout';
   if (layout === 'face') {
     layoutLabel = 'single / 6-face layout';
@@ -326,7 +326,7 @@ function createNotice(block, imageCount, layout, isAuthoring) {
 
   if (imageCount > 9 && imageCount < 54) {
     const extra = document.createElement('div');
-    extra.className = 'photo-cubes__notice-note';
+    extra.className = 'photo-cubes-notice-note';
     extra.textContent = '10-53 images are normalized to the full 54-slot layout so duplicates stay spread across the cube.';
     notice.append(extra);
   }
@@ -528,14 +528,14 @@ export default async function decorate(block) {
   block.textContent = '';
 
   const shell = document.createElement('div');
-  shell.className = 'photo-cubes__shell';
+  shell.className = 'photo-cubes-shell';
 
   if (isAuthoring) {
     createNotice(shell, imageCount, layout, isAuthoring);
   }
 
   const container = document.createElement('div');
-  container.className = 'photo-cubes__stage';
+  container.className = 'photo-cubes-stage';
   shell.append(container);
   block.append(shell);
 
