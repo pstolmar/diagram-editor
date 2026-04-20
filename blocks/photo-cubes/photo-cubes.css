@@ -2,11 +2,135 @@
   width: 100%;
 }
 
+.photo-cubes-demo {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.photo-cubes-demo-sidebar {
+  position: sticky;
+  top: 1.5rem;
+  border: 1px solid rgb(12 24 38 / 16%);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #0c1826 0%, #13263b 100%);
+  color: #e7eef8;
+  padding: 20px;
+  box-shadow: 0 18px 40px rgb(7 13 23 / 16%);
+}
+
+.photo-cubes-demo-sidebar h2,
+.photo-cubes-demo-sidebar h3,
+.photo-cubes-demo-sidebar p {
+  margin: 0 0 12px;
+}
+
+.photo-cubes-demo-sidebar h2 {
+  font-size: 1.15rem;
+}
+
+.photo-cubes-demo-sidebar h3 {
+  color: #7dd3fc;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.photo-cubes-demo-field-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.photo-cubes-demo-field {
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 5%);
+  padding: 12px;
+}
+
+.photo-cubes-demo-field-label {
+  color: #b7c9db;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.photo-cubes-demo-field-value {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.photo-cubes-demo-field-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex: none;
+}
+
+.photo-cubes-demo-field-note {
+  color: #b7c9db;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin-top: 14px;
+}
+
+.photo-cubes-demo-preview {
+  display: grid;
+  gap: 14px;
+}
+
+.photo-cubes-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.photo-cubes-stage {
+  min-height: 520px;
+  position: relative;
+}
+
 .photo-cubes canvas {
   display: block;
   height: 520px;
   margin: 0 auto;
   width: 100%;
+}
+
+.photo-cubes-notice {
+  background: linear-gradient(180deg, rgb(13 24 38 / 96%), rgb(12 20 32 / 96%));
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-left: 3px solid #45c2c2;
+  border-radius: 12px;
+  color: #d9e6f4;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  padding: 12px 14px;
+}
+
+.photo-cubes-notice-note {
+  color: #a8bfd6;
+  margin-top: 6px;
+}
+
+.photo-cubes-demo-caption {
+  color: #526173;
+  font-size: 0.95rem;
+  margin-top: -8px;
+}
+
+@media (width <= 900px) {
+  .photo-cubes-demo {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-cubes-demo-sidebar {
+    position: static;
+  }
 }
 
 .viz-empty-state {

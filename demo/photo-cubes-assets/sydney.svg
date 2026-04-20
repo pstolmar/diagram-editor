@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#24527a"/>
+      <stop offset="100%" stop-color="#2c5f8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#g)"/>
+  <rect y="625" width="900" height="275" fill="#08131f"/>
+  <path d="M100 650 C220 530, 330 530, 450 640 C540 560, 620 550, 760 650" fill="none" stroke="#d7e3f4" stroke-width="28" opacity="0.3"/>
+  <g fill="#d7e3f4" opacity="0.18">
+    <rect x="160" y="310" width="85" height="330"/>
+    <rect x="270" y="230" width="100" height="410"/>
+    <rect x="395" y="260" width="72" height="380"/>
+    <rect x="490" y="180" width="118" height="460"/>
+    <rect x="630" y="290" width="60" height="350"/>
+  </g>
+  <g fill="#bae6fd">
+    <rect x="95" y="720" width="710" height="8"/>
+  </g>
+  <text x="450" y="820" fill="#ffffff" font-size="72" font-family="Arial, sans-serif" text-anchor="middle" font-weight="700">Sydney Harbor</text>
+</svg>

@@ -1409,8 +1409,8 @@
     "fields": [
       {
         "component": "multifield",
-        "name": "photos",
-        "label": "Photos",
+        "name": "images",
+        "label": "Images",
         "fields": [
           {
             "component": "aem-assets",

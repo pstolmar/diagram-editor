@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a85b2"/>
+      <stop offset="100%" stop-color="#5ea1cb"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#g)"/>
+  <rect y="620" width="900" height="280" fill="#07101a"/>
+  <g fill="#eef6ff" opacity="0.2">
+    <rect x="120" y="300" width="60" height="320"/>
+    <rect x="200" y="230" width="98" height="390"/>
+    <rect x="320" y="170" width="142" height="450"/>
+    <rect x="490" y="210" width="88" height="410"/>
+    <rect x="600" y="255" width="110" height="365"/>
+  </g>
+  <path d="M540 180 C610 130, 670 130, 740 180" fill="none" stroke="#fde68a" stroke-width="20" opacity="0.55"/>
+  <rect x="140" y="720" width="620" height="8" fill="#fff"/>
+  <text x="450" y="820" fill="#ffffff" font-size="72" font-family="Arial, sans-serif" text-anchor="middle" font-weight="700">Dubai District</text>
+</svg>

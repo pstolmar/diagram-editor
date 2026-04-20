@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#112e4a"/>
+      <stop offset="100%" stop-color="#1b4965"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#g)"/>
+  <rect y="620" width="900" height="280" fill="#0b1220"/>
+  <g fill="#d7e3f4" opacity="0.2">
+    <rect x="120" y="340" width="80" height="280"/>
+    <rect x="215" y="260" width="90" height="360"/>
+    <rect x="330" y="190" width="120" height="430"/>
+    <rect x="475" y="240" width="70" height="380"/>
+    <rect x="570" y="150" width="95" height="470"/>
+    <rect x="690" y="310" width="60" height="310"/>
+  </g>
+  <g fill="#93c5fd">
+    <circle cx="425" cy="165" r="18"/>
+    <circle cx="423" cy="138" r="10"/>
+    <rect x="90" y="720" width="720" height="8"/>
+  </g>
+  <text x="450" y="820" fill="#ffffff" font-size="72" font-family="Arial, sans-serif" text-anchor="middle" font-weight="700">London City</text>
+</svg>
