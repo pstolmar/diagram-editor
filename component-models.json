@@ -142,18 +142,6 @@
     ]
   },
   {
-    "id": "image-table",
-    "fields": []
-  },
-  {
-    "id": "photo-effects",
-    "fields": []
-  },
-  {
-    "id": "video-scrub",
-    "fields": []
-  },
-  {
     "id": "balloon",
     "fields": [
       {
@@ -548,6 +536,17 @@
         "name": "pageSize",
         "value": "10",
         "label": "Page Size"
+      }
+    ]
+  },
+  {
+    "id": "diagram-editor",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "source",
+        "label": "Mermaid Source",
+        "description": "Mermaid diagram syntax, e.g. graph TD; A --> B"
       }
     ]
   },
@@ -1375,18 +1374,6 @@
         "valueType": "string"
       }
     ]
-  },
-  {
-    "id": "image-table",
-    "fields": []
-  },
-  {
-    "id": "photo-effects",
-    "fields": []
-  },
-  {
-    "id": "video-scrub",
-    "fields": []
   },
   {
     "id": "orbit-ring",
