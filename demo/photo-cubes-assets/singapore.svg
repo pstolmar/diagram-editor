@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#356b98"/>
+      <stop offset="100%" stop-color="#4a85b2"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#g)"/>
+  <rect y="620" width="900" height="280" fill="#0a1320"/>
+  <g fill="#e6f0ff" opacity="0.18">
+    <rect x="110" y="315" width="96" height="305"/>
+    <rect x="230" y="250" width="84" height="370"/>
+    <rect x="335" y="185" width="140" height="435"/>
+    <rect x="505" y="250" width="78" height="370"/>
+    <rect x="610" y="160" width="108" height="460"/>
+  </g>
+  <path d="M460 250 C520 220, 570 220, 650 250" fill="none" stroke="#7dd3fc" stroke-width="14" opacity="0.7"/>
+  <rect x="130" y="720" width="640" height="8" fill="#e2e8f0"/>
+  <text x="450" y="820" fill="#ffffff" font-size="72" font-family="Arial, sans-serif" text-anchor="middle" font-weight="700">Singapore Bay</text>
+</svg>
