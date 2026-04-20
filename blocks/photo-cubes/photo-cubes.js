@@ -315,9 +315,12 @@ function createNotice(block, imageCount, layout, isAuthoring) {
 
   const notice = document.createElement('div');
   notice.className = 'photo-cubes__notice';
-  const layoutLabel = layout === 'face' ? 'single / 6-face layout'
-    : layout === 'face-grid' ? '9-image face-grid layout'
-      : '54-slot layout';
+  let layoutLabel = '54-slot layout';
+  if (layout === 'face') {
+    layoutLabel = 'single / 6-face layout';
+  } else if (layout === 'face-grid') {
+    layoutLabel = '9-image face-grid layout';
+  }
   const baseText = `${imageCount} image${imageCount === 1 ? '' : 's'} detected. Using the ${layoutLabel}.`;
   notice.textContent = baseText;
 
@@ -421,12 +424,18 @@ function inverseMoves(moves) {
 }
 
 async function runMoves(THREE, group, cubelets, moves, duration) {
-  // Sequential rotation must preserve order.
-  // eslint-disable-next-line no-restricted-syntax
-  for (const move of moves) {
-    // eslint-disable-next-line no-await-in-loop
-    await rotateFace(THREE, group, cubelets, move.axis, move.layer, move.dir, duration);
-  }
+  return moves.reduce(
+    (promise, move) => promise.then(() => rotateFace(
+      THREE,
+      group,
+      cubelets,
+      move.axis,
+      move.layer,
+      move.dir,
+      duration,
+    )),
+    Promise.resolve(),
+  );
 }
 
 function setMaterialsGrayscale(cubelets, gray) {
@@ -560,9 +569,9 @@ export default async function decorate(block) {
     stickerTextureMap = await buildStickerTextureMap(THREE, imageUrls);
   }
 
-  for (const x of coords) {
-    for (const y of coords) {
-      for (const z of coords) {
+  coords.forEach((x) => {
+    coords.forEach((y) => {
+      coords.forEach((z) => {
         const gp = { x, y, z };
         const materials = makeFaceMaterials(THREE, gp);
 
@@ -593,9 +602,9 @@ export default async function decorate(block) {
         mesh.userData.gridPos = { ...gp };
         cubeGroup.add(mesh);
         cubelets.push(mesh);
-      }
-    }
-  }
+      });
+    });
+  });
 
   block.dataset.cubelets = '27';
   block.dataset.photoCubesImageCount = String(imageCount);
