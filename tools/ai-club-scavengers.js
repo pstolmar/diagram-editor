@@ -29,6 +29,8 @@ const DEFAULT_EVENT_CONFIG = {
     mirrorToMock: false,
   },
   teams: DEFAULT_TEAM_DEFS,
+  voteFormUrl: '',
+  votingFallbackUrl: '',
 };
 
 const BUILD_GROUPS = [
@@ -285,6 +287,11 @@ const dom = {
   replayMission: document.getElementById('replay-mission'),
   lockBuild: document.getElementById('lock-build'),
   clearVotes: document.getElementById('clear-votes'),
+  submitMyVotes: document.getElementById('submit-my-votes'),
+  buildSubmitArea: document.getElementById('build-submit-area'),
+  lockedBanner: document.getElementById('locked-banner'),
+  returnToArena: document.getElementById('return-to-arena'),
+  voteForm: document.getElementById('vote-form'),
   arenaTitle: document.getElementById('arena-title'),
   cameraChip: document.getElementById('camera-chip'),
   cameraButtons: document.getElementById('camera-buttons'),
@@ -383,6 +390,8 @@ async function loadAppConfig() {
         ...(json.submitDefaults || {}),
       },
       teams: Array.isArray(json.teams) && json.teams.length ? json.teams : DEFAULT_TEAM_DEFS,
+      voteFormUrl: json.voteFormUrl || '',
+      votingFallbackUrl: json.votingFallbackUrl || '',
     };
   } catch (error) {
     console.error('Failed to load AI Club config:', error);
@@ -474,6 +483,7 @@ function setActiveTeam(team) {
   renderVoteGroups();
   renderTallies();
   computeWinningBuild();
+  restoreLockedState();
 }
 
 function renderTeamGrid() {
@@ -521,6 +531,86 @@ function applyLayoutMode() {
   dom.shell.classList.toggle('focus-step', ['focus', 'single'].includes(state.queryMode.layout));
 }
 
+function getOrCreateVoterId() {
+  const key = 'ai-club:voterId';
+  let id = sessionStorage.getItem(key);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(key, id);
+  }
+  return id;
+}
+
+function syncFormFields() {
+  document.getElementById('form-team-slug').value = state.activeTeam.slug;
+  document.getElementById('form-team-name').value = state.activeTeam.name;
+  document.getElementById('form-voter-id').value = getOrCreateVoterId();
+  BUILD_GROUPS.forEach((group) => {
+    const el = document.getElementById(`form-${group.id}`);
+    if (el) el.value = state.personalVotes[group.id] || '';
+  });
+}
+
+function applyLockedState() {
+  dom.voteGroups.querySelectorAll('.option-card').forEach((card) => {
+    card.classList.add('is-locked');
+    card.disabled = true;
+  });
+  dom.buildSubmitArea.classList.add('is-hidden');
+  dom.lockedBanner.classList.remove('is-hidden');
+  dom.returnToArena.classList.remove('is-hidden');
+  dom.clearVotes.disabled = true;
+
+  const scoreCard = document.querySelector('.score-card');
+  if (scoreCard) scoreCard.classList.remove('is-hidden');
+}
+
+function saveLockedState() {
+  const key = `ai-club:locked:${state.activeTeam.slug}:${getOrCreateVoterId()}`;
+  sessionStorage.setItem(key, JSON.stringify(state.personalVotes));
+}
+
+function restoreLockedState() {
+  const key = `ai-club:locked:${state.activeTeam.slug}:${getOrCreateVoterId()}`;
+  const raw = sessionStorage.getItem(key);
+  if (!raw) return;
+  try {
+    state.personalVotes = JSON.parse(raw);
+    applyLockedState();
+  } catch {
+    // ignore corrupt state
+  }
+}
+
+async function submitMyVotes() {
+  syncFormFields();
+  saveLockedState();
+
+  const formAction = state.appConfig.voteFormUrl || '';
+  if (formAction) {
+    try {
+      const formData = new FormData(dom.voteForm);
+      await fetch(formAction, { method: 'POST', body: formData });
+    } catch {
+      // network failure is non-fatal
+    }
+  } else if (state.appConfig.votingFallbackUrl) {
+    const payload = { teamSlug: state.activeTeam.slug, teamName: state.activeTeam.name, voterId: getOrCreateVoterId() };
+    BUILD_GROUPS.forEach((g) => { payload[g.id] = state.personalVotes[g.id] || ''; });
+    try {
+      await fetch(state.appConfig.votingFallbackUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      // network failure is non-fatal
+    }
+  }
+
+  applyLockedState();
+}
+
 function castVote(groupId, optionId) {
   const teamSlug = state.activeTeam.slug;
   const store = loadVoteStore(teamSlug);
@@ -539,6 +629,7 @@ function castVote(groupId, optionId) {
   renderVoteGroups();
   renderTallies();
   computeWinningBuild();
+  syncFormFields();
 }
 
 function clearPersonalVotes() {
@@ -1592,6 +1683,7 @@ function renderDebugPanel() {
 
 function initInteractions() {
   dom.clearVotes.addEventListener('click', clearPersonalVotes);
+  dom.submitMyVotes.addEventListener('click', submitMyVotes);
   dom.startMission.addEventListener('click', runMission);
   dom.replayMission.addEventListener('click', replayMission);
   dom.lockBuild.addEventListener('click', () => {

@@ -22,6 +22,7 @@
           <div class="hero-actions">
             <a class="hero-link" href="#team-select">Choose Team</a>
             <button class="hero-link alt" id="start-mission" type="button">Run Mission</button>
+            <a class="hero-link alt is-hidden" id="return-to-arena" href="/tools/ai-club-main-event.html">Return to Arena</a>
           </div>
           <div class="hero-debug-links" id="hero-debug-links">
             <a class="hero-debug-link" id="team-step-link" href="/tools/ai-club-scavengers.html?step=team">Team View</a>
@@ -67,6 +68,13 @@
             <button class="mini-button" id="clear-votes" type="button">Reset My Votes</button>
           </div>
           <div class="vote-groups" id="vote-groups"></div>
+          <div class="build-submit-area" id="build-submit-area">
+            <button class="mini-button primary" id="submit-my-votes" type="button">Lock In My Build</button>
+            <p class="build-submit-hint">Submit your choices to unlock simulation mode.</p>
+          </div>
+          <div class="locked-banner is-hidden" id="locked-banner">
+            Your build is locked. ✓ Simulations below won't affect your submission.
+          </div>
         </section>
 
         <section class="panel mission-panel" data-step-section="mission">
@@ -176,6 +184,15 @@
         </section>
       </aside>
     </section>
+    <form id="vote-form" method="POST" action="" style="display:none" aria-hidden="true">
+      <input type="hidden" name="teamSlug"  id="form-team-slug">
+      <input type="hidden" name="teamName"  id="form-team-name">
+      <input type="hidden" name="voterId"   id="form-voter-id">
+      <input type="hidden" name="mobility"  id="form-mobility">
+      <input type="hidden" name="utility"   id="form-utility">
+      <input type="hidden" name="care"      id="form-care">
+      <input type="hidden" name="brain"     id="form-brain">
+    </form>
   </main>
 </body>
 </html>
