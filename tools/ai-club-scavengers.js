@@ -1605,6 +1605,8 @@ async function init() {
   updateHeroLinks();
   applyStepMode(state.queryMode.step);
   renderDebugPanel();
+  const scoreCard = document.querySelector('.score-card');
+  if (scoreCard) scoreCard.classList.toggle('is-hidden', !state.queryMode.sandbox);
   setServerState(state.queryMode.server);
   try {
     state.arena = createArena();
