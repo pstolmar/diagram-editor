@@ -1410,9 +1410,9 @@ function playScene(sceneDef) {
       .to(robot.eyeL.scale, { y: 0.15, duration: 0.08, yoyo: true, repeat: 1 }, 0.24)
       .to(robot.eyeR.scale, { y: 0.15, duration: 0.08, yoyo: true, repeat: 1 }, 0.24);
   } else if (sceneDef.id === 'high-reach') {
-    tl.to(robot.root.position, { x: 3.25, z: -2.2, duration: 1.1, ease: 'power2.inOut' })
-      .to(robot.armBase.rotation, { z: -1.22, duration: 0.55 }, '-=0.2')
-      .to(robot.forearmPivot.rotation, { z: 0.3, duration: 0.55 }, '<')
+    tl.to(robot.root.position, { x: 2.8, z: -2.2, duration: 1.1, ease: 'power2.inOut' })
+      .to(robot.armBase.rotation, { z: -1.08, duration: 0.55 }, '-=0.2')
+      .to(robot.forearmPivot.rotation, { z: 0.18, duration: 0.55 }, '<')
       .to(props.mantlePrize.position, {
         x: 3.95, y: 2.25, z: -2.1, duration: 0.55, ease: 'power1.inOut',
       }, '-=0.08')
