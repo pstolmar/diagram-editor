@@ -270,6 +270,7 @@ const dom = {
   winningBuild: document.getElementById('winning-build'),
   sceneQueue: document.getElementById('scene-queue'),
   projectedScore: document.getElementById('projected-score'),
+  estimatedTime: document.getElementById('estimated-time'),
   serverStatusLabel: document.getElementById('server-status-label'),
   serverStatusDetail: document.getElementById('server-status-detail'),
   previewPayload: document.getElementById('preview-payload'),
@@ -623,6 +624,8 @@ function buildMissionPlan(winningBuild, grandTotalVotes) {
         { scene: SCENE_LIBRARY.base, runningTotal: 2 },
         { scene: SCENE_LIBRARY.finale, runningTotal: 2 },
       ],
+      timeBonus: 0,
+      displayTime: 15,
     };
   }
 
@@ -670,7 +673,14 @@ function buildMissionPlan(winningBuild, grandTotalVotes) {
   totalScore += Math.max(0, scoreMods.reach - 1);
   totalScore += Math.max(0, scoreMods.lift - 1);
 
-  return { scenes, totalScore, log };
+  const speedStat = scoreMods.speed || 0;
+  const timeBonus = Math.max(0, Math.floor(speedStat * 0.5));
+  const displayTime = Math.max(8, Math.round(15 - speedStat * 1.2));
+  totalScore += timeBonus;
+
+  return {
+    scenes, totalScore, log, timeBonus, displayTime,
+  };
 }
 
 function renderMissionSummary(mission) {
@@ -678,6 +688,9 @@ function renderMissionSummary(mission) {
   dom.sceneQueue.innerHTML = '';
   dom.missionLog.innerHTML = '';
   dom.projectedScore.textContent = `${mission.totalScore}`;
+  if (dom.estimatedTime) {
+    dom.estimatedTime.textContent = `~${mission.displayTime}s${mission.timeBonus > 0 ? ` (+${mission.timeBonus} speed bonus)` : ''}`;
+  }
 
   Object.values(state.winningBuild).forEach((option) => {
     const pill = document.createElement('span');

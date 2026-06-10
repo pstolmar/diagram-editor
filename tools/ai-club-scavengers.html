@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Club Scavengers</title>
+  <link rel="stylesheet" href="/tools/ai-club-scavengers.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+  <script src="/tools/ai-club-scavengers.js" type="module"></script>
+</head>
+<body>
+  <main class="pit-app">
+    <section class="pit-shell">
+      <div class="pit-left">
+        <header class="hero-card" data-step-section="hero">
+          <p class="eyebrow" id="event-eyebrow">Customer Success AI Club</p>
+          <h1 id="event-title">AI Pit Crew Challenge</h1>
+          <p class="hero-copy" id="event-hero-copy">
+            Build your team robot, vote on its attachments, and watch it tackle a scavenger mission in the arena.
+          </p>
+          <div class="hero-actions">
+            <a class="hero-link" href="#team-select">Choose Team</a>
+            <button class="hero-link alt" id="start-mission" type="button">Run Mission</button>
+          </div>
+          <div class="hero-debug-links" id="hero-debug-links">
+            <a class="hero-debug-link" id="team-step-link" href="/tools/ai-club-scavengers.html?step=team">Team View</a>
+            <a class="hero-debug-link" id="build-step-link" href="/tools/ai-club-scavengers.html?step=build">Build View</a>
+            <a class="hero-debug-link" id="mission-step-link" href="/tools/ai-club-scavengers.html?step=mission">Mission View</a>
+            <a class="hero-debug-link" id="arena-step-link" href="/tools/ai-club-scavengers.html?step=arena&sandbox=1">Arena View</a>
+            <a class="hero-debug-link" id="sandbox-link" href="/tools/ai-club-sandbox.html">Sandbox Launcher</a>
+          </div>
+        </header>
+
+        <section class="panel" id="team-select" data-step-section="team">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Step 1</p>
+              <h2 id="team-intro-title">Join Your Team</h2>
+            </div>
+            <div class="team-slug" id="team-slug-badge"></div>
+          </div>
+          <p class="team-intro-copy" id="team-intro-copy">Each team gets its own bay, democratic vote, and cinematic scavenger run.</p>
+          <div class="team-grid" id="team-grid"></div>
+          <div class="team-meta">
+            <div>
+              <span class="meta-label">Active Team</span>
+              <strong id="active-team-name">LLM Dreamers</strong>
+            </div>
+            <div>
+              <span class="meta-label">Room Seed</span>
+              <strong id="active-team-seed">11</strong>
+            </div>
+            <div>
+              <span class="meta-label">Voting</span>
+              <strong>Democratic pick wins</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="build-panel" data-step-section="build">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Step 2</p>
+              <h2>Vote On The Build</h2>
+            </div>
+            <button class="mini-button" id="clear-votes" type="button">Reset My Votes</button>
+          </div>
+          <div class="vote-groups" id="vote-groups"></div>
+        </section>
+
+        <section class="panel mission-panel" data-step-section="mission">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Step 3</p>
+              <h2>Mission Console</h2>
+            </div>
+            <button class="mini-button primary" id="lock-build" type="button">Lock Team Robot</button>
+          </div>
+          <div class="mission-summary">
+            <div class="summary-card">
+              <span class="meta-label">Winning Build</span>
+              <div id="winning-build" class="winning-build"></div>
+            </div>
+            <div class="summary-card">
+              <span class="meta-label">Scene Queue</span>
+              <div id="scene-queue" class="scene-queue"></div>
+            </div>
+            <div class="summary-card score-card">
+              <span class="meta-label">Projected Score</span>
+              <strong id="projected-score">0</strong>
+              <span class="meta-label" style="margin-top:6px">Est. Mission Time</span>
+              <span id="estimated-time" class="pit-muted">—</span>
+            </div>
+            <div class="summary-card">
+              <span class="meta-label">Submit State</span>
+              <strong id="server-status-label">Idle</strong>
+              <div id="server-status-detail" class="server-status-detail">No submission simulated yet.</div>
+            </div>
+          </div>
+          <div class="mission-actions">
+            <button class="mini-button" id="preview-payload" type="button">Preview Payload</button>
+            <button class="mini-button" id="copy-payload" type="button">Copy Payload</button>
+            <button class="mini-button" id="copy-team-link" type="button">Copy Team Link</button>
+            <button class="mini-button primary" id="submit-score" type="button">Mock Submit Score</button>
+            <a class="mini-button" id="open-leaderboard" href="/tools/ai-club-leaderboard.html">Open Leaderboard</a>
+          </div>
+          <div class="payload-panel is-hidden" id="payload-panel">
+            <div class="payload-head">
+              <span class="meta-label">Submission Payload</span>
+              <span id="payload-mode" class="payload-mode">mock</span>
+            </div>
+            <pre id="payload-preview" class="payload-preview"></pre>
+          </div>
+          <div class="mission-log" id="mission-log"></div>
+        </section>
+      </div>
+
+      <aside class="pit-right">
+        <section class="arena-card" data-step-section="arena">
+          <div class="arena-head">
+            <div>
+              <p class="eyebrow">Arena Feed</p>
+              <h2 id="arena-title">Robot Ready</h2>
+            </div>
+            <div class="arena-controls">
+              <div class="camera-chip" id="camera-chip">Top Down</div>
+              <div class="camera-buttons" id="camera-buttons">
+                <button class="camera-button active" data-camera-view="top" type="button">Top</button>
+                <button class="camera-button" data-camera-view="third" type="button">Follow</button>
+                <button class="camera-button" data-camera-view="driver" type="button">Driver</button>
+              </div>
+            </div>
+          </div>
+          <canvas id="arena-canvas" aria-label="3D scavenger arena"></canvas>
+          <div class="arena-caption">
+            <strong id="scene-title">Warmup Stretch</strong>
+            <p id="scene-description">Your blocky little robot bounces into place and gets ready for the run.</p>
+          </div>
+        </section>
+
+        <section class="panel compact-panel" data-step-section="tally">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Live Tally</p>
+              <h2>Current Votes</h2>
+            </div>
+          </div>
+          <div id="vote-tallies" class="vote-tallies"></div>
+        </section>
+
+        <section class="panel compact-panel is-hidden" id="debug-panel" data-step-section="debug">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Sandbox</p>
+              <h2>Scene And Server Debug</h2>
+            </div>
+          </div>
+          <div class="debug-meta">
+            <div><span class="meta-label">Query</span><strong id="debug-query-readout">default</strong></div>
+            <div><span class="meta-label">Scene</span><strong id="debug-scene-readout">full mission</strong></div>
+          </div>
+          <div class="debug-group">
+            <span class="meta-label">Scene Preview</span>
+            <div id="scene-debug-buttons" class="debug-button-grid"></div>
+          </div>
+          <div class="debug-group">
+            <span class="meta-label">Server Simulation</span>
+            <div id="server-debug-buttons" class="debug-button-grid"></div>
+          </div>
+          <div class="debug-group">
+            <span class="meta-label">Submit Actions</span>
+            <div id="submit-debug-buttons" class="debug-button-grid"></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>
