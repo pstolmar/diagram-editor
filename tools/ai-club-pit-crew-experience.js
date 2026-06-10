@@ -85,6 +85,53 @@ function init() {
   else if (startPhase === 'arena') runArenaPhase();
 }
 
+const BUILD_GROUPS = [
+  {
+    id: 'mobility',
+    label: 'Mobility',
+    icon: '🚗',
+    description: 'How does your robot get around the arena?',
+    options: [
+      { id: 'scout-legs', label: 'Scout Legs', desc: 'Fast but fragile — speed bonus, higher fail risk' },
+      { id: 'balanced-treads', label: 'Balanced Treads', desc: 'Solid all-around, moderate speed' },
+      { id: 'heavy-lift', label: 'Heavy Lift', desc: 'Deliberate and strong — slow, very stable' },
+    ],
+  },
+  {
+    id: 'utility',
+    label: 'Utility Attachment',
+    icon: '🦾',
+    description: 'What tool does your robot use to handle objects?',
+    options: [
+      { id: 'robot-arm', label: 'Robot Arm', desc: 'Precision grabber — works on most tasks' },
+      { id: 'suction-cup', label: 'Suction Cup', desc: 'Gentle handling — best for fragile items' },
+      { id: 'grapple-hook', label: 'Grapple Hook', desc: 'High range — risky on delicate objectives' },
+    ],
+  },
+  {
+    id: 'care',
+    label: 'Fragile Item Handling',
+    icon: '📦',
+    description: 'How does your robot protect fragile cargo?',
+    options: [
+      { id: 'stabilizer', label: 'Stabilizer Rig', desc: 'Active balance — best overall protection' },
+      { id: 'cushion-mount', label: 'Cushion Mount', desc: 'Passive padding — lighter, good enough' },
+      { id: 'none', label: 'Unconstrained', desc: 'No extra protection — max speed, zero care' },
+    ],
+  },
+  {
+    id: 'brain',
+    label: 'Decision Brain',
+    icon: '🧠',
+    description: 'How does your robot decide what to do next?',
+    options: [
+      { id: 'fast-guesser', label: 'Fast Guesser', desc: 'Quick decisions, sometimes wrong — speed bonus' },
+      { id: 'structured-thinker', label: 'Structured Thinker', desc: 'Methodical — consistent, moderate speed' },
+      { id: 'verifier', label: 'Verifier', desc: 'Double-checks everything — slow but thorough' },
+    ],
+  },
+];
+
 function startTimerButton(btn, durationMs, onComplete) {
   btn.classList.add('timer-btn--active');
   const start = performance.now();
@@ -174,7 +221,62 @@ async function runCountdownPhase() {
   goToPhase('vote');
   runVotePhase();
 }
-function runVotePhase() { /* placeholder */ }
+function runVotePhase() {
+  const container = document.getElementById('vote-groups');
+  const lockBtn = document.getElementById('lock-in-build');
+
+  container.innerHTML = BUILD_GROUPS.map((group) => `
+    <div class="vote-group" data-group="${group.id}">
+      <div class="vote-group-header">
+        <span class="vote-group-icon">${group.icon}</span>
+        <div>
+          <h3 class="vote-group-label">${group.label}</h3>
+          <p class="vote-group-desc">${group.description}</p>
+        </div>
+      </div>
+      <div class="option-cards">
+        ${group.options.map((opt) => `
+          <button class="option-card" data-group="${group.id}" data-option="${opt.id}" type="button">
+            <span class="option-label">${opt.label}</span>
+            <span class="option-desc">${opt.desc}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  function checkAllSelected() {
+    const allSelected = BUILD_GROUPS.every((g) => state.votes[g.id]);
+    lockBtn.disabled = !allSelected;
+  }
+
+  container.addEventListener('click', (e) => {
+    const card = e.target.closest('.option-card');
+    if (!card) return;
+    const { group, option } = card.dataset;
+    container.querySelectorAll(`[data-group="${group}"].option-card`).forEach((c) => {
+      c.classList.toggle('is-selected', c === card);
+    });
+    state.votes[group] = option;
+    checkAllSelected();
+  });
+
+  lockBtn.addEventListener('click', () => {
+    if (Object.keys(state.votes).length < BUILD_GROUPS.length) return;
+    goToPhase('lobby');
+    runLobbyPhase();
+  });
+
+  let secs = 300;
+  const timerEl = document.getElementById('vote-timer');
+  const timerInterval = setInterval(() => {
+    secs -= 1;
+    if (secs <= 0) { clearInterval(timerInterval); return; }
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    timerEl.textContent = `${m}:${s}`;
+  }, 1000);
+}
 function runLobbyPhase() { /* placeholder */ }
 function runArenaPhase() { /* placeholder */ }
 

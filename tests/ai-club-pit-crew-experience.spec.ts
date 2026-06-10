@@ -54,3 +54,25 @@ test('countdown phase auto-advances to vote', async ({ page }) => {
   await expect(page.locator('[data-phase="countdown"]')).toHaveClass(/is-active/);
   await page.waitForSelector('[data-phase="vote"].is-active', { timeout: 7000 });
 });
+
+test('Lock In button is disabled until all 4 groups selected', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=vote`);
+  const btn = page.locator('#lock-in-build');
+  await expect(btn).toBeDisabled();
+
+  const groups = ['mobility', 'utility', 'care', 'brain'];
+  for (const g of groups) {
+    await page.locator(`[data-group="${g}"] .option-card`).first().click();
+  }
+  await expect(btn).toBeEnabled();
+});
+
+test('voting advances to lobby after lock-in', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=vote`);
+  const groups = ['mobility', 'utility', 'care', 'brain'];
+  for (const g of groups) {
+    await page.locator(`[data-group="${g}"] .option-card`).first().click();
+  }
+  await page.locator('#lock-in-build').click();
+  await expect(page.locator('[data-phase="lobby"]')).toHaveClass(/is-active/);
+});
