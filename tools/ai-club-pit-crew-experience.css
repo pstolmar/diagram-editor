@@ -1,0 +1,27 @@
+/* ── Phase machine ── */
+.pit-phase {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+}
+
+.pit-phase.is-active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phase-inner {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+/* ── Utility ── */
+.is-hidden { display: none !important; }
