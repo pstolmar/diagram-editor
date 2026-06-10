@@ -5,5 +5,6 @@
   "tests/callout-panel.spec.ts",
   "tests/tokenmiser-live.spec.ts",
   "tests/photo-cubes.spec.ts",
-  "tests/ai-club-scavengers.spec.ts"
+  "tests/ai-club-scavengers.spec.ts",
+  "tests/ai-club-quiz.spec.ts"
 ]

@@ -1,0 +1,132 @@
+[
+  {
+    "id": "q1",
+    "category": "Prompt Craft",
+    "question": "Which of these prompts is most likely to give you a useful, structured response from an AI assistant?",
+    "options": [
+      "Summarize this",
+      "You are a customer success expert. Summarize this support ticket in 3 bullet points, focusing on root cause and next action.",
+      "Write something about this ticket",
+      "Help me with this please"
+    ],
+    "correctIndex": 1,
+    "explanation": "Specific role, format, and goal constraints dramatically improve response quality."
+  },
+  {
+    "id": "q2",
+    "category": "Prompt Craft",
+    "question": "What does 'hallucination' mean in the context of AI assistants?",
+    "options": [
+      "The AI gets confused by complex questions",
+      "The AI generates plausible-sounding but false information",
+      "The AI takes too long to respond",
+      "The AI refuses to answer a question"
+    ],
+    "correctIndex": 1,
+    "explanation": "AI models predict likely text, sometimes generating confident-sounding but incorrect facts. Always verify critical information."
+  },
+  {
+    "id": "q3",
+    "category": "Prompt Craft",
+    "question": "You want Claude to always respond in a specific format for your team's reports. What's the most reliable way to ensure this?",
+    "options": [
+      "Ask nicely every time",
+      "Use a Claude Project with system instructions that define the format",
+      "Put the format instructions at the end of each message",
+      "Copy-paste examples from previous responses"
+    ],
+    "correctIndex": 1,
+    "explanation": "Claude Projects let you set persistent instructions so every conversation in that project follows your format automatically."
+  },
+  {
+    "id": "q4",
+    "category": "Claude Desktop & Projects",
+    "question": "What is a Claude 'Project' used for?",
+    "options": [
+      "Organising your billing by department",
+      "Running code on your local machine",
+      "Setting persistent context, instructions, and files for related conversations",
+      "Sharing conversations with your team"
+    ],
+    "correctIndex": 2,
+    "explanation": "Projects give Claude standing context — your role, preferred formats, background docs — without repeating yourself each session."
+  },
+  {
+    "id": "q5",
+    "category": "Claude Desktop & Projects",
+    "question": "Claude is helping you draft a response to an angry customer. It writes something that sounds right but you're unsure if the policy detail is accurate. What should you do?",
+    "options": [
+      "Send it — Claude's confident so it's probably correct",
+      "Ask Claude to be more confident",
+      "Verify the policy detail in your source-of-truth system before sending",
+      "Ask Claude to 'double check itself'"
+    ],
+    "correctIndex": 2,
+    "explanation": "Asking Claude to verify itself often just produces more confident-sounding text. Always check critical facts in authoritative sources."
+  },
+  {
+    "id": "q6",
+    "category": "Claude Desktop & Projects",
+    "question": "Which of these is something Claude Desktop's 'Extended Thinking' mode is designed to help with?",
+    "options": [
+      "Faster responses on simple questions",
+      "Multi-step problems that benefit from the model reasoning through steps before answering",
+      "Reading files from your desktop",
+      "Connecting to the internet in real time"
+    ],
+    "correctIndex": 1,
+    "explanation": "Extended Thinking allocates extra compute for the model to reason before responding — useful for complex analysis, not needed for quick lookups."
+  },
+  {
+    "id": "q7",
+    "category": "Copilot in the Workplace",
+    "question": "You ask Copilot in Microsoft Teams to summarise a meeting you missed. What does it need to work?",
+    "options": [
+      "Nothing — it can access any meeting automatically",
+      "You must have been a participant in the meeting",
+      "The meeting must have been recorded or transcribed",
+      "You need to export the chat log manually first"
+    ],
+    "correctIndex": 2,
+    "explanation": "Copilot works from meeting transcripts. If recording/transcription was off, there's no data for it to summarise."
+  },
+  {
+    "id": "q8",
+    "category": "Copilot in the Workplace",
+    "question": "What's the best use of Copilot in Excel for a non-technical user?",
+    "options": [
+      "Writing VBA macros from scratch for complex automation",
+      "Asking plain-English questions about your data to get insights and create formulas",
+      "Connecting to live data APIs",
+      "Building pivot tables without any data selected"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot excels at translating your business question into Excel actions — describe what you want and it handles the formula syntax."
+  },
+  {
+    "id": "q9",
+    "category": "AI Agents & Trust",
+    "question": "An AI agent completes a multi-step task and reports success. What's the most important thing to do next?",
+    "options": [
+      "Nothing — agents don't make mistakes",
+      "Run the task again to double-check",
+      "Verify the actual outcome matches what you expected",
+      "Ask the agent to explain what it did"
+    ],
+    "correctIndex": 2,
+    "explanation": "Agents can complete each step confidently while still misunderstanding the goal. Check the real-world result, not just the agent's report."
+  },
+  {
+    "id": "q10",
+    "category": "AI Agents & Trust",
+    "question": "Which of these tasks is an AI agent currently best suited for?",
+    "options": [
+      "Deciding whether to fire an employee",
+      "Making final pricing decisions for enterprise contracts",
+      "Drafting a first version of a response template that a human reviews before sending",
+      "Autonomously negotiating with a customer via email"
+    ],
+    "correctIndex": 2,
+    "explanation": "Agents are powerful at drafting, structuring, and automating repetitive steps — but high-stakes decisions need human judgment in the loop."
+  }
+]
