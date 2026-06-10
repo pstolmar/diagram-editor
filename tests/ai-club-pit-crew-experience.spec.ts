@@ -48,3 +48,9 @@ test('assign phase renders at least 2 pawn badges', async ({ page }) => {
   const count = await page.locator('.pawn-badge.is-visible').count();
   expect(count).toBeGreaterThanOrEqual(2);
 });
+
+test('countdown phase auto-advances to vote', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=countdown`);
+  await expect(page.locator('[data-phase="countdown"]')).toHaveClass(/is-active/);
+  await page.waitForSelector('[data-phase="vote"].is-active', { timeout: 7000 });
+});

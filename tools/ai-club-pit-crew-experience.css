@@ -114,3 +114,16 @@
   );
   z-index: -1;
 }
+
+/* ── Countdown phase ── */
+.countdown-inner {
+  background: radial-gradient(ellipse at center, rgba(56,189,248,0.08) 0%, transparent 70%);
+  min-height: 100vh;
+}
+
+.countdown-number {
+  font-size: clamp(6rem, 25vw, 14rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}

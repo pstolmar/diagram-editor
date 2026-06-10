@@ -145,7 +145,35 @@ function runAssignPhase() {
   }, 4000);
 }
 
-function runCountdownPhase() { /* placeholder */ }
+async function runCountdownPhase() {
+  const el = document.getElementById('countdown-number');
+
+  async function showNumber(n, color) {
+    el.textContent = n;
+    el.style.color = color;
+    await window.gsap.fromTo(el,
+      { scale: 2.2, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.25, ease: 'power2.out' },
+    );
+    await new Promise((r) => { setTimeout(r, 750); });
+    await window.gsap.to(el, { opacity: 0, scale: 0.85, duration: 0.18 });
+  }
+
+  await showNumber('3', '#ef4444');
+  await showNumber('2', '#f59e0b');
+  await showNumber('1', '#22c55e');
+
+  el.textContent = 'GO!';
+  el.style.color = '#38bdf8';
+  await window.gsap.fromTo(el,
+    { scale: 3, opacity: 0 },
+    { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2)' },
+  );
+  await new Promise((r) => { setTimeout(r, 700); });
+
+  goToPhase('vote');
+  runVotePhase();
+}
 function runVotePhase() { /* placeholder */ }
 function runLobbyPhase() { /* placeholder */ }
 function runArenaPhase() { /* placeholder */ }
