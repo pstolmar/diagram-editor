@@ -4,5 +4,6 @@
   "tests/metrics-grid.spec.ts",
   "tests/callout-panel.spec.ts",
   "tests/tokenmiser-live.spec.ts",
-  "tests/photo-cubes.spec.ts"
+  "tests/photo-cubes.spec.ts",
+  "tests/ai-club-scavengers.spec.ts"
 ]
