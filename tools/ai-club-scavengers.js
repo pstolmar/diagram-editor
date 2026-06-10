@@ -1211,10 +1211,10 @@ function buildRobot() {
   scannerPivot.add(scannerDish);
 
   const pillow = new window.THREE.Mesh(
-    new window.THREE.BoxGeometry(0.85, 0.16, 0.85),
-    new window.THREE.MeshStandardMaterial({ color: 0xf6d7ef, roughness: 0.95 }),
+    new window.THREE.BoxGeometry(0.72, 0.14, 0.72),
+    new window.THREE.MeshStandardMaterial({ color: 0xB91010, roughness: 0.97, metalness: 0.0 }),
   );
-  pillow.position.set(0, 0.66, 0.65);
+  pillow.position.set(0, 1.82, 0.0);
   bobGroup.add(pillow);
 
   const wheels = [];
@@ -1381,7 +1381,7 @@ function resetArenaPoses() {
   robot.hook.position.set(0, -1.58, 0);
   robot.scannerPivot.rotation.set(0, 0, 0);
   robot.scannerDish.scale.set(1, 1, 1);
-  robot.pillow.position.set(0, 0.66, 0.65);
+  robot.pillow.position.set(0, 1.82, 0.0);
 
   props.mantlePrize.position.set(4.65, 3.35, -3.55);
   props.gratePrize.position.set(-5.55, 0.95, 0.55);
