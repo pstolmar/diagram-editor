@@ -1,0 +1,30 @@
+{
+  "event": {
+    "eyebrow": "Customer Success AI Club",
+    "title": "AI Pit Crew Challenge",
+    "heroCopy": "Build your team robot, vote on its attachments, and watch it tackle a scavenger mission in the arena.",
+    "teamIntroTitle": "Join Your Team",
+    "teamIntroCopy": "Each team gets its own bay, democratic vote, and cinematic scavenger run."
+  },
+  "submitDefaults": {
+    "mode": "mock",
+    "url": "",
+    "mirrorToMock": false
+  },
+  "voteFormUrl": "",
+  "votingFallbackUrl": "",
+  "teams": [
+    { "slug": "llm-dreamers", "name": "LLM Dreamers", "seed": 11, "accent": "#6ca7ff" },
+    { "slug": "agents-of-chaos", "name": "Agents of Chaos", "seed": 17, "accent": "#ff925c" },
+    { "slug": "token-titans", "name": "Token Titans", "seed": 23, "accent": "#d3ff70" },
+    { "slug": "prompt-engineers", "name": "Prompt Engineers", "seed": 29, "accent": "#77f2ed" },
+    { "slug": "the-verifiers", "name": "The Verifiers", "seed": 31, "accent": "#ffe082" },
+    { "slug": "search-party", "name": "Search Party", "seed": 37, "accent": "#ffb4eb" },
+    { "slug": "context-window-warriors", "name": "Context Window Warriors", "seed": 41, "accent": "#9cf7b2" },
+    { "slug": "mixture-of-experts", "name": "Mixture of Experts", "seed": 47, "accent": "#c3a3ff" },
+    { "slug": "latency-legends", "name": "Latency Legends", "seed": 53, "accent": "#6de2a7" },
+    { "slug": "toolchain-thunder", "name": "Toolchain Thunder", "seed": 59, "accent": "#ffdd7a" },
+    { "slug": "prompt-pirates", "name": "Prompt Pirates", "seed": 61, "accent": "#8bd0ff" },
+    { "slug": "model-mayhem", "name": "Model Mayhem", "seed": 67, "accent": "#f7a8ff" }
+  ]
+}
