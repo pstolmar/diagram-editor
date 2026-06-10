@@ -282,6 +282,7 @@ const dom = {
   payloadPreview: document.getElementById('payload-preview'),
   missionLog: document.getElementById('mission-log'),
   startMission: document.getElementById('start-mission'),
+  replayMission: document.getElementById('replay-mission'),
   lockBuild: document.getElementById('lock-build'),
   clearVotes: document.getElementById('clear-votes'),
   arenaTitle: document.getElementById('arena-title'),
@@ -1504,11 +1505,31 @@ function playScene(sceneDef) {
   });
 }
 
+async function replayMission() {
+  if (state.sceneRunning || !state.lastScenes.length) return;
+  state.sceneRunning = true;
+  dom.replayMission.disabled = true;
+  dom.startMission.disabled = true;
+  if (dom.lockBuild) dom.lockBuild.disabled = true;
+
+  for (const scene of state.lastScenes) {
+    await playScene(scene);
+  }
+
+  dom.sceneTitle.textContent = 'Replay Complete';
+  dom.sceneDescription.textContent = `${state.activeTeam.name} — same run, same result.`;
+  moveCamera(state.preferredCamera, true);
+  dom.replayMission.disabled = false;
+  dom.startMission.disabled = false;
+  if (dom.lockBuild) dom.lockBuild.disabled = false;
+  state.sceneRunning = false;
+}
+
 async function runMission() {
   if (state.sceneRunning) return;
   state.sceneRunning = true;
   dom.startMission.disabled = true;
-  dom.lockBuild.disabled = true;
+  if (dom.lockBuild) dom.lockBuild.disabled = true;
 
   computeWinningBuild();
   for (const scene of state.lastScenes) {
@@ -1520,7 +1541,9 @@ async function runMission() {
   moveCamera(state.preferredCamera, true);
   dom.cameraChip.textContent = 'Score Locked';
   dom.startMission.disabled = false;
-  dom.lockBuild.disabled = false;
+  if (dom.lockBuild) dom.lockBuild.disabled = false;
+  dom.replayMission.classList.remove('is-hidden');
+  dom.replayMission.disabled = false;
   state.sceneRunning = false;
 }
 
@@ -1570,6 +1593,7 @@ function renderDebugPanel() {
 function initInteractions() {
   dom.clearVotes.addEventListener('click', clearPersonalVotes);
   dom.startMission.addEventListener('click', runMission);
+  dom.replayMission.addEventListener('click', replayMission);
   dom.lockBuild.addEventListener('click', () => {
     computeWinningBuild();
     runMission();
