@@ -1437,13 +1437,16 @@ function playScene(sceneDef) {
       .to(props.decoy.rotation, { y: Math.PI * 0.5, duration: 0.5 }, 0.25)
       .to(props.mantlePrize.position, { y: props.mantlePrize.position.y + 0.12, duration: 0.3, yoyo: true, repeat: 2 }, 0.45);
   } else if (sceneDef.id === 'egg') {
-    tl.to(robot.root.position, { x: 1.2, z: 1.35, duration: 0.85, ease: 'power1.inOut' })
-      .to(robot.pillow.position, { y: 0.88, duration: 0.35 }, '-=0.12')
-      .to(props.egg.position, { x: 0.02, y: 1.02, z: 0.62, duration: 0.5 })
-      .to(state.arena.cameraState, { fov: 26, duration: 0.18 }, '-=0.2')
-      .to(robot.root.position, { x: 0.12, z: 3.8, duration: 1.15, ease: 'power1.inOut' })
-      .to(props.egg.position, { x: 0.04, y: 1.82, z: 5.1, duration: 0.55, ease: 'power1.out' })
-      .to(robot.pillow.position, { y: 0.66, duration: 0.2 });
+    // Phase 1 — slow careful approach to egg
+    tl.to(robot.root.position, { x: 1.5, z: 2.1, duration: 1.0, ease: 'power1.inOut' })
+    // Phase 2 — egg lifts from ground and settles onto roof pillow
+      .to(props.egg.position, { x: 1.5, y: 2.22, z: 2.1, duration: 0.7, ease: 'power1.inOut' })
+      .to(state.arena.cameraState, { fov: 26, duration: 0.25 }, '-=0.45')
+    // Phase 3 — robot carries egg very slowly; egg tracks same Δx/z
+      .to(robot.root.position, { x: 0.1, z: 4.2, duration: 1.6, ease: 'power1.inOut' })
+      .to(props.egg.position, { x: 0.1, y: 2.22, z: 4.3, duration: 1.6, ease: 'power1.inOut' }, '<')
+    // Phase 4 — gentle delivery to waiter window
+      .to(props.egg.position, { x: 0.0, y: 1.82, z: 5.35, duration: 0.6, ease: 'power1.out' });
   } else if (sceneDef.id === 'heavy') {
     tl.to(robot.root.position, { x: -1.2, z: -1.8, duration: 0.75 })
       .to(props.crate.position, { x: -0.2, y: 0.62, z: -1.3, duration: 0.55 }, '-=0.1')
