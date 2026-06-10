@@ -50,7 +50,7 @@
     </section>
 
     <section class="pit-phase" data-phase="lobby">
-      <div class="phase-inner lobby-inner">
+      <div class="phase-inner lobby-inner" id="lobby-inner">
         <p class="eyebrow">Build locked</p>
         <h2>Waiting for other teams…</h2>
         <div class="lobby-social">
@@ -59,6 +59,15 @@
         <div class="lobby-timer-wrap">
           <div id="lobby-bar" class="lobby-progress-bar"></div>
         </div>
+        <div id="lobby-presence" class="lobby-presence-count"></div>
+        <div id="lobby-quiz-offer" class="lobby-quiz-offer is-hidden">
+          <p class="lobby-quiz-prompt">Quiz time while you wait?</p>
+          <button id="start-quiz-btn" class="pit-btn pit-btn--primary" type="button">
+            Take the Quiz
+          </button>
+          <button id="skip-quiz-btn" class="pit-btn" type="button">Skip</button>
+        </div>
+        <div id="lobby-quiz-container" class="lobby-quiz-container is-hidden"></div>
         <p class="lobby-hint">The arena opens when all teams are ready.</p>
       </div>
     </section>

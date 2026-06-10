@@ -279,7 +279,118 @@ function runVotePhase() {
     runLobbyPhase();
   });
 }
-function runLobbyPhase() { /* placeholder */ }
+function runLobbyPhase() {
+  const params = new URLSearchParams(window.location.search);
+  const fast = params.get('fastLobby') === '1';
+  const totalMs = fast ? 2000 : 12000;
+
+  const bar = document.getElementById('lobby-bar');
+  const counter = document.getElementById('teams-locked-count');
+  const quizOffer = document.getElementById('lobby-quiz-offer');
+  const quizContainer = document.getElementById('lobby-quiz-container');
+  const lobbyHint = document.querySelector('.lobby-hint');
+  const presenceEl = document.getElementById('lobby-presence');
+
+  // ── Presence heartbeat (localStorage cross-tab) ──
+  const presenceKey = `ai-club:lobbyPresence:${crypto.randomUUID()}`;
+  function writePresence() {
+    localStorage.setItem(presenceKey, String(Date.now()));
+  }
+  function readPresenceCount() {
+    const now = Date.now();
+    let count = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('ai-club:lobbyPresence:')) {
+        const ts = Number(localStorage.getItem(k));
+        if (now - ts < 15000) count += 1;
+      }
+    }
+    return count;
+  }
+  writePresence();
+  const presenceInterval = setInterval(() => {
+    writePresence();
+    const n = readPresenceCount();
+    presenceEl.textContent = n > 1 ? `~${n} players in lobby right now` : '';
+  }, 3000);
+  window.addEventListener('beforeunload', () => localStorage.removeItem(presenceKey), { once: true });
+
+  // ── Fake team trickle ──
+  // Natural-variance delays: 7 more teams to lock in across totalMs
+  const fractions = [0.08, 0.18, 0.30, 0.44, 0.57, 0.70, 0.84];
+  let locked = 1;
+  const trickleTimeouts = fractions.map((frac) => setTimeout(() => {
+    locked += 1;
+    counter.textContent = locked;
+    counter.closest('.lobby-social').classList.add('lobby-pulse');
+    setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
+  }, frac * totalMs));
+
+  // ── Progress bar ──
+  window.gsap.to(bar, { width: '100%', duration: totalMs / 1000, ease: 'none' });
+
+  // ── Quiz offer (after 4s, or 0.6s in fast mode) ──
+  const quizDelay = fast ? 600 : 4000;
+  let quizInProgress = false;
+  let quizDoneResolve = null;
+  const quizDonePromise = new Promise((res) => { quizDoneResolve = res; });
+
+  const quizOfferTimeout = setTimeout(() => {
+    quizOffer.classList.remove('is-hidden');
+    window.gsap.from(quizOffer, { y: 12, opacity: 0, duration: 0.4 });
+
+    document.getElementById('start-quiz-btn').addEventListener('click', async () => {
+      quizOffer.classList.add('is-hidden');
+      lobbyHint.classList.add('is-hidden');
+      quizContainer.classList.remove('is-hidden');
+      quizInProgress = true;
+
+      // Dynamically import the quiz module and init it
+      const { initQuiz } = await import('/tools/ai-club-quiz.js');
+      const questions = await fetch('/tools/ai-club-quiz-data.json').then((r) => r.json());
+      initQuiz(quizContainer, questions, {
+        onComplete: (score, total) => {
+          quizInProgress = false;
+          quizDoneResolve({ score, total });
+        },
+      });
+    }, { once: true });
+
+    document.getElementById('skip-quiz-btn').addEventListener('click', () => {
+      quizOffer.classList.add('is-hidden');
+      quizDoneResolve(null);
+    }, { once: true });
+  }, quizDelay);
+
+  // ── Auto-advance after totalMs + 2s dramatic pause ──
+  const advanceTimeout = setTimeout(async () => {
+    // If quiz is still in progress, wait for it to finish
+    if (quizInProgress) {
+      await quizDonePromise;
+      // Show score briefly
+      await new Promise((r) => { setTimeout(r, 2500); });
+    } else {
+      quizDoneResolve(null); // resolve in case it was never started
+    }
+
+    // Clean up
+    clearInterval(presenceInterval);
+    trickleTimeouts.forEach(clearTimeout);
+    clearTimeout(quizOfferTimeout);
+    localStorage.removeItem(presenceKey);
+
+    // "Loading arena" stinger
+    counter.closest('.lobby-social').textContent = '⚡ All teams locked in — loading arena…';
+    await new Promise((r) => { setTimeout(r, 800); });
+
+    goToPhase('arena');
+    runArenaPhase();
+  }, totalMs + 2000);
+
+  // suppress unused variable warning
+  void advanceTimeout;
+}
 function runArenaPhase() { /* placeholder */ }
 
 document.addEventListener('click', (e) => {

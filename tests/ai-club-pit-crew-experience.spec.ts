@@ -76,3 +76,22 @@ test('voting advances to lobby after lock-in', async ({ page }) => {
   await page.locator('#lock-in-build').click();
   await expect(page.locator('[data-phase="lobby"]')).toHaveClass(/is-active/);
 });
+
+test('lobby auto-advances to arena after timer (fastLobby)', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=lobby&fastLobby=1`);
+  // 2s lobby + 2s pause + 0.8s stinger = ~5s max
+  await page.waitForSelector('[data-phase="arena"].is-active', { timeout: 8000 });
+});
+
+test('lobby counter reaches 8', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=lobby&fastLobby=1`);
+  await page.waitForFunction(() => {
+    const el = document.getElementById('teams-locked-count');
+    return el && Number(el.textContent) >= 8;
+  }, { timeout: 5000 });
+});
+
+test('lobby shows quiz offer after delay (fastLobby)', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=lobby&fastLobby=1`);
+  await page.waitForSelector('#lobby-quiz-offer:not(.is-hidden)', { timeout: 4000 });
+});
