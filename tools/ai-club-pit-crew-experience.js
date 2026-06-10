@@ -150,6 +150,7 @@ function startTimerButton(btn, durationMs, onComplete) {
   rafId = requestAnimationFrame(tick);
   btn.addEventListener('click', () => {
     cancelAnimationFrame(rafId);
+    btn.classList.remove('timer-btn--active');
     onComplete();
   }, { once: true });
 }
@@ -250,6 +251,16 @@ function runVotePhase() {
     lockBtn.disabled = !allSelected;
   }
 
+  let secs = 300;
+  const timerEl = document.getElementById('vote-timer');
+  const timerInterval = setInterval(() => {
+    secs -= 1;
+    if (secs <= 0) { clearInterval(timerInterval); return; }
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    timerEl.textContent = `${m}:${s}`;
+  }, 1000);
+
   container.addEventListener('click', (e) => {
     const card = e.target.closest('.option-card');
     if (!card) return;
@@ -263,19 +274,10 @@ function runVotePhase() {
 
   lockBtn.addEventListener('click', () => {
     if (Object.keys(state.votes).length < BUILD_GROUPS.length) return;
+    clearInterval(timerInterval);
     goToPhase('lobby');
     runLobbyPhase();
   });
-
-  let secs = 300;
-  const timerEl = document.getElementById('vote-timer');
-  const timerInterval = setInterval(() => {
-    secs -= 1;
-    if (secs <= 0) { clearInterval(timerInterval); return; }
-    const m = Math.floor(secs / 60);
-    const s = String(secs % 60).padStart(2, '0');
-    timerEl.textContent = `${m}:${s}`;
-  }, 1000);
 }
 function runLobbyPhase() { /* placeholder */ }
 function runArenaPhase() { /* placeholder */ }
