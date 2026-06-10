@@ -34,3 +34,17 @@ test('resetTeam=1 clears and reassigns team', async ({ page }) => {
   expect(slug).toBeTruthy();
   await expect(page.locator('[data-phase="assign"]')).toHaveClass(/is-active/);
 });
+
+test('assign phase shows team name after delay', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1`);
+  await page.waitForSelector('#assign-team-name:not(:empty)', { timeout: 6000 });
+  const name = await page.locator('#assign-team-name').textContent();
+  expect(name?.trim().length).toBeGreaterThan(0);
+});
+
+test('assign phase renders at least 2 pawn badges', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1`);
+  await page.waitForSelector('.pawn-badge.is-visible', { timeout: 5000 });
+  const count = await page.locator('.pawn-badge.is-visible').count();
+  expect(count).toBeGreaterThanOrEqual(2);
+});

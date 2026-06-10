@@ -85,7 +85,66 @@ function init() {
   else if (startPhase === 'arena') runArenaPhase();
 }
 
-function runAssignPhase() { /* placeholder */ }
+function startTimerButton(btn, durationMs, onComplete) {
+  btn.classList.add('timer-btn--active');
+  const start = performance.now();
+  let rafId;
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / durationMs, 1);
+    btn.style.setProperty('--timer-progress', `${progress * 360}deg`);
+    if (progress < 1) {
+      rafId = requestAnimationFrame(tick);
+    } else {
+      btn.classList.remove('timer-btn--active');
+      onComplete();
+    }
+  }
+  rafId = requestAnimationFrame(tick);
+  btn.addEventListener('click', () => {
+    cancelAnimationFrame(rafId);
+    onComplete();
+  }, { once: true });
+}
+
+function runAssignPhase() {
+  const team = state.team;
+  const pawnsEl = document.getElementById('assign-pawns');
+  const revealEl = document.getElementById('assign-reveal');
+  const nameEl = document.getElementById('assign-team-name');
+  const advanceBtn = document.getElementById('assign-advance');
+  const spinner = document.getElementById('assign-spinner');
+
+  const trickle = [800, 900, 1600, 2200];
+  trickle.forEach((delay) => {
+    setTimeout(() => {
+      const pawn = document.createElement('div');
+      pawn.className = 'pawn-badge';
+      pawn.setAttribute('aria-label', 'Teammate');
+      pawn.textContent = '♟';
+      pawnsEl.appendChild(pawn);
+      requestAnimationFrame(() => requestAnimationFrame(() => pawn.classList.add('is-visible')));
+    }, delay);
+  });
+
+  setTimeout(() => {
+    spinner.style.opacity = '0';
+    nameEl.textContent = team.name;
+    nameEl.style.color = team.accent;
+    revealEl.classList.remove('is-hidden');
+    window.gsap.from(revealEl, { y: 16, opacity: 0, duration: 0.5, ease: 'power2.out' });
+  }, 3500);
+
+  setTimeout(() => {
+    advanceBtn.classList.remove('is-hidden');
+    window.gsap.from(advanceBtn, { opacity: 0, scale: 0.95, duration: 0.4 });
+    startTimerButton(advanceBtn, 4000, () => {
+      goToPhase('countdown');
+      runCountdownPhase();
+    });
+  }, 4000);
+}
+
 function runCountdownPhase() { /* placeholder */ }
 function runVotePhase() { /* placeholder */ }
 function runLobbyPhase() { /* placeholder */ }
