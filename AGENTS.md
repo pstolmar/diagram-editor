@@ -57,9 +57,10 @@ Blocks auto-load their CSS sibling (`blocks/<name>/<name>.css`).
 
 ### Scripts
 
-- `scripts/aem.js` — AEM EDS core utilities (decorateBlocks, loadCSS, createOptimizedPicture)
-- `scripts/scripts.js` — Main entry: decorateMain → loadEager → loadLazy
+- `scripts/aem.js` — AEM EDS core utilities (decorateBlocks, loadSection, loadCSS, createOptimizedPicture, etc.)
+- `scripts/scripts.js` — Main entry: decorateMain → loadEager → loadLazy. Implements moveAttributes/moveInstrumentation helpers.
 - `scripts/editor-support.js` — Universal Editor live-editing integration
+- `scripts/editor-support-rte.js` — Rich text editor decoration
 
 ### AEM component models
 
@@ -69,7 +70,7 @@ Blocks auto-load their CSS sibling (`blocks/<name>/<name>.css`).
 ### Diagram editor block
 
 `blocks/diagram-editor/` loads Mermaid v10 from CDN. Renders `<pre class="diagram-source">` as SVG.
-Dispatches `diagram:render` and `diagram:error` custom events.
+Dispatches `diagram:render` and `diagram:error` custom events. Export functionality (PNG/JPEG/SVG) is planned.
 
 ### AI Pit Crew Challenge
 
