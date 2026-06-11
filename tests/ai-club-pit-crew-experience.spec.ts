@@ -118,3 +118,11 @@ test('podium canvas appears without console errors', async ({ page }) => {
   const webglErrors = errors.filter((e) => /three|webgl|renderer/i.test(e));
   expect(webglErrors).toHaveLength(0);
 });
+
+test('final leaderboard shows all 8 teams', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.goto(`${BASE}?resetTeam=1&startPhase=arena`);
+  await page.waitForSelector('#arena-final:not(.is-hidden)', { timeout: 55000 });
+  const items = await page.locator('#full-leaderboard li').count();
+  expect(items).toBe(8);
+});

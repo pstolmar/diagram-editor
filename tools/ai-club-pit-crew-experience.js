@@ -571,9 +571,62 @@ function buildPodiumRobot(config, scene, accentHex) {
   return { root, armBase };
 }
 
-function showMedalCard(team) { /* implemented in Task 9 */ }
+const PLACE_EMOJIS = ['🥇', '🥈', '🥉'];
 
-function showFinalLeaderboard() { /* implemented in Task 9 */ }
+function showMedalCard(team) {
+  const cardsRow = document.getElementById('podium-medal-cards');
+  cardsRow.classList.remove('is-hidden');
+  const medalClass = ['gold', 'silver', 'bronze'][team.place - 1];
+  const card = document.createElement('div');
+  card.className = `medal-card medal-card--${medalClass}`;
+  card.innerHTML = `
+    <div class="medal-place">${PLACE_EMOJIS[team.place - 1]}</div>
+    <div class="medal-team-name">${team.name}</div>
+    <div class="medal-score">${team.score} pts</div>
+    <div class="medal-config">
+      ${Object.values(team.config).map((v) => `<span class="medal-tag">${v.replace(/-/g, ' ')}</span>`).join('')}
+    </div>
+  `;
+  cardsRow.appendChild(card);
+  window.gsap.from(card, {
+    y: 30, opacity: 0, scale: 0.9, duration: 0.5, ease: 'back.out(1.5)',
+  });
+  if (team.place === 1) spawnConfetti();
+}
+
+function spawnConfetti() {
+  const colors = ['#ffd700', '#38bdf8', '#22c55e', '#f59e0b', '#c084fc', '#f472b6'];
+  Array.from({ length: 60 }).forEach(() => {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = [
+      `left:${Math.random() * 100}vw`,
+      `background:${colors[Math.floor(Math.random() * colors.length)]}`,
+      `animation-delay:${Math.random() * 1.5}s`,
+      `animation-duration:${1.5 + Math.random() * 2}s`,
+      `width:${6 + Math.random() * 8}px`,
+      `height:${6 + Math.random() * 8}px`,
+      `transform:rotate(${Math.random() * 360}deg)`,
+    ].join(';');
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  });
+}
+
+function showFinalLeaderboard() {
+  const finalEl = document.getElementById('arena-final');
+  const list = document.getElementById('full-leaderboard');
+  finalEl.classList.remove('is-hidden');
+  const sorted = [...FAKE_TEAMS].sort((a, b) => a.place - b.place);
+  list.innerHTML = sorted.map((team) => `
+    <li class="lb-row${team.place <= 3 ? ' lb-row--podium' : ''}">
+      <span class="lb-place">#${team.place}</span>
+      <span class="lb-name" style="color:${team.accent}">${team.name}</span>
+      <span class="lb-score">${team.score}</span>
+    </li>
+  `).join('');
+  window.gsap.from(finalEl, { opacity: 0, y: 20, duration: 0.5 });
+}
 
 document.addEventListener('click', (e) => {
   if (e.target.id === 'replay-experience') {

@@ -353,3 +353,109 @@
   display: block;
   border-radius: 18px;
 }
+
+/* ── Holofoil medal cards ── */
+@keyframes holofoil {
+  0%   { background-position: 0% 50%; filter: hue-rotate(0deg) brightness(1.05); }
+  50%  { background-position: 100% 50%; filter: hue-rotate(25deg) brightness(1.15); }
+  100% { background-position: 0% 50%; filter: hue-rotate(0deg) brightness(1.05); }
+}
+
+.medal-cards-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 16px 0;
+}
+
+.medal-card {
+  border-radius: 18px;
+  padding: 20px 24px;
+  min-width: 160px;
+  text-align: center;
+  background-size: 300% 300%;
+  animation: holofoil 3s ease infinite;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  color: #1a1a1a;
+}
+
+.medal-card--gold {
+  background: linear-gradient(135deg, #ffd700, #fff8b0 40%, #ffd700 60%, #b8860b, #ffe44d);
+}
+
+.medal-card--silver {
+  background: linear-gradient(135deg, #c0c0c0, #f0f0f0 40%, #c0c0c0 60%, #808080, #e0e0e0);
+}
+
+.medal-card--bronze {
+  background: linear-gradient(135deg, #cd7f32, #e8a858 40%, #cd7f32 60%, #7f4e0e, #d4893c);
+}
+
+.medal-place { font-size: 2.5rem; }
+.medal-team-name { font-weight: 900; font-size: 0.95rem; margin: 6px 0 4px; }
+.medal-score { font-size: 1.5rem; font-weight: 900; }
+
+.medal-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.medal-tag {
+  font-size: 0.66rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.15);
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+
+/* ── Confetti ── */
+@keyframes confetti-fall {
+  0%   { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: 0;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti-fall linear forwards;
+}
+
+/* ── Final leaderboard ── */
+.arena-final {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+}
+
+.full-leaderboard {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+
+.lb-row--podium { border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.06); }
+
+.lb-place { font-size: 0.85rem; font-weight: 700; color: var(--pit-muted, rgba(200,220,255,0.55)); min-width: 28px; }
+.lb-name  { flex: 1; font-weight: 700; }
+.lb-score { font-weight: 900; font-size: 1.1rem; }
