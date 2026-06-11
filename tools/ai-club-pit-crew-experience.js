@@ -226,6 +226,65 @@ function runVotePhase() {
   const container = document.getElementById('vote-groups');
   const lockBtn = document.getElementById('lock-in-build');
 
+  // ── Robot preview canvas ──
+  const previewCanvas = document.getElementById('vote-preview-canvas');
+  const PW = Math.min(280, window.innerWidth - 48);
+  const PH = Math.round(PW * 0.72);
+  previewCanvas.width = PW;
+  previewCanvas.height = PH;
+
+  const { THREE } = window;
+  const previewRenderer = new THREE.WebGLRenderer({ canvas: previewCanvas, antialias: true, alpha: true });
+  previewRenderer.setSize(PW, PH);
+
+  const previewScene = new THREE.Scene();
+  const previewCamera = new THREE.PerspectiveCamera(38, PW / PH, 0.1, 30);
+  previewCamera.position.set(2.6, 2.8, 4.2);
+  previewCamera.lookAt(0, 1.2, 0);
+
+  previewScene.add(new THREE.AmbientLight(0xffffff, 0.75));
+  const pvSun = new THREE.DirectionalLight(0xffffff, 1.1);
+  pvSun.position.set(3, 6, 4);
+  previewScene.add(pvSun);
+
+  const pvFloor = new THREE.Mesh(
+    new THREE.PlaneGeometry(12, 12),
+    new THREE.MeshStandardMaterial({ color: 0x0d1a2a, roughness: 0.9 }),
+  );
+  pvFloor.rotation.x = -Math.PI / 2;
+  previewScene.add(pvFloor);
+
+  let pvRobotRoot = null;
+  let pvAngle = 0;
+  let pvAnimId = null;
+
+  function rebuildPreviewRobot() {
+    if (pvRobotRoot) previewScene.remove(pvRobotRoot);
+    const config = {
+      mobility: state.votes.mobility || 'balanced-treads',
+      utility: state.votes.utility || 'robot-arm',
+      care: state.votes.care || 'cushion-mount',
+      brain: state.votes.brain || 'structured-thinker',
+    };
+    const robot = buildPodiumRobot(config, previewScene, state.team.accent);
+    pvRobotRoot = robot.root;
+  }
+
+  rebuildPreviewRobot();
+
+  function pvRenderLoop() {
+    pvAnimId = requestAnimationFrame(pvRenderLoop);
+    pvAngle += 0.008;
+    if (pvRobotRoot) pvRobotRoot.rotation.y = pvAngle;
+    previewRenderer.render(previewScene, previewCamera);
+  }
+  pvRenderLoop();
+
+  function cleanupPreview() {
+    cancelAnimationFrame(pvAnimId);
+    previewRenderer.dispose();
+  }
+
   container.innerHTML = BUILD_GROUPS.map((group) => `
     <div class="vote-group" data-group="${group.id}">
       <div class="vote-group-header">
@@ -264,6 +323,7 @@ function runVotePhase() {
   }
 
   function autoLockAndAdvance() {
+    cleanupPreview();
     BUILD_GROUPS.forEach((g) => {
       if (!state.votes[g.id]) state.votes[g.id] = g.options[0].id;
     });
@@ -294,11 +354,13 @@ function runVotePhase() {
     });
     state.votes[group] = option;
     checkAllSelected();
+    rebuildPreviewRobot();
   });
 
   lockBtn.addEventListener('click', () => {
     if (Object.keys(state.votes).length < BUILD_GROUPS.length) return;
     clearInterval(timerInterval);
+    cleanupPreview();
     applyVotesToTeam();
     goToPhase('lobby');
     runLobbyPhase();
