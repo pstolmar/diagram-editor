@@ -251,14 +251,38 @@ function runVotePhase() {
     lockBtn.disabled = !allSelected;
   }
 
+  function applyVotesToTeam() {
+    state.team = {
+      ...state.team,
+      config: {
+        mobility: state.votes.mobility || 'balanced-treads',
+        utility:  state.votes.utility  || 'robot-arm',
+        care:     state.votes.care     || 'cushion-mount',
+        brain:    state.votes.brain    || 'structured-thinker',
+      },
+    };
+  }
+
+  function autoLockAndAdvance() {
+    BUILD_GROUPS.forEach((g) => {
+      if (!state.votes[g.id]) state.votes[g.id] = g.options[0].id;
+    });
+    applyVotesToTeam();
+    goToPhase('lobby');
+    runLobbyPhase();
+  }
+
   let secs = 300;
   const timerEl = document.getElementById('vote-timer');
   const timerInterval = setInterval(() => {
     secs -= 1;
-    if (secs <= 0) { clearInterval(timerInterval); return; }
-    const m = Math.floor(secs / 60);
-    const s = String(secs % 60).padStart(2, '0');
+    const m = Math.floor(Math.max(secs, 0) / 60);
+    const s = String(Math.max(secs, 0) % 60).padStart(2, '0');
     timerEl.textContent = `${m}:${s}`;
+    if (secs <= 0) {
+      clearInterval(timerInterval);
+      autoLockAndAdvance();
+    }
   }, 1000);
 
   container.addEventListener('click', (e) => {
@@ -275,6 +299,7 @@ function runVotePhase() {
   lockBtn.addEventListener('click', () => {
     if (Object.keys(state.votes).length < BUILD_GROUPS.length) return;
     clearInterval(timerInterval);
+    applyVotesToTeam();
     goToPhase('lobby');
     runLobbyPhase();
   });
@@ -503,13 +528,42 @@ async function playOnePodiumSlot(team, scene) {
   robot.root.position.y = -4;
   await window.gsap.to(robot.root.position, { y: 0, duration: 0.8, ease: 'back.out(1.2)' });
 
+  // Mobility animation
+  if (team.config.mobility === 'scout-legs' && robot.legs.length) {
+    // 3 cycles of leg walk
+    for (let cycle = 0; cycle < 3; cycle++) {
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.all(robot.legs.map((leg, i) => {
+        const dir = i % 2 === 0 ? -0.18 : 0.18;
+        return window.gsap.to(leg.group.position, { y: `+=${dir}`, duration: 0.18, yoyo: true, repeat: 1 });
+      }));
+    }
+  } else if (team.config.mobility === 'balanced-treads' && robot.treads.length) {
+    // Scroll tread pads (translate on Z in a loop)
+    let treadStep = 0;
+    const treadAnim = setInterval(() => {
+      treadStep += 1;
+      robot.treads.forEach((sg) => {
+        sg.children.forEach((pad, i) => {
+          pad.position.z = -0.45 + ((i * 0.18 + treadStep * 0.06) % 1.08);
+        });
+      });
+    }, 50);
+    await new Promise((r) => { setTimeout(r, 900); });
+    clearInterval(treadAnim);
+  } else {
+    // heavy-lift or default: deliberate slow bob
+    await window.gsap.to(robot.root.position, { y: 0.3, duration: 0.45, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+  }
+
+  // Utility animation
   if (team.config.utility === 'robot-arm' && robot.armBase) {
     await window.gsap.to(robot.armBase.rotation, { z: -1.0, duration: 0.55, ease: 'power2.inOut' });
     await window.gsap.to(robot.armBase.rotation, { z: 0, duration: 0.4 });
   } else if (team.config.utility === 'grapple-hook') {
     await window.gsap.to(robot.root.rotation, { y: Math.PI * 2, duration: 0.7, ease: 'power2.inOut' });
     robot.root.rotation.y = 0;
-  } else {
+  } else if (team.config.utility === 'suction-cup') {
     await window.gsap.to(robot.root.position, { y: 0.4, duration: 0.3, yoyo: true, repeat: 1 });
   }
 
@@ -531,29 +585,87 @@ function buildPodiumRobot(config, scene, accentHex) {
     color: new THREE.Color(accentHex), roughness: 0.45, metalness: 0.55,
   });
   const darkMat = new THREE.MeshStandardMaterial({ color: 0x1a2a3a, roughness: 0.5, metalness: 0.6 });
+  const greyMat = new THREE.MeshStandardMaterial({ color: 0x444455, roughness: 0.7, metalness: 0.5 });
 
+  // ── Body ──
   const body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.1, 0.9), bodyMat);
   body.position.y = 1.15;
   body.castShadow = true;
   root.add(body);
 
+  // ── Head ──
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.52, 0.62), darkMat);
   head.position.y = 1.93;
   head.castShadow = true;
   root.add(head);
 
-  const wGeo = new THREE.CylinderGeometry(0.27, 0.27, 0.20, 12);
-  const wMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
-  [[-0.62, 0.27, 0.5], [0.62, 0.27, 0.5], [-0.62, 0.27, -0.5], [0.62, 0.27, -0.5]].forEach((pos) => {
-    const wg = new THREE.Group();
-    wg.position.set(...pos);
-    wg.rotation.z = Math.PI / 2;
-    const w = new THREE.Mesh(wGeo, wMat);
-    w.castShadow = true;
-    wg.add(w);
-    root.add(wg);
-  });
+  // ── Mobility ──
+  const treads = [];
+  const legs = [];
 
+  if (config.mobility === 'scout-legs') {
+    // 4 articulated legs
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x888899, roughness: 0.6, metalness: 0.5 });
+    [[-0.55, 0.38], [0.55, 0.38], [-0.55, -0.38], [0.55, -0.38]].forEach(([x, z], i) => {
+      const legGroup = new THREE.Group();
+      legGroup.position.set(x, 0.68, z);
+      const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.045, 0.52, 8), legMat);
+      upper.position.set(Math.sign(x) * 0.14, -0.18, 0);
+      upper.rotation.z = Math.sign(x) * 0.45;
+      upper.castShadow = true;
+      legGroup.add(upper);
+      const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.032, 0.44, 8), legMat);
+      lower.position.set(Math.sign(x) * 0.26, -0.48, 0);
+      lower.rotation.z = Math.sign(x) * -0.3;
+      lower.castShadow = true;
+      legGroup.add(lower);
+      const foot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), greyMat);
+      foot.position.set(Math.sign(x) * 0.33, -0.68, 0);
+      foot.castShadow = true;
+      legGroup.add(foot);
+      root.add(legGroup);
+      legs.push({ group: legGroup, phase: (i % 2) * Math.PI });
+    });
+  } else if (config.mobility === 'balanced-treads') {
+    // Side track boxes with tread pads
+    const trackMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.95 });
+    const padMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.9 });
+    [-0.68, 0.68].forEach((x) => {
+      const track = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.26, 1.0), trackMat);
+      track.position.set(x, 0.14, 0);
+      track.castShadow = true;
+      root.add(track);
+      // tread strip group (to animate)
+      const stripGroup = new THREE.Group();
+      stripGroup.position.set(x, 0.14, 0);
+      for (let i = 0; i < 6; i++) {
+        const pad = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.05, 0.12), padMat);
+        pad.position.z = -0.45 + i * 0.18;
+        pad.position.y = 0.12;
+        stripGroup.add(pad);
+      }
+      root.add(stripGroup);
+      treads.push(stripGroup);
+    });
+  } else {
+    // heavy-lift or default: large wheels
+    const wGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.22, 14);
+    const wMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+    const hubMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.5, metalness: 0.8 });
+    [[-0.65, 0.28, 0.48], [0.65, 0.28, 0.48], [-0.65, 0.28, -0.48], [0.65, 0.28, -0.48]].forEach((pos) => {
+      const wg = new THREE.Group();
+      wg.position.set(...pos);
+      wg.rotation.z = Math.PI / 2;
+      const w = new THREE.Mesh(wGeo, wMat);
+      w.castShadow = true;
+      wg.add(w);
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.24, 8), hubMat);
+      wg.add(hub);
+      root.add(wg);
+    });
+  }
+
+  // ── Utility Attachment ──
   let armBase = null;
   if (config.utility === 'robot-arm') {
     armBase = new THREE.Group();
@@ -566,10 +678,87 @@ function buildPodiumRobot(config, scene, accentHex) {
     claw.position.set(0, 0.68, 0);
     armBase.add(claw);
     root.add(armBase);
+  } else if (config.utility === 'suction-cup') {
+    const suckBase = new THREE.Group();
+    suckBase.position.set(0.52, 1.4, 0);
+    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.5, 10), greyMat);
+    tube.rotation.z = Math.PI / 2;
+    tube.position.x = 0.25;
+    tube.castShadow = true;
+    suckBase.add(tube);
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.06, 16), bodyMat);
+    disc.rotation.z = Math.PI / 2;
+    disc.position.x = 0.54;
+    disc.castShadow = true;
+    suckBase.add(disc);
+    root.add(suckBase);
+  } else if (config.utility === 'grapple-hook') {
+    const hookBase = new THREE.Group();
+    hookBase.position.set(0.0, 2.05, 0);
+    const spool = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.22, 12), greyMat);
+    spool.rotation.z = Math.PI / 2;
+    spool.position.x = 0.5;
+    hookBase.add(spool);
+    const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.44, 6), darkMat);
+    cable.rotation.z = Math.PI / 2;
+    cable.position.x = 0.76;
+    hookBase.add(cable);
+    const hookTip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.22, 8), bodyMat);
+    hookTip.position.x = 1.0;
+    hookTip.rotation.z = -Math.PI / 2;
+    hookTip.castShadow = true;
+    hookBase.add(hookTip);
+    root.add(hookBase);
+  }
+
+  // ── Care ──
+  if (config.care === 'stabilizer') {
+    const stabMat = new THREE.MeshStandardMaterial({ color: 0x667788, roughness: 0.4, metalness: 0.7 });
+    [-1, 1].forEach((side) => {
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.07, 0.07), stabMat);
+      arm.position.set(side * 0.9, 0.75, 0);
+      arm.castShadow = true;
+      root.add(arm);
+      const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.06, 10), darkMat);
+      tip.position.set(side * 1.1, 0.75, 0);
+      tip.rotation.x = Math.PI / 2;
+      tip.castShadow = true;
+      root.add(tip);
+    });
+  } else if (config.care === 'cushion-mount') {
+    const cushMat = new THREE.MeshStandardMaterial({ color: 0x8899aa, roughness: 0.95 });
+    const cush = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.14, 0.95), cushMat);
+    cush.position.set(0, 0.65, 0);
+    cush.castShadow = true;
+    root.add(cush);
+  }
+
+  // ── Brain ──
+  const glowColor = config.brain === 'fast-guesser' ? 0xffff00
+    : config.brain === 'verifier' ? 0x22c55e : 0x38bdf8;
+  const antMat = new THREE.MeshStandardMaterial({
+    color: glowColor, emissive: glowColor, emissiveIntensity: 0.7,
+  });
+  if (config.brain === 'fast-guesser') {
+    [-0.14, 0, 0.14].forEach((x) => {
+      const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.3, 6), antMat);
+      ant.position.set(x, 2.27, 0);
+      root.add(ant);
+    });
+  } else if (config.brain === 'verifier') {
+    [-0.12, 0.12].forEach((x) => {
+      const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.38, 6), antMat);
+      ant.position.set(x, 2.30, 0);
+      root.add(ant);
+    });
+  } else {
+    const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.52, 6), antMat);
+    ant.position.set(0, 2.45, 0);
+    root.add(ant);
   }
 
   scene.add(root);
-  return { root, armBase };
+  return { root, armBase, treads, legs };
 }
 
 const PLACE_EMOJIS = ['🥇', '🥈', '🥉'];
