@@ -459,3 +459,18 @@
 .lb-place { font-size: 0.85rem; font-weight: 700; color: var(--pit-muted, rgba(200,220,255,0.55)); min-width: 28px; }
 .lb-name  { flex: 1; font-weight: 700; }
 .lb-score { font-weight: 900; font-size: 1.1rem; }
+
+/* ── Lobby skip banner ── */
+.lobby-skip-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: rgba(56,189,248,0.12);
+  border: 1px solid rgba(56,189,248,0.3);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  font-weight: 700;
+  color: var(--pit-accent, #38bdf8);
+}

@@ -282,7 +282,7 @@ function runVotePhase() {
 function runLobbyPhase() {
   const params = new URLSearchParams(window.location.search);
   const fast = params.get('fastLobby') === '1';
-  const totalMs = fast ? 2000 : 12000;
+  const totalMs = fast ? 2000 : 120000;
 
   const bar = document.getElementById('lobby-bar');
   const counter = document.getElementById('teams-locked-count');
@@ -330,47 +330,49 @@ function runLobbyPhase() {
   // ── Progress bar ──
   window.gsap.to(bar, { width: '100%', duration: totalMs / 1000, ease: 'none' });
 
-  // ── Quiz offer (after 4s, or 0.6s in fast mode) ──
-  const quizDelay = fast ? 600 : 4000;
+  // ── Auto-load quiz immediately ──
   let quizInProgress = false;
   let quizSettled = false;
   let quizDoneResolve = null;
   const quizDonePromise = new Promise((res) => { quizDoneResolve = res; });
 
-  const quizOfferTimeout = setTimeout(() => {
-    quizOffer.classList.remove('is-hidden');
-    window.gsap.from(quizOffer, { y: 12, opacity: 0, duration: 0.4 });
+  quizOffer.classList.add('is-hidden');
+  quizContainer.classList.remove('is-hidden');
+  lobbyHint.classList.add('is-hidden');
 
-    document.getElementById('start-quiz-btn').addEventListener('click', async () => {
-      quizOffer.classList.add('is-hidden');
-      lobbyHint.classList.add('is-hidden');
-      quizContainer.classList.remove('is-hidden');
-      quizInProgress = true;
-
-      // Dynamically import the quiz module and init it
-      const { initQuiz } = await import('/tools/ai-club-quiz.js');
-      const questions = await fetch('/tools/ai-club-quiz-data.json').then((r) => r.json());
-      initQuiz(quizContainer, questions, {
-        onComplete: (score, total) => {
-          quizInProgress = false;
-          if (!quizSettled) { quizSettled = true; quizDoneResolve({ score, total }); }
-        },
-      });
-    }, { once: true });
-
-    document.getElementById('skip-quiz-btn').addEventListener('click', () => {
-      quizOffer.classList.add('is-hidden');
-      if (!quizSettled) { quizSettled = true; quizDoneResolve(null); }
-    }, { once: true });
-  }, quizDelay);
+  Promise.all([
+    import('/tools/ai-club-quiz.js'),
+    fetch('/tools/ai-club-quiz-data.json').then((r) => r.json()),
+  ]).then(([{ initQuiz }, questions]) => {
+    quizInProgress = true;
+    initQuiz(quizContainer, questions, {
+      onComplete: (score, total) => {
+        quizInProgress = false;
+        if (!quizSettled) { quizSettled = true; quizDoneResolve({ score, total }); }
+      },
+    });
+  });
 
   // ── Auto-advance after totalMs + 2s dramatic pause ──
   const advanceTimeout = setTimeout(async () => {
-    // If quiz is still in progress, wait for it to finish
-    if (quizInProgress) {
+    // If quiz is still in progress, show skip banner and wait
+    if (quizInProgress && !fast) {
+      const skipBanner = document.createElement('div');
+      skipBanner.className = 'lobby-skip-banner';
+      skipBanner.innerHTML = `
+        <span>All teams are ready!</span>
+        <button class="pit-btn pit-btn--primary lobby-skip-btn" type="button">Go to Arena →</button>
+      `;
+      quizContainer.prepend(skipBanner);
+      skipBanner.querySelector('.lobby-skip-btn').addEventListener('click', () => {
+        if (!quizSettled) { quizSettled = true; quizDoneResolve(null); }
+      }, { once: true });
       await quizDonePromise;
-      // Show score briefly
-      await new Promise((r) => { setTimeout(r, 2500); });
+      skipBanner.remove();
+      if (!quizInProgress) {
+        // Show score briefly before advancing
+        await new Promise((r) => { setTimeout(r, 2000); });
+      }
     } else {
       if (!quizSettled) { quizSettled = true; quizDoneResolve(null); }
     }
@@ -378,7 +380,6 @@ function runLobbyPhase() {
     // Clean up
     clearInterval(presenceInterval);
     trickleTimeouts.forEach(clearTimeout);
-    clearTimeout(quizOfferTimeout);
     localStorage.removeItem(presenceKey);
 
     // "Loading arena" stinger
@@ -415,7 +416,7 @@ async function revealScoreCards() {
         <span class="score-card-score" data-final="${team.score}">0</span>
       </div>
     `;
-    container.appendChild(card);
+    container.prepend(card);
     await window.gsap.from(card, { rotateY: 90, opacity: 0, duration: 0.35, ease: 'power2.out' });
     await countUp(card.querySelector('.score-card-score'), team.score, 600);
     await new Promise((r) => { setTimeout(r, 450); });

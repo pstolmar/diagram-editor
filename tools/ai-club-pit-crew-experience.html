@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Pit Crew Challenge</title>
   <link rel="stylesheet" href="/tools/ai-club-scavengers.css">
+  <link rel="stylesheet" href="/tools/ai-club-quiz.css">
   <link rel="stylesheet" href="/tools/ai-club-pit-crew-experience.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js" defer></script>
@@ -74,14 +75,14 @@
 
     <section class="pit-phase" data-phase="arena">
       <div class="phase-inner arena-inner">
-        <div id="score-reveal-container" class="score-reveal-container"></div>
-        <div id="podium-banner" class="podium-banner is-hidden">
-          And the podium finishers are…
-        </div>
         <div id="podium-container" class="podium-container is-hidden">
           <canvas id="podium-canvas"></canvas>
           <div id="podium-medal-cards" class="medal-cards-row"></div>
         </div>
+        <div id="podium-banner" class="podium-banner is-hidden">
+          And the podium finishers are…
+        </div>
+        <div id="score-reveal-container" class="score-reveal-container"></div>
         <div id="arena-final" class="arena-final is-hidden">
           <h2>Final Standings</h2>
           <ol id="full-leaderboard" class="full-leaderboard"></ol>

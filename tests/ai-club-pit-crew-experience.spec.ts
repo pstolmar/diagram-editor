@@ -93,7 +93,7 @@ test('lobby counter reaches 8', async ({ page }) => {
 
 test('lobby shows quiz offer after delay (fastLobby)', async ({ page }) => {
   await page.goto(`${BASE}?resetTeam=1&startPhase=lobby&fastLobby=1`);
-  await page.waitForSelector('#lobby-quiz-offer:not(.is-hidden)', { timeout: 4000 });
+  await page.waitForSelector('#lobby-quiz-container:not(.is-hidden)', { timeout: 4000 });
 });
 
 test('arena phase renders 5 non-podium score cards', async ({ page }) => {
