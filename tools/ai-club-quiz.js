@@ -76,7 +76,7 @@ function handleAnswer(btn, allBtns, explanationEl, nextBtn, question, state, opt
     btn.classList.add('is-correct');
     state.score += 1;
     // Update score display
-    const scoreEl = btn.closest('.quiz-shell').querySelector('.quiz-score strong');
+    const scoreEl = explanationEl.closest('.quiz-card')?.parentElement?.querySelector('.quiz-score strong');
     if (scoreEl) scoreEl.textContent = String(state.score);
   } else {
     // Fade wrong options (all buttons that are not the selected one)
@@ -113,9 +113,9 @@ function handleAnswer(btn, allBtns, explanationEl, nextBtn, question, state, opt
  */
 function renderEnd(containerEl, state, total, opts) {
   let grade;
-  if (state.score >= 8) {
+  if (state.score >= 9) {
     grade = 'Prompt Pro!';
-  } else if (state.score >= 5) {
+  } else if (state.score >= 6) {
     grade = 'Good instincts!';
   } else {
     grade = 'Keep exploring!';
@@ -147,6 +147,33 @@ function renderEnd(containerEl, state, total, opts) {
 }
 
 /**
+ * Select 2 easy + 5 medium + 3 hard questions from the pool if difficulty fields exist.
+ */
+function selectQuestions(pool) {
+  const hasDifficulty = pool.some((q) => q.difficulty);
+  if (!hasDifficulty) return pool;
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const easy = shuffle(pool.filter((q) => q.difficulty === 'easy'));
+  const medium = shuffle(pool.filter((q) => q.difficulty === 'medium'));
+  const hard = shuffle(pool.filter((q) => q.difficulty === 'hard'));
+
+  return [
+    ...easy.slice(0, 2),
+    ...medium.slice(0, 5),
+    ...hard.slice(0, 3),
+  ];
+}
+
+/**
  * Public API — initialise the quiz widget.
  * @param {HTMLElement} containerEl - target element to render into
  * @param {object[]} questions - array of question objects
@@ -156,10 +183,11 @@ function renderEnd(containerEl, state, total, opts) {
  * @param {function} [opts.onReplay] - called when replay button is clicked
  */
 export function initQuiz(containerEl, questions, opts = {}) {
+  // Select questions by difficulty if pool is large enough
+  const selectedQuestions = selectQuestions(questions);
   const state = { index: 0, score: 0 };
-  // Store questions on the element for replay
-  containerEl.__quizQuestions = questions; // eslint-disable-line no-param-reassign
-  renderQuestion(containerEl, questions, state, opts);
+  containerEl.__quizQuestions = selectedQuestions; // eslint-disable-line no-param-reassign
+  renderQuestion(containerEl, selectedQuestions, state, opts);
 }
 
 // Self-init for standalone page
