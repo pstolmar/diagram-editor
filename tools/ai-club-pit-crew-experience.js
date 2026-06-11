@@ -475,10 +475,11 @@ async function showPodiumBanner() {
 async function runPodiumSequence() {
   const container = document.getElementById('podium-container');
   const canvas = document.getElementById('podium-canvas');
+  const nameLabel = document.getElementById('podium-team-label');
   container.classList.remove('is-hidden');
 
-  const W = Math.min(window.innerWidth - 32, 800);
-  const H = Math.round(W * 0.56);
+  const W = Math.min(window.innerWidth - 32, 900);
+  const H = Math.round(W * 0.5);
   canvas.width = W;
   canvas.height = H;
 
@@ -488,39 +489,126 @@ async function runPodiumSequence() {
   renderer.shadowMap.enabled = true;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, W / H, 0.1, 50);
-  camera.position.set(0, 3.5, 9);
-  camera.lookAt(0, 1, 0);
+  const camera = new THREE.PerspectiveCamera(44, W / H, 0.1, 60);
+  camera.position.set(0, 4, 11);
+  camera.lookAt(0, 1.5, 0);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.2);
   sun.position.set(4, 8, 5);
   sun.castShadow = true;
   scene.add(sun);
 
   const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
+    new THREE.PlaneGeometry(30, 30),
     new THREE.MeshStandardMaterial({ color: 0x0d1a2a, roughness: 0.9 }),
   );
   floor.rotation.x = -Math.PI / 2;
   floor.receiveShadow = true;
   scene.add(floor);
 
-  let animFrameId;
+  const slotDefs = [
+    { x: -3.2, podiumH: 0.5, podiumColor: 0xcd7f32, place: 3 },
+    { x: 3.2,  podiumH: 0.9, podiumColor: 0xc0c0c0, place: 2 },
+    { x: 0,    podiumH: 1.4, podiumColor: 0xffd700, place: 1 },
+  ];
+
+  slotDefs.forEach((s) => {
+    const cyl = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.65, 0.65, s.podiumH, 24),
+      new THREE.MeshStandardMaterial({
+        color: s.podiumColor,
+        roughness: s.place === 1 ? 0.22 : 0.38,
+        metalness: 0.85,
+      }),
+    );
+    cyl.position.set(s.x, s.podiumH / 2, 0);
+    cyl.castShadow = true;
+    cyl.receiveShadow = true;
+    scene.add(cyl);
+  });
+
   function renderLoop() {
-    animFrameId = requestAnimationFrame(renderLoop);
+    requestAnimationFrame(renderLoop);
     renderer.render(scene, camera);
   }
   renderLoop();
 
-  const podiumTeams = FAKE_TEAMS.filter((t) => t.place <= 3).sort((a, b) => b.place - a.place);
-  await podiumTeams.reduce((chain, team) => chain.then(async () => {
-    await playOnePodiumSlot(team, scene);
-    await new Promise((r) => { setTimeout(r, 600); });
-  }), Promise.resolve());
+  async function spawnRobot(slot) {
+    const team = FAKE_TEAMS.find((t) => t.place === slot.place);
+    const robot = buildPodiumRobot(team.config, scene, team.accent);
+    robot.root.position.set(slot.x, -6, 0);
 
-  cancelAnimationFrame(animFrameId);
-  renderer.dispose();
+    await window.gsap.to(robot.root.position, {
+      y: slot.podiumH, duration: 0.85, ease: 'back.out(1.1)',
+    });
+
+    // Mobility animation
+    if (team.config.mobility === 'scout-legs' && robot.legs.length) {
+      for (let c = 0; c < 2; c++) {
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(robot.legs.map((leg, i) => {
+          const dir = i % 2 === 0 ? -0.15 : 0.15;
+          return window.gsap.to(leg.group.position, { y: `+=${dir}`, duration: 0.14, yoyo: true, repeat: 1 });
+        }));
+      }
+    } else if (team.config.mobility === 'balanced-treads' && robot.treads.length) {
+      let step = 0;
+      const anim = setInterval(() => {
+        step += 1;
+        robot.treads.forEach((sg) => {
+          sg.children.forEach((pad, i) => {
+            pad.position.z = -0.45 + ((i * 0.18 + step * 0.06) % 1.08);
+          });
+        });
+      }, 50);
+      await new Promise((r) => { setTimeout(r, 650); });
+      clearInterval(anim);
+    } else {
+      await window.gsap.to(robot.root.position, {
+        y: slot.podiumH + 0.2, duration: 0.32, yoyo: true, repeat: 1, ease: 'power1.inOut',
+      });
+    }
+
+    // Utility animation
+    if (team.config.utility === 'robot-arm' && robot.armBase) {
+      await window.gsap.to(robot.armBase.rotation, { z: -0.9, duration: 0.48, ease: 'power2.inOut' });
+      await window.gsap.to(robot.armBase.rotation, { z: 0, duration: 0.38 });
+    } else if (team.config.utility === 'grapple-hook') {
+      await window.gsap.to(robot.root.rotation, { y: Math.PI * 2, duration: 0.6 });
+      robot.root.rotation.y = 0;
+    }
+
+    // Show medal card
+    showMedalCard(team);
+
+    // Show team name, then fade
+    nameLabel.textContent = team.name;
+    nameLabel.style.color = team.accent;
+    nameLabel.style.opacity = '1';
+    await new Promise((r) => { setTimeout(r, 1400); });
+    await window.gsap.to(nameLabel, { opacity: 0.35, duration: 0.6 });
+  }
+
+  // Entry order: bronze (3rd), silver (2nd), gold (1st)
+  const entryOrder = [
+    slotDefs.find((s) => s.place === 3),
+    slotDefs.find((s) => s.place === 2),
+    slotDefs.find((s) => s.place === 1),
+  ];
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const slot of entryOrder) {
+    // eslint-disable-next-line no-await-in-loop
+    await spawnRobot(slot);
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((r) => { setTimeout(r, 400); });
+  }
+
+  // All three visible — celebrate
+  nameLabel.style.opacity = '0';
+  spawnConfetti();
+  // Render loop continues — robots remain visible indefinitely
 }
 
 async function playOnePodiumSlot(team, scene) {
@@ -769,6 +857,7 @@ function showMedalCard(team) {
   const medalClass = ['gold', 'silver', 'bronze'][team.place - 1];
   const card = document.createElement('div');
   card.className = `medal-card medal-card--${medalClass}`;
+  card.dataset.place = String(team.place);
   card.innerHTML = `
     <div class="medal-place">${PLACE_EMOJIS[team.place - 1]}</div>
     <div class="medal-team-name">${team.name}</div>
@@ -817,12 +906,5 @@ function showFinalLeaderboard() {
   `).join('');
   window.gsap.from(finalEl, { opacity: 0, y: 20, duration: 0.5 });
 }
-
-document.addEventListener('click', (e) => {
-  if (e.target.id === 'replay-experience') {
-    localStorage.removeItem('ai-club:pitTeamSlug');
-    window.location.href = `${window.location.pathname}?resetTeam=1`;
-  }
-});
 
 init();

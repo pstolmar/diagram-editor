@@ -356,18 +356,28 @@
 
 /* ── Holofoil medal cards ── */
 @keyframes holofoil {
-  0%   { background-position: 0% 50%; filter: hue-rotate(0deg) brightness(1.05); }
-  50%  { background-position: 100% 50%; filter: hue-rotate(25deg) brightness(1.15); }
-  100% { background-position: 0% 50%; filter: hue-rotate(0deg) brightness(1.05); }
+  0%   { background-position: 0% 50%;   filter: brightness(1.0); }
+  50%  { background-position: 100% 50%; filter: brightness(1.22); }
+  100% { background-position: 0% 50%;   filter: brightness(1.0); }
 }
 
 .medal-cards-row {
   display: flex;
   gap: 16px;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding: 16px 0;
+  align-items: flex-end;
 }
+
+.medal-card[data-place="3"] { order: 1; }
+
+.medal-card[data-place="1"] {
+  order: 2;
+  transform: scale(1.13);
+}
+
+.medal-card[data-place="2"] { order: 3; }
 
 .medal-card {
   border-radius: 18px;
@@ -473,4 +483,15 @@
   margin-bottom: 16px;
   font-weight: 700;
   color: var(--pit-accent, #38bdf8);
+}
+
+/* ── Podium team name label ── */
+.podium-team-label {
+  text-align: center;
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  min-height: 2rem;
+  padding: 8px 0;
+  transition: opacity 0.5s ease;
 }
