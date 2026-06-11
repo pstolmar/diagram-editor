@@ -333,6 +333,7 @@ function runLobbyPhase() {
   // ── Quiz offer (after 4s, or 0.6s in fast mode) ──
   const quizDelay = fast ? 600 : 4000;
   let quizInProgress = false;
+  let quizSettled = false;
   let quizDoneResolve = null;
   const quizDonePromise = new Promise((res) => { quizDoneResolve = res; });
 
@@ -352,14 +353,14 @@ function runLobbyPhase() {
       initQuiz(quizContainer, questions, {
         onComplete: (score, total) => {
           quizInProgress = false;
-          quizDoneResolve({ score, total });
+          if (!quizSettled) { quizSettled = true; quizDoneResolve({ score, total }); }
         },
       });
     }, { once: true });
 
     document.getElementById('skip-quiz-btn').addEventListener('click', () => {
       quizOffer.classList.add('is-hidden');
-      quizDoneResolve(null);
+      if (!quizSettled) { quizSettled = true; quizDoneResolve(null); }
     }, { once: true });
   }, quizDelay);
 
@@ -371,7 +372,7 @@ function runLobbyPhase() {
       // Show score briefly
       await new Promise((r) => { setTimeout(r, 2500); });
     } else {
-      quizDoneResolve(null); // resolve in case it was never started
+      if (!quizSettled) { quizSettled = true; quizDoneResolve(null); }
     }
 
     // Clean up
