@@ -446,7 +446,132 @@ async function showPodiumBanner() {
   await new Promise((r) => { setTimeout(r, 2200); });
 }
 
-async function runPodiumSequence() { /* implemented in Task 8 */ }
+async function runPodiumSequence() {
+  const container = document.getElementById('podium-container');
+  const canvas = document.getElementById('podium-canvas');
+  container.classList.remove('is-hidden');
+
+  const W = Math.min(window.innerWidth - 32, 800);
+  const H = Math.round(W * 0.56);
+  canvas.width = W;
+  canvas.height = H;
+
+  const { THREE } = window;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(W, H);
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, W / H, 0.1, 50);
+  camera.position.set(0, 3.5, 9);
+  camera.lookAt(0, 1, 0);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(4, 8, 5);
+  sun.castShadow = true;
+  scene.add(sun);
+
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 20),
+    new THREE.MeshStandardMaterial({ color: 0x0d1a2a, roughness: 0.9 }),
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  let animFrameId;
+  function renderLoop() {
+    animFrameId = requestAnimationFrame(renderLoop);
+    renderer.render(scene, camera);
+  }
+  renderLoop();
+
+  const podiumTeams = FAKE_TEAMS.filter((t) => t.place <= 3).sort((a, b) => b.place - a.place);
+  await podiumTeams.reduce((chain, team) => chain.then(async () => {
+    await playOnePodiumSlot(team, scene);
+    await new Promise((r) => { setTimeout(r, 600); });
+  }), Promise.resolve());
+
+  cancelAnimationFrame(animFrameId);
+  renderer.dispose();
+}
+
+async function playOnePodiumSlot(team, scene) {
+  const robot = buildPodiumRobot(team.config, scene, team.accent);
+  robot.root.position.y = -4;
+  await window.gsap.to(robot.root.position, { y: 0, duration: 0.8, ease: 'back.out(1.2)' });
+
+  if (team.config.utility === 'robot-arm' && robot.armBase) {
+    await window.gsap.to(robot.armBase.rotation, { z: -1.0, duration: 0.55, ease: 'power2.inOut' });
+    await window.gsap.to(robot.armBase.rotation, { z: 0, duration: 0.4 });
+  } else if (team.config.utility === 'grapple-hook') {
+    await window.gsap.to(robot.root.rotation, { y: Math.PI * 2, duration: 0.7, ease: 'power2.inOut' });
+    robot.root.rotation.y = 0;
+  } else {
+    await window.gsap.to(robot.root.position, { y: 0.4, duration: 0.3, yoyo: true, repeat: 1 });
+  }
+
+  await window.gsap.to(robot.root.rotation, { x: 0.18, duration: 0.25 });
+  await new Promise((r) => { setTimeout(r, 300); });
+  await window.gsap.to(robot.root.rotation, { x: 0, duration: 0.25 });
+
+  showMedalCard(team);
+  await new Promise((r) => { setTimeout(r, team.place === 1 ? 2800 : 1800); });
+
+  scene.remove(robot.root);
+}
+
+function buildPodiumRobot(config, scene, accentHex) {
+  const { THREE } = window;
+  const root = new THREE.Group();
+
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(accentHex), roughness: 0.45, metalness: 0.55,
+  });
+  const darkMat = new THREE.MeshStandardMaterial({ color: 0x1a2a3a, roughness: 0.5, metalness: 0.6 });
+
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.1, 0.9), bodyMat);
+  body.position.y = 1.15;
+  body.castShadow = true;
+  root.add(body);
+
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.52, 0.62), darkMat);
+  head.position.y = 1.93;
+  head.castShadow = true;
+  root.add(head);
+
+  const wGeo = new THREE.CylinderGeometry(0.27, 0.27, 0.20, 12);
+  const wMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+  [[-0.62, 0.27, 0.5], [0.62, 0.27, 0.5], [-0.62, 0.27, -0.5], [0.62, 0.27, -0.5]].forEach((pos) => {
+    const wg = new THREE.Group();
+    wg.position.set(...pos);
+    wg.rotation.z = Math.PI / 2;
+    const w = new THREE.Mesh(wGeo, wMat);
+    w.castShadow = true;
+    wg.add(w);
+    root.add(wg);
+  });
+
+  let armBase = null;
+  if (config.utility === 'robot-arm') {
+    armBase = new THREE.Group();
+    armBase.position.set(0.52, 1.55, 0);
+    const upper = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.62, 0.16), bodyMat);
+    upper.position.y = 0.31;
+    upper.castShadow = true;
+    armBase.add(upper);
+    const claw = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.12, 0.12), darkMat);
+    claw.position.set(0, 0.68, 0);
+    armBase.add(claw);
+    root.add(armBase);
+  }
+
+  scene.add(root);
+  return { root, armBase };
+}
+
+function showMedalCard(team) { /* implemented in Task 9 */ }
 
 function showFinalLeaderboard() { /* implemented in Task 9 */ }
 

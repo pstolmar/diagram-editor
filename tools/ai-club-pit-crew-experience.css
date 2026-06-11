@@ -339,3 +339,17 @@
   color: var(--pit-accent, #38bdf8);
   letter-spacing: -0.01em;
 }
+
+/* ── Podium Three.js ── */
+.podium-container {
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+}
+
+#podium-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+}

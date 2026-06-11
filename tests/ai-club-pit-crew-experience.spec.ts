@@ -107,3 +107,14 @@ test('podium banner appears after score cards', async ({ page }) => {
   await page.goto(`${BASE}?resetTeam=1&startPhase=arena`);
   await page.waitForSelector('#podium-banner:not(.is-hidden)', { timeout: 15000 });
 });
+
+test('podium canvas appears without console errors', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') errors.push(msg.text());
+  });
+  await page.goto(`${BASE}?resetTeam=1&startPhase=arena`);
+  await page.waitForSelector('#podium-container:not(.is-hidden)', { timeout: 25000 });
+  const webglErrors = errors.filter((e) => /three|webgl|renderer/i.test(e));
+  expect(webglErrors).toHaveLength(0);
+});
