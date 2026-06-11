@@ -95,3 +95,15 @@ test('lobby shows quiz offer after delay (fastLobby)', async ({ page }) => {
   await page.goto(`${BASE}?resetTeam=1&startPhase=lobby&fastLobby=1`);
   await page.waitForSelector('#lobby-quiz-offer:not(.is-hidden)', { timeout: 4000 });
 });
+
+test('arena phase renders 5 non-podium score cards', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=arena`);
+  await page.waitForSelector('.score-card-reveal:nth-child(5)', { timeout: 10000 });
+  const count = await page.locator('.score-card-reveal').count();
+  expect(count).toBe(5);
+});
+
+test('podium banner appears after score cards', async ({ page }) => {
+  await page.goto(`${BASE}?resetTeam=1&startPhase=arena`);
+  await page.waitForSelector('#podium-banner:not(.is-hidden)', { timeout: 15000 });
+});

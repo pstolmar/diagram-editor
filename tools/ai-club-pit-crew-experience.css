@@ -282,3 +282,60 @@
   width: 100%;
   max-width: 720px;
 }
+
+/* ── Arena: Score reveal ── */
+.arena-inner {
+  max-width: 600px;
+  gap: 20px;
+}
+
+.score-reveal-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  perspective: 800px;
+}
+
+.score-card-reveal {
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 14px 20px;
+  transform-style: preserve-3d;
+}
+
+.score-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-card-place {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+  min-width: 28px;
+}
+
+.score-card-name {
+  flex: 1;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.score-card-score {
+  font-size: 1.4rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--pit-text, #e8f4ff);
+}
+
+.podium-banner {
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-weight: 900;
+  text-align: center;
+  padding: 24px;
+  color: var(--pit-accent, #38bdf8);
+  letter-spacing: -0.01em;
+}

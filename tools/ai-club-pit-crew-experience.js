@@ -392,7 +392,63 @@ function runLobbyPhase() {
   // suppress unused variable warning
   void advanceTimeout;
 }
-function runArenaPhase() { /* placeholder */ }
+async function runArenaPhase() {
+  await revealScoreCards();
+  await showPodiumBanner();
+  await runPodiumSequence();
+  showFinalLeaderboard();
+}
+
+async function revealScoreCards() {
+  const container = document.getElementById('score-reveal-container');
+  const nonPodium = FAKE_TEAMS
+    .filter((t) => t.place > 3)
+    .sort((a, b) => b.place - a.place);
+
+  await nonPodium.reduce((chain, team) => chain.then(async () => {
+    const card = document.createElement('div');
+    card.className = 'score-card-reveal';
+    card.innerHTML = `
+      <div class="score-card-inner">
+        <span class="score-card-place">#${team.place}</span>
+        <span class="score-card-name" style="color:${team.accent}">${team.name}</span>
+        <span class="score-card-score" data-final="${team.score}">0</span>
+      </div>
+    `;
+    container.appendChild(card);
+    await window.gsap.from(card, { rotateY: 90, opacity: 0, duration: 0.35, ease: 'power2.out' });
+    await countUp(card.querySelector('.score-card-score'), team.score, 600);
+    await new Promise((r) => { setTimeout(r, 450); });
+  }), Promise.resolve());
+}
+
+function countUp(el, target, durationMs) {
+  return new Promise((resolve) => {
+    const start = performance.now();
+    function tick(now) {
+      const progress = Math.min((now - start) / durationMs, 1);
+      el.textContent = Math.round(progress * target);
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        el.textContent = target;
+        resolve();
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+async function showPodiumBanner() {
+  const banner = document.getElementById('podium-banner');
+  banner.classList.remove('is-hidden');
+  await window.gsap.from(banner, { y: 20, opacity: 0, duration: 0.5 });
+  await new Promise((r) => { setTimeout(r, 2200); });
+}
+
+async function runPodiumSequence() { /* implemented in Task 8 */ }
+
+function showFinalLeaderboard() { /* implemented in Task 9 */ }
 
 document.addEventListener('click', (e) => {
   if (e.target.id === 'replay-experience') {
