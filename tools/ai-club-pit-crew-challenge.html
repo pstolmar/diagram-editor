@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Pit Crew Challenge</title>
+  <link rel="stylesheet" href="/tools/ai-club-scavengers.css">
+  <link rel="stylesheet" href="/tools/ai-club-quiz.css">
+  <link rel="stylesheet" href="/tools/ai-club-pit-crew-challenge.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js" defer></script>
+</head>
+<body>
+  <main class="pit-experience">
+
+    <section class="pit-phase" data-phase="assign">
+      <div class="phase-inner assign-inner">
+        <div id="assign-spinner" class="pit-spinner" aria-label="Assigning team…"></div>
+        <div id="assign-pawns" class="pawn-row" aria-label="Teammates"></div>
+        <div id="assign-reveal" class="assign-reveal is-hidden">
+          <p class="eyebrow">You're on</p>
+          <h1 id="assign-team-name" class="team-name-large">—</h1>
+        </div>
+        <button id="assign-advance" class="pit-btn pit-btn--primary timer-btn is-hidden" type="button">
+          Enter the Pit
+        </button>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="countdown">
+      <div class="phase-inner countdown-inner">
+        <div id="countdown-number" class="countdown-number">3</div>
+        <div class="countdown-scanline"></div>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="vote">
+      <div class="phase-inner vote-inner">
+        <header class="vote-header">
+          <p class="eyebrow">Build Your Robot</p>
+          <h2>Configure your pit crew bot</h2>
+          <p class="vote-timer-label" id="vote-timer">5:00</p>
+        </header>
+        <div id="vote-groups" class="vote-groups"></div>
+        <div class="vote-footer">
+          <button id="lock-in-build" class="pit-btn pit-btn--primary" type="button" disabled>
+            Lock In Your Build
+          </button>
+        </div>
+        <div class="vote-preview">
+          <p class="vote-preview-label">Your Robot</p>
+          <canvas id="vote-preview-canvas" class="vote-preview-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="lobby">
+      <div class="phase-inner lobby-inner" id="lobby-inner">
+        <p class="eyebrow">Build locked</p>
+        <h2>Waiting for other teams…</h2>
+        <div class="lobby-social">
+          <span id="teams-locked-count">1</span> of 8 teams have locked in
+        </div>
+        <div class="lobby-timer-wrap">
+          <div id="lobby-bar" class="lobby-progress-bar"></div>
+        </div>
+        <div id="lobby-presence" class="lobby-presence-count"></div>
+        <div id="lobby-quiz-offer" class="lobby-quiz-offer is-hidden">
+          <p class="lobby-quiz-prompt">Quiz time while you wait?</p>
+          <button id="start-quiz-btn" class="pit-btn pit-btn--primary" type="button">
+            Take the Quiz
+          </button>
+          <button id="skip-quiz-btn" class="pit-btn" type="button">Skip</button>
+        </div>
+        <div id="lobby-quiz-container" class="lobby-quiz-container is-hidden"></div>
+        <p class="lobby-hint">The arena opens when all teams are ready.</p>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="arena">
+      <div class="phase-inner arena-inner">
+        <div id="player-intro" class="player-intro is-hidden">
+          <p class="eyebrow">Mission Complete</p>
+          <h1 id="player-intro-team" class="player-intro-team"></h1>
+          <canvas id="player-intro-canvas" class="player-intro-canvas"></canvas>
+          <div class="player-intro-score-wrap">
+            <span class="player-intro-score-label">Final Score</span>
+            <span id="player-intro-score-num" class="player-intro-score-num">0</span>
+            <span id="player-intro-place" class="player-intro-place"></span>
+          </div>
+          <div id="player-intro-tags" class="player-intro-tags"></div>
+        </div>
+        <div id="podium-container" class="podium-container is-hidden">
+          <canvas id="podium-canvas"></canvas>
+          <div id="podium-team-label" class="podium-team-label"></div>
+          <div id="podium-medal-cards" class="medal-cards-row"></div>
+        </div>
+        <div id="podium-banner" class="podium-banner is-hidden">
+          And the podium finishers are…
+        </div>
+        <div id="score-reveal-container" class="score-reveal-container"></div>
+        <div id="arena-final" class="arena-final is-hidden">
+          <h2>Final Standings</h2>
+          <ol id="full-leaderboard" class="full-leaderboard"></ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="/tools/ai-club-pit-crew-challenge.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+/* ── Phase machine ── */
+.pit-phase {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+}
+
+.pit-phase.is-active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phase-inner {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+/* ── Utility ── */
+.is-hidden { display: none !important; }
+
+/* ── Assign phase ── */
+.assign-inner { gap: 32px; }
+
+.pit-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255,255,255,0.12);
+  border-top-color: var(--pit-accent, #38bdf8);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  transition: opacity 0.4s;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.pawn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  min-height: 52px;
+}
+
+.pawn-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 1.5rem;
+  opacity: 0;
+  transform: scale(0.6) translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.pawn-badge.is-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.assign-reveal { animation: none; }
+
+.team-name-large {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
+}
+
+/* ── Shared button styles ── */
+.pit-btn {
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: var(--pit-text, #e8f4ff);
+  transition: background 0.2s;
+}
+
+.pit-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.pit-btn--primary { background: var(--pit-accent, #38bdf8); color: #08111d; }
+
+.pit-btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
+
+/* ── Timer button ── */
+.timer-btn {
+  position: relative;
+  isolation: isolate;
+}
+
+.timer-btn--active::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 17px;
+  background: conic-gradient(
+    var(--pit-accent, #38bdf8) var(--timer-progress, 0deg),
+    rgba(255,255,255,0.08) var(--timer-progress, 0deg)
+  );
+  z-index: -1;
+}
+
+/* ── Countdown phase ── */
+.countdown-inner {
+  background: radial-gradient(ellipse at center, rgba(56,189,248,0.08) 0%, transparent 70%);
+  min-height: 100vh;
+}
+
+.countdown-number {
+  font-size: clamp(6rem, 25vw, 14rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+/* ── Vote phase ── */
+.vote-inner {
+  align-items: stretch;
+  max-width: 860px;
+  gap: 20px;
+}
+
+.vote-header { text-align: center; }
+
+.vote-timer-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--pit-accent, #38bdf8);
+  font-variant-numeric: tabular-nums;
+}
+
+.vote-groups { display: flex; flex-direction: column; gap: 16px; }
+
+.vote-group {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.vote-group-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.vote-group-icon { font-size: 1.6rem; }
+
+.vote-group-label {
+  margin: 0 0 2px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.vote-group-desc {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+}
+
+.option-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.option-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+  color: var(--pit-text, #e8f4ff);
+}
+
+.option-card:hover {
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.07);
+}
+
+.option-card.is-selected {
+  border-color: var(--pit-accent, #38bdf8);
+  background: rgba(56,189,248,0.12);
+}
+
+.option-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 4px;
+}
+
+.option-desc {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+  line-height: 1.4;
+}
+
+.vote-footer { display: flex; justify-content: center; padding-top: 8px; }
+
+/* ── Lobby phase ── */
+.lobby-social {
+  font-size: 1.1rem;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+  transition: color 0.2s;
+}
+
+.lobby-social.lobby-pulse { color: var(--pit-accent, #38bdf8); }
+
+#teams-locked-count {
+  font-weight: 900;
+  font-size: 1.3rem;
+  color: var(--pit-text, #e8f4ff);
+}
+
+.lobby-timer-wrap {
+  width: 100%;
+  max-width: 400px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.lobby-progress-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--pit-accent, #38bdf8), #818cf8);
+  border-radius: 2px;
+}
+
+.lobby-presence-count {
+  font-size: 0.78rem;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+  min-height: 1.2em;
+}
+
+.lobby-hint {
+  font-size: 0.85rem;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+}
+
+.lobby-quiz-offer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);
+  width: 100%;
+  max-width: 400px;
+}
+
+.lobby-quiz-prompt {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.lobby-quiz-container {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* ── Arena: Score reveal ── */
+.arena-inner {
+  max-width: 600px;
+  gap: 20px;
+}
+
+.score-reveal-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  perspective: 800px;
+}
+
+.score-card-reveal {
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 14px 20px;
+  transform-style: preserve-3d;
+}
+
+.score-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-card-place {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+  min-width: 28px;
+}
+
+.score-card-name {
+  flex: 1;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.score-card-score {
+  font-size: 1.4rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--pit-text, #e8f4ff);
+}
+
+.podium-banner {
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-weight: 900;
+  text-align: center;
+  padding: 24px;
+  color: var(--pit-accent, #38bdf8);
+  letter-spacing: -0.01em;
+}
+
+/* ── Podium Three.js ── */
+.podium-container {
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+}
+
+#podium-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+}
+
+/* ── Holofoil medal cards ── */
+@keyframes holofoil {
+  0%   { background-position: 0% 50%;   filter: brightness(1.0); }
+  50%  { background-position: 100% 50%; filter: brightness(1.22); }
+  100% { background-position: 0% 50%;   filter: brightness(1.0); }
+}
+
+.medal-cards-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: nowrap;
+  padding: 16px 0;
+  align-items: flex-end;
+}
+
+.medal-card[data-place="3"] { order: 1; }
+
+.medal-card[data-place="1"] {
+  order: 2;
+  transform: scale(1.13);
+}
+
+.medal-card[data-place="2"] { order: 3; }
+
+.medal-card {
+  border-radius: 18px;
+  padding: 20px 24px;
+  min-width: 160px;
+  text-align: center;
+  background-size: 300% 300%;
+  animation: holofoil 3s ease infinite;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  color: #1a1a1a;
+}
+
+.medal-card--gold {
+  background: linear-gradient(135deg, #ffd700, #fff8b0 40%, #ffd700 60%, #b8860b, #ffe44d);
+}
+
+.medal-card--silver {
+  background: linear-gradient(135deg, #c0c0c0, #f0f0f0 40%, #c0c0c0 60%, #808080, #e0e0e0);
+}
+
+.medal-card--bronze {
+  background: linear-gradient(135deg, #cd7f32, #e8a858 40%, #cd7f32 60%, #7f4e0e, #d4893c);
+}
+
+.medal-place { font-size: 2.5rem; }
+.medal-team-name { font-weight: 900; font-size: 0.95rem; margin: 6px 0 4px; }
+.medal-score { font-size: 1.5rem; font-weight: 900; }
+
+.medal-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.medal-tag {
+  font-size: 0.66rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.15);
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+
+/* ── Confetti ── */
+@keyframes confetti-fall {
+  0%   { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: 0;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti-fall linear forwards;
+}
+
+/* ── Final leaderboard ── */
+.arena-final {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+}
+
+.full-leaderboard {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+
+.lb-row--podium { border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.06); }
+
+.lb-place { font-size: 0.85rem; font-weight: 700; color: var(--pit-muted, rgba(200,220,255,0.55)); min-width: 28px; }
+.lb-name  { flex: 1; font-weight: 700; }
+.lb-score { font-weight: 900; font-size: 1.1rem; }
+
+/* ── Lobby skip banner ── */
+.lobby-skip-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: rgba(56,189,248,0.12);
+  border: 1px solid rgba(56,189,248,0.3);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  font-weight: 700;
+  color: var(--pit-accent, #38bdf8);
+}
+
+/* ── Podium team name label ── */
+.podium-team-label {
+  text-align: center;
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  min-height: 2rem;
+  padding: 8px 0;
+  transition: opacity 0.5s ease;
+}
+
+/* ── Vote robot preview ── */
+.vote-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.vote-preview-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+}
+
+.vote-preview-canvas {
+  display: block;
+  border-radius: 14px;
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+}
+
+/* ── Player robot intro ── */
+.player-intro {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.player-intro-team {
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.player-intro-canvas {
+  display: block;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+}
+
+.player-intro-score-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.player-intro-score-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+}
+
+.player-intro-score-num {
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.player-intro-place {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--pit-muted, rgba(200,220,255,0.55));
+}
+
+.player-intro-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.player-intro-tag {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: var(--pit-text, #e8f4ff);
+  text-transform: capitalize;
+}
