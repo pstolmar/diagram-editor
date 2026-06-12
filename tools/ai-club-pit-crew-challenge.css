@@ -593,3 +593,74 @@
   color: var(--pit-text, #e8f4ff);
   text-transform: capitalize;
 }
+
+/* ── Medal watch button ── */
+.medal-watch-btn {
+  margin-top: 10px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: block;
+  width: 100%;
+}
+.medal-watch-btn:hover { background: rgba(255,255,255,0.28); }
+
+/* ── Mission modal ── */
+.mission-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,17,29,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+.mission-modal.is-hidden { display: none; }
+.mission-modal-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 660px;
+}
+.mission-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mission-modal-title { font-size: 1.1rem; font-weight: 900; }
+.mission-canvas {
+  display: block;
+  border-radius: 18px;
+  width: 100%;
+  height: auto;
+  background: #0d1a2a;
+}
+.mission-modal-status {
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(200,220,255,0.55);
+  margin: 0;
+  min-height: 1.2em;
+}
+.mission-camera-btns { display: flex; gap: 6px; flex: 1; justify-content: center; }
+.mission-cam-btn {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: #c8dcff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.mission-cam-btn:hover, .mission-cam-btn.is-active { background: rgba(255,255,255,0.22); color: #fff; }
