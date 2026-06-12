@@ -144,6 +144,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+.vote-instructions {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 0;
+}
+
 .vote-groups { display: flex; flex-direction: column; gap: 16px; }
 
 .vote-group {
@@ -664,3 +670,37 @@
   transition: background 0.15s;
 }
 .mission-cam-btn:hover, .mission-cam-btn.is-active { background: rgba(255,255,255,0.22); color: #fff; }
+
+/* Debug bar — only present when ?aio= is in the URL */
+.debug-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.85);
+  border-top: 1px solid rgba(255, 80, 80, 0.5);
+  font-size: 0.72rem;
+}
+.debug-bar-label {
+  color: #ff5050;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-right: 4px;
+}
+.debug-btn {
+  padding: 3px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 80, 80, 0.5);
+  background: rgba(255, 80, 80, 0.12);
+  color: #ffaaaa;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.debug-btn:hover { background: rgba(255, 80, 80, 0.3); color: #fff; }

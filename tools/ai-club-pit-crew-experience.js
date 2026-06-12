@@ -589,7 +589,7 @@ async function showPlayerRobotIntro() {
   const atmosphere = new THREE.Points(atmoGeo, new THREE.PointsMaterial({ color: 0x77f2ed, size: 0.08, transparent: true, opacity: 0.28, depthWrite: false }));
   scene.add(atmosphere);
 
-  const robot = buildArenaRobot(scene);
+  const robot = buildArenaRobot(scene, state.team.config);
   const props = buildArenaProps(scene);
 
   const camTarget = new THREE.Vector3(0, 1.5, 0);
@@ -1154,7 +1154,7 @@ function buildSceneList(config) {
   return scenes;
 }
 
-function buildArenaRobot(scene) {
+function buildArenaRobot(scene, config = null) {
   const { THREE } = window;
   const root = new THREE.Group();
   const bobGroup = new THREE.Group();
@@ -1275,11 +1275,13 @@ function buildArenaRobot(scene) {
 
   // Treads — two side tracks
   const treads = [];
+  const treadTracks = [];
   const treadMat = new THREE.MeshStandardMaterial({ color: 0x222e3e, roughness: 0.9 });
   [-1.22, 1.22].forEach((tx) => {
     const track = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.48, 2.5), treadMat);
     track.position.set(tx, 0.28, 0);
     root.add(track);
+    treadTracks.push(track);
     const stripGroup = new THREE.Group();
     stripGroup.position.set(tx, 0.55, 0);
     root.add(stripGroup);
@@ -1304,8 +1306,17 @@ function buildArenaRobot(scene) {
     wheel.castShadow = true;
     wg.add(wheel);
     root.add(wg);
-    wheels.push(wheel);
+    wheels.push(wg);
   });
+
+  if (config) {
+    const usesLegs = config.mobility === 'scout-legs';
+    const usesTreads = config.mobility === 'balanced-treads';
+    legs.forEach(({ group }) => { group.visible = usesLegs; });
+    treadTracks.forEach((t) => { t.visible = usesTreads; });
+    treads.forEach((sg) => { sg.visible = usesTreads; });
+    wheels.forEach((wg) => { wg.visible = !usesLegs && !usesTreads; });
+  }
 
   scene.add(root);
   return { root, bobGroup, armBase, forearmPivot, hookPivot, cable, hook, scannerPivot, scannerDish, pillow, wheels, legs, treads, eyeL, eyeR };
@@ -1568,7 +1579,7 @@ function openMissionModal(team) {
   const atmosphere = new THREE.Points(atmoGeo, new THREE.PointsMaterial({ color: 0x77f2ed, size: 0.08, transparent: true, opacity: 0.28, depthWrite: false }));
   scene.add(atmosphere);
 
-  const robot = buildArenaRobot(scene);
+  const robot = buildArenaRobot(scene, team.config);
   const props = buildArenaProps(scene);
 
   // Camera state with lerped movement

@@ -144,6 +144,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+.vote-instructions {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 0;
+}
+
 .vote-groups { display: flex; flex-direction: column; gap: 16px; }
 
 .vote-group {

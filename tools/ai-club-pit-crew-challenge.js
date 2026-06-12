@@ -66,10 +66,17 @@ const state = {
   votes: {},
 };
 
+// ── Query params (module-level so all phases can read them) ───────────────
+const params = new URLSearchParams(window.location.search);
+
 // ── Adobe I/O Runtime integration ─────────────────────────────────────────
-// Pass ?aio=https://your-ns.adobeioruntime.net/api/v1/web/robot-game to enable.
-// Without it every aioFetch() returns null and fake data drives everything.
-const AIO_BASE = new URLSearchParams(window.location.search).get('aio') || '';
+// Pass ?aio=<url> or ?aio=stage to enable. Without it every aioFetch() returns
+// null and fake data drives everything — zero regression for local dev.
+const AIO_ALIASES = {
+  stage: 'https://adobeioruntime.net/api/v1/web/768811-280maroonswan-stage/pstolmar-test/robot-game',
+  prod:  '',
+};
+const AIO_BASE = AIO_ALIASES[params.get('aio')] ?? params.get('aio') ?? '';
 
 async function aioFetch(mode, body = null) {
   if (!AIO_BASE) return null;
@@ -93,16 +100,19 @@ function goToPhase(name) {
 }
 
 async function init() {
-  const params = new URLSearchParams(window.location.search);
   state.team = getOrAssignTeam();
 
-  // Join the session — server registers team, may return canonical team name
-  const joined = await aioFetch('join', { teamSlug: state.team.slug });
-  if (joined?.teamName) {
-    state.team = { ...state.team, name: joined.teamName };
-    sessionStorage.setItem('ai-club:pitSession', JSON.stringify({
-      teamSlug: state.team.slug, teamName: joined.teamName,
-    }));
+  // Join the session — server picks team randomly and returns { teamSlug, teamName }.
+  // Adopt the server-assigned slug so submit goes to the right team key.
+  if (AIO_BASE) {
+    const joined = await aioFetch('join');
+    if (joined?.teamSlug) {
+      const base = FAKE_TEAMS.find((t) => t.slug === joined.teamSlug) || { slug: joined.teamSlug, accent: '#77f2ed' };
+      state.team = { ...base, name: joined.teamName || base.name };
+      sessionStorage.setItem('ai-club:pitSession', JSON.stringify({
+        teamSlug: joined.teamSlug, teamName: state.team.name,
+      }));
+    }
   }
 
   const startPhase = params.get('startPhase') || 'assign';
@@ -116,14 +126,14 @@ async function init() {
 
 const BUILD_GROUPS = [
   {
-    id: 'mobility',
-    label: 'Mobility',
-    icon: '🚗',
-    description: 'How does your robot get around the arena?',
+    id: 'brain',
+    label: 'Decision Brain',
+    icon: '🧠',
+    description: 'How does your robot decide what to do next?',
     options: [
-      { id: 'scout-legs', label: 'Scout Legs', desc: 'Fast but fragile — speed bonus, higher fail risk' },
-      { id: 'balanced-treads', label: 'Balanced Treads', desc: 'Solid all-around, moderate speed' },
-      { id: 'heavy-lift', label: 'Heavy Lift', desc: 'Deliberate and strong — slow, very stable' },
+      { id: 'fast-guesser', label: 'Fast Guesser', desc: 'Quick decisions, sometimes wrong — speed bonus' },
+      { id: 'structured-thinker', label: 'Structured Thinker', desc: 'Methodical — consistent, moderate speed' },
+      { id: 'verifier', label: 'Verifier', desc: 'Double-checks everything — slow but thorough' },
     ],
   },
   {
@@ -149,14 +159,14 @@ const BUILD_GROUPS = [
     ],
   },
   {
-    id: 'brain',
-    label: 'Decision Brain',
-    icon: '🧠',
-    description: 'How does your robot decide what to do next?',
+    id: 'mobility',
+    label: 'Mobility',
+    icon: '🚗',
+    description: 'How does your robot get around the arena?',
     options: [
-      { id: 'fast-guesser', label: 'Fast Guesser', desc: 'Quick decisions, sometimes wrong — speed bonus' },
-      { id: 'structured-thinker', label: 'Structured Thinker', desc: 'Methodical — consistent, moderate speed' },
-      { id: 'verifier', label: 'Verifier', desc: 'Double-checks everything — slow but thorough' },
+      { id: 'scout-legs', label: 'Scout Legs', desc: 'Fast but fragile — speed bonus, higher fail risk' },
+      { id: 'balanced-treads', label: 'Balanced Treads', desc: 'Solid all-around, moderate speed' },
+      { id: 'heavy-lift', label: 'Heavy Lift', desc: 'Deliberate and strong — slow, very stable' },
     ],
   },
 ];
@@ -362,7 +372,7 @@ function runVotePhase() {
     runLobbyPhase();
   }
 
-  let secs = 300;
+  let secs = params.get('fast') === '1' ? 20 : 300;
   const timerEl = document.getElementById('vote-timer');
   const timerInterval = setInterval(() => {
     secs -= 1;
@@ -398,8 +408,7 @@ function runVotePhase() {
   });
 }
 function runLobbyPhase() {
-  const params = new URLSearchParams(window.location.search);
-  const fast = params.get('fastLobby') === '1';
+  const fast = params.get('fast') === '1' || params.get('fastLobby') === '1';
   const totalMs = fast ? 2000 : 120000;
 
   const bar = document.getElementById('lobby-bar');
@@ -486,7 +495,7 @@ function runLobbyPhase() {
         counter.closest('.lobby-social').classList.add('lobby-pulse');
         setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
       }
-      if (teamsReady >= teamsTotal || Date.now() > Date.parse(expiresAt)) {
+      if (status.phase === 'results' || teamsReady >= teamsTotal || Date.now() > Date.parse(expiresAt)) {
         clearInterval(pollInterval);
         doAdvance();
       }
@@ -609,7 +618,7 @@ async function showPlayerRobotIntro() {
   const atmosphere = new THREE.Points(atmoGeo, new THREE.PointsMaterial({ color: 0x77f2ed, size: 0.08, transparent: true, opacity: 0.28, depthWrite: false }));
   scene.add(atmosphere);
 
-  const robot = buildArenaRobot(scene);
+  const robot = buildArenaRobot(scene, state.team.config);
   const props = buildArenaProps(scene);
 
   const camTarget = new THREE.Vector3(0, 1.5, 0);
@@ -690,7 +699,6 @@ async function runArenaPhase() {
     }
   }
 
-  const params = new URLSearchParams(window.location.search);
   if (params.get('startPhase') !== 'arena') {
     await showPlayerRobotIntro();
   }
@@ -1231,7 +1239,7 @@ function buildSceneList(config) {
   return scenes;
 }
 
-function buildArenaRobot(scene) {
+function buildArenaRobot(scene, config = null) {
   const { THREE } = window;
   const root = new THREE.Group();
   const bobGroup = new THREE.Group();
@@ -1350,11 +1358,13 @@ function buildArenaRobot(scene) {
   });
 
   const treads = [];
+  const treadTracks = [];
   const treadMat = new THREE.MeshStandardMaterial({ color: 0x222e3e, roughness: 0.9 });
   [-1.22, 1.22].forEach((tx) => {
     const track = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.48, 2.5), treadMat);
     track.position.set(tx, 0.28, 0);
     root.add(track);
+    treadTracks.push(track);
     const stripGroup = new THREE.Group();
     stripGroup.position.set(tx, 0.55, 0);
     root.add(stripGroup);
@@ -1378,8 +1388,17 @@ function buildArenaRobot(scene) {
     wheel.castShadow = true;
     wg.add(wheel);
     root.add(wg);
-    wheels.push(wheel);
+    wheels.push(wg);
   });
+
+  if (config) {
+    const usesLegs = config.mobility === 'scout-legs';
+    const usesTreads = config.mobility === 'balanced-treads';
+    legs.forEach(({ group }) => { group.visible = usesLegs; });
+    treadTracks.forEach((t) => { t.visible = usesTreads; });
+    treads.forEach((sg) => { sg.visible = usesTreads; });
+    wheels.forEach((wg) => { wg.visible = !usesLegs && !usesTreads; });
+  }
 
   scene.add(root);
   return { root, bobGroup, armBase, forearmPivot, hookPivot, cable, hook, scannerPivot, scannerDish, pillow, wheels, legs, treads, eyeL, eyeR };
@@ -1637,7 +1656,7 @@ function openMissionModal(team) {
   const atmosphere = new THREE.Points(atmoGeo, new THREE.PointsMaterial({ color: 0x77f2ed, size: 0.08, transparent: true, opacity: 0.28, depthWrite: false }));
   scene.add(atmosphere);
 
-  const robot = buildArenaRobot(scene);
+  const robot = buildArenaRobot(scene, team.config);
   const props = buildArenaProps(scene);
 
   const target = new THREE.Vector3(0, 1.5, 0);
@@ -1706,5 +1725,32 @@ document.addEventListener('click', (e) => {
   const team = activeTeams.find((t) => t.place === place);
   if (team) openMissionModal(team);
 });
+
+// ── Debug panel — only rendered when ?aio= is configured ──────────────────
+if (AIO_BASE) {
+  const bar = document.createElement('div');
+  bar.className = 'debug-bar';
+  bar.innerHTML = `
+    <span class="debug-bar-label">DEBUG</span>
+    <button class="debug-btn" data-mode="seed">Seed</button>
+    <button class="debug-btn" data-mode="inspect">Inspect</button>
+    <button class="debug-btn" data-mode="reset">Reset</button>
+  `;
+  document.body.appendChild(bar);
+  bar.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.debug-btn');
+    if (!btn) return;
+    const result = await aioFetch(btn.dataset.mode);
+    // eslint-disable-next-line no-console
+    console.log(`[debug:${btn.dataset.mode}]`, result);
+    if (btn.dataset.mode === 'inspect' || btn.dataset.mode === 'seed') {
+      // eslint-disable-next-line no-alert
+      alert(JSON.stringify(result, null, 2));
+    } else if (btn.dataset.mode === 'reset') {
+      // eslint-disable-next-line no-alert
+      alert('State reset. Reload the page to restart.');
+    }
+  });
+}
 
 init();
