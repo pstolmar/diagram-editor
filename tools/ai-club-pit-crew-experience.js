@@ -87,14 +87,14 @@ function init() {
 
 const BUILD_GROUPS = [
   {
-    id: 'mobility',
-    label: 'Mobility',
-    icon: '🚗',
-    description: 'How does your robot get around the arena?',
+    id: 'brain',
+    label: 'Decision Brain',
+    icon: '🧠',
+    description: 'How does your robot decide what to do next?',
     options: [
-      { id: 'scout-legs', label: 'Scout Legs', desc: 'Fast but fragile — speed bonus, higher fail risk' },
-      { id: 'balanced-treads', label: 'Balanced Treads', desc: 'Solid all-around, moderate speed' },
-      { id: 'heavy-lift', label: 'Heavy Lift', desc: 'Deliberate and strong — slow, very stable' },
+      { id: 'fast-guesser', label: 'Fast Guesser', desc: 'Quick decisions, sometimes wrong — speed bonus' },
+      { id: 'structured-thinker', label: 'Structured Thinker', desc: 'Methodical — consistent, moderate speed' },
+      { id: 'verifier', label: 'Verifier', desc: 'Double-checks everything — slow but thorough' },
     ],
   },
   {
@@ -120,14 +120,14 @@ const BUILD_GROUPS = [
     ],
   },
   {
-    id: 'brain',
-    label: 'Decision Brain',
-    icon: '🧠',
-    description: 'How does your robot decide what to do next?',
+    id: 'mobility',
+    label: 'Mobility',
+    icon: '🚗',
+    description: 'How does your robot get around the arena?',
     options: [
-      { id: 'fast-guesser', label: 'Fast Guesser', desc: 'Quick decisions, sometimes wrong — speed bonus' },
-      { id: 'structured-thinker', label: 'Structured Thinker', desc: 'Methodical — consistent, moderate speed' },
-      { id: 'verifier', label: 'Verifier', desc: 'Double-checks everything — slow but thorough' },
+      { id: 'scout-legs', label: 'Scout Legs', desc: 'Fast but fragile — speed bonus, higher fail risk' },
+      { id: 'balanced-treads', label: 'Balanced Treads', desc: 'Solid all-around, moderate speed' },
+      { id: 'heavy-lift', label: 'Heavy Lift', desc: 'Deliberate and strong — slow, very stable' },
     ],
   },
 ];
@@ -742,6 +742,7 @@ async function runPodiumSequence() {
   async function spawnRobot(slot) {
     const team = FAKE_TEAMS.find((t) => t.place === slot.place);
     const robot = buildPodiumRobot(team.config, scene, team.accent);
+    team._robotRef = robot.root;
     robot.root.position.set(slot.x, -6, 0);
 
     await window.gsap.to(robot.root.position, {
@@ -786,6 +787,14 @@ async function runPodiumSequence() {
 
     // Show medal card
     showMedalCard(team);
+
+    // Victory spin for gold
+    if (team.place === 1) {
+      await window.gsap.to(team._robotRef.rotation, {
+        y: Math.PI * 4, duration: 1.2, ease: 'power2.inOut',
+      });
+      team._robotRef.rotation.y = 0;
+    }
 
     // Show team name, then fade
     nameLabel.textContent = team.name;
@@ -1070,12 +1079,181 @@ function showMedalCard(team) {
     <div class="medal-config">
       ${Object.values(team.config).map((v) => `<span class="medal-tag">${v.replace(/-/g, ' ')}</span>`).join('')}
     </div>
+    <button class="medal-watch-btn" data-place="${team.place}" type="button">▶ Watch</button>
   `;
   cardsRow.appendChild(card);
   window.gsap.from(card, {
     y: 30, opacity: 0, scale: 0.9, duration: 0.5, ease: 'back.out(1.5)',
   });
   if (team.place === 1) spawnConfetti();
+}
+
+async function runMissionSequence(team, scene) {
+  const { THREE } = window;
+  const config = team.config;
+
+  // Arena floor markers
+  const zoneMat = new THREE.MeshStandardMaterial({ color: 0x1a3a1a, roughness: 0.9 });
+  const pickupZone = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.04, 16), zoneMat);
+  pickupZone.position.set(0, 0.02, 4.5);
+  scene.add(pickupZone);
+
+  const depositZone = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.5, 0.5, 0.04, 16),
+    new THREE.MeshStandardMaterial({ color: 0x1a1a3a, roughness: 0.9 }),
+  );
+  depositZone.position.set(0, 0.02, 0);
+  scene.add(depositZone);
+
+  // Cargo object
+  const cargoMat = new THREE.MeshStandardMaterial({ color: 0xff7c2a, roughness: 0.6, metalness: 0.3 });
+  const cargo = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), cargoMat);
+  cargo.position.set(0, 0.18, 4.5);
+  cargo.castShadow = true;
+  scene.add(cargo);
+
+  // Build robot at start position
+  const robot = buildPodiumRobot(config, scene, team.accent);
+  robot.root.position.set(0, 0, 0);
+  robot.root.rotation.y = 0;
+
+  // Speed based on mobility
+  const moveSpeed = config.mobility === 'scout-legs' ? 0.9
+    : config.mobility === 'heavy-lift' ? 1.8 : 1.2;
+
+  // Brain hesitation pause
+  const thinkMs = config.brain === 'verifier' ? 600
+    : config.brain === 'structured-thinker' ? 250 : 0;
+
+  if (thinkMs) await new Promise((r) => { setTimeout(r, thinkMs); });
+
+  // 1. Drive to pickup
+  await window.gsap.to(robot.root.position, { z: 4.0, duration: moveSpeed, ease: 'power1.inOut' });
+
+  // Tread animation during drive
+  if (config.mobility === 'balanced-treads' && robot.treads.length) {
+    let step = 0;
+    const ta = setInterval(() => {
+      step += 1;
+      robot.treads.forEach((sg) => {
+        sg.children.forEach((pad, i) => { pad.position.z = -0.45 + ((i * 0.18 + step * 0.06) % 1.08); });
+      });
+    }, 50);
+    setTimeout(() => clearInterval(ta), moveSpeed * 1000);
+  }
+
+  // 2. Pickup interaction
+  if (config.utility === 'robot-arm' && robot.armBase) {
+    await window.gsap.to(robot.armBase.rotation, { z: -1.1, duration: 0.5, ease: 'power2.out' });
+    // cargo snaps to robot
+    cargo.position.set(0.52, 1.7, 0);
+    robot.root.add(cargo);
+    await window.gsap.to(robot.armBase.rotation, { z: 0, duration: 0.35 });
+  } else if (config.utility === 'suction-cup') {
+    await window.gsap.to(cargo.position, { y: 1.35, duration: 0.4 });
+    cargo.position.set(0.54, 1.35, 0);
+    robot.root.add(cargo);
+  } else if (config.utility === 'grapple-hook') {
+    await window.gsap.to(robot.root.rotation, { y: Math.PI * 2, duration: 0.5 });
+    robot.root.rotation.y = 0;
+    cargo.position.set(0, 2.1, 0);
+    robot.root.add(cargo);
+  } else {
+    robot.root.add(cargo);
+    cargo.position.set(0, 1.0, 0);
+  }
+
+  if (thinkMs) await new Promise((r) => { setTimeout(r, thinkMs); });
+
+  // 3. Drive back with cargo
+  // Care affects wobble
+  const returnSpeed = moveSpeed * (config.care === 'none' ? 0.8 : 1.0);
+  if (config.care === 'cushion-mount') {
+    // slight bounce
+    window.gsap.to(cargo.rotation, { x: 0.15, duration: 0.3, yoyo: true, repeat: Math.ceil(returnSpeed / 0.3) });
+  } else if (config.care === 'none') {
+    // cargo wobbles dangerously
+    window.gsap.to(cargo.rotation, { z: 0.3, duration: 0.2, yoyo: true, repeat: Math.ceil(returnSpeed / 0.2) });
+  }
+  await window.gsap.to(robot.root.position, { z: 0, duration: returnSpeed, ease: 'power1.inOut' });
+
+  // 4. Deposit
+  scene.add(cargo);
+  cargo.position.set(0, 0.18, 0);
+  if (config.utility === 'robot-arm' && robot.armBase) {
+    await window.gsap.to(robot.armBase.rotation, { z: -0.6, duration: 0.35 });
+    await window.gsap.to(robot.armBase.rotation, { z: 0, duration: 0.3 });
+  }
+
+  // 5. Victory pose
+  await window.gsap.to(robot.root.position, { y: 0.3, duration: 0.3, yoyo: true, repeat: 1 });
+
+  // Cleanup
+  scene.remove(pickupZone);
+  scene.remove(depositZone);
+  scene.remove(cargo);
+  scene.remove(robot.root);
+}
+
+function openMissionModal(team) {
+  const { THREE } = window;
+  const modal = document.getElementById('mission-modal');
+  const title = document.getElementById('mission-modal-title');
+  const statusEl = document.getElementById('mission-modal-status');
+  const canvas = document.getElementById('mission-canvas');
+  const closeBtn = document.getElementById('mission-modal-close');
+
+  title.textContent = `${team.name} — Mission Run`;
+  title.style.color = team.accent;
+  statusEl.textContent = 'Mission in progress…';
+  modal.classList.remove('is-hidden');
+
+  const W = canvas.parentElement.clientWidth - 48 || 600;
+  const H = Math.round(W * 0.56);
+  canvas.width = W;
+  canvas.height = H;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(W, H, false);
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 40);
+  camera.position.set(3.5, 3.5, 7);
+  camera.lookAt(0, 1, 2.5);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(4, 8, 5);
+  sun.castShadow = true;
+  scene.add(sun);
+
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 20),
+    new THREE.MeshStandardMaterial({ color: 0x0d1a2a, roughness: 0.9 }),
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  let mAnimId;
+  function mLoop() {
+    mAnimId = requestAnimationFrame(mLoop);
+    renderer.render(scene, camera);
+  }
+  mLoop();
+
+  function cleanup() {
+    cancelAnimationFrame(mAnimId);
+    renderer.dispose();
+    modal.classList.add('is-hidden');
+  }
+
+  closeBtn.addEventListener('click', cleanup, { once: true });
+
+  runMissionSequence(team, scene).then(() => {
+    statusEl.textContent = 'Mission complete!';
+  });
 }
 
 function spawnConfetti() {
@@ -1111,5 +1289,13 @@ function showFinalLeaderboard() {
   `).join('');
   window.gsap.from(finalEl, { opacity: 0, y: 20, duration: 0.5 });
 }
+
+document.addEventListener('click', (e) => {
+  const watchBtn = e.target.closest('.medal-watch-btn');
+  if (!watchBtn) return;
+  const place = Number(watchBtn.dataset.place);
+  const team = FAKE_TEAMS.find((t) => t.place === place);
+  if (team) openMissionModal(team);
+});
 
 init();
