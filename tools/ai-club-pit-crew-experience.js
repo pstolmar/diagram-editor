@@ -407,12 +407,6 @@ function runLobbyPhase() {
   // Natural-variance delays: 7 more teams to lock in across totalMs
   const fractions = [0.08, 0.18, 0.30, 0.44, 0.57, 0.70, 0.84];
   let locked = 1;
-  const trickleTimeouts = fractions.map((frac) => setTimeout(() => {
-    locked += 1;
-    counter.textContent = locked;
-    counter.closest('.lobby-social').classList.add('lobby-pulse');
-    setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
-  }, frac * totalMs));
 
   // ── Progress bar ──
   window.gsap.to(bar, { width: '100%', duration: totalMs / 1000, ease: 'none' });
@@ -440,9 +434,12 @@ function runLobbyPhase() {
     });
   });
 
-  // ── Auto-advance after totalMs + 2s dramatic pause ──
-  const advanceTimeout = setTimeout(async () => {
-    // If quiz is still in progress, show skip banner and wait
+  // ── Advance logic (guarded against double-fire) ──
+  let hasAdvanced = false;
+  async function doAdvance() {
+    if (hasAdvanced) return;
+    hasAdvanced = true;
+
     if (quizInProgress && !fast) {
       const skipBanner = document.createElement('div');
       skipBanner.className = 'lobby-skip-banner';
@@ -457,28 +454,38 @@ function runLobbyPhase() {
       await quizDonePromise;
       skipBanner.remove();
       if (!quizInProgress) {
-        // Show score briefly before advancing
         await new Promise((r) => { setTimeout(r, 2000); });
       }
     } else {
       if (!quizSettled) { quizSettled = true; quizDoneResolve(null); }
     }
 
-    // Clean up
     clearInterval(presenceInterval);
-    trickleTimeouts.forEach(clearTimeout);
     localStorage.removeItem(presenceKey);
 
-    // "Loading arena" stinger
     counter.closest('.lobby-social').textContent = '⚡ All teams locked in — loading arena…';
     await new Promise((r) => { setTimeout(r, 800); });
 
     goToPhase('arena');
     runArenaPhase();
-  }, totalMs + 2000);
+  }
+
+  // Trickle: last lock-in (8/8) fires doAdvance after a 1.5s dramatic pause
+  const trickleTimeouts = fractions.map((frac, idx) => setTimeout(() => {
+    locked += 1;
+    counter.textContent = locked;
+    counter.closest('.lobby-social').classList.add('lobby-pulse');
+    setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
+    if (idx === fractions.length - 1) {
+      setTimeout(doAdvance, 1500);
+    }
+  }, frac * totalMs));
+
+  // Fallback: fire doAdvance after full timer in case trickle is skipped (fastLobby)
+  setTimeout(doAdvance, totalMs + 2000);
 
   // suppress unused variable warning
-  void advanceTimeout;
+  void trickleTimeouts;
 }
 async function runArenaPhase() {
   await revealScoreCards();
@@ -540,14 +547,14 @@ async function runPodiumSequence() {
   const nameLabel = document.getElementById('podium-team-label');
   container.classList.remove('is-hidden');
 
-  const W = Math.min(window.innerWidth - 32, 900);
+  const W = container.clientWidth || Math.min(window.innerWidth - 32, 900);
   const H = Math.round(W * 0.5);
   canvas.width = W;
   canvas.height = H;
 
   const { THREE } = window;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setSize(W, H);
+  renderer.setSize(W, H, false);
   renderer.shadowMap.enabled = true;
 
   const scene = new THREE.Scene();
