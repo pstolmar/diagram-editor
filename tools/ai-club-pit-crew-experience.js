@@ -506,9 +506,9 @@ async function showPlayerRobotIntro() {
     <span class="player-intro-tag">${tagLabels[v] || v.replace(/-/g, ' ')}</span>
   `).join('');
 
-  // Three.js scene
+  // Full arena mission — same scene system as Watch modal, slightly slower
   const W = introEl.clientWidth || Math.min(window.innerWidth - 48, 520);
-  const H = Math.round(W * 0.72);
+  const H = Math.round(W * 0.58);
   introCanvas.width = W;
   introCanvas.height = H;
 
@@ -517,90 +517,131 @@ async function showPlayerRobotIntro() {
   renderer.shadowMap.enabled = true;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 30);
-  camera.position.set(2.2, 2.6, 4.5);
-  camera.lookAt(0, 1.2, 0);
+  const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 60);
+  camera.position.set(-5.6, 7.8, 9.5);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
-  sun.position.set(3, 6, 4);
-  sun.castShadow = true;
-  scene.add(sun);
-  // Accent fill light
-  const fill = new THREE.PointLight(new THREE.Color(team.accent), 0.6, 8);
-  fill.position.set(-2, 2, 2);
-  scene.add(fill);
+  scene.add(new THREE.AmbientLight(0x334466, 0.85));
+  const keyLight = new THREE.DirectionalLight(0xfff5e8, 1.3);
+  keyLight.position.set(6, 10, 8);
+  keyLight.castShadow = true;
+  scene.add(keyLight);
+  const accentFill = new THREE.PointLight(new THREE.Color(team.accent), 0.8, 20);
+  accentFill.position.set(-4, 5, 4);
+  scene.add(accentFill);
+  const rim = new THREE.PointLight(0xff925c, 0.9, 30);
+  rim.position.set(-8, 6, -8);
+  scene.add(rim);
 
+  // Arena floor + grid
   const introFloor = new THREE.Mesh(
-    new THREE.PlaneGeometry(12, 12),
-    new THREE.MeshStandardMaterial({ color: 0x0d1a2a, roughness: 0.9 }),
+    new THREE.BoxGeometry(18, 0.8, 14),
+    new THREE.MeshStandardMaterial({ color: 0x10203b, metalness: 0.15, roughness: 0.9 }),
   );
-  introFloor.rotation.x = -Math.PI / 2;
   introFloor.receiveShadow = true;
+  introFloor.position.y = -0.4;
   scene.add(introFloor);
+  const grid = new THREE.GridHelper(18, 18, 0x5cecff, 0x173250);
+  grid.position.y = 0.02;
+  scene.add(grid);
 
-  let introAngle = 0;
+  // Mantle shelf
+  const mantle = new THREE.Mesh(
+    new THREE.BoxGeometry(3.4, 0.45, 1.1),
+    new THREE.MeshStandardMaterial({ color: 0x73553d, roughness: 0.85 }),
+  );
+  mantle.position.set(4.6, 2.8, -3.6);
+  mantle.castShadow = true;
+  scene.add(mantle);
+
+  // Grate + bars
+  const grate = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, 2.8, 5),
+    new THREE.MeshStandardMaterial({ color: 0x40566d, metalness: 0.65, roughness: 0.4 }),
+  );
+  grate.position.set(-4.5, 1.5, 0);
+  scene.add(grate);
+  for (let i = -2; i <= 2; i += 1) {
+    const bar = new THREE.Mesh(
+      new THREE.BoxGeometry(0.16, 2.3, 0.14),
+      new THREE.MeshStandardMaterial({ color: 0x7d95ab, metalness: 0.75, roughness: 0.3 }),
+    );
+    bar.position.set(-4.3, 1.5, i);
+    scene.add(bar);
+  }
+
+  // Waiter window
+  const waiterWindow = new THREE.Mesh(
+    new THREE.BoxGeometry(2.4, 1.3, 0.2),
+    new THREE.MeshStandardMaterial({ color: 0xeed9aa, emissive: 0x674318, emissiveIntensity: 0.4 }),
+  );
+  waiterWindow.position.set(0, 1.8, 5.4);
+  scene.add(waiterWindow);
+
+  // Atmosphere
+  const atmoGeo = new THREE.BufferGeometry();
+  const atmoPos = new Float32Array(120 * 3);
+  for (let i = 0; i < 120; i += 1) {
+    atmoPos[i * 3] = (Math.random() - 0.5) * 30;
+    atmoPos[i * 3 + 1] = Math.random() * 4 + 5.5;
+    atmoPos[i * 3 + 2] = -8 - Math.random() * 14;
+  }
+  atmoGeo.setAttribute('position', new THREE.BufferAttribute(atmoPos, 3));
+  const atmosphere = new THREE.Points(atmoGeo, new THREE.PointsMaterial({ color: 0x77f2ed, size: 0.08, transparent: true, opacity: 0.28, depthWrite: false }));
+  scene.add(atmosphere);
+
+  const robot = buildArenaRobot(scene);
+  const props = buildArenaProps(scene);
+
+  const camTarget = new THREE.Vector3(0, 1.5, 0);
+  const cameraState = { position: camera.position.clone(), target: camTarget.clone(), fov: 42 };
+  applyMissionCamera('third', cameraState);
+
+  const clock = new THREE.Clock();
   let animId;
-  let robot;
-
   function loop() {
     animId = requestAnimationFrame(loop);
-    introAngle += 0.006;
-    if (robot) robot.root.rotation.y = introAngle;
+    const t = clock.getElapsedTime();
+    robot.wheels.forEach((wheel, i) => { wheel.rotation.y += 0.042 + (i % 2) * 0.004; });
+    robot.bobGroup.position.y = Math.sin(t * 2.6) * 0.06;
+    robot.legs.forEach(({ group, phase }) => {
+      const swing = Math.sin(t * 6 + phase) * 0.28;
+      group.rotation.x = swing;
+      group.children[0].position.y = -0.28 + Math.abs(swing) * 0.12;
+    });
+    robot.treads.forEach((sg) => {
+      sg.children.forEach((pad, i) => {
+        pad.position.z = -0.45 + ((i * 0.18 + t * 0.4) % 1.26) - 0.63;
+      });
+    });
+    atmosphere.rotation.y += 0.0008;
+    camera.position.lerp(cameraState.position, 0.08);
+    camTarget.lerp(cameraState.target, 0.08);
+    camera.fov += (cameraState.fov - camera.fov) * 0.08;
+    camera.updateProjectionMatrix();
+    camera.lookAt(camTarget);
     renderer.render(scene, camera);
   }
 
-  // Show element (hidden opacity so layout is ready)
+  // Show intro element and start render
   introEl.classList.remove('is-hidden');
   introEl.style.opacity = '0';
   await window.gsap.to(introEl, { opacity: 1, duration: 0.4 });
-
-  // Build robot off-screen, then rise into view
-  robot = buildPodiumRobot(team.config, scene, team.accent);
-  robot.root.position.y = -5;
   loop();
-  await window.gsap.to(robot.root.position, { y: 0, duration: 0.9, ease: 'back.out(1.2)' });
 
-  // Mobility animation
-  if (team.config.mobility === 'scout-legs' && robot.legs.length) {
-    for (let c = 0; c < 3; c++) {
-      // eslint-disable-next-line no-await-in-loop
-      await Promise.all(robot.legs.map((leg, i) => {
-        const dir = i % 2 === 0 ? -0.18 : 0.18;
-        return window.gsap.to(leg.group.position, { y: `+=${dir}`, duration: 0.15, yoyo: true, repeat: 1 });
-      }));
-    }
-  } else if (team.config.mobility === 'balanced-treads' && robot.treads.length) {
-    let step = 0;
-    const treadAnim = setInterval(() => {
-      step += 1;
-      robot.treads.forEach((sg) => {
-        sg.children.forEach((pad, i) => {
-          pad.position.z = -0.45 + ((i * 0.18 + step * 0.06) % 1.08);
-        });
-      });
-    }, 50);
-    await new Promise((r) => { setTimeout(r, 900); });
-    clearInterval(treadAnim);
-  } else {
-    await window.gsap.to(robot.root.position, { y: 0.3, duration: 0.4, yoyo: true, repeat: 1 });
+  // Run mission scenes at 0.65× speed so player can follow along
+  const missionScenes = buildSceneList(team.config);
+  for (const sceneDef of missionScenes) {
+    // eslint-disable-next-line no-await-in-loop
+    await playArenaScene(sceneDef, robot, props, cameraState, 0.65);
   }
 
-  // Utility animation
-  if (team.config.utility === 'robot-arm' && robot.armBase) {
-    await window.gsap.to(robot.armBase.rotation, { z: -1.0, duration: 0.5, ease: 'power2.inOut' });
-    await window.gsap.to(robot.armBase.rotation, { z: 0, duration: 0.4 });
-  } else if (team.config.utility === 'grapple-hook') {
-    await window.gsap.to(robot.root.rotation, { y: Math.PI * 2, duration: 0.65 });
-    robot.root.rotation.y = introAngle;
-  }
-
-  // Score count-up (starts halfway through animation)
-  await countUp(scoreNumEl, team.score, 1200);
+  // Score count-up after mission completes
+  applyMissionCamera('third', cameraState);
+  await countUp(scoreNumEl, team.score, 1400);
   scoreNumEl.style.color = team.accent;
 
   // Hold for a moment
-  await new Promise((r) => { setTimeout(r, 1600); });
+  await new Promise((r) => { setTimeout(r, 2000); });
 
   // Fade out
   await window.gsap.to(introEl, { opacity: 0, y: -20, duration: 0.5 });
@@ -610,7 +651,6 @@ async function showPlayerRobotIntro() {
 
   cancelAnimationFrame(animId);
   renderer.dispose();
-  scene.remove(robot.root);
 }
 
 async function runArenaPhase() {
@@ -1359,11 +1399,11 @@ function resetArenaRobot(robot, props) {
   props.decoy.rotation.set(0, 0, 0);
 }
 
-function playArenaScene(sceneDef, robot, props, cameraState) {
+function playArenaScene(sceneDef, robot, props, cameraState, timeScale = 1) {
   resetArenaRobot(robot, props);
   applyMissionCamera(sceneDef.camera, cameraState);
   const gsap = window.gsap;
-  const tl = gsap.timeline();
+  const tl = gsap.timeline({ timeScale });
 
   if (sceneDef.id === 'intro') {
     tl.to(robot.root.position, { y: 0.22, duration: 0.35, ease: 'power2.out' })
