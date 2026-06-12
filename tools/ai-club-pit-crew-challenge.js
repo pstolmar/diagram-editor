@@ -41,6 +41,9 @@ const FAKE_TEAMS = [
   },
 ];
 
+// activeTeams mirrors FAKE_TEAMS but is overwritten with live data when AIO is configured
+let activeTeams = FAKE_TEAMS;
+
 const LS_TEAM_KEY = 'ai-club:pitTeamSlug';
 
 function getOrAssignTeam() {
@@ -63,6 +66,22 @@ const state = {
   votes: {},
 };
 
+// ── Adobe I/O Runtime integration ─────────────────────────────────────────
+// Pass ?aio=https://your-ns.adobeioruntime.net/api/v1/web/robot-game to enable.
+// Without it every aioFetch() returns null and fake data drives everything.
+const AIO_BASE = new URLSearchParams(window.location.search).get('aio') || '';
+
+async function aioFetch(mode, body = null) {
+  if (!AIO_BASE) return null;
+  try {
+    const opts = body
+      ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      : {};
+    const r = await fetch(`${AIO_BASE}?mode=${mode}`, opts);
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
+
 function goToPhase(name) {
   const current = document.querySelector('.pit-phase.is-active');
   if (current) current.classList.remove('is-active');
@@ -73,9 +92,19 @@ function goToPhase(name) {
   }
 }
 
-function init() {
+async function init() {
   const params = new URLSearchParams(window.location.search);
   state.team = getOrAssignTeam();
+
+  // Join the session — server registers team, may return canonical team name
+  const joined = await aioFetch('join', { teamSlug: state.team.slug });
+  if (joined?.teamName) {
+    state.team = { ...state.team, name: joined.teamName };
+    sessionStorage.setItem('ai-club:pitSession', JSON.stringify({
+      teamSlug: state.team.slug, teamName: joined.teamName,
+    }));
+  }
+
   const startPhase = params.get('startPhase') || 'assign';
   goToPhase(startPhase);
   if (startPhase === 'assign') runAssignPhase();
@@ -328,6 +357,7 @@ function runVotePhase() {
       if (!state.votes[g.id]) state.votes[g.id] = g.options[0].id;
     });
     applyVotesToTeam();
+    aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config });
     goToPhase('lobby');
     runLobbyPhase();
   }
@@ -362,6 +392,7 @@ function runVotePhase() {
     clearInterval(timerInterval);
     cleanupPreview();
     applyVotesToTeam();
+    aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config });
     goToPhase('lobby');
     runLobbyPhase();
   });
@@ -378,35 +409,7 @@ function runLobbyPhase() {
   const lobbyHint = document.querySelector('.lobby-hint');
   const presenceEl = document.getElementById('lobby-presence');
 
-  // ── Presence heartbeat (localStorage cross-tab) ──
-  const presenceKey = `ai-club:lobbyPresence:${crypto.randomUUID()}`;
-  function writePresence() {
-    localStorage.setItem(presenceKey, String(Date.now()));
-  }
-  function readPresenceCount() {
-    const now = Date.now();
-    let count = 0;
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith('ai-club:lobbyPresence:')) {
-        const ts = Number(localStorage.getItem(k));
-        if (now - ts < 15000) count += 1;
-      }
-    }
-    return count;
-  }
-  writePresence();
-  const presenceInterval = setInterval(() => {
-    writePresence();
-    const n = readPresenceCount();
-    presenceEl.textContent = n > 1 ? `~${n} players in lobby right now` : '';
-  }, 3000);
-  window.addEventListener('beforeunload', () => localStorage.removeItem(presenceKey), { once: true });
-
-  // ── Fake team trickle ──
-  // Natural-variance delays: 7 more teams to lock in across totalMs
-  const fractions = [0.08, 0.18, 0.30, 0.44, 0.57, 0.70, 0.84];
-  let locked = 1;
+  presenceEl.textContent = '';
 
   // ── Progress bar ──
   window.gsap.to(bar, { width: '100%', duration: totalMs / 1000, ease: 'none' });
@@ -440,6 +443,9 @@ function runLobbyPhase() {
     if (hasAdvanced) return;
     hasAdvanced = true;
 
+    // Signal to server that this player is entering the arena
+    aioFetch('advance', { teamSlug: state.team.slug });
+
     if (quizInProgress && !fast) {
       const skipBanner = document.createElement('div');
       skipBanner.className = 'lobby-skip-banner';
@@ -460,9 +466,6 @@ function runLobbyPhase() {
       if (!quizSettled) { quizSettled = true; quizDoneResolve(null); }
     }
 
-    clearInterval(presenceInterval);
-    localStorage.removeItem(presenceKey);
-
     counter.closest('.lobby-social').textContent = '⚡ All teams locked in — loading arena…';
     await new Promise((r) => { setTimeout(r, 800); });
 
@@ -470,22 +473,38 @@ function runLobbyPhase() {
     runArenaPhase();
   }
 
-  // Trickle: last lock-in (8/8) fires doAdvance after a 1.5s dramatic pause
-  const trickleTimeouts = fractions.map((frac, idx) => setTimeout(() => {
-    locked += 1;
-    counter.textContent = locked;
-    counter.closest('.lobby-social').classList.add('lobby-pulse');
-    setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
-    if (idx === fractions.length - 1) {
-      setTimeout(doAdvance, 1500);
-    }
-  }, frac * totalMs));
-
-  // Fallback: fire doAdvance after full timer in case trickle is skipped (fastLobby)
-  setTimeout(doAdvance, totalMs + 2000);
-
-  // suppress unused variable warning
-  void trickleTimeouts;
+  if (AIO_BASE) {
+    // ── Live mode: poll /status every 4s ──
+    let lastReady = 1;
+    const pollInterval = setInterval(async () => {
+      const status = await aioFetch('status');
+      if (!status) return;
+      const { teamsReady, teamsTotal, expiresAt } = status;
+      if (teamsReady > lastReady) {
+        lastReady = teamsReady;
+        counter.textContent = teamsReady;
+        counter.closest('.lobby-social').classList.add('lobby-pulse');
+        setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
+      }
+      if (teamsReady >= teamsTotal || Date.now() > Date.parse(expiresAt)) {
+        clearInterval(pollInterval);
+        doAdvance();
+      }
+    }, 4000);
+  } else {
+    // ── Dev mode: fake trickle ──
+    const fractions = [0.08, 0.18, 0.30, 0.44, 0.57, 0.70, 0.84];
+    let locked = 1;
+    const trickleTimeouts = fractions.map((frac, idx) => setTimeout(() => {
+      locked += 1;
+      counter.textContent = locked;
+      counter.closest('.lobby-social').classList.add('lobby-pulse');
+      setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
+      if (idx === fractions.length - 1) setTimeout(doAdvance, 1500);
+    }, frac * totalMs));
+    setTimeout(doAdvance, totalMs + 2000);
+    void trickleTimeouts;
+  }
 }
 async function showPlayerRobotIntro() {
   const { THREE } = window;
@@ -651,6 +670,26 @@ async function showPlayerRobotIntro() {
 }
 
 async function runArenaPhase() {
+  // Load live results from server if AIO is configured
+  if (AIO_BASE) {
+    const status = await aioFetch('status');
+    if (status?.results) {
+      const live = Object.entries(status.results)
+        .filter(([, r]) => r.actualBuild && r.score > 0)
+        .map(([slug, r]) => {
+          const base = FAKE_TEAMS.find((t) => t.slug === slug) || { slug, accent: '#77f2ed' };
+          return { ...base, name: r.teamName || base.name, config: r.actualBuild, score: r.score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .map((t, i) => ({ ...t, place: i + 1 }));
+      if (live.length) {
+        activeTeams = live;
+        const myLive = live.find((t) => t.slug === state.team.slug);
+        if (myLive) state.team = myLive;
+      }
+    }
+  }
+
   const params = new URLSearchParams(window.location.search);
   if (params.get('startPhase') !== 'arena') {
     await showPlayerRobotIntro();
@@ -663,7 +702,7 @@ async function runArenaPhase() {
 
 async function revealScoreCards() {
   const container = document.getElementById('score-reveal-container');
-  const nonPodium = FAKE_TEAMS
+  const nonPodium = activeTeams
     .filter((t) => t.place > 3)
     .sort((a, b) => b.place - a.place);
 
@@ -771,7 +810,7 @@ async function runPodiumSequence() {
   renderLoop();
 
   async function spawnRobot(slot) {
-    const team = FAKE_TEAMS.find((t) => t.place === slot.place);
+    const team = activeTeams.find((t) => t.place === slot.place);
     const robot = buildPodiumRobot(team.config, scene, team.accent);
     robot.root.position.set(slot.x, -6, 0);
 
@@ -1133,7 +1172,7 @@ function showFinalLeaderboard() {
   const finalEl = document.getElementById('arena-final');
   const list = document.getElementById('full-leaderboard');
   finalEl.classList.remove('is-hidden');
-  const sorted = [...FAKE_TEAMS].sort((a, b) => a.place - b.place);
+  const sorted = [...activeTeams].sort((a, b) => a.place - b.place);
   list.innerHTML = sorted.map((team) => `
     <li class="lb-row${team.place <= 3 ? ' lb-row--podium' : ''}">
       <span class="lb-place">#${team.place}</span>
@@ -1142,6 +1181,22 @@ function showFinalLeaderboard() {
     </li>
   `).join('');
   window.gsap.from(finalEl, { opacity: 0, y: 20, duration: 0.5 });
+}
+
+// ── Client-side scoring (mirrors server scoring map, 75–250 per tier, 300–1000 total) ──
+const SCORING_MAP = {
+  // Mobility
+  'balanced-treads': 250, 'scout-legs': 150, 'heavy-lift': 75,
+  // Utility
+  'robot-arm': 250, 'grapple-hook': 150, 'suction-cup': 75,
+  // Care
+  'stabilizer': 250, 'cushion-mount': 150, none: 75,
+  // Brain
+  'structured-thinker': 250, verifier: 150, 'fast-guesser': 75,
+};
+
+function computeScoreFromConfig(config) {
+  return Object.values(config).reduce((sum, id) => sum + (SCORING_MAP[id] || 0), 0);
 }
 
 // ── Full arena mission system ──────────────────────────────────────────────
@@ -1648,7 +1703,7 @@ document.addEventListener('click', (e) => {
   const watchBtn = e.target.closest('.medal-watch-btn');
   if (!watchBtn) return;
   const place = Number(watchBtn.dataset.place);
-  const team = FAKE_TEAMS.find((t) => t.place === place);
+  const team = activeTeams.find((t) => t.place === place);
   if (team) openMissionModal(team);
 });
 
