@@ -487,7 +487,143 @@ function runLobbyPhase() {
   // suppress unused variable warning
   void trickleTimeouts;
 }
+async function showPlayerRobotIntro() {
+  const { THREE } = window;
+  const introEl = document.getElementById('player-intro');
+  const teamNameEl = document.getElementById('player-intro-team');
+  const scoreNumEl = document.getElementById('player-intro-score-num');
+  const placeEl = document.getElementById('player-intro-place');
+  const tagsEl = document.getElementById('player-intro-tags');
+  const introCanvas = document.getElementById('player-intro-canvas');
+
+  const team = state.team;
+  teamNameEl.textContent = team.name;
+  teamNameEl.style.color = team.accent;
+  placeEl.textContent = `#${team.place} of 8 teams`;
+
+  // Config tags
+  const tagLabels = {
+    'scout-legs': 'Scout Legs', 'balanced-treads': 'Balanced Treads', 'heavy-lift': 'Heavy Lift',
+    'robot-arm': 'Robot Arm', 'suction-cup': 'Suction Cup', 'grapple-hook': 'Grapple Hook',
+    'stabilizer': 'Stabilizer Rig', 'cushion-mount': 'Cushion Mount', none: 'Unconstrained',
+    'fast-guesser': 'Fast Guesser', 'structured-thinker': 'Structured Thinker', verifier: 'Verifier',
+  };
+  tagsEl.innerHTML = Object.values(team.config).map((v) => `
+    <span class="player-intro-tag">${tagLabels[v] || v.replace(/-/g, ' ')}</span>
+  `).join('');
+
+  // Three.js scene
+  const W = introEl.clientWidth || Math.min(window.innerWidth - 48, 520);
+  const H = Math.round(W * 0.72);
+  introCanvas.width = W;
+  introCanvas.height = H;
+
+  const renderer = new THREE.WebGLRenderer({ canvas: introCanvas, antialias: true, alpha: true });
+  renderer.setSize(W, H, false);
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 30);
+  camera.position.set(2.2, 2.6, 4.5);
+  camera.lookAt(0, 1.2, 0);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(3, 6, 4);
+  sun.castShadow = true;
+  scene.add(sun);
+  // Accent fill light
+  const fill = new THREE.PointLight(new THREE.Color(team.accent), 0.6, 8);
+  fill.position.set(-2, 2, 2);
+  scene.add(fill);
+
+  const introFloor = new THREE.Mesh(
+    new THREE.PlaneGeometry(12, 12),
+    new THREE.MeshStandardMaterial({ color: 0x0d1a2a, roughness: 0.9 }),
+  );
+  introFloor.rotation.x = -Math.PI / 2;
+  introFloor.receiveShadow = true;
+  scene.add(introFloor);
+
+  let introAngle = 0;
+  let animId;
+  let robot;
+
+  function loop() {
+    animId = requestAnimationFrame(loop);
+    introAngle += 0.006;
+    if (robot) robot.root.rotation.y = introAngle;
+    renderer.render(scene, camera);
+  }
+
+  // Show element (hidden opacity so layout is ready)
+  introEl.classList.remove('is-hidden');
+  introEl.style.opacity = '0';
+  await window.gsap.to(introEl, { opacity: 1, duration: 0.4 });
+
+  // Build robot off-screen, then rise into view
+  robot = buildPodiumRobot(team.config, scene, team.accent);
+  robot.root.position.y = -5;
+  loop();
+  await window.gsap.to(robot.root.position, { y: 0, duration: 0.9, ease: 'back.out(1.2)' });
+
+  // Mobility animation
+  if (team.config.mobility === 'scout-legs' && robot.legs.length) {
+    for (let c = 0; c < 3; c++) {
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.all(robot.legs.map((leg, i) => {
+        const dir = i % 2 === 0 ? -0.18 : 0.18;
+        return window.gsap.to(leg.group.position, { y: `+=${dir}`, duration: 0.15, yoyo: true, repeat: 1 });
+      }));
+    }
+  } else if (team.config.mobility === 'balanced-treads' && robot.treads.length) {
+    let step = 0;
+    const treadAnim = setInterval(() => {
+      step += 1;
+      robot.treads.forEach((sg) => {
+        sg.children.forEach((pad, i) => {
+          pad.position.z = -0.45 + ((i * 0.18 + step * 0.06) % 1.08);
+        });
+      });
+    }, 50);
+    await new Promise((r) => { setTimeout(r, 900); });
+    clearInterval(treadAnim);
+  } else {
+    await window.gsap.to(robot.root.position, { y: 0.3, duration: 0.4, yoyo: true, repeat: 1 });
+  }
+
+  // Utility animation
+  if (team.config.utility === 'robot-arm' && robot.armBase) {
+    await window.gsap.to(robot.armBase.rotation, { z: -1.0, duration: 0.5, ease: 'power2.inOut' });
+    await window.gsap.to(robot.armBase.rotation, { z: 0, duration: 0.4 });
+  } else if (team.config.utility === 'grapple-hook') {
+    await window.gsap.to(robot.root.rotation, { y: Math.PI * 2, duration: 0.65 });
+    robot.root.rotation.y = introAngle;
+  }
+
+  // Score count-up (starts halfway through animation)
+  await countUp(scoreNumEl, team.score, 1200);
+  scoreNumEl.style.color = team.accent;
+
+  // Hold for a moment
+  await new Promise((r) => { setTimeout(r, 1600); });
+
+  // Fade out
+  await window.gsap.to(introEl, { opacity: 0, y: -20, duration: 0.5 });
+  introEl.classList.add('is-hidden');
+  introEl.style.opacity = '';
+  introEl.style.transform = '';
+
+  cancelAnimationFrame(animId);
+  renderer.dispose();
+  scene.remove(robot.root);
+}
+
 async function runArenaPhase() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('startPhase') !== 'arena') {
+    await showPlayerRobotIntro();
+  }
   await revealScoreCards();
   await showPodiumBanner();
   await runPodiumSequence();

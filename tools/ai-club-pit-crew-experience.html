@@ -79,6 +79,17 @@
 
     <section class="pit-phase" data-phase="arena">
       <div class="phase-inner arena-inner">
+        <div id="player-intro" class="player-intro is-hidden">
+          <p class="eyebrow">Mission Complete</p>
+          <h1 id="player-intro-team" class="player-intro-team"></h1>
+          <canvas id="player-intro-canvas" class="player-intro-canvas"></canvas>
+          <div class="player-intro-score-wrap">
+            <span class="player-intro-score-label">Final Score</span>
+            <span id="player-intro-score-num" class="player-intro-score-num">0</span>
+            <span id="player-intro-place" class="player-intro-place"></span>
+          </div>
+          <div id="player-intro-tags" class="player-intro-tags"></div>
+        </div>
         <div id="podium-container" class="podium-container is-hidden">
           <canvas id="podium-canvas"></canvas>
           <div id="podium-team-label" class="podium-team-label"></div>
