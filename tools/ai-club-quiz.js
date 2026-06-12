@@ -31,12 +31,14 @@ function renderQuestion(containerEl, questions, state, opts) {
       </ul>
       <p class="quiz-explanation" aria-live="polite"></p>
       <button class="quiz-next" aria-label="Next question">Next &rarr;</button>
+      <button class="quiz-next-corner" aria-label="Next question" aria-hidden="true">&rarr;</button>
     </div>
   `;
 
   const optionBtns = containerEl.querySelectorAll('.quiz-option');
   const explanationEl = containerEl.querySelector('.quiz-explanation');
   const nextBtn = containerEl.querySelector('.quiz-next');
+  const cornerBtn = containerEl.querySelector('.quiz-next-corner');
 
   optionBtns.forEach((btn) => {
     btn.addEventListener('click', () => handleAnswer(
@@ -44,11 +46,14 @@ function renderQuestion(containerEl, questions, state, opts) {
       optionBtns,
       explanationEl,
       nextBtn,
+      cornerBtn,
       q,
       state,
       opts,
     ));
   });
+
+  cornerBtn.addEventListener('click', () => nextBtn.click());
 
   nextBtn.addEventListener('click', () => {
     state.index += 1;
@@ -63,7 +68,7 @@ function renderQuestion(containerEl, questions, state, opts) {
 /**
  * Handle an option button click.
  */
-function handleAnswer(btn, allBtns, explanationEl, nextBtn, question, state, opts) {
+function handleAnswer(btn, allBtns, explanationEl, nextBtn, cornerBtn, question, state, opts) {
   const chosen = Number(btn.dataset.index);
   const isCorrect = chosen === question.correctIndex;
 
@@ -100,8 +105,9 @@ function handleAnswer(btn, allBtns, explanationEl, nextBtn, question, state, opt
   void explanationEl.offsetWidth;
   explanationEl.classList.add('is-visible');
 
-  // Show next button
+  // Show next button (both bottom and corner arrow)
   nextBtn.classList.add('is-visible');
+  cornerBtn.classList.add('is-visible');
 
   if (typeof opts.onAnswer === 'function') {
     opts.onAnswer(isCorrect, state.score);

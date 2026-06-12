@@ -1,0 +1,255 @@
+/* ── Bracket overview ── */
+.bracket-overview-inner {
+  max-width: 860px;
+}
+
+.bracket-matchups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+}
+
+.bracket-matchup-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.bracket-seed {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  min-width: 26px;
+  text-align: right;
+}
+
+.bracket-team-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.bracket-team-score {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+}
+
+.bracket-vs {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.3);
+  padding: 0 4px;
+}
+
+.bracket-bye {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+}
+
+/* ── Match phase ── */
+.match-inner {
+  max-width: 100%;
+  width: 100%;
+  padding: 16px 12px;
+  gap: 12px;
+}
+
+.match-round-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+.match-num-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 2px 10px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.05em;
+}
+
+.match-arena {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.match-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  padding: 8px;
+  transition: opacity 0.6s ease, border-color 0.4s ease;
+}
+
+.match-side.is-winner {
+  border-color: #ffd700;
+  box-shadow: 0 0 24px rgba(255,215,0,0.2);
+}
+
+.match-side.is-loser {
+  opacity: 0.38;
+}
+
+.match-team-banner {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.match-team-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.match-team-score {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+}
+
+.match-canvas {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  background: #0a1522;
+  display: block;
+}
+
+.match-result-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-result-badge.is-winner-badge {
+  color: #ffd700;
+}
+
+.match-result-badge.is-loser-badge {
+  color: rgba(255,255,255,0.3);
+}
+
+.match-vs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  padding-top: 60px;
+}
+
+#match-countdown-label {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+
+#match-countdown-label.is-countdown {
+  font-size: 2rem;
+  color: #38bdf8;
+}
+
+/* ── Champion phase ── */
+.champion-inner {
+  gap: 20px;
+}
+
+.champion-name {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.champion-canvas {
+  width: min(400px, 90vw);
+  height: auto;
+  border-radius: 12px;
+  background: #0a1522;
+  display: block;
+}
+
+.champion-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+.bracket-recap {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bracket-recap-round {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.bracket-recap-match {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 6px;
+}
+
+.bracket-recap-winner {
+  font-weight: 700;
+  flex: 1;
+}
+
+.bracket-recap-loser {
+  color: rgba(255,255,255,0.3);
+  flex: 1;
+  text-decoration: line-through;
+}
+
+.bracket-recap-score {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── My team highlight in bracket ── */
+.bracket-matchup-row.is-my-match {
+  border-color: rgba(56,189,248,0.35);
+  background: rgba(56,189,248,0.07);
+}
+
+.match-side.is-my-team {
+  background: rgba(56,189,248,0.05);
+}

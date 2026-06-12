@@ -43,6 +43,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: relative;
 }
 
 .quiz-meta {
@@ -190,6 +191,40 @@
 }
 
 .quiz-next:hover {
+  background: #7dd3fc;
+}
+
+/* Corner arrow — floats top-right of card, visible after answering */
+.quiz-next-corner {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--quiz-accent);
+  color: #08111d;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.35s ease, transform 0.35s ease, background-color 0.2s;
+  transition-delay: 1.2s;
+  z-index: 5;
+}
+
+.quiz-next-corner.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.quiz-next-corner:hover {
   background: #7dd3fc;
 }
 

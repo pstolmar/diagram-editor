@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Pit Crew Bracket</title>
+  <link rel="stylesheet" href="/tools/ai-club-scavengers.css">
+  <link rel="stylesheet" href="/tools/ai-club-quiz.css">
+  <link rel="stylesheet" href="/tools/ai-club-pit-crew-challenge.css?v=2">
+  <link rel="stylesheet" href="/tools/ai-club-pit-crew-bracket.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js" defer></script>
+</head>
+<body>
+  <main class="pit-experience">
+
+    <section class="pit-phase" data-phase="assign">
+      <div class="phase-inner assign-inner">
+        <div id="assign-spinner" class="pit-spinner" aria-label="Assigning team…"></div>
+        <div id="assign-pawns" class="pawn-row" aria-label="Teammates"></div>
+        <div id="assign-reveal" class="assign-reveal is-hidden">
+          <p class="eyebrow">You're on</p>
+          <h1 id="assign-team-name" class="team-name-large">—</h1>
+        </div>
+        <button id="assign-advance" class="pit-btn pit-btn--primary timer-btn is-hidden" type="button">
+          Enter the Pit
+        </button>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="countdown">
+      <div class="phase-inner countdown-inner">
+        <div id="countdown-number" class="countdown-number">3</div>
+        <div class="countdown-scanline"></div>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="vote">
+      <div class="phase-inner vote-inner">
+        <header class="vote-header">
+          <p class="eyebrow">Build Your Robot</p>
+          <h2>Configure your pit crew bot</h2>
+          <p class="vote-timer-label" id="vote-timer">5:00</p>
+          <p class="vote-instructions">Choose one option for each section and click Lock In Your Robot to compete in the Arena</p>
+        </header>
+        <div id="vote-groups" class="vote-groups"></div>
+        <div class="vote-footer">
+          <button id="lock-in-build" class="pit-btn pit-btn--primary" type="button" disabled>
+            Lock In Your Build
+          </button>
+        </div>
+        <div class="vote-preview">
+          <p class="vote-preview-label">Your Robot</p>
+          <canvas id="vote-preview-canvas" class="vote-preview-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="lobby">
+      <div class="phase-inner lobby-inner" id="lobby-inner">
+        <p class="eyebrow">Build locked</p>
+        <h2>Waiting for other teams…</h2>
+        <div class="lobby-social">
+          <span id="teams-locked-count">1</span> of 8 teams have locked in
+        </div>
+        <div class="lobby-timer-wrap">
+          <div id="lobby-bar" class="lobby-progress-bar"></div>
+        </div>
+        <div id="lobby-presence" class="lobby-presence-count"></div>
+        <div id="lobby-quiz-offer" class="lobby-quiz-offer is-hidden">
+          <p class="lobby-quiz-prompt">Quiz time while you wait?</p>
+          <button id="start-quiz-btn" class="pit-btn pit-btn--primary" type="button">
+            Take the Quiz
+          </button>
+          <button id="skip-quiz-btn" class="pit-btn" type="button">Skip</button>
+        </div>
+        <div id="lobby-quiz-container" class="lobby-quiz-container is-hidden"></div>
+        <p class="lobby-hint">The bracket opens when all teams are ready.</p>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="bracket">
+      <div class="phase-inner bracket-overview-inner">
+        <p class="eyebrow" id="bracket-eyebrow">Tournament Bracket</p>
+        <h2 id="bracket-title">Round 1 Matchups</h2>
+        <div id="bracket-matchups" class="bracket-matchups"></div>
+        <button id="bracket-start" class="pit-btn pit-btn--primary" type="button">
+          Start Tournament
+        </button>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="match">
+      <div class="phase-inner match-inner">
+        <div class="match-round-label">
+          <span id="match-round-text" class="eyebrow">Round 1</span>
+          <span id="match-number-text" class="match-num-badge">Match 1</span>
+        </div>
+        <div class="match-arena">
+          <div class="match-side" id="match-side-left">
+            <div class="match-team-banner" id="match-banner-left">
+              <span class="match-team-name" id="match-name-left"></span>
+              <span class="match-team-score" id="match-score-left"></span>
+            </div>
+            <canvas class="match-canvas" id="match-canvas-left"></canvas>
+            <div class="match-result-badge" id="match-result-left"></div>
+          </div>
+          <div class="match-vs-divider">
+            <span id="match-countdown-label">VS</span>
+          </div>
+          <div class="match-side" id="match-side-right">
+            <div class="match-team-banner" id="match-banner-right">
+              <span class="match-team-name" id="match-name-right"></span>
+              <span class="match-team-score" id="match-score-right"></span>
+            </div>
+            <canvas class="match-canvas" id="match-canvas-right"></canvas>
+            <div class="match-result-badge" id="match-result-right"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pit-phase" data-phase="champion">
+      <div class="phase-inner champion-inner">
+        <p class="eyebrow">Tournament Champion</p>
+        <h1 id="champion-name" class="champion-name"></h1>
+        <canvas id="champion-canvas" class="champion-canvas"></canvas>
+        <div id="champion-score" class="champion-score"></div>
+        <div id="bracket-recap" class="bracket-recap"></div>
+      </div>
+    </section>
+
+  </main>
+  <script src="/tools/ai-club-pit-crew-bracket.js" type="module"></script>
+</body>
+</html>

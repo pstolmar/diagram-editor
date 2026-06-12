@@ -68,6 +68,7 @@ const state = {
 
 // ── Query params (module-level so all phases can read them) ───────────────
 const params = new URLSearchParams(window.location.search);
+const gameDuration = params.get('voting') === 'short' ? 120 : 300;
 
 // ── Adobe I/O Runtime integration ─────────────────────────────────────────
 // Pass ?aio=<url> or ?aio=stage to enable. Without it every aioFetch() returns
@@ -112,6 +113,11 @@ async function init() {
       sessionStorage.setItem('ai-club:pitSession', JSON.stringify({
         teamSlug: joined.teamSlug, teamName: state.team.name,
       }));
+    }
+    const serverStatus = await aioFetch('status');
+    if (serverStatus?.expiresAt) {
+      state.serverExpiresAt = serverStatus.expiresAt;
+      state.serverPhase = serverStatus.phase;
     }
   }
 
@@ -372,7 +378,12 @@ function runVotePhase() {
     runLobbyPhase();
   }
 
-  let secs = params.get('fast') === '1' ? 20 : 300;
+  let secs = params.get('fast') === '1' ? 20 : gameDuration;
+  if (state.serverExpiresAt && state.serverPhase === 'voting') {
+    const remainingMs = Date.parse(state.serverExpiresAt) - Date.now();
+    if (remainingMs <= 20000) { autoLockAndAdvance(); return; }
+    secs = Math.round(remainingMs / 1000);
+  }
   const timerEl = document.getElementById('vote-timer');
   const timerInterval = setInterval(() => {
     secs -= 1;
@@ -409,7 +420,7 @@ function runVotePhase() {
 }
 function runLobbyPhase() {
   const fast = params.get('fast') === '1' || params.get('fastLobby') === '1';
-  const totalMs = fast ? 2000 : 120000;
+  const totalMs = fast ? 2000 : gameDuration * 1000;
 
   const bar = document.getElementById('lobby-bar');
   const counter = document.getElementById('teams-locked-count');
@@ -485,10 +496,16 @@ function runLobbyPhase() {
   if (AIO_BASE) {
     // ── Live mode: poll /status every 4s ──
     let lastReady = 1;
+    let fallbackSet = false;
     const pollInterval = setInterval(async () => {
       const status = await aioFetch('status');
       if (!status) return;
       const { teamsReady, teamsTotal, expiresAt } = status;
+      if (!fallbackSet && expiresAt) {
+        fallbackSet = true;
+        const remaining = Date.parse(expiresAt) - Date.now();
+        setTimeout(() => doAdvance(), Math.max(remaining + 4000, 4000));
+      }
       if (teamsReady > lastReady) {
         lastReady = teamsReady;
         counter.textContent = teamsReady;
@@ -1726,8 +1743,8 @@ document.addEventListener('click', (e) => {
   if (team) openMissionModal(team);
 });
 
-// ── Debug panel — only rendered when ?aio= is configured ──────────────────
-if (AIO_BASE) {
+// ── Debug panel — only shown with ?debug=1 ─────────────────────────────────
+if (AIO_BASE && (params.get('debug') === '1' || params.get('debug') === 'true')) {
   const bar = document.createElement('div');
   bar.className = 'debug-bar';
   bar.innerHTML = `
@@ -1740,7 +1757,8 @@ if (AIO_BASE) {
   bar.addEventListener('click', async (e) => {
     const btn = e.target.closest('.debug-btn');
     if (!btn) return;
-    const result = await aioFetch(btn.dataset.mode);
+    const body = btn.dataset.mode === 'reset' ? { duration: gameDuration } : null;
+    const result = await aioFetch(btn.dataset.mode, body);
     // eslint-disable-next-line no-console
     console.log(`[debug:${btn.dataset.mode}]`, result);
     if (btn.dataset.mode === 'inspect' || btn.dataset.mode === 'seed') {
