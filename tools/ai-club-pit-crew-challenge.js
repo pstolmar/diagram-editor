@@ -442,8 +442,20 @@ function runLobbyPhase() {
 
   presenceEl.textContent = '';
 
-  // ── Progress bar ──
+  // ── Progress bar + countdown ──
   window.gsap.to(bar, { width: '100%', duration: totalMs / 1000, ease: 'none' });
+  const countdownEl = document.getElementById('lobby-countdown');
+  if (countdownEl) {
+    const endMs = Date.now() + totalMs;
+    const tickCountdown = () => {
+      const rem = Math.max(endMs - Date.now(), 0);
+      const m = Math.floor(rem / 60000);
+      const s = String(Math.floor((rem % 60000) / 1000)).padStart(2, '0');
+      countdownEl.textContent = `${m}:${s}`;
+    };
+    tickCountdown();
+    const cdInterval = setInterval(() => { tickCountdown(); if (Date.now() >= endMs) clearInterval(cdInterval); }, 1000);
+  }
 
   // ── Auto-load quiz immediately ──
   let quizInProgress = false;

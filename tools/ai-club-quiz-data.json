@@ -5,10 +5,10 @@
     "difficulty": "medium",
     "question": "Which of these prompts is most likely to give you a useful, structured response from an AI assistant?",
     "options": [
-      "Summarize this",
+      "Please write a thorough multi-paragraph analysis covering customer history, emotional tone, every policy that might apply, and all possible resolution paths including escalation options",
       "You are a customer success expert. Summarize this support ticket in 3 bullet points, focusing on root cause and next action.",
       "Write something about this ticket",
-      "Help me with this please"
+      "Could you help me please figure out what the right thing to do is with this customer support ticket that just came in to our team"
     ],
     "correctIndex": 1,
     "explanation": "Specific role, format, and goal constraints dramatically improve response quality."
@@ -75,9 +75,9 @@
     "difficulty": "medium",
     "question": "Which of these is something Claude Desktop's 'Extended Thinking' mode is designed to help with?",
     "options": [
-      "Faster responses on simple questions",
+      "Tasks where you want the model to spend extra compute working through every possible interpretation and sub-problem before giving you the fastest possible final answer",
       "Multi-step problems that benefit from the model reasoning through steps before answering",
-      "Reading files from your desktop",
+      "Complex document conversion tasks like reformatting a lengthy PDF into a structured Word document with proper styling and headers",
       "Connecting to the internet in real time"
     ],
     "correctIndex": 1,
@@ -229,10 +229,10 @@
     "difficulty": "medium",
     "question": "When is chain-of-thought prompting most useful?",
     "options": [
-      "When you want shorter, faster answers",
+      "When the task requires rapidly generating a high volume of creative variations and you need the model to explore as many different interpretations as possible without stopping to explain itself",
       "When you need creative writing with no constraints",
       "When the task involves multi-step reasoning such as math, logic, or planning",
-      "When you want the AI to summarise a single short paragraph"
+      "When you want the AI to condense a brief piece of text into a shorter version quickly without needing to explain its reasoning or decision process along the way"
     ],
     "correctIndex": 2,
     "explanation": "Asking the model to 'think step by step' improves accuracy on tasks that require intermediate reasoning — it externalises the working."
@@ -257,9 +257,9 @@
     "difficulty": "hard",
     "question": "Why does asking Claude to 'verify your answer before responding' not reliably prevent hallucinations?",
     "options": [
-      "Claude ignores instructions to self-verify",
+      "Self-verification prompts cause Claude to recursively re-examine every claim multiple times until it reaches a confidence threshold it cannot actually measure with any external reference",
       "The same model that produced a hallucination is being asked to judge it — it lacks external ground truth",
-      "Self-verification uses too many tokens",
+      "Running verification requires Claude to access external databases it doesn't have permission to query during a standard conversation, so the check always fails silently",
       "Claude's training data doesn't include factual information"
     ],
     "correctIndex": 1,
@@ -341,10 +341,10 @@
     "difficulty": "easy",
     "question": "Can Claude browse the internet and access live web pages during a conversation?",
     "options": [
-      "Yes, Claude always has live internet access",
+      "Yes, Claude automatically connects to the internet to verify any factual claim it makes, ensuring all responses reflect the most current and up-to-date information available at the time you ask",
       "Only when using a search tool or web browsing integration that has been explicitly enabled",
       "No, Claude never has internet access of any kind",
-      "Yes, but only for websites that are publicly available"
+      "Yes, but Claude can only browse public websites and requires you provide the exact URL of each page rather than searching by topic or keyword"
     ],
     "correctIndex": 1,
     "explanation": "Base Claude has a training cutoff and no live internet access. Web search or browsing must be explicitly enabled as a tool for Claude to access current information."
@@ -733,7 +733,7 @@
     "difficulty": "hard",
     "question": "What is a prompt injection attack on an AI agent?",
     "options": [
-      "Flooding the agent with thousands of prompts to crash it",
+      "Sending a sustained high-volume stream of API requests that overwhelm the agent's processing capacity and cause it to produce garbage output or become unresponsive to legitimate users",
       "Embedding malicious instructions in content the agent reads, so it executes attacker-controlled commands",
       "Stealing the system prompt by asking the agent to repeat it",
       "Using social engineering to trick a human supervisor into approving a malicious agent action"
@@ -761,9 +761,9 @@
     "difficulty": "hard",
     "question": "In a multi-agent system where one agent orchestrates others, what is a key failure mode to guard against?",
     "options": [
-      "The orchestrator agent using too many tokens per sub-task",
+      "The orchestrator consuming excessive resources by dispatching too many concurrent sub-agent requests without implementing proper rate limiting or backpressure mechanisms",
       "A sub-agent receiving a prompt injection that causes it to return malicious instructions the orchestrator then executes",
-      "Sub-agents producing outputs in different languages",
+      "Sub-agents being assigned overlapping tasks that result in duplicate work the orchestrator cannot reconcile, causing the overall workflow to produce inconsistent final results",
       "The orchestrator agent completing the task faster than expected"
     ],
     "correctIndex": 1,
@@ -978,5 +978,1055 @@
     ],
     "correctIndex": 1,
     "explanation": "Sandboxing isolates the agent's actions — fake databases, test email accounts, mock APIs — so you can observe its behaviour and catch bugs before it operates on live systems."
+  },
+  {
+    "id": "q71",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "What is the simplest way to improve a vague AI response?",
+    "options": [
+      "Reload the page and try again",
+      "Add more detail about what you want, who it's for, and what format you need",
+      "Type the same question in capital letters",
+      "Switch to a different AI tool"
+    ],
+    "correctIndex": 1,
+    "explanation": "Specificity is the fastest fix — telling the AI the purpose, audience, and format gives it what it needs to produce a useful response."
+  },
+  {
+    "id": "q72",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "What does it mean when people say AI should be used as a 'co-pilot, not an autopilot'?",
+    "options": [
+      "AI should only be used for aviation industry tasks",
+      "You should let AI handle everything so you can focus on higher-level strategic work",
+      "AI should assist and augment your work, with a human remaining in control of decisions",
+      "AI responses should always be reviewed by a second AI before use"
+    ],
+    "correctIndex": 2,
+    "explanation": "The co-pilot mindset means AI amplifies your capabilities but you stay in the driver's seat — making final calls, applying judgment, and owning the outcomes."
+  },
+  {
+    "id": "q73",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "When you ask an AI to 'write a subject line for this email', what type of prompting is this?",
+    "options": [
+      "Few-shot prompting with multiple examples provided upfront so the model can match the pattern",
+      "Zero-shot prompting — asking the model to perform a task with no examples",
+      "Chain-of-thought prompting that requires explicit step-by-step reasoning before answering",
+      "Role prompting that assigns the AI a specific professional identity before it responds"
+    ],
+    "correctIndex": 1,
+    "explanation": "Asking directly without examples is zero-shot — you're relying on the model's general training rather than showing it the pattern you want."
+  },
+  {
+    "id": "q74",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "What does it mean to ask an AI to 'act as' someone in a prompt?",
+    "options": [
+      "Asking the AI to roleplay as a human to pass the Turing test",
+      "Assigning the AI a persona or expertise that shapes how it responds",
+      "Requesting that the AI write in first-person narrative perspective only",
+      "A technique that gives the AI access to specialised databases for that profession"
+    ],
+    "correctIndex": 1,
+    "explanation": "Persona assignment — 'act as a UX researcher' or 'act as a lawyer' — primes the model to apply domain-specific framing and vocabulary to its response."
+  },
+  {
+    "id": "q75",
+    "category": "Prompt Craft",
+    "difficulty": "medium",
+    "question": "What does it mean to 'ground' an AI prompt with source material?",
+    "options": [
+      "Connecting the AI to a grounding electrode to prevent static buildup in the data centre",
+      "Providing the AI with specific documents or data and asking it to answer only based on that material",
+      "Using plain, earthly language instead of technical jargon to ensure the AI understands your question",
+      "Restricting the AI to responses that have been pre-approved by your organisation's compliance team"
+    ],
+    "correctIndex": 1,
+    "explanation": "Grounding means giving the model authoritative source material and asking it to draw only from that — reducing hallucinations by anchoring answers in provided evidence rather than training memory."
+  },
+  {
+    "id": "q76",
+    "category": "Prompt Craft",
+    "difficulty": "medium",
+    "question": "You're using an AI to draft replies to customer emails. Which practice best prevents inaccurate product information?",
+    "options": [
+      "Tell the AI to be more careful and double-check its own work before every response",
+      "Paste the relevant product documentation into the prompt and instruct the AI to answer only from those materials",
+      "Use a higher-capability model that is more likely to know your product details from training data",
+      "Ask the AI to flag any answer it is less than 100 percent confident about before sending"
+    ],
+    "correctIndex": 1,
+    "explanation": "Providing actual product documentation as context and constraining the AI to it is far more reliable than trusting training data or asking for self-reported confidence levels."
+  },
+  {
+    "id": "q77",
+    "category": "Prompt Craft",
+    "difficulty": "medium",
+    "question": "What is the purpose of adding 'think step by step' to a complex AI prompt?",
+    "options": [
+      "It slows the AI down so it uses fewer server resources during peak hours",
+      "It signals to the model to externalise intermediate reasoning, which improves accuracy on tasks requiring multiple logical steps",
+      "It forces the AI to produce exactly one sentence per step regardless of complexity",
+      "It activates a specialised reasoning module that is otherwise dormant in the model by default"
+    ],
+    "correctIndex": 1,
+    "explanation": "Chain-of-thought elicitation improves accuracy on complex tasks because it forces the model to produce verifiable intermediate steps rather than jumping to a conclusion."
+  },
+  {
+    "id": "q78",
+    "category": "Prompt Craft",
+    "difficulty": "medium",
+    "question": "What makes an AI output format instruction most effective?",
+    "options": [
+      "Using technical formatting terms that only developers understand so the AI takes them seriously",
+      "Being intentionally vague so the AI can choose the most natural format for each individual response",
+      "Specifying the exact structure you need — such as a numbered list, a table with named columns, or a JSON object with defined fields",
+      "Requesting the longest possible format to ensure the AI includes every piece of relevant information"
+    ],
+    "correctIndex": 2,
+    "explanation": "Concrete format specifications give the model a template to fill rather than leaving it to guess, resulting in predictable, parseable output."
+  },
+  {
+    "id": "q79",
+    "category": "Prompt Craft",
+    "difficulty": "hard",
+    "question": "What is 'tree of thought' prompting?",
+    "options": [
+      "A method for generating branching narrative stories with multiple alternate endings for the reader to choose between",
+      "A prompting technique where the model explores multiple reasoning paths in parallel and selects the most promising branch at each step",
+      "A hierarchical document structuring approach where the AI builds a heading outline before filling in body content",
+      "A technique for recursively breaking a complex prompt into sub-prompts until each is simple enough to answer individually"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tree of Thought extends chain-of-thought by having the model generate and evaluate multiple reasoning branches simultaneously, then continuing down the most promising path — improving hard planning tasks."
+  },
+  {
+    "id": "q80",
+    "category": "Prompt Craft",
+    "difficulty": "hard",
+    "question": "Why can adding more examples to a few-shot prompt sometimes hurt performance?",
+    "options": [
+      "There is a hard limit of five examples after which the model begins ignoring them entirely",
+      "Too many examples consume context window space and inconsistent examples can confuse the model about the intended pattern",
+      "Adding more examples increases the model's effective temperature, making outputs more random and less predictable",
+      "The model weights later examples more heavily so early examples become counterproductive noise in the reasoning"
+    ],
+    "correctIndex": 1,
+    "explanation": "More examples use more context and can introduce noise if inconsistent. A small set of high-quality, representative examples often outperforms a large set of mixed-quality ones."
+  },
+  {
+    "id": "q81",
+    "category": "Prompt Craft",
+    "difficulty": "hard",
+    "question": "What is 'meta-prompting' and when is it useful?",
+    "options": [
+      "Writing prompts in a programming language like Python instead of natural language for more precise control",
+      "Using an AI to help generate, evaluate, or improve the prompts you then use with the same or a different AI",
+      "Creating prompts that reference other prompts stored in a database for reuse across multiple sessions",
+      "Asking the AI to describe its own prompting preferences so you can tailor future instructions accordingly"
+    ],
+    "correctIndex": 1,
+    "explanation": "Meta-prompting uses AI to improve the prompting process itself — asking an AI to critique your draft prompt or generate better alternatives is useful when you're not sure how to frame a complex task."
+  },
+  {
+    "id": "q82",
+    "category": "Claude Features & Projects",
+    "difficulty": "easy",
+    "question": "Can Claude read and summarize uploaded PDF documents?",
+    "options": [
+      "No, Claude can only process plain text that you type or paste directly into the chat",
+      "Yes, Claude can read PDF files and other documents you upload within a conversation",
+      "Yes, but only if the PDF is under one page and contains no images or diagrams",
+      "Only with a special document-processing add-on that must be purchased through the enterprise plan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Claude can process uploaded documents including PDFs, reading their content and applying it to summarisation, Q&A, or analysis within the conversation."
+  },
+  {
+    "id": "q83",
+    "category": "Claude Features & Projects",
+    "difficulty": "easy",
+    "question": "What is 'Claude.ai' compared to the Claude API?",
+    "options": [
+      "Claude.ai is a mobile app; the Claude API is the desktop application version",
+      "Claude.ai is the consumer web interface for chatting with Claude; the Claude API lets developers integrate Claude into their own applications",
+      "Claude.ai uses a different and less powerful model than the Claude API for cost reasons",
+      "They are identical products — Claude.ai is just the marketing name for the Claude API"
+    ],
+    "correctIndex": 1,
+    "explanation": "Claude.ai is Anthropic's end-user product for direct conversations; the API gives developers programmatic access to the same models to build their own AI-powered applications."
+  },
+  {
+    "id": "q84",
+    "category": "Claude Features & Projects",
+    "difficulty": "easy",
+    "question": "What does Claude mean when it says it has a 'knowledge cutoff'?",
+    "options": [
+      "Claude stops processing after a certain number of words to prevent server overload",
+      "Claude's training data has a fixed end date, so it may not know about events that happened after that date",
+      "There is a daily limit on how many questions you can ask Claude before it needs to reset",
+      "Claude will refuse to answer questions about topics outside its approved subject matter"
+    ],
+    "correctIndex": 1,
+    "explanation": "The knowledge cutoff is the date after which no new information was included in Claude's training. For recent events, provide the relevant information in the prompt rather than assuming Claude knows it."
+  },
+  {
+    "id": "q85",
+    "category": "Claude Features & Projects",
+    "difficulty": "medium",
+    "question": "What is the 'system prompt' in the Claude API and how does it differ from a user message?",
+    "options": [
+      "They are interchangeable — both appear in the same conversation context and are treated identically",
+      "The system prompt sets standing instructions for the entire session before any user interaction; user messages are the real-time turn-by-turn conversation",
+      "The system prompt is a technical configuration file that sets model parameters like temperature and max context length",
+      "The system prompt is only visible to the developer building the app; user messages are shown in the chat interface"
+    ],
+    "correctIndex": 1,
+    "explanation": "The system prompt provides persistent framing — persona, rules, context — that applies to all turns. User messages are the conversational back-and-forth. Developers use the system prompt to shape behaviour across the entire session."
+  },
+  {
+    "id": "q86",
+    "category": "Claude Features & Projects",
+    "difficulty": "medium",
+    "question": "What is 'streaming' in the context of Claude API responses?",
+    "options": [
+      "Sending audio or video files to Claude for transcription and analysis within a conversation",
+      "Receiving the model's response token by token as it is generated, rather than waiting for the complete output before displaying anything",
+      "Connecting Claude to a live data stream such as a stock ticker or news feed for real-time information",
+      "Running Claude on multiple servers simultaneously to handle high volumes of requests in parallel"
+    ],
+    "correctIndex": 1,
+    "explanation": "Streaming delivers response tokens incrementally as they are generated — making the interface feel faster and more interactive since text appears progressively rather than after a full wait."
+  },
+  {
+    "id": "q87",
+    "category": "Claude Features & Projects",
+    "difficulty": "medium",
+    "question": "A Claude Project has a system prompt saying 'always respond in French'. A user asks in English. What happens?",
+    "options": [
+      "Claude ignores the system prompt because user messages always take precedence over operator instructions",
+      "Claude responds in French as instructed, regardless of the language the user wrote in",
+      "Claude asks the user to confirm they want a response in French before answering their question",
+      "Claude detects the conflict and defaults to English for the user's convenience"
+    ],
+    "correctIndex": 1,
+    "explanation": "System prompt instructions take precedence over the user's conversational language. If the system prompt mandates a language, Claude follows that instruction."
+  },
+  {
+    "id": "q88",
+    "category": "Claude Features & Projects",
+    "difficulty": "hard",
+    "question": "What is the difference between 'prompting' and 'fine-tuning' a language model?",
+    "options": [
+      "Prompting is for text tasks; fine-tuning is required for any image or audio processing work",
+      "Prompting changes the model's outputs by adjusting inputs at runtime; fine-tuning updates the model's actual weights using additional training data, changing its default behaviour permanently",
+      "Fine-tuning is a more expensive version of prompting that uses more compute but produces the same results",
+      "Prompting is only available on consumer products; fine-tuning is only available via the enterprise API tier"
+    ],
+    "correctIndex": 1,
+    "explanation": "Prompting is inference-time steering with no weight changes — fast and cheap but temporary. Fine-tuning trains the model on new examples to shift its underlying behaviour — costly upfront but more efficient for consistent tasks at scale."
+  },
+  {
+    "id": "q89",
+    "category": "Claude Features & Projects",
+    "difficulty": "hard",
+    "question": "What is 'constitutional AI' and how does it differ from RLHF?",
+    "options": [
+      "Constitutional AI uses government regulations as training data; RLHF uses human feedback from regulated industries only",
+      "Constitutional AI trains the model to critique and revise outputs against a written set of principles, reducing human labelling needed; RLHF uses human raters to rank model outputs and train a reward model",
+      "Constitutional AI is a theoretical framework only; RLHF is the only technique that has actually been implemented in production",
+      "They are identical techniques using different terminology — both produce the same training signal for the model"
+    ],
+    "correctIndex": 1,
+    "explanation": "RLHF requires large amounts of human-labelled preference data. Constitutional AI uses a written set of principles to generate AI feedback, reducing human annotation cost — Anthropic uses this approach to train Claude."
+  },
+  {
+    "id": "q90",
+    "category": "Claude Features & Projects",
+    "difficulty": "hard",
+    "question": "What does 'token' mean in the context of language models, and why does it matter for pricing?",
+    "options": [
+      "A token is a unique session ID; pricing is based on how many sessions you start per month regardless of message length",
+      "A token is roughly a word or word-fragment that the model processes; API pricing is calculated per thousand tokens of input and output, so longer prompts and responses cost more",
+      "A token is a security credential that expires after each API call; more secure endpoints require more tokens per request",
+      "A token is a measure of compute time; tasks that take longer to process use more tokens regardless of text length"
+    ],
+    "correctIndex": 1,
+    "explanation": "Models process text as tokens (roughly 0.75 words each on average). Since API pricing is per-token, the length of your prompts and the responses generated directly determines cost — making concise prompts more economical."
+  },
+  {
+    "id": "q91",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "easy",
+    "question": "What does Microsoft Copilot in PowerPoint help you do?",
+    "options": [
+      "Animate slides automatically using machine learning to detect the best transitions and timing",
+      "Generate slide content, suggest layouts, summarise presentations, and create speaker notes from your outline or document",
+      "Convert your completed slides into a polished video with an AI-generated voiceover narration",
+      "Automatically sync your PowerPoint slides to a SharePoint page for instant web publishing to your team"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot in PowerPoint can draft slides from a brief, convert a Word document into a presentation, suggest design improvements, and generate speaker notes — accelerating the creation process."
+  },
+  {
+    "id": "q92",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "easy",
+    "question": "What is the main risk when using Copilot to draft a client-facing document?",
+    "options": [
+      "Copilot might accidentally email the draft to the client before you have had a chance to review it",
+      "The AI may produce plausible-sounding content with factual errors, incorrect figures, or a tone that doesn't fit your relationship with the client",
+      "Copilot applies its own formatting that cannot be undone without completely resetting the document",
+      "The document will automatically be saved to OneDrive with public access permissions by default"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot can hallucinate facts, mix up figures, or use a generic tone that doesn't fit your specific client relationship. All AI-generated client content should be carefully reviewed before sending."
+  },
+  {
+    "id": "q93",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "easy",
+    "question": "If you join a Teams meeting late, what can Copilot do to help you catch up?",
+    "options": [
+      "Rewind the live audio stream to the start of the meeting so you can re-listen from the beginning without interrupting others",
+      "Provide a real-time summary of what has been discussed so far during the meeting",
+      "Pause the meeting for all attendees until you signal that you are ready to continue participating",
+      "Automatically notify all other attendees that you have joined late and need a brief recap from them"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot in Teams can generate a 'catch me up' summary of discussion before you joined, as long as transcription was enabled — no need to interrupt the meeting to ask."
+  },
+  {
+    "id": "q94",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "medium",
+    "question": "What is Microsoft's 'Copilot prompt gallery' designed for?",
+    "options": [
+      "Storing and displaying AI-generated images created with Microsoft Designer for your team to browse",
+      "A curated library of effective prompts for different M365 applications that users can adopt and adapt for their own work",
+      "A marketplace where developers can sell custom Copilot prompts to enterprise customers for a fee",
+      "An internal Microsoft tool used to test new prompting techniques before they are released publicly"
+    ],
+    "correctIndex": 1,
+    "explanation": "The Copilot prompt gallery provides ready-to-use prompt examples across Word, Excel, Teams, and other apps — helping users start with effective prompting without crafting everything from scratch."
+  },
+  {
+    "id": "q95",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "medium",
+    "question": "You ask Copilot in Outlook to draft a reply to a complex email thread. What should you check before sending?",
+    "options": [
+      "Whether the email was sent during business hours, since Copilot performs differently on after-hours messages",
+      "The accuracy of any facts or figures mentioned, the tone appropriateness for the relationship, and whether all key points were addressed",
+      "That Copilot used the correct email signature pulled from your Microsoft 365 profile settings",
+      "Only the subject line — Copilot's body content can generally be trusted as factually accurate"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot may miss nuances, misrepresent facts from the thread, or adopt an inappropriate tone. Always review accuracy, tone, and completeness before sending — you own the message once it leaves your inbox."
+  },
+  {
+    "id": "q96",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "medium",
+    "question": "What does the 'Work' tab versus the 'Web' tab in Microsoft 365 Copilot Chat control?",
+    "options": [
+      "Work mode uses a more formal writing style; Web mode uses casual language suitable for social media content",
+      "Work mode searches your Microsoft 365 data; Web mode uses Bing to search the public internet",
+      "Work mode is available to all users; Web mode requires an additional premium license upgrade to access",
+      "They control which AI model powers the response — Work uses Azure OpenAI, Web uses a different provider entirely"
+    ],
+    "correctIndex": 1,
+    "explanation": "The Work tab grounds responses in your organisational data via Microsoft Graph; the Web tab uses Bing for public internet answers. Switching between them controls the information source, not just the style."
+  },
+  {
+    "id": "q97",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "hard",
+    "question": "What is the Microsoft Semantic Index, and what role does it play in Copilot?",
+    "options": [
+      "A database of approved AI-generated content that Microsoft curates for enterprise customers to reuse",
+      "A vector-based index of your Microsoft 365 content that allows Copilot to find semantically relevant information beyond simple keyword matching",
+      "A ranking system that scores Copilot responses by quality before delivering them to the end user",
+      "A compliance feature that indexes all Copilot interactions for audit and e-discovery purposes"
+    ],
+    "correctIndex": 1,
+    "explanation": "The Semantic Index builds a vector representation of your M365 content so Copilot can find material by meaning — not just by exact word match — enabling it to surface relevant documents even when you don't use precise keywords."
+  },
+  {
+    "id": "q98",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "hard",
+    "question": "What is a 'Copilot agent' in Microsoft 365, and how does it differ from standard Copilot?",
+    "options": [
+      "A Copilot agent is Microsoft's name for a human employee who configures and maintains Copilot for an organisation",
+      "A Copilot agent is a custom AI built in Copilot Studio that can take multi-step actions, use specific knowledge sources, and be triggered by events — going beyond single-response interactions",
+      "A Copilot agent is a background process that monitors your M365 usage to suggest prompt improvements over time",
+      "Copilot agents are identical to standard Copilot but run on dedicated compute resources for enterprise SLA guarantees"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot agents (built in Copilot Studio) are autonomous assistants that can orchestrate multi-step workflows, connect to custom knowledge sources, respond to triggers, and take actions across systems — far beyond a standard chat response."
+  },
+  {
+    "id": "q99",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "hard",
+    "question": "How does Microsoft 365 Copilot prevent responses from exposing confidential data to unauthorised users?",
+    "options": [
+      "Copilot adds a visible watermark to all AI-generated content so recipients know it came from confidential sources",
+      "Copilot is bound by the same Microsoft 365 permission model — it will only surface content that the querying user already has access to via their assigned permissions and sensitivity labels",
+      "Copilot automatically redacts all names and figures from responses to prevent accidental data exposure before delivery",
+      "All Copilot responses are reviewed by Microsoft's trust and safety team before being delivered to any enterprise user"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot inherits the full Microsoft 365 permission model. If a user can't access a file due to role-based access controls or sensitivity labels, Copilot won't surface that file's content in responses."
+  },
+  {
+    "id": "q100",
+    "category": "AI Agents & Trust",
+    "difficulty": "easy",
+    "question": "What is the key difference between a simple chatbot and an AI agent?",
+    "options": [
+      "Chatbots use older AI technology while agents use the latest large language models available today",
+      "Chatbots give single responses to questions while agents can plan, use tools, and take sequences of actions to accomplish complex goals",
+      "Chatbots can only handle text while agents can process images, audio, and video in addition to text",
+      "There is no real difference — the terms chatbot and agent are used interchangeably across the industry"
+    ],
+    "correctIndex": 1,
+    "explanation": "A chatbot answers questions; an agent acts. Agents have a goal, a plan, and access to tools — they can browse the web, run code, call APIs, and chain multiple steps together."
+  },
+  {
+    "id": "q101",
+    "category": "AI Agents & Trust",
+    "difficulty": "easy",
+    "question": "Why is it important to log what actions an AI agent takes during a workflow?",
+    "options": [
+      "Logs are required by law for any commercial system that uses AI in a production environment",
+      "Logs let you understand what the agent did, debug failures, audit decisions, and satisfy compliance requirements when something goes wrong",
+      "Without logs, the agent cannot access external tools or APIs because authentication fails for unlogged sessions",
+      "Logging improves future performance by automatically feeding agent action data back into the training pipeline"
+    ],
+    "correctIndex": 1,
+    "explanation": "Agent action logs are your audit trail — when something goes wrong, logs tell you exactly what the agent did, in what order, with what inputs, making debugging and accountability possible."
+  },
+  {
+    "id": "q102",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "What is the 'planning' phase in an agentic workflow?",
+    "options": [
+      "A scheduled maintenance window where the agent pauses to consolidate and compress its accumulated memory",
+      "The step where the agent breaks a high-level goal into a sequence of concrete actions to execute",
+      "A required human review step where stakeholders must approve the agent's proposed actions before execution begins",
+      "The initial phase where the agent scans available tools and selects which ones to activate for the current task"
+    ],
+    "correctIndex": 1,
+    "explanation": "Before acting, an agent decomposes the goal: what information is needed, which tools to use, in what order. A good planning step reduces mid-task failures by catching logical conflicts early."
+  },
+  {
+    "id": "q103",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "What does 'agent memory' refer to in multi-step AI workflows?",
+    "options": [
+      "The RAM allocated to the AI model on the server infrastructure that runs the inference computation",
+      "Mechanisms that allow the agent to retain information across steps — such as a scratchpad, conversation history, or external database — so earlier findings inform later actions",
+      "The agent's ability to memorise user preferences and apply them to future conversations without being explicitly told",
+      "A security feature that automatically deletes sensitive data from the agent's context after each individual action"
+    ],
+    "correctIndex": 1,
+    "explanation": "Agent memory lets findings from early steps inform later decisions. Without it, every step starts blank — the agent can't build on what it learned. Memory types range from the context window to external vector stores."
+  },
+  {
+    "id": "q104",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "A user gives an AI assistant access to their inbox to help with work emails. What is a key risk to address upfront?",
+    "options": [
+      "The AI might format emails differently from the user's preferred style and spacing conventions",
+      "The AI could read, draft, or send emails it wasn't explicitly asked about, and mistakes could reach real recipients — clear scope limits and human review of outgoing messages are essential",
+      "Inbox access might cause the AI to run out of context window capacity and stop responding mid-conversation",
+      "The AI will permanently store all emails in its training data and might reproduce them in future conversations with others"
+    ],
+    "correctIndex": 1,
+    "explanation": "Giving an agent inbox access means it can act on real communications — errors have real consequences. Explicitly scope what the agent can read versus send, and require human approval for outgoing messages."
+  },
+  {
+    "id": "q105",
+    "category": "AI Agents & Trust",
+    "difficulty": "hard",
+    "question": "What is 'tool calling' (also called function calling) in an LLM context?",
+    "options": [
+      "A telephony integration that lets the AI handle customer service calls via a voice interface",
+      "A mechanism where the model outputs a structured request to invoke an external function or API, pauses for the result, and then incorporates that result into its response",
+      "A code generation feature that writes complete function implementations based on a natural language description",
+      "A debugging tool that traces which internal model functions were activated during processing of a given input"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tool calling lets models escape their training knowledge: they emit a structured call like {\"function\": \"search\", \"query\": \"...\"}, the host system executes it and returns the result, and the model uses that real data in its reply."
+  },
+  {
+    "id": "q106",
+    "category": "AI Agents & Trust",
+    "difficulty": "hard",
+    "question": "What does 'irreversibility' have to do with AI agent safety design?",
+    "options": [
+      "Irreversible model weights mean agents cannot be retrained after deployment, so initial alignment must be perfect from day one",
+      "Actions that cannot be undone — deleting data, sending messages, making purchases — require higher confidence thresholds or explicit human approval before the agent executes them",
+      "Irreversibility refers to the fact that agent conversation history cannot be deleted once saved to the platform logs",
+      "Only reversible file operations are permitted in all agentic systems by default; any destructive action is automatically blocked"
+    ],
+    "correctIndex": 1,
+    "explanation": "Safety-aware agent design classifies actions by reversibility: reading a file is harmless, deleting it is permanent. High-irreversibility actions should require confirmation or human-in-the-loop approval before execution."
+  },
+  {
+    "id": "q107",
+    "category": "AI Agents & Trust",
+    "difficulty": "hard",
+    "question": "What is the 'alignment problem' in AI, and why does it matter for business deployments?",
+    "options": [
+      "Alignment refers to making sure all AI tools use the same API specification so they can interoperate with each other",
+      "The alignment problem is ensuring an AI system pursues the goals humans actually want, not a misinterpretation of those goals — in business this means an agent optimising a narrow metric can cause unintended side effects",
+      "Alignment is a hardware concern about ensuring AI accelerators from different vendors are calibrated to the same standard",
+      "The alignment problem only applies to superintelligent future AI — current business AI tools are too limited to have real alignment issues"
+    ],
+    "correctIndex": 1,
+    "explanation": "Alignment means the AI pursues your actual intent, not a proxy metric. An agent told to 'maximise clicks' might use misleading headlines. Good deployment design specifies goals carefully and monitors for unintended optimisation paths."
+  },
+  {
+    "id": "q108",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "Which of these prompts would give you the most useful AI output for an executive presentation?",
+    "options": [
+      "Help with my slides",
+      "Create an outline for a 10-minute executive presentation on Q3 sales results for a non-technical audience, with 5 slides and one key insight per slide",
+      "Make my presentation better",
+      "Write the presentation for me"
+    ],
+    "correctIndex": 1,
+    "explanation": "Specifying the length, audience, structure, and content type gives the AI what it needs to produce a useful, targeted outline instead of generic filler content."
+  },
+  {
+    "id": "q109",
+    "category": "Prompt Craft",
+    "difficulty": "medium",
+    "question": "What does it mean to ask an AI for a 'structured output' like JSON?",
+    "options": [
+      "Asking the AI to sort its response items alphabetically before displaying them to the user",
+      "Requesting that the AI format its response in a machine-readable schema such as JSON or XML, so it can be directly consumed by code or another system without manual parsing",
+      "Telling the AI to use proper sentence structure and correct grammar throughout its entire response",
+      "Asking the AI to organise its response into clearly labelled sections using Markdown headers and bullet points"
+    ],
+    "correctIndex": 1,
+    "explanation": "Structured outputs let you use AI responses programmatically — parsing JSON fields, feeding them into databases, or triggering downstream logic — without writing extra parsing code to extract information from free text."
+  },
+  {
+    "id": "q110",
+    "category": "Claude Features & Projects",
+    "difficulty": "easy",
+    "question": "What does it mean when Claude says 'I'm not able to verify this'?",
+    "options": [
+      "Claude has lost its internet connection and cannot check the factual accuracy of the information",
+      "The statement falls outside Claude's reliable knowledge, and Claude is flagging uncertainty rather than asserting it as fact",
+      "A technical error has occurred that prevents Claude from processing the request at this time",
+      "The user needs to provide additional verification documents before Claude will be allowed to proceed"
+    ],
+    "correctIndex": 1,
+    "explanation": "Claude is designed to be honest about uncertainty. When it flags something as unverifiable, it's telling you that you should check authoritative sources rather than relying solely on its output."
+  },
+  {
+    "id": "q111",
+    "category": "Claude Features & Projects",
+    "difficulty": "medium",
+    "question": "What is the benefit of using multiple conversations in the same Claude Project rather than starting a new Project for each task?",
+    "options": [
+      "Multiple conversations in the same Project cost significantly less per token than creating new Projects each time",
+      "The Project's system instructions and uploaded documents remain active across all conversations, so you don't need to re-establish context each time",
+      "Claude builds persistent memory of your personal preferences that carries over automatically between all Projects you own",
+      "Using the same Project prevents Claude from giving contradictory answers across different conversations with different team members"
+    ],
+    "correctIndex": 1,
+    "explanation": "Projects persist system instructions and knowledge files — so every conversation starts with your preferred context pre-loaded. This eliminates re-prompting friction and keeps outputs consistent across your team."
+  },
+  {
+    "id": "q112",
+    "category": "AI Agents & Trust",
+    "difficulty": "easy",
+    "question": "What does it mean that an AI agent 'uses tools'?",
+    "options": [
+      "The agent physically manipulates hardware tools in a factory or warehouse setting via a robotics interface",
+      "The agent can call external functions or APIs — like web search, a calculator, or a database — to get real information or take real actions beyond its training knowledge",
+      "The agent has access to a special set of pre-approved answers that it retrieves rather than generating from scratch",
+      "The agent uses software development tools like compilers and debuggers to continuously improve its own underlying code"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tool use extends what an agent can do: instead of relying only on training, it can search the web, execute code, look up a database, or call an API — grounding responses in real, current information and actual actions."
+  },
+  {
+    "id": "q113",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "medium",
+    "question": "How can a manager best use Copilot in Teams to prepare for a one-on-one with a direct report?",
+    "options": [
+      "Ask Copilot to monitor the direct report's activity metrics across all Microsoft 365 apps and produce a detailed performance summary",
+      "Ask Copilot to summarise recent conversations, shared documents, and meeting discussions involving that person to surface relevant context before the meeting",
+      "Use Copilot to automatically schedule the meeting by scanning both calendars for the earliest free slot without asking either party",
+      "Ask Copilot to predict the direct report's mood based on sentiment analysis of their recent email and chat messages"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot can synthesise context from shared chat, meeting transcripts, and documents to help you arrive at a 1:1 prepared — surfacing open items and relevant content without manual searching."
+  },
+  {
+    "id": "q114",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "What is 'confirmation bias' in the context of AI-assisted decision making?",
+    "options": [
+      "When the AI confirms every request the user makes in order to avoid creating conflict or discomfort",
+      "When users selectively accept AI outputs that align with their existing beliefs and dismiss outputs that challenge them, creating a false sense of AI validation",
+      "When the AI requires two separate user confirmations before taking any action that could be considered irreversible",
+      "A training technique that biases the model toward confirming rather than denying or questioning user claims"
+    ],
+    "correctIndex": 1,
+    "explanation": "AI assistance can amplify confirmation bias: if you only review outputs that match your priors, you lose the value of AI as a challenger. Good AI use includes actively looking for outputs that contradict your assumptions."
+  },
+  {
+    "id": "q115",
+    "category": "Prompt Craft",
+    "difficulty": "hard",
+    "question": "What is 'context window poisoning' in an adversarial AI scenario?",
+    "options": [
+      "Adding low-quality data to the model's training set to degrade its overall performance on downstream tasks",
+      "Injecting carefully crafted text into the conversation history that manipulates the model's understanding of prior context, causing it to behave as if false events or instructions occurred",
+      "A denial-of-service attack that fills the context window with irrelevant content to prevent any useful processing",
+      "An attack on the inference server that corrupts the model's weights in memory during an active live conversation"
+    ],
+    "correctIndex": 1,
+    "explanation": "Context window poisoning exploits the model's reliance on conversation history — by inserting false 'prior messages', an attacker can make the model believe different instructions were given earlier in the session."
+  },
+  {
+    "id": "q116",
+    "category": "Claude Features & Projects",
+    "difficulty": "hard",
+    "question": "Why does Anthropic publish 'model cards' and 'system cards' for Claude?",
+    "options": [
+      "To satisfy financial reporting requirements for Anthropic's investors and board of directors",
+      "To provide transparency about the model's capabilities, limitations, training approach, and known risks — allowing users and organisations to make informed deployment decisions",
+      "To market the model's capabilities to enterprise customers through detailed benchmark comparisons with competitors",
+      "To comply with export control laws that require disclosure of AI model architecture details to government regulators"
+    ],
+    "correctIndex": 1,
+    "explanation": "Model and system cards are transparency documents: they describe what the model can and can't do, how it was trained, what harms were considered, and what safeguards are in place — enabling responsible deployment."
+  },
+  {
+    "id": "q117",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "easy",
+    "question": "Can Copilot in Excel create charts from your data?",
+    "options": [
+      "No, Copilot in Excel only helps with formulas and text explanations, not visual chart elements",
+      "Yes, Copilot can suggest and create charts based on your data and what you are trying to visualise",
+      "Yes, but only bar charts — other chart types require a premium add-on license from Microsoft",
+      "Only if your data is already formatted as an Excel table — unstructured ranges cannot be charted by Copilot"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot in Excel can analyse your data and generate charts to match your question — ask 'show me revenue by region as a chart' and it creates a visualisation without you manually inserting and configuring one."
+  },
+  {
+    "id": "q118",
+    "category": "AI Agents & Trust",
+    "difficulty": "hard",
+    "question": "What is the difference between an 'orchestrator' agent and a 'worker' sub-agent in a multi-agent system?",
+    "options": [
+      "The orchestrator is the user-facing chatbot; worker agents run in the background without any conversation interface at all",
+      "The orchestrator manages the overall goal, decomposes it into sub-tasks, and dispatches worker agents; worker agents execute specific sub-tasks and return results to the orchestrator",
+      "Orchestrators are built by system architects; worker agents are end-user customisations created through a no-code interface",
+      "There is no functional difference between them — the distinction is purely organisational for team naming clarity"
+    ],
+    "correctIndex": 1,
+    "explanation": "In multi-agent architectures, the orchestrator plans and coordinates while workers specialise and execute. A clear separation of concerns enables parallel task execution, specialisation, and easier debugging."
+  },
+  {
+    "id": "q119",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "If an AI response is too long and unfocused, what should you add to your next prompt?",
+    "options": [
+      "Ask the AI to 'be smarter' and more efficient with its choice of words throughout the response",
+      "Specify an exact length limit or a concrete format such as 'in three bullet points, each under 15 words'",
+      "Start a completely new conversation and rephrase the same question in different words",
+      "Tell the AI you are unhappy with the length and ask it to try again without any further guidance"
+    ],
+    "correctIndex": 1,
+    "explanation": "Concrete constraints — word counts, bullet limits, character caps — give the model a specific target to meet. Vague requests like 'be shorter' leave interpretation up to the model and often produce similar results."
+  },
+  {
+    "id": "q120",
+    "category": "Claude Features & Projects",
+    "difficulty": "medium",
+    "question": "What happens when a Claude conversation exceeds the model's context window limit?",
+    "options": [
+      "Claude automatically summarises the entire conversation and starts a fresh session using the summary as context",
+      "The oldest messages are dropped or truncated, and Claude may lose access to information from early in the conversation",
+      "Claude stops responding entirely and returns an error message until the user manually deletes some messages",
+      "Claude compresses all prior messages into a single hidden summary token that takes up virtually no context space"
+    ],
+    "correctIndex": 1,
+    "explanation": "When the context limit is reached, earlier content is truncated — Claude literally can no longer see what was said earlier. For long tasks, re-establish important context periodically or use Projects with persistent system prompts."
+  },
+  {
+    "id": "q121",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "What is a 'guardrail' in an AI agent deployment, and why is it important?",
+    "options": [
+      "Physical safety hardware installed around AI server rooms to prevent unauthorised physical access by staff",
+      "A constraint layer that prevents the agent from taking certain actions — like accessing restricted systems, spending above a threshold, or sending messages without approval — to limit harm from errors or misuse",
+      "A system that monitors the agent's output speed and automatically throttles it to prevent server overload during peaks",
+      "A required legal disclaimer that must appear at the start of every AI-generated document before the main content"
+    ],
+    "correctIndex": 1,
+    "explanation": "Guardrails are the safety fences of agent design: they define what actions are off-limits, trigger human review for high-risk operations, and enforce business rules that the underlying model might otherwise ignore."
+  },
+  {
+    "id": "q122",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "hard",
+    "question": "What is the role of Azure OpenAI Service in Microsoft 365 Copilot's architecture?",
+    "options": [
+      "Azure OpenAI is a competitor to Microsoft 365 Copilot and not part of its technical architecture",
+      "Azure OpenAI Service provides the underlying large language model that powers Copilot, running within Microsoft's cloud with enterprise data protection commitments",
+      "Azure OpenAI is only used for image generation features in Copilot; text generation uses a different proprietary Microsoft model",
+      "Azure OpenAI handles billing and licensing for Copilot subscriptions but is not involved in inference or response generation"
+    ],
+    "correctIndex": 1,
+    "explanation": "Microsoft 365 Copilot is powered by Azure OpenAI Service — Microsoft's managed deployment of OpenAI's models within Azure's compliance and security boundary, ensuring your data stays within the Microsoft cloud."
+  },
+  {
+    "id": "q123",
+    "category": "Prompt Craft",
+    "difficulty": "medium",
+    "question": "You need to translate a technical document for a non-expert audience. Which prompt approach produces the best results?",
+    "options": [
+      "Paste the document and say 'translate this to simple English' without any further context or guidance",
+      "Specify the target audience's background, the reading level you want, any terms that must stay technical, and ask for a glossary explaining those terms at the end",
+      "Ask the AI to 'dumb it down' and remove all technical content regardless of whether it is essential to meaning",
+      "Request the simplest possible version with no technical terms whatsoever, even if some accuracy must be sacrificed"
+    ],
+    "correctIndex": 1,
+    "explanation": "Defining the audience, reading level, and which terms stay technical gives the model clear editorial direction — preserving accuracy where needed while adapting tone and vocabulary precisely for your readers."
+  },
+  {
+    "id": "q124",
+    "category": "AI Agents & Trust",
+    "difficulty": "easy",
+    "question": "What is a hallucination risk specific to AI agents compared to simple chatbots?",
+    "options": [
+      "Agents hallucinate more often because they process much larger volumes of data per session than chatbots do",
+      "Agents can act on hallucinated information — creating files, sending messages, or calling APIs based on false premises — causing real-world consequences beyond just a wrong answer in a chat",
+      "Hallucination only affects text generation so agents that rely purely on tool calls are completely immune to it",
+      "Agent hallucinations are easier to detect because they always produce visibly broken tool call syntax that can be caught automatically"
+    ],
+    "correctIndex": 1,
+    "explanation": "A chatbot hallucination is a wrong answer you can ignore. An agent hallucination can trigger downstream actions — booking the wrong meeting, deleting the wrong file — making verification and guardrails essential."
+  },
+  {
+    "id": "q125",
+    "category": "Claude Features & Projects",
+    "difficulty": "easy",
+    "question": "What is 'Claude.ai Teams' designed for compared to the individual Claude.ai plan?",
+    "options": [
+      "Claude.ai Teams is a sports analytics product built for professional sports organisations and coaching staff",
+      "Claude.ai Teams adds collaboration features like shared Projects, centralised billing, and admin controls so organisations can deploy Claude consistently across a workforce",
+      "Claude.ai Teams allows multiple users to type simultaneously in the same shared chat window in real time",
+      "It is identical to the individual plan but allows the account holder to add up to five family members at no cost"
+    ],
+    "correctIndex": 1,
+    "explanation": "Teams plan adds the organisational layer: shared Projects so everyone uses the same context and instructions, admin controls over model access and usage, and consolidated billing — making Claude manageable at company scale."
+  },
+  {
+    "id": "q126",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "medium",
+    "question": "What is 'Copilot for Sales' and who is it designed for?",
+    "options": [
+      "A tool for creating animated sales presentations with AI-generated visuals and automatic transition effects",
+      "A specialised Copilot add-in for sales teams that surfaces CRM data from Salesforce or Dynamics 365 in Outlook and Teams to help sellers prepare for calls, draft emails, and update records",
+      "A pricing optimisation engine that uses AI to recommend personalised discounts based on individual customer history",
+      "A Microsoft Store product that helps retail employees answer product questions on the shop floor using a tablet"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot for Sales integrates CRM context into the productivity tools sellers already use — so when emailing a customer, they see account history, open opportunities, and can push meeting notes back to the CRM without leaving Outlook."
+  },
+  {
+    "id": "q127",
+    "category": "AI Agents & Trust",
+    "difficulty": "hard",
+    "question": "In a customer service AI agent, what is the 'escalation path' and why must it be designed before deployment?",
+    "options": [
+      "A feature that automatically increases the agent's capability tier when incoming requests become too complex for its current level",
+      "A pre-defined route for transferring a customer to a human agent when the AI cannot handle the case — including triggers, handoff data, and wait-time communication — so customers are never left in a dead end",
+      "A performance optimisation system that routes requests to faster servers during peak demand periods throughout the day",
+      "A pricing tier upgrade path triggered when a customer's account reaches enterprise-level usage thresholds in the system"
+    ],
+    "correctIndex": 1,
+    "explanation": "Every AI agent deployment must answer: what happens when the AI fails? The escalation path — when, how, and to whom a case transfers — must be designed upfront. A missing escalation path turns AI errors into customer service failures."
+  },
+  {
+    "id": "q128",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "What is a 'delimiter' in a prompt, and why is it useful?",
+    "options": [
+      "A special character used to end every prompt so the AI knows you have finished typing your request",
+      "Markers like triple quotes or XML tags that clearly separate different sections of a prompt — such as your instructions from the document you want the AI to analyse",
+      "A word count limit you include at the top of a prompt to prevent the AI from generating overly long responses",
+      "A type of prompt that limits the AI to responding only with simple yes or no answers to your question"
+    ],
+    "correctIndex": 1,
+    "explanation": "Delimiters — like triple backticks, <document> tags, or dashes — make prompt boundaries unambiguous. They prevent the AI from confusing your instructions with the content you want it to process."
+  },
+  {
+    "id": "q129",
+    "category": "Claude Features & Projects",
+    "difficulty": "medium",
+    "question": "Claude is asked to write code and then run it. Which Claude feature makes this possible?",
+    "options": [
+      "Extended Thinking mode, which allows Claude to simulate code execution within its internal reasoning steps",
+      "Claude Code, Anthropic's CLI agent that can actually write and execute code in your local environment via the terminal",
+      "The Artifacts panel, which has a built-in JavaScript runtime that can execute any code Claude generates",
+      "Claude cannot execute code under any circumstances — it can only write code for the user to run manually"
+    ],
+    "correctIndex": 1,
+    "explanation": "Claude Code is the agentic tool that takes Claude out of chat and into your terminal — it can read files, write code, run tests, and iterate based on results in your actual development environment."
+  },
+  {
+    "id": "q130",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "Why should an AI agent prefer 'reversible' actions over 'irreversible' ones when both achieve the same goal?",
+    "options": [
+      "Reversible actions are always faster to execute and consume fewer computational resources during processing",
+      "If a reversible action turns out to be wrong, it can be undone — limiting the damage. An irreversible mistake may be impossible or very costly to correct after the fact",
+      "Regulatory frameworks require reversibility for any AI action taken in a commercial production context",
+      "Reversible actions never require human approval, while irreversible actions must always be confirmed manually by a supervisor"
+    ],
+    "correctIndex": 1,
+    "explanation": "Preferring reversibility is a safety principle: move a file to trash rather than delete permanently; stage a draft rather than publish. This keeps mistakes recoverable while preserving the ability to course correct."
+  },
+  {
+    "id": "q131",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "easy",
+    "question": "What is Microsoft Designer and how does it relate to Copilot?",
+    "options": [
+      "Microsoft Designer is the new name for Microsoft Paint, updated with AI-powered drawing assistance tools",
+      "Microsoft Designer is an AI-powered graphic design tool that uses Copilot capabilities to help users create images, social media graphics, and visual content from text descriptions",
+      "Microsoft Designer is a tool for creating database schemas and entity relationship data models with AI assistance",
+      "It is a project management view in Microsoft Project that uses AI to suggest optimal resource assignments for teams"
+    ],
+    "correctIndex": 1,
+    "explanation": "Microsoft Designer is an AI-first design tool in the M365 family — it generates images, posters, social posts, and more from natural language prompts using the same Copilot AI infrastructure as other M365 apps."
+  },
+  {
+    "id": "q132",
+    "category": "AI Agents & Trust",
+    "difficulty": "hard",
+    "question": "What is 'agent evals' and why is it important before deploying an AI agent to production?",
+    "options": [
+      "Performance benchmarks that compare different AI vendors to select the most cost-effective option for your specific use case",
+      "A systematic evaluation process that tests agent behaviour across many scenarios — including edge cases, adversarial inputs, and failure modes — to measure reliability and surface problems before real users are affected",
+      "Annual employee performance evaluations for the AI engineering team that built and maintains the agent",
+      "A code review process where agent logic is manually inspected line by line for security vulnerabilities by senior engineers"
+    ],
+    "correctIndex": 1,
+    "explanation": "Agent evals are your quality gate: they run the agent against diverse test cases — happy paths, edge cases, and adversarial inputs — measuring accuracy, safety, and failure rate before production. Skipping evals means discovering problems on real users."
+  },
+  {
+    "id": "q133",
+    "category": "Prompt Craft",
+    "difficulty": "medium",
+    "question": "What is the most effective way to ask an AI to critique your own work?",
+    "options": [
+      "Simply ask 'what do you think?' and let the AI assess whatever aspects it finds most relevant",
+      "Specify the criteria for evaluation — the goal of the piece, the intended audience, and which specific aspects you want feedback on — so the critique is focused and actionable",
+      "Ask the AI to be 'brutally honest' without further guidance to ensure the harshest possible but useful feedback",
+      "Provide only positive framing to get the AI into an agreeable mindset before transitioning to asking for critique"
+    ],
+    "correctIndex": 1,
+    "explanation": "Targeted critique prompts — 'evaluate this proposal against these criteria for a technical audience' — produce specific, useful feedback. Open-ended requests produce generic observations that are hard to act on."
+  },
+  {
+    "id": "q134",
+    "category": "Claude Features & Projects",
+    "difficulty": "hard",
+    "question": "What is Anthropic's 'responsible scaling policy' and why does it matter?",
+    "options": [
+      "A data centre energy efficiency programme that limits compute growth to match available renewable energy capacity",
+      "A formal commitment to pause or limit model capability increases if evaluations reveal that a model poses serious safety risks — tying capability advancement to verified safety thresholds",
+      "A policy restricting how fast Anthropic can hire new staff to ensure quality control during rapid model development cycles",
+      "A pricing escalation schedule that increases API costs as model capabilities improve in order to fund ongoing safety research"
+    ],
+    "correctIndex": 1,
+    "explanation": "The responsible scaling policy (RSP) makes Anthropic's safety commitments concrete: before deploying or training a model above certain capability thresholds, safety evaluations must pass — tying business decisions to safety outcomes."
+  },
+  {
+    "id": "q135",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "medium",
+    "question": "What is 'Copilot in Viva' and what problem does it solve?",
+    "options": [
+      "An AI assistant for Viva Video that automatically edits and adds captions to recorded training content",
+      "Copilot integrated into Microsoft Viva employee experience apps — helping with learning, goal tracking, wellbeing nudges, and manager insights — to reduce manual effort in HR and people management workflows",
+      "A real-time translation tool for multinational teams embedded in the Viva Connections intranet portal",
+      "A compliance monitoring tool that automatically scans employee communications for policy violations and reports them to HR"
+    ],
+    "correctIndex": 1,
+    "explanation": "Microsoft Viva covers employee experience — engagement, learning, wellbeing, and performance. Copilot in Viva adds AI to these workflows: drafting goals, summarising engagement data, and helping managers write meaningful feedback."
+  },
+  {
+    "id": "q136",
+    "category": "AI Agents & Trust",
+    "difficulty": "easy",
+    "question": "Why is it important that an AI agent tells you what it plans to do before taking an irreversible action?",
+    "options": [
+      "It allows the AI to build conversational rapport with the user by demonstrating transparency before proceeding",
+      "It gives you the chance to catch a misinterpretation of your goal and stop a potentially harmful action before it happens",
+      "Regulations require all AI systems to narrate their planned actions for accessibility purposes before execution",
+      "It helps the AI train itself over time by receiving your confirmation as a positive reinforcement signal"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pre-action disclosure is a key safety pattern: if the agent says 'I'm about to delete 50 files — shall I proceed?' you can catch misunderstandings before they become costly mistakes."
+  },
+  {
+    "id": "q137",
+    "category": "Prompt Craft",
+    "difficulty": "hard",
+    "question": "What is 'prompt chaining' and when should you use it instead of a single long prompt?",
+    "options": [
+      "A technique for linking prompts to external databases so the AI can retrieve more information automatically on demand",
+      "Breaking a complex task into sequential steps where each AI output becomes the input for the next prompt — useful when different stages require different reasoning or when intermediate results need to be checked before proceeding",
+      "A security feature that chains multiple authentication prompts to verify a user's identity before the AI responds to sensitive requests",
+      "A billing optimisation where you connect multiple short prompts to share a context window and reduce total token cost per session"
+    ],
+    "correctIndex": 1,
+    "explanation": "Prompt chaining lets you decompose complex workflows: extract → validate → transform → format, with human or automated checkpoints between stages. More reliable than asking one long prompt to do everything."
+  },
+  {
+    "id": "q138",
+    "category": "Claude Features & Projects",
+    "difficulty": "easy",
+    "question": "When choosing between Claude's 'Sonnet' and 'Haiku' model tiers for a simple task, what is the key consideration?",
+    "options": [
+      "Haiku writes in verse while Sonnet writes in prose — the choice depends on your output format preference",
+      "Haiku is faster and cheaper, making it well-suited for simple, high-volume tasks where you don't need maximum capability",
+      "They are the same underlying model running at different speeds — Haiku is just a throttled version of Sonnet",
+      "Sonnet is the default for all tasks; Haiku is only available to developers through the API and not in Claude.ai"
+    ],
+    "correctIndex": 1,
+    "explanation": "The Haiku tier optimises for speed and cost — ideal for classification, simple Q&A, or high-volume tasks where Sonnet capability would be overkill. Matching model tier to task complexity saves money without sacrificing quality."
+  },
+  {
+    "id": "q139",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "hard",
+    "question": "What does 'oversharing' risk mean in the context of Microsoft 365 Copilot, and what should admins do about it?",
+    "options": [
+      "Users might accidentally attach the wrong file to a Copilot-drafted email — admins should disable file attachments within Copilot interactions entirely",
+      "Copilot may surface content that users technically have access to but shouldn't practically see — such as HR documents accessible via broad group permissions. Admins should audit and tighten permissions before enabling Copilot",
+      "Copilot shares usage telemetry with Microsoft too broadly — admins should opt out via the Microsoft 365 privacy dashboard settings",
+      "Users sharing their Copilot prompts with colleagues may inadvertently expose sensitive queries — admins should make all prompts private and non-shareable by default"
+    ],
+    "correctIndex": 1,
+    "explanation": "Copilot surfaces content that users have access to — but many M365 environments have overly broad permissions. Before enabling Copilot, admins should run a permissions audit to ensure users can only access what they should."
+  },
+  {
+    "id": "q140",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "What does 'scope creep' mean in an AI agent deployment, and how can it be prevented?",
+    "options": [
+      "The tendency for agent response times to gradually increase as the system handles more accumulated requests over time",
+      "An agent gradually taking on tasks beyond its original design as users discover it can handle more — which can introduce unreviewed risks. Prevented by clearly defining and enforcing what the agent is and is not authorised to do",
+      "A security vulnerability where the agent silently accesses files and systems outside its designated operational folder on the server",
+      "The accumulation of unused tool integrations that progressively slow the agent down — prevented by removing tools the agent no longer uses"
+    ],
+    "correctIndex": 1,
+    "explanation": "Users naturally push agents toward new tasks. Without clear authorisation boundaries, scope creep introduces unreviewed risks — an agent trusted with email drafts might end up sending messages autonomously. Define boundaries explicitly."
+  },
+  {
+    "id": "q141",
+    "category": "Prompt Craft",
+    "difficulty": "easy",
+    "question": "What is the best approach when you are not happy with an AI's first response?",
+    "options": [
+      "Start a completely new conversation from scratch and ask the exact same question again hoping for a different result",
+      "Refine your prompt with additional context, clarify what was missing or wrong, and ask the AI to try again with the new guidance",
+      "Report the response as incorrect so the AI can learn from its mistake and improve immediately",
+      "Ask a completely different question and hope the AI figures out what you originally intended from context"
+    ],
+    "correctIndex": 1,
+    "explanation": "Iterative prompting is more effective than restarting: tell the AI what was wrong or missing, and give it specific guidance to improve. The AI uses your feedback within the conversation to produce a better next attempt."
+  },
+  {
+    "id": "q142",
+    "category": "Claude Features & Projects",
+    "difficulty": "medium",
+    "question": "What is Claude's approach when it is uncertain about the answer to a factual question?",
+    "options": [
+      "Claude always provides a definitive answer to avoid appearing unhelpful or uninformed to the user",
+      "Claude is designed to express uncertainty, flag the limits of its knowledge, and suggest where to verify — rather than confidently asserting something it isn't sure about",
+      "Claude refuses to answer any question it cannot answer with complete certainty and verified sources",
+      "Claude provides three possible answers ranked by plausibility and asks the user to select which sounds most correct"
+    ],
+    "correctIndex": 1,
+    "explanation": "Honesty about uncertainty is a core Claude principle. Rather than confabulating a plausible-sounding answer, Claude is designed to acknowledge what it doesn't know and indicate where you should seek authoritative information."
+  },
+  {
+    "id": "q143",
+    "category": "Copilot & Microsoft 365",
+    "difficulty": "easy",
+    "question": "What does 'Copilot in Microsoft Loop' enable?",
+    "options": [
+      "A circular progress indicator that shows users exactly how long AI generation will take before the response arrives",
+      "AI-assisted collaborative content creation in Loop workspaces — drafting, summarising, and transforming content that all team members can then edit together in real time",
+      "A tool for creating looping animated GIFs from screenshots using the AI image generation capability built into Loop",
+      "Automated testing loops that verify Copilot output quality against a baseline before displaying the response to users"
+    ],
+    "correctIndex": 1,
+    "explanation": "Loop is Microsoft's collaborative canvas app. Copilot in Loop lets teams generate, summarise, and refine content together — AI-generated text becomes a shared editable artifact rather than a private chat response."
+  },
+  {
+    "id": "q144",
+    "category": "AI Agents & Trust",
+    "difficulty": "hard",
+    "question": "What is 'evals-driven development' in the context of building AI agents?",
+    "options": [
+      "A project management methodology where agent feature releases are gated by approval from executive evaluation panels",
+      "An approach where evaluation datasets and success metrics are defined before building the agent, then used continuously to measure whether changes improve or degrade performance — analogous to test-driven development in software",
+      "A technique where the agent evaluates its own outputs after each response and automatically refines them before final delivery",
+      "A hiring framework for AI teams that prioritises candidates with prior AI safety evaluation experience over software engineers"
+    ],
+    "correctIndex": 1,
+    "explanation": "Evals-driven development applies TDD discipline to AI: define how you'll measure success first, build to pass those evals, and gate releases on eval results. Without upfront evals, 'improvement' is subjective and regressions go undetected."
+  },
+  {
+    "id": "q145",
+    "category": "AI Agents & Trust",
+    "difficulty": "medium",
+    "question": "What does 'autonomy spectrum' mean when thinking about AI agent deployment?",
+    "options": [
+      "A Wi-Fi signal strength scale specific to AI-enabled IoT devices that operate without physical cable connections",
+      "The range from fully human-controlled (AI only suggests) to fully autonomous (AI decides and acts), with most enterprise deployments choosing a point in between that balances efficiency with acceptable risk",
+      "A performance benchmark that measures how independently an agent can complete tasks without hitting API rate limits",
+      "A regulatory framework that classifies AI systems by their level of independence for legal liability purposes"
+    ],
+    "correctIndex": 1,
+    "explanation": "There's no single right point on the autonomy spectrum — it depends on stakes, reversibility, and trust. New deployments typically start with high human oversight and gradually increase autonomy as reliability is demonstrated."
   }
 ]

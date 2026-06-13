@@ -224,6 +224,15 @@
 .vote-footer { display: flex; justify-content: center; padding-top: 8px; }
 
 /* ── Lobby phase ── */
+.lobby-countdown {
+  font-size: clamp(2.4rem, 10vw, 4rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--pit-accent, #38bdf8);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
 .lobby-social {
   font-size: 1.1rem;
   color: var(--pit-muted, rgba(200,220,255,0.55));
