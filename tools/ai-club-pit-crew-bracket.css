@@ -1,6 +1,6 @@
 /* ── Bracket overview ── */
 .bracket-overview-inner {
-  max-width: 860px;
+  max-width: 1200px;
 }
 
 .bracket-matchups {
@@ -203,7 +203,7 @@
 
 .bracket-recap {
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   gap: 6px;

@@ -322,7 +322,8 @@ function runVotePhase() {
     cleanupPreview();
     BUILD_GROUPS.forEach((g) => { if (!state.votes[g.id]) state.votes[g.id] = g.options[0].id; });
     applyVotesToTeam();
-    aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config });
+    new Promise((r) => { setTimeout(r, Math.random() * 400); })
+      .then(() => aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config }));
     goToPhase('lobby');
     runLobbyPhase();
   }
@@ -359,7 +360,8 @@ function runVotePhase() {
     clearInterval(timerInterval);
     cleanupPreview();
     applyVotesToTeam();
-    aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config });
+    new Promise((r) => { setTimeout(r, Math.random() * 400); })
+      .then(() => aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config }));
     goToPhase('lobby');
     runLobbyPhase();
   });
@@ -447,7 +449,7 @@ function runLobbyPhase() {
         counter.closest('.lobby-social').classList.add('lobby-pulse');
         setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
       }
-      if (status.phase === 'results' || teamsReady >= teamsTotal || Date.now() > Date.parse(expiresAt)) {
+      if (status.phase === 'results' || Date.now() > Date.parse(expiresAt)) {
         clearInterval(pollInterval);
         doAdvance();
       }

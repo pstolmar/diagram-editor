@@ -51,7 +51,7 @@ export function buildArenaRobot(scene, config = null, accentHex = null) {
 
   const bodyColor = accentHex ? new THREE.Color(accentHex) : 0x5b7dff;
   const body = new THREE.Mesh(
-    new THREE.BoxGeometry(2.2, 1.45, 2.7),
+    new THREE.BoxGeometry(2.2, 1.65, 2.7),
     new THREE.MeshStandardMaterial({ color: bodyColor, metalness: 0.25, roughness: 0.5, emissive: accentHex ? new THREE.Color(accentHex).multiplyScalar(0.18) : 0x102458, emissiveIntensity: 0.55 }),
   );
   body.castShadow = true;
@@ -133,7 +133,7 @@ export function buildArenaRobot(scene, config = null, accentHex = null) {
     new THREE.CylinderGeometry(0.45, 0.2, 0.16, 24),
     new THREE.MeshStandardMaterial({ color: 0x77f2ed, emissive: 0x184a4d, emissiveIntensity: 0.55 }),
   );
-  scannerDish.rotation.z = Math.PI / 2;
+  scannerDish.rotation.x = Math.PI / 2;
   scannerPivot.add(scannerDish);
 
   const pillow = new THREE.Mesh(

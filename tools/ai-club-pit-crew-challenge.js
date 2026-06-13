@@ -121,6 +121,15 @@ async function init() {
     }
   }
 
+  // Late-join spectator: game already over — skip straight to arena with default build
+  if (state.serverPhase === 'results' || (state.serverExpiresAt && Date.parse(state.serverExpiresAt) < Date.now())) {
+    const config = { mobility: 'balanced-treads', utility: 'robot-arm', care: 'cushion-mount', brain: 'structured-thinker' };
+    state.team = { ...state.team, config, score: computeScoreFromConfig(config) };
+    goToPhase('arena');
+    runArenaPhase();
+    return;
+  }
+
   const startPhase = params.get('startPhase') || 'assign';
   goToPhase(startPhase);
   if (startPhase === 'assign') runAssignPhase();
@@ -373,7 +382,8 @@ function runVotePhase() {
       if (!state.votes[g.id]) state.votes[g.id] = g.options[0].id;
     });
     applyVotesToTeam();
-    aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config });
+    new Promise((r) => { setTimeout(r, Math.random() * 400); })
+      .then(() => aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config }));
     goToPhase('lobby');
     runLobbyPhase();
   }
@@ -413,7 +423,8 @@ function runVotePhase() {
     clearInterval(timerInterval);
     cleanupPreview();
     applyVotesToTeam();
-    aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config });
+    new Promise((r) => { setTimeout(r, Math.random() * 400); })
+      .then(() => aioFetch('submit', { teamSlug: state.team.slug, build: state.team.config }));
     goToPhase('lobby');
     runLobbyPhase();
   });
@@ -512,7 +523,7 @@ function runLobbyPhase() {
         counter.closest('.lobby-social').classList.add('lobby-pulse');
         setTimeout(() => counter.closest('.lobby-social').classList.remove('lobby-pulse'), 400);
       }
-      if (status.phase === 'results' || teamsReady >= teamsTotal || Date.now() > Date.parse(expiresAt)) {
+      if (status.phase === 'results' || Date.now() > Date.parse(expiresAt)) {
         clearInterval(pollInterval);
         doAdvance();
       }
@@ -635,7 +646,7 @@ async function showPlayerRobotIntro() {
   const atmosphere = new THREE.Points(atmoGeo, new THREE.PointsMaterial({ color: 0x77f2ed, size: 0.08, transparent: true, opacity: 0.28, depthWrite: false }));
   scene.add(atmosphere);
 
-  const robot = buildArenaRobot(scene, state.team.config);
+  const robot = buildArenaRobot(scene, state.team.config, state.team.accent);
   const props = buildArenaProps(scene);
 
   const camTarget = new THREE.Vector3(0, 1.5, 0);
@@ -647,7 +658,7 @@ async function showPlayerRobotIntro() {
   function loop() {
     animId = requestAnimationFrame(loop);
     const t = clock.getElapsedTime();
-    robot.wheels.forEach((wheel, i) => { wheel.rotation.y += 0.042 + (i % 2) * 0.004; });
+    robot.wheels.forEach((wheel, i) => { wheel.children[0].rotation.y += 0.042 + (i % 2) * 0.004; });
     robot.bobGroup.position.y = Math.sin(t * 2.6) * 0.06;
     robot.legs.forEach(({ group, phase }) => {
       const swing = Math.sin(t * 6 + phase) * 0.28;
@@ -1256,15 +1267,16 @@ function buildSceneList(config) {
   return scenes;
 }
 
-function buildArenaRobot(scene, config = null) {
+function buildArenaRobot(scene, config = null, accentHex = null) {
   const { THREE } = window;
   const root = new THREE.Group();
   const bobGroup = new THREE.Group();
   root.add(bobGroup);
 
+  const bodyColor = accentHex ? new THREE.Color(accentHex) : 0x5b7dff;
   const body = new THREE.Mesh(
-    new THREE.BoxGeometry(2.2, 1.1, 2.7),
-    new THREE.MeshStandardMaterial({ color: 0x5b7dff, metalness: 0.25, roughness: 0.5, emissive: 0x102458, emissiveIntensity: 0.65 }),
+    new THREE.BoxGeometry(2.2, 1.65, 2.7),
+    new THREE.MeshStandardMaterial({ color: bodyColor, metalness: 0.25, roughness: 0.5, emissive: accentHex ? new THREE.Color(accentHex).multiplyScalar(0.18) : 0x102458, emissiveIntensity: 0.55 }),
   );
   body.castShadow = true;
   body.position.y = 1.15;
@@ -1274,7 +1286,7 @@ function buildArenaRobot(scene, config = null) {
     new THREE.BoxGeometry(1.05, 0.55, 1.05),
     new THREE.MeshStandardMaterial({ color: 0xd5ecff, emissive: 0x345d9a, emissiveIntensity: 0.25, roughness: 0.35 }),
   );
-  head.position.set(0, 1.95, 0.15);
+  head.position.set(0, 2.1, 0.15);
   head.castShadow = true;
   bobGroup.add(head);
 
@@ -1282,12 +1294,12 @@ function buildArenaRobot(scene, config = null) {
   const eyeMat = new THREE.MeshStandardMaterial({ color: 0x77f2ed, emissive: 0x77f2ed, emissiveIntensity: 1.2 });
   const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
   const eyeR = eyeL.clone();
-  eyeL.position.set(-0.22, 1.96, 0.62);
-  eyeR.position.set(0.22, 1.96, 0.62);
+  eyeL.position.set(-0.22, 2.12, 0.62);
+  eyeR.position.set(0.22, 2.12, 0.62);
   bobGroup.add(eyeL, eyeR);
 
   const armBase = new THREE.Group();
-  armBase.position.set(1.22, 1.42, -0.1);
+  armBase.position.set(1.22, 1.55, -0.1);
   armBase.rotation.z = -0.22;
   bobGroup.add(armBase);
 
@@ -1320,7 +1332,7 @@ function buildArenaRobot(scene, config = null) {
   forearmPivot.add(claw);
 
   const hookPivot = new THREE.Group();
-  hookPivot.position.set(-1.14, 1.42, -0.2);
+  hookPivot.position.set(-1.14, 1.55, -0.2);
   bobGroup.add(hookPivot);
 
   const cable = new THREE.Mesh(
@@ -1339,36 +1351,37 @@ function buildArenaRobot(scene, config = null) {
   hookPivot.add(hook);
 
   const scannerPivot = new THREE.Group();
-  scannerPivot.position.set(0, 2.15, -0.5);
+  scannerPivot.position.set(0, 2.35, 1.55);
   bobGroup.add(scannerPivot);
   const scannerDish = new THREE.Mesh(
     new THREE.CylinderGeometry(0.45, 0.2, 0.16, 24),
     new THREE.MeshStandardMaterial({ color: 0x77f2ed, emissive: 0x184a4d, emissiveIntensity: 0.55 }),
   );
-  scannerDish.rotation.z = Math.PI / 2;
+  scannerDish.rotation.x = Math.PI / 2;
   scannerPivot.add(scannerDish);
 
   const pillow = new THREE.Mesh(
     new THREE.BoxGeometry(0.72, 0.14, 0.72),
     new THREE.MeshStandardMaterial({ color: 0xb91010, roughness: 0.97, metalness: 0.0 }),
   );
-  pillow.position.set(0, 1.82, 0.0);
+  pillow.position.set(0, 1.97, 0.0);
   bobGroup.add(pillow);
 
   const legs = [];
-  const legMat = new THREE.MeshStandardMaterial({ color: 0x5b7dff, roughness: 0.6 });
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x8899aa, metalness: 0.5, roughness: 0.45 });
   const footMat = new THREE.MeshStandardMaterial({ color: 0x77f2ed, roughness: 0.5 });
-  [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]].forEach(([lx, lz], i) => {
+  [[-1.05, -0.9], [1.05, -0.9], [-1.05, 0.9], [1.05, 0.9]].forEach(([lx, lz], i) => {
     const legGroup = new THREE.Group();
     legGroup.position.set(lx, 0.55, lz);
-    const thigh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.55, 0.18), legMat);
+    legGroup.rotation.z = Math.sign(lx) * 0.32;
+    const thigh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), legMat);
     thigh.position.y = -0.28;
     legGroup.add(thigh);
-    const shin = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.45, 0.14), legMat);
-    shin.position.y = -0.78;
+    const shin = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.52, 0.18), legMat);
+    shin.position.y = -0.85;
     legGroup.add(shin);
-    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.1, 0.22), footMat);
-    foot.position.set(0, -1.05, 0.08);
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.12, 0.26), footMat);
+    foot.position.set(Math.sign(lx) * 0.1, -1.14, 0.06);
     legGroup.add(foot);
     root.add(legGroup);
     legs.push({ group: legGroup, phase: i * Math.PI * 0.5 });
@@ -1673,7 +1686,7 @@ function openMissionModal(team) {
   const atmosphere = new THREE.Points(atmoGeo, new THREE.PointsMaterial({ color: 0x77f2ed, size: 0.08, transparent: true, opacity: 0.28, depthWrite: false }));
   scene.add(atmosphere);
 
-  const robot = buildArenaRobot(scene, team.config);
+  const robot = buildArenaRobot(scene, team.config, team.accent);
   const props = buildArenaProps(scene);
 
   const target = new THREE.Vector3(0, 1.5, 0);
@@ -1685,7 +1698,7 @@ function openMissionModal(team) {
   function mLoop() {
     mAnimId = requestAnimationFrame(mLoop);
     const t = clock.getElapsedTime();
-    robot.wheels.forEach((wheel, i) => { wheel.rotation.y += 0.042 + (i % 2) * 0.004; });
+    robot.wheels.forEach((wheel, i) => { wheel.children[0].rotation.y += 0.042 + (i % 2) * 0.004; });
     robot.bobGroup.position.y = Math.sin(t * 2.6) * 0.06;
     robot.legs.forEach(({ group, phase }) => {
       const swing = Math.sin(t * 6 + phase) * 0.28;
