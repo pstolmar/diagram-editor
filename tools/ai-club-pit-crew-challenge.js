@@ -470,9 +470,13 @@ function runLobbyPhase() {
   Promise.all([
     import('/tools/ai-club-quiz.js'),
     fetch('/tools/ai-club-quiz-data.json').then((r) => r.json()),
-  ]).then(([{ initQuiz }, questions]) => {
+    fetch('/tools/ai-club-quiz-cited.json').then((r) => r.json()).catch(() => []),
+  ]).then(([{ initQuiz }, questions, citedPool]) => {
     quizInProgress = true;
+    const primaryCited = citedPool.filter((q) => q.id.startsWith('d'));
     initQuiz(quizContainer, questions, {
+      citedPool: primaryCited,
+      replayCitedPool: citedPool,
       onComplete: (score, total) => {
         quizInProgress = false;
         if (!quizSettled) { quizSettled = true; quizDoneResolve({ score, total }); }
@@ -1493,13 +1497,13 @@ function applyMissionCamera(kind, cameraState) {
     cameraState.target.set(1.2, 1.8, 1.8);
     cameraState.fov = 34;
   } else if (kind === 'cinematic') {
-    cameraState.position.set(6.2, 7.5, 5.9);
-    cameraState.target.set(4.2, 3.5, -3.5);
-    cameraState.fov = 32;
+    cameraState.position.set(-4.0, 6.0, 8.5);
+    cameraState.target.set(0, 1.2, 0);
+    cameraState.fov = 44;
   } else if (kind === 'driver') {
-    cameraState.position.set(0, 4.5, 2.2);
-    cameraState.target.set(0, 2.8, -4.2);
-    cameraState.fov = 56;
+    cameraState.position.set(0, 2.5, 4.5);
+    cameraState.target.set(0, 1.8, 0.5);
+    cameraState.fov = 54;
   } else {
     cameraState.position.set(-5.6, 7.8, 9.5);
     cameraState.target.set(0, 1.5, 0);
@@ -1705,6 +1709,13 @@ function openMissionModal(team) {
   const cameraState = { position: camera.position.clone(), target: target.clone(), fov: 42 };
   applyMissionCamera('third', cameraState);
 
+  // 'third' snaps to a fixed overview; 'driver' attaches to the robot front.
+  // 'cinematic' and 'close' use lerp and follow per-scene camera calls.
+  let camMode = 'third';
+  const LOCKED_CAMS = {
+    third: { pos: new THREE.Vector3(-5.6, 7.8, 9.5), tgt: new THREE.Vector3(0, 1.5, 0), fov: 42 },
+  };
+
   const clock = new THREE.Clock();
   let mAnimId;
   function mLoop() {
@@ -1723,9 +1734,21 @@ function openMissionModal(team) {
       });
     });
     atmosphere.rotation.y += 0.0008;
-    camera.position.lerp(cameraState.position, 0.08);
-    target.lerp(cameraState.target, 0.08);
-    camera.fov += (cameraState.fov - camera.fov) * 0.08;
+    const lock = LOCKED_CAMS[camMode];
+    if (camMode === 'driver') {
+      const rp = robot.root.position;
+      camera.position.set(rp.x, rp.y + 2.5, rp.z + 4.5);
+      target.set(rp.x, rp.y + 1.8, rp.z + 0.5);
+      camera.fov = 54;
+    } else if (lock) {
+      camera.position.copy(lock.pos);
+      target.copy(lock.tgt);
+      camera.fov = lock.fov;
+    } else {
+      camera.position.lerp(cameraState.position, 0.08);
+      target.lerp(cameraState.target, 0.08);
+      camera.fov += (cameraState.fov - camera.fov) * 0.08;
+    }
     camera.updateProjectionMatrix();
     camera.lookAt(target);
     renderer.render(scene, camera);
@@ -1744,7 +1767,8 @@ function openMissionModal(team) {
     btn.addEventListener('click', () => {
       modal.querySelectorAll('.mission-cam-btn').forEach((b) => b.classList.remove('is-active'));
       btn.classList.add('is-active');
-      applyMissionCamera(btn.dataset.cam, cameraState);
+      camMode = btn.dataset.cam;
+      applyMissionCamera(camMode, cameraState);
     });
   });
 

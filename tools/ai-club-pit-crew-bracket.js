@@ -403,9 +403,13 @@ function runLobbyPhase() {
   Promise.all([
     import('/tools/ai-club-quiz.js'),
     fetch('/tools/ai-club-quiz-data.json').then((r) => r.json()),
-  ]).then(([{ initQuiz }, questions]) => {
+    fetch('/tools/ai-club-quiz-cited.json').then((r) => r.json()).catch(() => []),
+  ]).then(([{ initQuiz }, questions, citedPool]) => {
     quizInProgress = true;
+    const primaryCited = citedPool.filter((q) => q.id.startsWith('d'));
     initQuiz(quizContainer, questions, {
+      citedPool: primaryCited,
+      replayCitedPool: citedPool,
       onComplete: (score, total) => {
         quizInProgress = false;
         if (!quizSettled) { quizSettled = true; quizDoneResolve({ score, total }); }

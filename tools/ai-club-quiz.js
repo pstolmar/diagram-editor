@@ -98,8 +98,12 @@ function handleAnswer(btn, allBtns, explanationEl, nextBtn, cornerBtn, question,
     });
   }
 
-  // Show explanation
-  explanationEl.textContent = question.explanation;
+  // Show explanation (with optional source citation link)
+  if (question.source) {
+    explanationEl.innerHTML = `${question.explanation} <a class="quiz-source-link" href="${question.source.url}" target="_blank" rel="noopener noreferrer">[${question.source.label} ↗]</a>`;
+  } else {
+    explanationEl.textContent = question.explanation;
+  }
   // Trigger reflow so transition fires
   // eslint-disable-next-line no-void
   void explanationEl.offsetWidth;
@@ -140,10 +144,13 @@ function renderEnd(containerEl, state, total, opts) {
     if (typeof opts.onReplay === 'function') {
       opts.onReplay();
     } else {
-      // Default: restart with the same questions stored on the container
-      const questions = containerEl.__quizQuestions;
+      const freshQuestions = selectQuestions(
+        containerEl.__quizPool,
+        containerEl.__quizReplayCitedPool,
+      );
+      containerEl.__quizQuestions = freshQuestions; // eslint-disable-line no-param-reassign
       const freshState = { index: 0, score: 0 };
-      renderQuestion(containerEl, questions, freshState, opts);
+      renderQuestion(containerEl, freshQuestions, freshState, opts);
     }
   });
 
@@ -153,12 +160,32 @@ function renderEnd(containerEl, state, total, opts) {
 }
 
 /**
- * Select 2 easy + 5 medium + 3 hard questions from the pool if difficulty fields exist.
+ * Shuffle a question's options randomly and update correctIndex to match.
+ * Prevents length/position tells across sessions.
  */
-function selectQuestions(pool) {
-  const hasDifficulty = pool.some((q) => q.difficulty);
-  if (!hasDifficulty) return pool;
+function shuffleQuestion(q) {
+  const idxs = q.options.map((_, i) => i);
+  for (let i = idxs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idxs[i], idxs[j]] = [idxs[j], idxs[i]];
+  }
+  return {
+    ...q,
+    options: idxs.map((i) => q.options[i]),
+    correctIndex: idxs.indexOf(q.correctIndex),
+    source: q.source,
+  };
+}
 
+/**
+ * Select questions maintaining difficulty tiers (2 easy + 5 medium + 3 hard).
+ * When citedPool is provided, 7 of 10 come from it:
+ *   easy:   1 cited + 1 regular
+ *   medium: 4 cited + 1 regular
+ *   hard:   2 cited + 1 regular
+ * Falls back to single-pool selection when citedPool is absent.
+ */
+function selectQuestions(pool, citedPool) {
   function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -168,15 +195,27 @@ function selectQuestions(pool) {
     return a;
   }
 
-  const easy = shuffle(pool.filter((q) => q.difficulty === 'easy'));
-  const medium = shuffle(pool.filter((q) => q.difficulty === 'medium'));
-  const hard = shuffle(pool.filter((q) => q.difficulty === 'hard'));
+  const pick = (src, diff, n) => shuffle(src.filter((q) => q.difficulty === diff)).slice(0, n);
 
-  return [
-    ...easy.slice(0, 2),
-    ...medium.slice(0, 5),
-    ...hard.slice(0, 3),
-  ];
+  let selected;
+  if (citedPool && citedPool.length) {
+    selected = shuffle([
+      ...pick(citedPool, 'easy', 2),
+      ...pick(citedPool, 'medium', 5),
+      ...pick(citedPool, 'hard', 3),
+    ]);
+  } else if (!pool.some((q) => q.difficulty)) {
+    selected = shuffle(pool).slice(0, 10);
+  } else {
+    selected = [
+      ...pick(pool, 'easy', 2),
+      ...pick(pool, 'medium', 5),
+      ...pick(pool, 'hard', 3),
+    ];
+  }
+
+  // Shuffle options within each question so A/B/C/D positions are random each game
+  return selected.map(shuffleQuestion);
 }
 
 /**
@@ -189,10 +228,12 @@ function selectQuestions(pool) {
  * @param {function} [opts.onReplay] - called when replay button is clicked
  */
 export function initQuiz(containerEl, questions, opts = {}) {
-  // Select questions by difficulty if pool is large enough
-  const selectedQuestions = selectQuestions(questions);
+  const selectedQuestions = selectQuestions(questions, opts.citedPool);
   const state = { index: 0, score: 0 };
   containerEl.__quizQuestions = selectedQuestions; // eslint-disable-line no-param-reassign
+  containerEl.__quizPool = questions; // eslint-disable-line no-param-reassign
+  containerEl.__quizCitedPool = opts.citedPool; // eslint-disable-line no-param-reassign
+  containerEl.__quizReplayCitedPool = opts.replayCitedPool || opts.citedPool; // eslint-disable-line no-param-reassign
   renderQuestion(containerEl, selectedQuestions, state, opts);
 }
 
@@ -200,7 +241,10 @@ export function initQuiz(containerEl, questions, opts = {}) {
 (async () => {
   const shell = document.querySelector('.quiz-shell');
   if (!shell) return;
-  const res = await fetch('/tools/ai-club-quiz-data.json');
-  const questions = await res.json();
-  initQuiz(shell, questions);
+  const [questions, citedPool] = await Promise.all([
+    fetch('/tools/ai-club-quiz-data.json').then((r) => r.json()),
+    fetch('/tools/ai-club-quiz-cited.json').then((r) => r.json()),
+  ]);
+  const primaryCited = citedPool.filter((q) => q.id.startsWith('d'));
+  initQuiz(shell, questions, { citedPool: primaryCited, replayCitedPool: citedPool });
 })();

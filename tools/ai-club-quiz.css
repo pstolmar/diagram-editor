@@ -280,6 +280,23 @@
   color: #08111d;
 }
 
+/* Source citation link */
+.quiz-source-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--quiz-accent);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.quiz-source-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .quiz-card,
