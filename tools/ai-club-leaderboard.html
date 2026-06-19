@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Club Leaderboard</title>
+  <link rel="stylesheet" href="/tools/ai-club-scavengers.css">
+  <style>
+    .leaderboard-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .podium {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-bottom: 18px;
+    }
+
+    .podium-card {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .podium-rank {
+      color: var(--pit-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.72rem;
+    }
+
+    .podium-score {
+      display: block;
+      margin-top: 10px;
+      font-size: 2.4rem;
+      color: var(--pit-lime);
+      font-weight: 800;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .leaderboard-table th {
+      color: var(--pit-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.72rem;
+    }
+
+    .leaderboard-score {
+      font-size: 1.5rem;
+      color: var(--pit-lime);
+      font-weight: 800;
+    }
+
+    .leaderboard-muted {
+      color: var(--pit-muted);
+      font-size: 0.84rem;
+    }
+
+    .leaderboard-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <main class="pit-app">
+    <section class="leaderboard-shell">
+      <header class="hero-card">
+        <p class="eyebrow">Host View</p>
+        <h1>Mock Leaderboard</h1>
+        <p class="hero-copy">
+          This page reads the locally simulated score submissions from the sandbox flow. It is meant for host rehearsal before a real submit endpoint is wired in.
+        </p>
+      </header>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Current Standings</p>
+            <h2>Top Teams</h2>
+          </div>
+          <div class="leaderboard-actions">
+            <button class="mini-button" id="refresh-board" type="button">Refresh</button>
+            <button class="mini-button" id="clear-board" type="button">Clear Mock Scores</button>
+            <a class="mini-button" href="/tools/ai-club-sandbox.html">Back To Sandbox</a>
+          </div>
+        </div>
+        <div class="podium" id="podium"></div>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>Score</th>
+              <th>Scenes</th>
+              <th>Build</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body"></tbody>
+        </table>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'ai-club-scavengers:leaderboard';
+    const body = document.getElementById('leaderboard-body');
+    const podium = document.getElementById('podium');
+    const refreshBtn = document.getElementById('refresh-board');
+    const clearBtn = document.getElementById('clear-board');
+
+    function loadRows() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function renderRows() {
+      const rows = loadRows().sort((a, b) => b.projectedScore - a.projectedScore || a.teamName.localeCompare(b.teamName));
+      body.innerHTML = '';
+      podium.innerHTML = '';
+
+      if (!rows.length) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" class="leaderboard-muted">No mock submissions yet. Use Mock Submit Score in a team bay first.</td>';
+        body.append(row);
+        return;
+      }
+
+      rows.slice(0, 3).forEach((entry, index) => {
+        const card = document.createElement('section');
+        card.className = 'podium-card';
+        card.innerHTML = `
+          <div class="podium-rank">#${index + 1}</div>
+          <h3>${entry.teamName}</h3>
+          <div class="leaderboard-muted">${entry.teamSlug}</div>
+          <span class="podium-score">${entry.projectedScore}</span>
+          <div class="leaderboard-muted">${(entry.scenes || []).join(', ')}</div>
+        `;
+        podium.append(card);
+      });
+
+      rows.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>
+            <strong>${entry.teamName}</strong>
+            <div class="leaderboard-muted">${entry.teamSlug}</div>
+          </td>
+          <td><span class="leaderboard-score">${entry.projectedScore}</span></td>
+          <td>${(entry.scenes || []).join(', ')}</td>
+          <td>${Object.entries(entry.build || {}).map(([k, v]) => `${k}: ${v}`).join('<br>')}</td>
+          <td class="leaderboard-muted">${entry.submittedAt || ''}</td>
+        `;
+        body.append(row);
+      });
+    }
+
+    refreshBtn.addEventListener('click', renderRows);
+    clearBtn.addEventListener('click', () => {
+      localStorage.removeItem(STORAGE_KEY);
+      renderRows();
+    });
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEY) renderRows();
+    });
+
+    setInterval(renderRows, 5000);
+
+    renderRows();
+  </script>
+</body>
+</html>

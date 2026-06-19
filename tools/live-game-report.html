@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live Game Results — AI Robot Challenge</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#07070f;color:#e0e0ec;min-height:100vh;padding:36px 28px}
+.wrap{max-width:1200px;margin:0 auto}
+h1{font-size:28px;font-weight:900;color:#fff;letter-spacing:-.5px}
+.meta{font-size:12px;color:#555;margin-top:5px;margin-bottom:36px}
+.meta strong{color:#888}
+
+/* Podium */
+.podium-row{display:flex;gap:16px;align-items:flex-end;margin-bottom:36px;justify-content:center}
+.podium-block{border-radius:14px 14px 0 0;padding:20px 28px;text-align:center;position:relative;min-width:220px}
+.podium-block.first{background:linear-gradient(160deg,#2a2000,#1a1500);border:2px solid #D4A017;padding-top:28px}
+.podium-block.second{background:linear-gradient(160deg,#1a1a1a,#111);border:2px solid #888}
+.podium-block.third{background:linear-gradient(160deg,#1a1008,#110a05);border:2px solid #a07040}
+.podium-medal{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:32px;line-height:1}
+.podium-place{font-size:10px;font-weight:700;letter-spacing:1.5px;color:#555;text-transform:uppercase;margin-bottom:8px}
+.podium-team{font-size:15px;font-weight:800;margin-bottom:4px}
+.podium-score{font-size:30px;font-weight:900}
+.podium-players{font-size:11px;color:#555;margin-top:4px}
+.podium-note{font-size:9px;margin-top:6px;padding:3px 8px;border-radius:10px;display:inline-block}
+
+/* Full leaderboard */
+.section-label{font-size:9.5px;font-weight:700;letter-spacing:1.4px;color:#5a5a8a;text-transform:uppercase;margin-bottom:14px}
+.lb{background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;margin-bottom:28px}
+.lb-row{display:flex;align-items:center;padding:12px 20px;border-bottom:1px solid #111120;gap:16px}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{width:28px;font-size:18px;font-weight:900;color:#333;flex-shrink:0}
+.lb-rank.gold{color:#D4A017}
+.lb-rank.silver{color:#aaa}
+.lb-rank.bronze{color:#a07040}
+.lb-name{flex:1;font-size:14px;font-weight:700}
+.lb-players{font-size:11px;color:#555;margin-top:2px}
+.lb-bar-wrap{width:320px;flex-shrink:0}
+.lb-bar-bg{background:#111120;border-radius:6px;height:10px;overflow:hidden}
+.lb-bar-fill{height:10px;border-radius:6px;transition:width .4s}
+.lb-score{width:70px;text-align:right;font-size:22px;font-weight:900;flex-shrink:0}
+.lb-pts{font-size:9px;color:#444;font-weight:400}
+
+/* Team distribution */
+.dist-chart{background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;padding:20px 24px;margin-bottom:28px}
+.dist-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.dist-row:last-child{margin-bottom:0}
+.dist-label{width:200px;font-size:12px;font-weight:600;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dist-bar-bg{flex:1;background:#111120;border-radius:6px;height:20px;overflow:hidden;position:relative}
+.dist-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 8px}
+.dist-count{font-size:11px;font-weight:700;color:#000;opacity:.85}
+.dist-pct{font-size:11px;color:#555;width:36px;text-align:right;flex-shrink:0}
+
+/* Team cards */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+.team-card{background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden}
+.team-card-head{padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;justify-content:space-between;align-items:center}
+.team-card-body{padding:14px}
+.tier-mini{margin-bottom:6px}
+.tier-mini-label{font-size:8.5px;font-weight:700;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
+.tier-mini-bar{display:flex;gap:3px;align-items:center}
+.tier-opt{font-size:9px;padding:2px 6px;border-radius:4px;background:#111120;flex-shrink:0;white-space:nowrap}
+.tier-opt.winner{font-weight:700}
+.vote-dot{width:6px;height:6px;border-radius:50%;background:#333;flex-shrink:0}
+.vote-dot.cast{background:currentColor}
+
+/* Callouts */
+.callout-row{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.callout{background:#0e0e18;border:1px solid #1a1a2c;border-radius:12px;padding:14px 18px;flex:1;min-width:220px}
+.callout-icon{font-size:22px;margin-bottom:6px}
+.callout-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+.callout-body{font-size:11px;color:#666;line-height:1.5}
+.callout-body strong{color:#aaa}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>AI Robot Challenge — Live Game Results</h1>
+<div class="meta">
+  <strong>Session:</strong> 2026-06-19 · 16:40 – 16:45 UTC &nbsp;·&nbsp;
+  <strong>Players:</strong> 16 &nbsp;·&nbsp;
+  <strong>Teams:</strong> 8 of 8 &nbsp;·&nbsp;
+  <strong>Timer:</strong> 5 minutes · phase ended on expiry
+</div>
+
+<!-- ── PODIUM ─────────────────────────────────────────────────── -->
+<div class="section-label">Top Teams</div>
+<div class="podium-row">
+
+  <!-- 2nd: Prompt Engineers -->
+  <div class="podium-block second" style="padding-bottom:0">
+    <div class="podium-medal">🥈</div>
+    <div class="podium-place">2nd place</div>
+    <div class="podium-team" style="color:#4488ee">Prompt Engineers</div>
+    <div class="podium-score" style="color:#4488ee">1000</div>
+    <div class="podium-players">2 players</div>
+    <div class="podium-note" style="background:#0a1428;color:#4488ee">3 tiers decided by tiebreak · all chose best</div>
+  </div>
+
+  <!-- 1st: LLM Dreamers -->
+  <div class="podium-block first" style="padding-bottom:0">
+    <div class="podium-medal">🥇</div>
+    <div class="podium-place" style="color:#aa8800">1st place (tied)</div>
+    <div class="podium-team" style="color:#D4A017">LLM Dreamers</div>
+    <div class="podium-score" style="color:#D4A017">1000</div>
+    <div class="podium-players">2 players</div>
+    <div class="podium-note" style="background:#1a1400;color:#D4A017">Perfect score · 2 tiebreaks won</div>
+  </div>
+
+  <!-- 3rd: Search Party -->
+  <div class="podium-block third" style="padding-bottom:0">
+    <div class="podium-medal">🥉</div>
+    <div class="podium-place">3rd place</div>
+    <div class="podium-team" style="color:#28c060">Search Party</div>
+    <div class="podium-score" style="color:#28c060">900</div>
+    <div class="podium-players">2 players</div>
+    <div class="podium-note" style="background:#081408;color:#28c060">Unanimous on utility · 1 tiebreak</div>
+  </div>
+
+</div>
+
+<!-- ── FULL LEADERBOARD ───────────────────────────────────────── -->
+<div class="section-label">Full Leaderboard</div>
+<div class="lb">
+
+  <!-- LLM Dreamers 1000 -->
+  <div class="lb-row">
+    <div class="lb-rank gold">1</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#2abaee">LLM Dreamers</div>
+      <div class="lb-players">2 players · perfect score · 2 ties resolved to max</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:100%;background:#2abaee"></div></div>
+    </div>
+    <div class="lb-score" style="color:#2abaee">1000<span class="lb-pts"> pts</span></div>
+  </div>
+
+  <!-- Prompt Engineers 1000 -->
+  <div class="lb-row">
+    <div class="lb-rank gold">1</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#4488ee">Prompt Engineers</div>
+      <div class="lb-players">2 players · perfect score · 3 ties resolved to max</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:100%;background:#4488ee"></div></div>
+    </div>
+    <div class="lb-score" style="color:#4488ee">1000<span class="lb-pts"> pts</span></div>
+  </div>
+
+  <!-- Search Party 900 -->
+  <div class="lb-row">
+    <div class="lb-rank bronze">3</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#28c060">Search Party</div>
+      <div class="lb-players">2 players · utility unanimous · brain tiebreak won</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:90%;background:#28c060"></div></div>
+    </div>
+    <div class="lb-score" style="color:#28c060">900<span class="lb-pts"> pts</span></div>
+  </div>
+
+  <!-- Token Titans 825 -->
+  <div class="lb-row">
+    <div class="lb-rank" style="color:#666">4</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#D4A017">Token Titans</div>
+      <div class="lb-players">2 players · mobility unanimous heavy-lift cost them the lead</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:82.5%;background:#D4A017"></div></div>
+    </div>
+    <div class="lb-score" style="color:#D4A017">825<span class="lb-pts"> pts</span></div>
+  </div>
+
+  <!-- Agents of Chaos 650 -->
+  <div class="lb-row">
+    <div class="lb-rank" style="color:#666">5</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#ee4444">Agents of Chaos</div>
+      <div class="lb-players">3 players (most on any team) · majority chose heavy-lift</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:65%;background:#ee4444"></div></div>
+    </div>
+    <div class="lb-score" style="color:#ee4444">650<span class="lb-pts"> pts</span></div>
+  </div>
+
+  <!-- Context Window Warriors 550 -->
+  <div class="lb-row">
+    <div class="lb-rank" style="color:#666">6</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#8a4aee">Context Window Warriors</div>
+      <div class="lb-players">1 player (solo) · scout-legs + fast-guesser hurt the score</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:55%;background:#8a4aee"></div></div>
+    </div>
+    <div class="lb-score" style="color:#8a4aee">550<span class="lb-pts"> pts</span></div>
+  </div>
+
+  <!-- Mixture of Experts 375 -->
+  <div class="lb-row">
+    <div class="lb-rank" style="color:#555">7</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#e07820">Mixture of Experts</div>
+      <div class="lb-players">3 players · majority on suction-cup + heavy-lift both times</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:37.5%;background:#e07820"></div></div>
+    </div>
+    <div class="lb-score" style="color:#e07820">375<span class="lb-pts"> pts</span></div>
+  </div>
+
+  <!-- The Verifiers 375 -->
+  <div class="lb-row">
+    <div class="lb-rank" style="color:#555">7</div>
+    <div style="flex:1">
+      <div class="lb-name" style="color:#aaa">The Verifiers</div>
+      <div class="lb-players">1 player (solo) · picked verifier brain (fitting!) but heavy-lift + suction-cup hurt</div>
+    </div>
+    <div class="lb-bar-wrap">
+      <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:37.5%;background:#aaa"></div></div>
+    </div>
+    <div class="lb-score" style="color:#aaa">375<span class="lb-pts"> pts</span></div>
+  </div>
+
+</div>
+
+<!-- ── PLAYER DISTRIBUTION ────────────────────────────────────── -->
+<div class="section-label">Player Distribution — who was on each team</div>
+<div class="dist-chart">
+  <!-- 3 players -->
+  <div class="dist-row">
+    <div class="dist-label" style="color:#ee4444">Agents of Chaos</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:100%;background:#ee4444">
+        <span class="dist-count">3 players</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#ee4444">3</div>
+  </div>
+  <div class="dist-row">
+    <div class="dist-label" style="color:#e07820">Mixture of Experts</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:100%;background:#e07820">
+        <span class="dist-count">3 players</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#e07820">3</div>
+  </div>
+  <!-- 2 players -->
+  <div class="dist-row">
+    <div class="dist-label" style="color:#2abaee">LLM Dreamers</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:66.6%;background:#2abaee">
+        <span class="dist-count">2 players</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#2abaee">2</div>
+  </div>
+  <div class="dist-row">
+    <div class="dist-label" style="color:#4488ee">Prompt Engineers</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:66.6%;background:#4488ee">
+        <span class="dist-count">2 players</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#4488ee">2</div>
+  </div>
+  <div class="dist-row">
+    <div class="dist-label" style="color:#28c060">Search Party</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:66.6%;background:#28c060">
+        <span class="dist-count">2 players</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#28c060">2</div>
+  </div>
+  <div class="dist-row">
+    <div class="dist-label" style="color:#D4A017">Token Titans</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:66.6%;background:#D4A017">
+        <span class="dist-count">2 players</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#D4A017">2</div>
+  </div>
+  <!-- 1 player -->
+  <div class="dist-row">
+    <div class="dist-label" style="color:#8a4aee">Context Window Warriors</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:33.3%;background:#8a4aee">
+        <span class="dist-count">1 player</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#8a4aee">1</div>
+  </div>
+  <div class="dist-row">
+    <div class="dist-label" style="color:#aaa">The Verifiers</div>
+    <div class="dist-bar-bg">
+      <div class="dist-bar" style="width:33.3%;background:#aaa">
+        <span class="dist-count">1 player</span>
+      </div>
+    </div>
+    <div class="dist-pct" style="color:#aaa">1</div>
+  </div>
+</div>
+
+<!-- ── CALLOUTS ───────────────────────────────────────────────── -->
+<div class="section-label">Game Highlights</div>
+<div class="callout-row">
+  <div class="callout">
+    <div class="callout-icon">🤝</div>
+    <div class="callout-title">Dead Tie at the Top</div>
+    <div class="callout-body"><strong>LLM Dreamers</strong> and <strong>Prompt Engineers</strong> both scored a perfect 1000. Both teams had split votes on multiple tiers — but every single tiebreak resolved to the highest-scoring option.</div>
+  </div>
+  <div class="callout">
+    <div class="callout-icon">🎲</div>
+    <div class="callout-title">More Players ≠ Better Score</div>
+    <div class="callout-body"><strong>Agents of Chaos</strong> (3 players) and <strong>Mixture of Experts</strong> (3 players) were the most popular teams yet ranked 5th and 7th. Solo players on <strong>Context Window Warriors</strong> and <strong>The Verifiers</strong> outscored Mixture of Experts.</div>
+  </div>
+  <div class="callout">
+    <div class="callout-icon">🦾</div>
+    <div class="callout-title">Robot Arm Dominated</div>
+    <div class="callout-body">6 out of 8 teams built with <strong>Robot Arm</strong> utility (250 pts). Only Mixture of Experts and The Verifiers chose Suction Cup — both tied for last place.</div>
+  </div>
+  <div class="callout">
+    <div class="callout-icon">🧠</div>
+    <div class="callout-title">Brain Split the Field</div>
+    <div class="callout-body">The Decision Brain tier had the most variation: <strong>Structured Thinker</strong> (5 teams), <strong>Fast Guesser</strong> (3 teams), <strong>Verifier</strong> (1 team — fittingly The Verifiers). No majority chose Verifier except that solo player.</div>
+  </div>
+</div>
+
+<!-- ── TEAM ROBOT CARDS ───────────────────────────────────────── -->
+<div class="section-label">All 8 Teams — Configured Robots &amp; Vote Breakdown</div>
+<div class="grid-4">
+
+<!-- ─ LLM Dreamers ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#2abaee">LLM Dreamers</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">2 players · <span style="color:#D4A017">🥇 1st</span></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#2abaee">1000</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: balanced-treads, robot-arm, stabilizer, structured-thinker -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#2abaee" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#2abaee" stroke-width="1.5" opacity=".5"/>
+      <line x1="36" y1="98" x2="36" y2="110" stroke="#2abaee" stroke-width="1.5" opacity=".5"/>
+      <line x1="46" y1="98" x2="46" y2="110" stroke="#2abaee" stroke-width="1.5" opacity=".5"/>
+      <line x1="56" y1="98" x2="56" y2="110" stroke="#2abaee" stroke-width="1.5" opacity=".5"/>
+      <line x1="66" y1="98" x2="66" y2="110" stroke="#2abaee" stroke-width="1.5" opacity=".5"/>
+      <line x1="76" y1="98" x2="76" y2="110" stroke="#2abaee" stroke-width="1.5" opacity=".5"/>
+      <line x1="86" y1="98" x2="86" y2="110" stroke="#2abaee" stroke-width="1.5" opacity=".5"/>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#2abaee" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#2abaee" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#2abaee" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#2abaee" stroke-width="1.8"/>
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#2abaee" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#2abaee" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#2abaee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#2abaee" stroke-width="1.2"/>
+      <path d="M90 52 Q104 42 109 30" stroke="#2abaee" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="110" cy="28" r="4.5" fill="#1a2e44" stroke="#2abaee" stroke-width="1.5"/>
+      <line x1="107" y1="24" x2="104" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="110" y1="23" x2="110" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="113" y1="24" x2="116" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#2abaee;font-weight:700">Balanced Treads</span> <span style="color:#555">2/2</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#2abaee;font-weight:700">Robot Arm ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#2abaee;font-weight:700">Stabilizer ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#2abaee;font-weight:700">Structured Thinker</span> <span style="color:#555">2/2</span></div></div>
+  </div>
+</div>
+
+<!-- ─ Prompt Engineers ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#4488ee">Prompt Engineers</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">2 players · <span style="color:#D4A017">🥇 1st</span></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#4488ee">1000</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: balanced-treads, robot-arm, stabilizer, structured-thinker -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#4488ee" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+      <line x1="36" y1="98" x2="36" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+      <line x1="46" y1="98" x2="46" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+      <line x1="56" y1="98" x2="56" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+      <line x1="66" y1="98" x2="66" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+      <line x1="76" y1="98" x2="76" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+      <line x1="86" y1="98" x2="86" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#4488ee" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#4488ee" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#4488ee" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#4488ee" stroke-width="1.8"/>
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#4488ee" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#4488ee" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#4488ee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#4488ee" stroke-width="1.2"/>
+      <path d="M90 52 Q104 42 109 30" stroke="#4488ee" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="110" cy="28" r="4.5" fill="#1a2e44" stroke="#4488ee" stroke-width="1.5"/>
+      <line x1="107" y1="24" x2="104" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="110" y1="23" x2="110" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="113" y1="24" x2="116" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#4488ee;font-weight:700">Balanced Treads ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#4488ee;font-weight:700">Robot Arm ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#4488ee;font-weight:700">Stabilizer ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#4488ee;font-weight:700">Structured Thinker</span> <span style="color:#555">2/2</span></div></div>
+  </div>
+</div>
+
+<!-- ─ Search Party ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#28c060">Search Party</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">2 players · 🥉 3rd</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#28c060">900</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: balanced-treads, robot-arm, cushion-mount, structured-thinker -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#28c060" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+      <line x1="36" y1="98" x2="36" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+      <line x1="46" y1="98" x2="46" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+      <line x1="56" y1="98" x2="56" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+      <line x1="66" y1="98" x2="66" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+      <line x1="76" y1="98" x2="76" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+      <line x1="86" y1="98" x2="86" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#28c060" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <rect x="26" y="40" width="68" height="52" rx="14" fill="none" stroke="#4a90d9" stroke-width="2" stroke-dasharray="5,3" opacity=".75"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#28c060" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#28c060" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#28c060" stroke-width="1.8"/>
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#28c060" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#28c060" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#28c060" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#28c060" stroke-width="1.2"/>
+      <path d="M90 52 Q104 42 109 30" stroke="#28c060" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="110" cy="28" r="4.5" fill="#1a2e44" stroke="#28c060" stroke-width="1.5"/>
+      <line x1="107" y1="24" x2="104" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="110" y1="23" x2="110" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="113" y1="24" x2="116" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#28c060;font-weight:700">Balanced Treads ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#28c060;font-weight:700">Robot Arm</span> <span style="color:#555">2/2</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#28c060;font-weight:700">Cushion Mount</span> <span style="color:#555">2/2</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#28c060;font-weight:700">Structured Thinker ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+  </div>
+</div>
+
+<!-- ─ Token Titans ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#D4A017">Token Titans</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">2 players · 4th</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#D4A017">825</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: heavy-lift, robot-arm, stabilizer, structured-thinker -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="85" width="100" height="27" rx="4" fill="#D4A017" opacity=".8"/>
+      <rect x="12" y="87" width="96" height="23" rx="3" fill="#080c14"/>
+      <rect x="16" y="90" width="22" height="17" rx="2" fill="#D4A017" opacity=".25"/>
+      <rect x="82" y="90" width="22" height="17" rx="2" fill="#D4A017" opacity=".25"/>
+      <text x="60" y="103" text-anchor="middle" fill="#D4A017" font-size="8" font-weight="700" letter-spacing="1">HEAVY</text>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#D4A017" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#D4A017" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#D4A017" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#D4A017" stroke-width="1.8"/>
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#D4A017" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#D4A017" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#D4A017" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#D4A017" stroke-width="1.2"/>
+      <path d="M90 52 Q104 42 109 30" stroke="#D4A017" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="110" cy="28" r="4.5" fill="#1a2e44" stroke="#D4A017" stroke-width="1.5"/>
+      <line x1="107" y1="24" x2="104" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="110" y1="23" x2="110" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="113" y1="24" x2="116" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Heavy Lift</span> <span style="color:#555">2/2 — unanimous, cost 175pts vs treads</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#D4A017;font-weight:700">Robot Arm ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#D4A017;font-weight:700">Stabilizer ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#D4A017;font-weight:700">Structured Thinker ★tie</span> <span style="color:#555">1–1 → score wins</span></div></div>
+  </div>
+</div>
+
+<!-- ─ Agents of Chaos ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#ee4444">Agents of Chaos</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">3 players · 5th</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#ee4444">650</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: heavy-lift, robot-arm, stabilizer, fast-guesser -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="85" width="100" height="27" rx="4" fill="#ee4444" opacity=".8"/>
+      <rect x="12" y="87" width="96" height="23" rx="3" fill="#080c14"/>
+      <rect x="16" y="90" width="22" height="17" rx="2" fill="#ee4444" opacity=".25"/>
+      <rect x="82" y="90" width="22" height="17" rx="2" fill="#ee4444" opacity=".25"/>
+      <text x="60" y="103" text-anchor="middle" fill="#ee4444" font-size="8" font-weight="700" letter-spacing="1">HEAVY</text>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#ee4444" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#ee4444" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#ee4444" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#ee4444" stroke-width="1.8"/>
+      <circle cx="42" cy="21" r="7.5" fill="#0a1020"/>
+      <circle cx="78" cy="21" r="7.5" fill="#0a1020"/>
+      <circle cx="42" cy="21" r="5.5" fill="#ff6b35" opacity=".85"/>
+      <circle cx="78" cy="21" r="5.5" fill="#ff6b35" opacity=".85"/>
+      <path d="M40 18 L43.5 21.5 L40 25" fill="none" stroke="#ffdd88" stroke-width="1.8"/>
+      <path d="M76 18 L79.5 21.5 L76 25" fill="none" stroke="#ffdd88" stroke-width="1.8"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#ee4444" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#ee4444" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#ee4444" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#ee4444" stroke-width="1.2"/>
+      <path d="M90 52 Q104 42 109 30" stroke="#ee4444" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="110" cy="28" r="4.5" fill="#1a2e44" stroke="#ee4444" stroke-width="1.5"/>
+      <line x1="107" y1="24" x2="104" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="110" y1="23" x2="110" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="113" y1="24" x2="116" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Heavy Lift</span> <span style="color:#555">2/3 majority</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#ee4444;font-weight:700">Robot Arm</span> <span style="color:#555">2/3 majority</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#ee4444;font-weight:700">Stabilizer</span> <span style="color:#555">2/3 majority</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Fast Guesser</span> <span style="color:#555">2/3 majority</span></div></div>
+  </div>
+</div>
+
+<!-- ─ Context Window Warriors ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#8a4aee">Context Window Warriors</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">1 player (solo) · 6th</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#8a4aee">550</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: scout-legs, robot-arm, none, fast-guesser -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <line x1="42" y1="88" x2="36" y2="112" stroke="#8a4aee" stroke-width="4.5" stroke-linecap="round"/>
+      <line x1="78" y1="88" x2="84" y2="112" stroke="#8a4aee" stroke-width="4.5" stroke-linecap="round"/>
+      <rect x="29" y="110" width="15" height="5" rx="2.5" fill="#8a4aee"/>
+      <rect x="76" y="110" width="15" height="5" rx="2.5" fill="#8a4aee"/>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#8a4aee" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#8a4aee" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#8a4aee" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#8a4aee" stroke-width="1.8"/>
+      <circle cx="42" cy="21" r="7.5" fill="#0a1020"/>
+      <circle cx="78" cy="21" r="7.5" fill="#0a1020"/>
+      <circle cx="42" cy="21" r="5.5" fill="#ff6b35" opacity=".85"/>
+      <circle cx="78" cy="21" r="5.5" fill="#ff6b35" opacity=".85"/>
+      <path d="M40 18 L43.5 21.5 L40 25" fill="none" stroke="#ffdd88" stroke-width="1.8"/>
+      <path d="M76 18 L79.5 21.5 L76 25" fill="none" stroke="#ffdd88" stroke-width="1.8"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#8a4aee" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#8a4aee" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#8a4aee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#8a4aee" stroke-width="1.2"/>
+      <path d="M90 52 Q104 42 109 30" stroke="#8a4aee" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="110" cy="28" r="4.5" fill="#1a2e44" stroke="#8a4aee" stroke-width="1.5"/>
+      <line x1="107" y1="24" x2="104" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="110" y1="23" x2="110" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="113" y1="24" x2="116" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Scout Legs</span> <span style="color:#555">solo vote</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#8a4aee;font-weight:700">Robot Arm</span> <span style="color:#555">solo vote</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Unconstrained</span> <span style="color:#555">solo vote</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Fast Guesser</span> <span style="color:#555">solo vote</span></div></div>
+  </div>
+</div>
+
+<!-- ─ Mixture of Experts ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#e07820">Mixture of Experts</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">3 players · 7th</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#e07820">375</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: heavy-lift, suction-cup, cushion-mount, fast-guesser -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="85" width="100" height="27" rx="4" fill="#e07820" opacity=".8"/>
+      <rect x="12" y="87" width="96" height="23" rx="3" fill="#080c14"/>
+      <rect x="16" y="90" width="22" height="17" rx="2" fill="#e07820" opacity=".25"/>
+      <rect x="82" y="90" width="22" height="17" rx="2" fill="#e07820" opacity=".25"/>
+      <text x="60" y="103" text-anchor="middle" fill="#e07820" font-size="8" font-weight="700" letter-spacing="1">HEAVY</text>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#e07820" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <rect x="26" y="40" width="68" height="52" rx="14" fill="none" stroke="#4a90d9" stroke-width="2" stroke-dasharray="5,3" opacity=".75"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#e07820" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#e07820" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#e07820" stroke-width="1.8"/>
+      <circle cx="42" cy="21" r="7.5" fill="#0a1020"/>
+      <circle cx="78" cy="21" r="7.5" fill="#0a1020"/>
+      <circle cx="42" cy="21" r="5.5" fill="#ff6b35" opacity=".85"/>
+      <circle cx="78" cy="21" r="5.5" fill="#ff6b35" opacity=".85"/>
+      <path d="M40 18 L43.5 21.5 L40 25" fill="none" stroke="#ffdd88" stroke-width="1.8"/>
+      <path d="M76 18 L79.5 21.5 L76 25" fill="none" stroke="#ffdd88" stroke-width="1.8"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#e07820" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#e07820" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#e07820" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#e07820" stroke-width="1.2"/>
+      <path d="M90 52 Q104 52 98 52" stroke="#e07820" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <ellipse cx="101" cy="52" rx="5" ry="8" fill="none" stroke="#e07820" stroke-width="2.5"/>
+      <ellipse cx="101" cy="52" rx="3" ry="5" fill="#e07820" opacity=".25"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Heavy Lift</span> <span style="color:#555">2/3 majority</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Suction Cup</span> <span style="color:#555">2/3 majority</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#e07820;font-weight:700">Cushion Mount</span> <span style="color:#555">2/3 majority</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Fast Guesser</span> <span style="color:#555">2/3 majority</span></div></div>
+  </div>
+</div>
+
+<!-- ─ The Verifiers ─ -->
+<div class="team-card">
+  <div class="team-card-head">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#aaa">The Verifiers</div>
+      <div style="font-size:10px;color:#555;margin-top:2px">1 player (solo) · 7th</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:24px;font-weight:900;color:#aaa">375</div>
+      <div style="font-size:9px;color:#444">pts</div>
+    </div>
+  </div>
+  <div class="team-card-body">
+    <!-- Robot: heavy-lift, suction-cup, none, verifier -->
+    <svg viewBox="0 0 130 118" width="100" height="77" style="display:block;margin:0 auto 12px" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="85" width="100" height="27" rx="4" fill="#aaa" opacity=".8"/>
+      <rect x="12" y="87" width="96" height="23" rx="3" fill="#080c14"/>
+      <rect x="16" y="90" width="22" height="17" rx="2" fill="#aaa" opacity=".25"/>
+      <rect x="82" y="90" width="22" height="17" rx="2" fill="#aaa" opacity=".25"/>
+      <text x="60" y="103" text-anchor="middle" fill="#aaa" font-size="8" font-weight="700" letter-spacing="1">HEAVY</text>
+      <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#aaa" stroke-width="1.6"/>
+      <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+      <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+      <circle cx="58" cy="66" r="3" fill="#31a750"/>
+      <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+      <circle cx="80" cy="66" r="3" fill="#aaa" opacity=".7"/>
+      <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#aaa" stroke-width=".8"/>
+      <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#aaa" stroke-width="1.8"/>
+      <circle cx="38" cy="20" r="4.5" fill="#0a1020"/>
+      <circle cx="50" cy="24" r="4.5" fill="#0a1020"/>
+      <circle cx="70" cy="20" r="4.5" fill="#0a1020"/>
+      <circle cx="82" cy="24" r="4.5" fill="#0a1020"/>
+      <circle cx="38" cy="20" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="50" cy="24" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="70" cy="20" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="82" cy="24" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+      <line x1="60" y1="8" x2="60" y2="2" stroke="#aaa" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="60" cy="1.5" r="3" fill="#aaa" opacity=".9"/>
+      <path d="M30 52 Q18 60 14 72" stroke="#aaa" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#aaa" stroke-width="1.2"/>
+      <path d="M90 52 Q104 52 98 52" stroke="#aaa" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <ellipse cx="101" cy="52" rx="5" ry="8" fill="none" stroke="#aaa" stroke-width="2.5"/>
+      <ellipse cx="101" cy="52" rx="3" ry="5" fill="#aaa" opacity=".25"/>
+    </svg>
+    <div class="tier-mini"><div class="tier-mini-label">Mobility</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Heavy Lift</span> <span style="color:#555">solo vote</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Utility</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Suction Cup</span> <span style="color:#555">solo vote</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Care</div>
+      <div style="font-size:10px"><span style="color:#ee6666">Unconstrained</span> <span style="color:#555">solo vote</span></div></div>
+    <div class="tier-mini"><div class="tier-mini-label">Brain</div>
+      <div style="font-size:10px"><span style="color:#cc88ff;font-weight:700">Verifier</span> <span style="color:#555">solo vote — at least they're on brand!</span></div></div>
+  </div>
+</div>
+
+</div><!-- /grid -->
+
+<div style="font-size:10px;color:#333;text-align:center;margin-top:8px;padding-bottom:8px">
+  Generated from live server data · 2026-06-19 · Adobe I/O Runtime Stage · 768811-280maroonswan-stage
+</div>
+
+</div><!-- /wrap -->
+</body>
+</html>

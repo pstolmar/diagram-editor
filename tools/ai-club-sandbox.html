@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Club Sandbox</title>
+  <link rel="stylesheet" href="/tools/ai-club-scavengers.css">
+  <style>
+    .sandbox-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .sandbox-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .sandbox-card {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .sandbox-card h3 {
+      margin: 0 0 8px;
+    }
+
+    .sandbox-card p {
+      margin: 0 0 14px;
+      color: var(--pit-muted);
+      line-height: 1.5;
+    }
+
+    .sandbox-links {
+      display: grid;
+      gap: 8px;
+    }
+
+    .sandbox-link {
+      display: block;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--pit-text);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .sandbox-link span {
+      display: block;
+      margin-top: 4px;
+      color: var(--pit-muted);
+      font-size: 0.84rem;
+      font-weight: 500;
+    }
+
+    .query-block {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      color: #dff1ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.9rem;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main class="pit-app">
+    <section class="sandbox-shell">
+      <header class="hero-card">
+        <p class="eyebrow">AI Club Builder</p>
+        <h1>Sandbox Launcher</h1>
+        <p class="hero-copy">
+          Use this page to jump directly into a team bay, isolated step, cinematic scene, or simulated submit state without clicking through the full flow every time.
+        </p>
+      </header>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Primary</p>
+            <h2>Main Entry Points</h2>
+          </div>
+        </div>
+        <div class="sandbox-grid">
+          <div class="sandbox-card">
+            <h3>Teams Lobby</h3>
+            <p>Share this when people need a clean “join your team” entry point.</p>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-teams.html">Open Team Lobby<span>/tools/ai-club-teams.html</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Default Play Bay</h3>
+            <p>Useful as the base playground when you just want the main experience live.</p>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-bays/llm-dreamers.html">Open Default Team<span>LLM Dreamers standard bay</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Full Sandbox</h3>
+            <p>Shows the debug panel with scene buttons and fake submit states.</p>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=agents-of-chaos&sandbox=1">Open Sandbox Mode<span>Agents of Chaos with debug tools</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Config Modes</p>
+            <h2>Switch Whole Event Personality</h2>
+          </div>
+        </div>
+        <div class="sandbox-grid">
+          <div class="sandbox-card">
+            <h3>Default Config</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=llm-dreamers">Default Event<span>Uses /tools/ai-club-config.json</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Rehearsal Config</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=llm-dreamers&config=/tools/ai-club-config-rehearsal.json">Rehearsal Event<span>Mock submit defaults and rehearsal copy</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Live Template Config</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=llm-dreamers&config=/tools/ai-club-config-live-template.json">Live Template<span>Form-submit defaults with placeholder endpoint</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Focused Pages</p>
+            <h2>One Phase Per Page</h2>
+          </div>
+        </div>
+        <div class="sandbox-grid">
+          <div class="sandbox-card">
+            <h3>Journey Pages</h3>
+            <p>Each link opens the app already narrowed to one part of the flow.</p>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-routes/team-view.html">Team View<span>/tools/ai-club-routes/team-view.html</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-routes/build-view.html">Build View<span>/tools/ai-club-routes/build-view.html</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-routes/mission-view.html">Mission View<span>/tools/ai-club-routes/mission-view.html</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-routes/arena-view.html">Arena View<span>/tools/ai-club-routes/arena-view.html</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Server Pages</h3>
+            <p>Quickly rehearse pending, success, and retry messaging without replaying the mission.</p>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-routes/server-pending.html">Pending Submit<span>/tools/ai-club-routes/server-pending.html</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-routes/server-success.html">Success Submit<span>/tools/ai-club-routes/server-success.html</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-routes/server-error.html">Error Submit<span>/tools/ai-club-routes/server-error.html</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Scene Page</h3>
+            <p>Useful for tuning one hero shot in isolation while preserving the arena context.</p>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-routes/scene-grapple.html">Grapple Hero Shot<span>/tools/ai-club-routes/scene-grapple.html</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Step Debug</p>
+            <h2>Jump To Any Stage</h2>
+          </div>
+        </div>
+        <div class="sandbox-grid">
+          <div class="sandbox-card">
+            <h3>Team Join</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=search-party&step=team">Team Step<span>Show team chooser plus arena</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Build Voting</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=prompt-engineers&step=build">Build Step<span>Focus on attachment voting</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Mission Console</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=the-verifiers&step=mission">Mission Step<span>Score card and mission queue</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Arena + Debug</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=mixture-of-experts&step=arena&sandbox=1">Arena Step<span>Just the 3D stage and debug controls</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Scene Debug</p>
+            <h2>Single-Scene Playback</h2>
+          </div>
+        </div>
+        <div class="sandbox-grid">
+          <div class="sandbox-card">
+            <h3>Attachment Hero Shots</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=toolchain-thunder&sandbox=1&scene=high-reach">Mantle Grab<span>Robot arm reach test</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=prompt-pirates&sandbox=1&scene=grapple">Grapple Scene<span>Hook-through-grate shot</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=the-verifiers&sandbox=1&scene=egg">Dragon Egg<span>Pillow cradle precision carry</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Behavior / Failure</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=model-mayhem&sandbox=1&scene=fail">Failure Beat<span>Decoy wobble and bad retrieval</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=latency-legends&sandbox=1&scene=dash">Dash Scene<span>Quick speed-focused pickup</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=search-party&sandbox=1&scene=scanner">Scanner Scene<span>Hidden compartment reveal</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Full Run</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=agents-of-chaos&autorun=1&sandbox=1">Autorun Mission<span>Play through whole mission queue</span></a>
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=llm-dreamers&sandbox=1&scene=finale">Final Pose<span>Scoreboard pose only</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Server Debug</p>
+            <h2>Fake Submit States</h2>
+          </div>
+        </div>
+        <div class="sandbox-grid">
+          <div class="sandbox-card">
+            <h3>Pending Submit</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=token-titans&step=mission&sandbox=1&server=pending">Pending State<span>Pretend the form submission is in-flight</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Success Submit</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=token-titans&step=mission&sandbox=1&server=success">Success State<span>Mock “leaderboard row saved” result</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Error Submit</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=token-titans&step=mission&sandbox=1&server=error">Error State<span>Simulate failed submit / retry flow</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Submit Modes</p>
+            <h2>Switch Between Mock And Real</h2>
+          </div>
+        </div>
+        <div class="sandbox-grid">
+          <div class="sandbox-card">
+            <h3>Mock Mode</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=agents-of-chaos&step=mission&sandbox=1&submitMode=mock">Local Mock Submit<span>Writes to local rehearsal leaderboard</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>Form Mode</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=agents-of-chaos&step=mission&sandbox=1&submitMode=form&submitUrl=https://example.invalid/forms/submit">Form Post Example<span>Multipart form post to a configured endpoint</span></a>
+            </div>
+          </div>
+          <div class="sandbox-card">
+            <h3>JSON Mode</h3>
+            <div class="sandbox-links">
+              <a class="sandbox-link" href="/tools/ai-club-scavengers.html?team=agents-of-chaos&step=mission&sandbox=1&submitMode=json&submitUrl=https://example.invalid/api/submit&mirrorToMock=1">JSON Post Example<span>POST JSON and optionally mirror success into the local leaderboard</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Query Help</p>
+            <h2>Current Debug Parameters</h2>
+          </div>
+        </div>
+        <div class="query-block">
+          ?team=agents-of-chaos&amp;step=arena&amp;layout=focus&amp;sandbox=1&amp;scene=3&amp;server=success&amp;autorun=1
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

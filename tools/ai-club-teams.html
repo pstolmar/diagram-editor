@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Club Teams</title>
+  <link rel="stylesheet" href="/tools/ai-club-scavengers.css">
+  <style>
+    .lobby-shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .lobby-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .lobby-card {
+      display: block;
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--pit-text);
+      text-decoration: none;
+      box-shadow: var(--pit-shadow);
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .lobby-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.26);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .lobby-card strong {
+      display: block;
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+
+    .lobby-card span {
+      display: block;
+      color: var(--pit-muted);
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <main class="pit-app">
+    <section class="lobby-shell">
+      <header class="hero-card">
+        <p class="eyebrow">Customer Success AI Club</p>
+        <h1>Pick Your Team Bay</h1>
+        <p class="hero-copy">
+          Each button drops you into your team’s robot bay. Vote on the build, let the democratic winning answers lock in, then run the 3D scavenger mission.
+        </p>
+      </header>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Team Entry</p>
+            <h2>Join A Play Area</h2>
+          </div>
+        </div>
+        <div class="lobby-grid">
+          <a class="lobby-card" href="/tools/ai-club-bays/llm-dreamers.html"><strong>LLM Dreamers</strong><span>Blue bay for high-context planners and idea mashers.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/agents-of-chaos.html"><strong>Agents of Chaos</strong><span>Orange bay for speed demons, risky plays, and glorious recoveries.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/token-titans.html"><strong>Token Titans</strong><span>Green bay for disciplined prompting and efficient choices.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/prompt-engineers.html"><strong>Prompt Engineers</strong><span>Cyan bay for structured builders and cleaner instructions.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/the-verifiers.html"><strong>The Verifiers</strong><span>Gold bay for source-checkers and fragile-object specialists.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/search-party.html"><strong>Search Party</strong><span>Rose bay for web sleuths, fact finders, and hidden-item hunters.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/context-window-warriors.html"><strong>Context Window Warriors</strong><span>Mint bay for long-memory, high-context strategy fans.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/mixture-of-experts.html"><strong>Mixture of Experts</strong><span>Purple bay for teams that want a balanced, modular machine.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/latency-legends.html"><strong>Latency Legends</strong><span>Fast-response bay for quick movers who still want style points.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/toolchain-thunder.html"><strong>Toolchain Thunder</strong><span>Utility-heavy bay for connected tools and attachment flexing.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/prompt-pirates.html"><strong>Prompt Pirates</strong><span>Boarding-party bay for grapples, hooks, and stolen treasure energy.</span></a>
+          <a class="lobby-card" href="/tools/ai-club-bays/model-mayhem.html"><strong>Model Mayhem</strong><span>Wildcard bay for mixed strategies and maximum spectacle.</span></a>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

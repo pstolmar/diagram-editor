@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Club Robot Game — Architecture Diagrams</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#09090f;color:#e0e0ec;min-height:100vh}
+header{background:linear-gradient(135deg,#1c0002 0%,#0d0d1c 55%,#001428 100%);border-bottom:2px solid rgba(250,15,0,.22);padding:22px 48px;display:flex;align-items:center;gap:18px}
+.hd-logo{width:52px;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+header h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px}
+header .meta{font-size:12px;color:#666;margin-top:4px}
+nav{display:flex;border-bottom:1px solid #18182a;position:sticky;top:0;z-index:10;background:#09090f;padding:0 32px;overflow-x:auto}
+nav a{padding:11px 16px;font-size:12px;color:#888;text-decoration:none;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+nav a:hover{color:#fff;border-bottom-color:#FA0F00}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+section{padding:48px 0 16px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:5px}
+.sec-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+section h2{font-size:19px;font-weight:700;color:#fff}
+.sec-sub{font-size:12.5px;color:#555;margin-bottom:22px;padding-left:38px;line-height:1.6}
+.card{background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;padding:22px;margin-bottom:32px;overflow-x:auto}
+.card svg{display:block}
+/* Mermaid code blocks */
+.mermaid-card{background:#0b0b14;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;margin-bottom:16px}
+.mermaid-topbar{padding:10px 18px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;gap:10px;font-size:11.5px;color:#666}
+.mermaid-tag{background:#FA0F00;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.6px}
+.mermaid-note{margin-left:auto;color:#444;font-size:11px}
+pre.mermaid-code{padding:22px 28px;font-family:'Fira Code','Cascadia Code','Consolas',monospace;font-size:12.5px;line-height:1.85;white-space:pre;overflow-x:auto;color:#cdd6f4;tab-size:2}
+.mk{color:#ff79c6}.mi{color:#8be9fd}.ms{color:#f1fa8c}.mc{color:#6272a4}.ma{color:#50fa7b}.mn{color:#bd93f9}.mo{color:#ffb86c}.mg{color:#cfa9ff}
+/* Vote tier cards */
+.tier-wrap{margin-top:24px}
+.tiers-label{text-align:center;font-size:9.5px;font-weight:700;letter-spacing:1.2px;color:#5a5a8a;margin-bottom:6px}
+.tiers-sub{text-align:center;font-size:11px;color:#444466;margin-bottom:18px}
+.tier-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tier-card{background:#0e0e18;border:1px solid #1a1a2c;border-radius:12px;overflow:hidden;position:relative}
+.tier-head{padding:11px 14px;font-size:12px;font-weight:700;display:flex;flex-direction:column;gap:3px}
+.tier-q{font-size:10px;opacity:.6;font-weight:400}
+.tier-opts{padding:8px 10px 42px;transition:filter .35s,opacity .35s}
+.tier-opts.hidden{filter:blur(9px) brightness(.45);pointer-events:none;user-select:none}
+.tier-opt{display:flex;align-items:stretch;border-radius:8px;border:1px solid transparent;margin-bottom:7px;overflow:hidden}
+.opt-stripe{width:5px;flex-shrink:0}
+.opt-info{flex:1;padding:8px 10px}
+.opt-name{font-size:11px;font-weight:700;line-height:1.3}
+.opt-desc{font-size:9.5px;opacity:.55;margin-top:2px;line-height:1.3}
+.opt-pts{padding:8px 10px;font-size:12px;font-weight:800;display:flex;align-items:center;white-space:nowrap}
+.eye-btn{position:absolute;bottom:9px;right:10px;background:#111120;border:1px solid #2a2a44;border-radius:8px;padding:5px 11px;font-size:14px;cursor:pointer;color:#888;transition:all .2s;z-index:5}
+.eye-btn:hover{background:#1e1e34;border-color:#4a4a88;color:#fff}
+/* Accordion for Mermaid */
+details.mermaid-acc{background:#0b0b14;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;margin-bottom:16px}
+details.mermaid-acc summary{padding:14px 20px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#ccc;background:#111120}
+details.mermaid-acc[open] summary{border-bottom:1px solid #1a1a2c}
+details.mermaid-acc summary .arr{margin-left:auto;font-size:10px;color:#555;transition:transform .2s}
+details.mermaid-acc[open] summary .arr{transform:rotate(180deg)}
+details.mermaid-acc summary::-webkit-details-marker{display:none}
+/* Deploy & load test sections */
+.info-note{background:#0d0d1a;border:1px solid #1a1a2c;border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:11.5px;color:#666;line-height:1.7}
+.info-note strong{color:#aaa}
+.info-note .tag{display:inline-block;background:#1a2a44;color:#4488cc;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px}
+.info-note .tag-g{background:#0a2014;color:#44aa66}
+.info-note .tag-o{background:#1e1008;color:#cc8822}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-logo">
+    <!-- Cartoon waving robot -->
+    <svg width="50" height="50" viewBox="0 0 56 56">
+      <!-- Treads (balanced-treads style) -->
+      <rect x="7" y="44" width="38" height="9" rx="4.5" fill="#0a1428" stroke="#2680EB" stroke-width="1.2"/>
+      <rect x="9" y="46" width="34" height="5" rx="2.5" fill="#040c18"/>
+      <line x1="14" y1="46" x2="14" y2="51" stroke="#2680EB" stroke-width="0.8" opacity=".6"/>
+      <line x1="20" y1="46" x2="20" y2="51" stroke="#2680EB" stroke-width="0.8" opacity=".6"/>
+      <line x1="26" y1="46" x2="26" y2="51" stroke="#2680EB" stroke-width="0.8" opacity=".6"/>
+      <line x1="32" y1="46" x2="32" y2="51" stroke="#2680EB" stroke-width="0.8" opacity=".6"/>
+      <line x1="38" y1="46" x2="38" y2="51" stroke="#2680EB" stroke-width="0.8" opacity=".6"/>
+      <!-- Body -->
+      <rect x="13" y="28" width="28" height="16" rx="3" fill="#1a2e44" stroke="#2680EB" stroke-width="1.2"/>
+      <rect x="16" y="31" width="22" height="10" rx="1.5" fill="#0a1828" stroke="#1a3050" stroke-width="0.7"/>
+      <circle cx="21" cy="36" r="2" fill="#FA0F00"/>
+      <circle cx="27" cy="36" r="2" fill="#31a750"/>
+      <circle cx="33" cy="36" r="2" fill="#2680EB"/>
+      <!-- Neck -->
+      <rect x="22" y="25" width="10" height="3" rx="1.5" fill="#1a2e44" stroke="#2680EB" stroke-width="0.8"/>
+      <!-- Head -->
+      <rect x="12" y="9" width="30" height="17" rx="4" fill="#1e3450" stroke="#2680EB" stroke-width="1.5"/>
+      <!-- LED eyes -->
+      <circle cx="21" cy="18" r="3.5" fill="#0a1828"/>
+      <circle cx="33" cy="18" r="3.5" fill="#0a1828"/>
+      <circle cx="21" cy="18" r="2.1" fill="#2680EB"/>
+      <circle cx="33" cy="18" r="2.1" fill="#2680EB"/>
+      <circle cx="21" cy="18" r="1" fill="#88ccff"/>
+      <circle cx="33" cy="18" r="1" fill="#88ccff"/>
+      <!-- Mouth -->
+      <rect x="20" y="22.5" width="14" height="2" rx="1" fill="#0a1828"/>
+      <!-- Antenna -->
+      <line x1="27" y1="9" x2="27" y2="3.5" stroke="#2680EB" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="27" cy="3" r="2.5" fill="#2680EB" opacity=".9"/>
+      <circle cx="27" cy="3" r="1.2" fill="#88ccff"/>
+      <!-- Right arm waving (robot-arm style) -->
+      <path d="M41 30 Q46 24 48 16" stroke="#2680EB" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="48" cy="15" r="3" fill="#1e3450" stroke="#2680EB" stroke-width="1.2"/>
+      <line x1="46" y1="13" x2="44" y2="11" stroke="#88ccff" stroke-width="1.1" stroke-linecap="round"/>
+      <line x1="48" y1="12" x2="48" y2="10" stroke="#88ccff" stroke-width="1.1" stroke-linecap="round"/>
+      <line x1="50" y1="13" x2="52" y2="11" stroke="#88ccff" stroke-width="1.1" stroke-linecap="round"/>
+      <!-- Left arm down -->
+      <path d="M13 31 Q8 35 6 40" stroke="#2680EB" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <circle cx="5.5" cy="41" r="2.5" fill="#1e3450" stroke="#2680EB" stroke-width="1"/>
+    </svg>
+  </div>
+  <div>
+    <h1>AI Club Robot Game — System Architecture</h1>
+    <div class="meta">Adobe App Builder · I/O Runtime · AEM Edge Delivery Services · aio-lib-state (Redis KV) · 200-player load-tested</div>
+  </div>
+</header>
+
+<nav>
+  <a href="#arch">① System Architecture</a>
+  <a href="#lifecycle">② Game Lifecycle</a>
+  <a href="#cas">③ Vote CAS Flow</a>
+  <a href="#deploy">④ Claude Code Deploy</a>
+  <a href="#loadtest">⑤ Load Test Results</a>
+  <a href="#mermaid">⑥ Mermaid Diagrams</a>
+</nav>
+
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 1 — SYSTEM ARCHITECTURE                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="arch">
+  <div class="sec-head">
+    <div class="sec-badge" style="background:#FA0F00;color:#fff">1</div>
+    <h2>System Architecture</h2>
+  </div>
+  <p class="sec-sub">Four-layer stack. Players hit a globally-cached EDS CDN page, which calls a stateless I/O Runtime action, which reads and writes a Redis-backed KV store. No auth needed for players.</p>
+  <div class="card">
+<svg viewBox="0 0 1100 730" width="1100" height="730" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,sans-serif">
+<defs>
+  <style>
+    @keyframes flowDown{to{stroke-dashoffset:-26}}
+    @keyframes flowUp{to{stroke-dashoffset:26}}
+    @keyframes glow{0%,100%{opacity:.55}50%{opacity:1}}
+    .fd{stroke-dasharray:8 5;animation:flowDown 1.1s linear infinite}
+    .fu{stroke-dasharray:8 5;animation:flowUp 1.1s linear infinite}
+    .gw{animation:glow 2.2s ease-in-out infinite}
+  </style>
+  <marker id="ab" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2680EB"/></marker>
+  <marker id="ar" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#DC382D"/></marker>
+  <marker id="ag" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#31a750"/></marker>
+  <marker id="aw" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#555"/></marker>
+  <!-- Browser -->
+  <symbol id="browser" viewBox="0 0 58 42">
+    <rect width="58" height="42" rx="4" fill="#1c1c2e" stroke="#2a2a40" stroke-width="1"/>
+    <rect width="58" height="12" rx="4" fill="#252540"/>
+    <rect y="6" width="58" height="6" fill="#252540"/>
+    <circle cx="7" cy="6" r="2.5" fill="#FF5F57"/>
+    <circle cx="15" cy="6" r="2.5" fill="#FEBC2E"/>
+    <circle cx="23" cy="6" r="2.5" fill="#28C840"/>
+    <rect x="4" y="17" width="50" height="3" rx="1.5" fill="#2a2a44" opacity=".9"/>
+    <rect x="4" y="23" width="36" height="2.5" rx="1.25" fill="#2a2a44" opacity=".6"/>
+    <rect x="4" y="29" width="44" height="2.5" rx="1.25" fill="#2a2a44" opacity=".5"/>
+    <rect x="4" y="35" width="28" height="2.5" rx="1.25" fill="#2a2a44" opacity=".4"/>
+  </symbol>
+  <!-- Redis cylinder -->
+  <symbol id="redis" viewBox="0 0 44 44">
+    <rect width="44" height="44" rx="6" fill="#1a0808"/>
+    <ellipse cx="22" cy="14" rx="14" ry="5" fill="#FF6B60"/>
+    <rect x="8" y="14" width="28" height="16" fill="#DC382D"/>
+    <ellipse cx="22" cy="30" rx="14" ry="5" fill="#AA2020"/>
+    <text x="22" y="24" text-anchor="middle" fill="white" font-size="7" font-weight="700">Redis</text>
+  </symbol>
+  <!-- Lambda -->
+  <symbol id="lambda" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="6" fill="#0a1428"/>
+    <text x="20" y="25" text-anchor="middle" fill="#2680EB" font-size="20" font-weight="900">λ</text>
+  </symbol>
+</defs>
+
+<!-- LAYER 1: PLAYERS -->
+<rect x="18" y="18" width="1064" height="108" rx="12" fill="#111120" stroke="#1e1e32" stroke-width="1.5"/>
+<text x="36" y="40" fill="#6060a0" font-size="9.5" font-weight="700" letter-spacing="1.2">PLAYERS</text>
+<use href="#browser" x="36" y="46" width="58" height="42"/>
+<use href="#browser" x="102" y="46" width="58" height="42"/>
+<use href="#browser" x="168" y="46" width="58" height="42"/>
+<text x="238" y="73" fill="#444" font-size="20" letter-spacing="5">···</text>
+<use href="#browser" x="276" y="46" width="58" height="42"/>
+<text x="350" y="68" fill="#e0e0f4" font-size="16" font-weight="700">Up to 200 concurrent players</text>
+<text x="350" y="88" fill="#555" font-size="12">Visit challenge.html · choose robot parts · click Lock In</text>
+<text x="350" y="104" fill="#404060" font-size="11">No login required · team assigned by server (mode=join)</text>
+<rect x="840" y="48" width="110" height="18" rx="9" fill="#1a1a2e" stroke="#2a2a50" stroke-width="1"/>
+<text x="895" y="61" text-anchor="middle" fill="#8080c0" font-size="10">Zero auth</text>
+<rect x="960" y="48" width="100" height="18" rx="9" fill="#1a1a2e" stroke="#2a2a50" stroke-width="1"/>
+<text x="1010" y="61" text-anchor="middle" fill="#8080c0" font-size="10">Any device</text>
+<rect x="840" y="72" width="110" height="18" rx="9" fill="#1a1a2e" stroke="#2a2a50" stroke-width="1"/>
+<text x="895" y="85" text-anchor="middle" fill="#8080c0" font-size="10">Client-side state</text>
+<rect x="960" y="72" width="100" height="18" rx="9" fill="#1a1a2e" stroke="#2a2a50" stroke-width="1"/>
+<text x="1010" y="85" text-anchor="middle" fill="#8080c0" font-size="10">No session</text>
+<rect x="840" y="96" width="220" height="18" rx="9" fill="#0d1a0d" stroke="#1a3a1a" stroke-width="1"/>
+<text x="950" y="109" text-anchor="middle" fill="#31a750" font-size="10">200/200 votes recorded, P50 295ms, P95 606ms ✓</text>
+
+<!-- ARROWS: Players ↔ EDS -->
+<line x1="740" y1="126" x2="740" y2="165" stroke="#2680EB" stroke-width="1.5" marker-end="url(#ab)" class="fd" opacity=".7"/>
+<text x="744" y="149" fill="#2680EB" font-size="10.5" font-weight="600">GET challenge.html</text>
+<text x="744" y="161" fill="#335577" font-size="9.5">(static, CDN-served)</text>
+<line x1="400" y1="165" x2="400" y2="126" stroke="#FA0F00" stroke-width="1.5" marker-end="url(#ar)" class="fu" opacity=".7"/>
+<text x="404" y="149" fill="#FA0F00" font-size="10.5" font-weight="600">HTTPS POST/GET</text>
+<text x="404" y="161" fill="#553333" font-size="9.5">mode=join|submit|status|reset</text>
+
+<!-- LAYER 2: AEM EDS -->
+<rect x="18" y="167" width="1064" height="122" rx="12" fill="#0c1222" stroke="#152040" stroke-width="1.5"/>
+<text x="36" y="188" fill="#3a6a9a" font-size="9.5" font-weight="700" letter-spacing="1.2">ADOBE EXPERIENCE MANAGER — EDGE DELIVERY SERVICES</text>
+<text x="36" y="214" fill="#fff" font-size="15" font-weight="700">Adobe Experience Manager</text>
+<text x="36" y="231" fill="#4a80b0" font-size="12">Edge Delivery Services · Globally cached CDN</text>
+<text x="36" y="249" fill="#336688" font-size="11.5" font-family="monospace">ai-club-pit-crew--diagram-editor--pstolmar.aem.live</text>
+<text x="36" y="266" fill="#264d66" font-size="11">Static HTML · JavaScript · CSS · /tools/ai-club-pit-crew-challenge.html</text>
+<rect x="680" y="196" width="136" height="18" rx="9" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="748" y="209" text-anchor="middle" fill="#3a6a9a" font-size="10">Global CDN · instant load</text>
+<rect x="824" y="196" width="112" height="18" rx="9" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="880" y="209" text-anchor="middle" fill="#3a6a9a" font-size="10">3 allowed origins</text>
+<rect x="944" y="196" width="118" height="18" rx="9" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="1003" y="209" text-anchor="middle" fill="#3a6a9a" font-size="10">Zero server compute</text>
+<rect x="680" y="220" width="136" height="18" rx="9" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="748" y="233" text-anchor="middle" fill="#3a6a9a" font-size="10">AEM asset pipeline</text>
+<rect x="824" y="220" width="112" height="18" rx="9" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="880" y="233" text-anchor="middle" fill="#3a6a9a" font-size="10">Deploy via git push</text>
+<rect x="944" y="220" width="118" height="18" rx="9" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="1003" y="233" text-anchor="middle" fill="#3a6a9a" font-size="10">aio=stage default</text>
+<rect x="680" y="248" width="382" height="28" rx="8" fill="#0d0d20" stroke="#1a1a3a" stroke-width="1"/>
+<text x="871" y="266" text-anchor="middle" fill="#555588" font-size="10.5">Origin-checked CORS: aem.live · localhost:3000 · localhost:8123</text>
+
+<!-- ARROWS: EDS → Runtime -->
+<line x1="550" y1="289" x2="550" y2="326" stroke="#2680EB" stroke-width="2" marker-end="url(#ab)" class="fd" opacity=".8"/>
+<text x="555" y="312" fill="#2680EB" font-size="10.5" font-weight="600">HTTPS · ?mode=join|submit|status|reset|seed|inspect|advance</text>
+<text x="555" y="324" fill="#335577" font-size="9.5">Origin header checked · action enforces allowlist</text>
+
+<!-- LAYER 3: I/O RUNTIME -->
+<rect x="18" y="328" width="1064" height="170" rx="12" fill="#090f1e" stroke="#142040" stroke-width="1.5"/>
+<text x="36" y="350" fill="#3060aa" font-size="9.5" font-weight="700" letter-spacing="1.2">ADOBE APP BUILDER / I/O RUNTIME — OPENWHISK SERVERLESS</text>
+<use href="#lambda" x="36" y="358" width="44" height="44"/>
+<text x="90" y="374" fill="#fff" font-size="15" font-weight="700">Adobe I/O Runtime — robot-game</text>
+<text x="90" y="390" fill="#4a70a0" font-size="11.5" font-family="monospace">768811-280maroonswan-stage · pstolmar-test · Node.js 22</text>
+<text x="90" y="406" fill="#2a4a70" font-size="11">adobeioruntime.net/api/v1/web/768811-280maroonswan-stage/pstolmar-test/robot-game</text>
+<text x="36" y="430" fill="#4a70a0" font-size="9.5" font-weight="700" letter-spacing=".8">ACTION MODES</text>
+<rect x="36" y="436" width="52" height="22" rx="11" fill="#0a1428" stroke="#2680EB" stroke-width="1.2"/>
+<text x="62" y="451" text-anchor="middle" fill="#2680EB" font-size="10.5" font-weight="700">join</text>
+<rect x="96" y="436" width="58" height="22" rx="11" fill="#0a1e14" stroke="#31a750" stroke-width="1.2"/>
+<text x="125" y="451" text-anchor="middle" fill="#31a750" font-size="10.5" font-weight="700">submit</text>
+<rect x="162" y="436" width="58" height="22" rx="11" fill="#140a1e" stroke="#9b59b6" stroke-width="1.2"/>
+<text x="191" y="451" text-anchor="middle" fill="#9b59b6" font-size="10.5" font-weight="700">status</text>
+<rect x="228" y="436" width="52" height="22" rx="11" fill="#1e0e08" stroke="#e07020" stroke-width="1.2"/>
+<text x="254" y="451" text-anchor="middle" fill="#e07020" font-size="10.5" font-weight="700">reset</text>
+<rect x="288" y="436" width="48" height="22" rx="11" fill="#111118" stroke="#555" stroke-width="1"/>
+<text x="312" y="451" text-anchor="middle" fill="#888" font-size="10.5" font-weight="600">seed</text>
+<rect x="344" y="436" width="60" height="22" rx="11" fill="#111118" stroke="#555" stroke-width="1"/>
+<text x="374" y="451" text-anchor="middle" fill="#888" font-size="10.5" font-weight="600">inspect</text>
+<rect x="412" y="436" width="64" height="22" rx="11" fill="#111118" stroke="#555" stroke-width="1"/>
+<text x="444" y="451" text-anchor="middle" fill="#888" font-size="10.5" font-weight="600">advance</text>
+<rect x="680" y="340" width="390" height="146" rx="10" fill="#080c18" stroke="#182040" stroke-width="1.2"/>
+<text x="696" y="360" fill="#3a6aaa" font-size="9.5" font-weight="700" letter-spacing=".8">WRITE SAFETY — COMPARE-AND-SWAP</text>
+<text x="696" y="378" fill="#aaa" font-size="11.5">withRetry ( 6 attempts )</text>
+<text x="696" y="394" fill="#aaa" font-size="11">Delays: 25 · 25 · 25 · 25 · 50 · 50 ms (max 200ms total)</text>
+<text x="696" y="410" fill="#aaa" font-size="11">1. GET current record</text>
+<text x="696" y="426" fill="#aaa" font-size="11">2. Increment counts · stamp _v = writeId</text>
+<text x="696" y="442" fill="#aaa" font-size="11">3. PUT updated record</text>
+<text x="696" y="458" fill="#aaa" font-size="11">4. GET again · verify _v still matches</text>
+<text x="696" y="474" fill="#31a750" font-size="11">✓ 200/200 votes · 0 drops under realistic load</text>
+
+<!-- ARROWS: Runtime → State -->
+<line x1="550" y1="498" x2="550" y2="538" stroke="#DC382D" stroke-width="2" marker-end="url(#ar)" class="fd" opacity=".8"/>
+<text x="555" y="518" fill="#DC382D" font-size="10.5" font-weight="600">@adobe/aio-lib-state v5 · JSON.stringify/parse · TTL 86400s</text>
+<text x="555" y="530" fill="#553030" font-size="9.5">CAS read → write → verify per submit · deleteAll on reset</text>
+
+<!-- LAYER 4: STATE STORE -->
+<rect x="18" y="540" width="1064" height="162" rx="12" fill="#120808" stroke="#3a1010" stroke-width="1.5"/>
+<text x="36" y="560" fill="#aa4040" font-size="9.5" font-weight="700" letter-spacing="1.2">ADOBE I/O STATE STORE — aio-lib-state v5 (Redis-backed KV)</text>
+<use href="#redis" x="36" y="568" width="52" height="52"/>
+<rect x="102" y="568" width="196" height="94" rx="8" fill="#0e0404" stroke="#3a1010" stroke-width="1"/>
+<text x="200" y="584" text-anchor="middle" fill="#FF6B60" font-size="10" font-weight="700">game-session</text>
+<text x="112" y="600" fill="#886666" font-size="10">phase: "voting" | "results"</text>
+<text x="112" y="615" fill="#886666" font-size="10">startedAt: ISO timestamp</text>
+<text x="112" y="630" fill="#886666" font-size="10">expiresAt: ISO timestamp</text>
+<text x="112" y="645" fill="#664444" font-size="9">1 key · TTL 86400s</text>
+<rect x="112" y="650" width="40" height="5" rx="2" fill="#DC382D" opacity=".4"/>
+<rect x="310" y="568" width="270" height="94" rx="8" fill="#0e0404" stroke="#3a1010" stroke-width="1"/>
+<text x="445" y="584" text-anchor="middle" fill="#FF6B60" font-size="10" font-weight="700">game-votes-{slug} × 8</text>
+<text x="320" y="600" fill="#886666" font-size="10">playerCount: Number</text>
+<text x="320" y="615" fill="#886666" font-size="10">mobility | utility | care | brain: { option: count }</text>
+<text x="320" y="630" fill="#886666" font-size="10">_v: writeId (CAS token — rotates on every PUT)</text>
+<text x="320" y="645" fill="#664444" font-size="9">8 keys (one per team slug) · TTL 86400s</text>
+<rect x="320" y="650" width="100" height="5" rx="2" fill="#DC382D" opacity=".4"/>
+<rect x="594" y="568" width="180" height="94" rx="8" fill="#0e0404" stroke="#3a1010" stroke-width="1"/>
+<text x="684" y="584" text-anchor="middle" fill="#FF6B60" font-size="10" font-weight="700">game-arrivals</text>
+<text x="604" y="600" fill="#886666" font-size="10">count: Number</text>
+<text x="604" y="615" fill="#886666" font-size="10">bracket advance counter</text>
+<text x="604" y="645" fill="#664444" font-size="9">1 key · TTL 86400s</text>
+<rect x="604" y="650" width="22" height="5" rx="2" fill="#DC382D" opacity=".4"/>
+<text x="800" y="584" fill="#aa4040" font-size="14" font-weight="700">10 Redis keys total</text>
+<text x="800" y="604" fill="#664444" font-size="11.5">8 vote records · 1 session · 1 arrivals</text>
+<text x="800" y="622" fill="#553030" font-size="11">deleteAll('game-*') on reset</text>
+<text x="800" y="638" fill="#553030" font-size="11">double-reset with 1.5s delay for reliability</text>
+<text x="800" y="658" fill="#442020" font-size="10.5">teamsReady === 8 → immediate phase flip</text>
+<text x="800" y="673" fill="#442020" font-size="10.5">timer expiry → status call triggers flip</text>
+<text x="800" y="690" fill="#442020" font-size="10.5">GAME_DURATION_SECONDS: 300 (configurable)</text>
+</svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 2 — GAME LIFECYCLE                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="lifecycle">
+  <div class="sec-head">
+    <div class="sec-badge" style="background:#2680EB;color:#fff">2</div>
+    <h2>Game Session Lifecycle</h2>
+  </div>
+  <p class="sec-sub">Phase state machine, all 8 teams, and the 4 vote tiers (point values hidden by default — click 👁 to reveal).</p>
+  <div class="card">
+<svg viewBox="0 0 1100 315" width="1100" height="315" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,sans-serif">
+<defs>
+  <marker id="ab2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2680EB"/></marker>
+  <marker id="ao2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#e07020"/></marker>
+  <marker id="ap2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#9b59b6"/></marker>
+</defs>
+
+<!-- PHASE STATE MACHINE -->
+<text x="550" y="26" text-anchor="middle" fill="#5a5a8a" font-size="9.5" font-weight="700" letter-spacing="1.2">SESSION PHASE STATE MACHINE</text>
+
+<!-- IDLE -->
+<rect x="60" y="36" width="110" height="50" rx="10" fill="#1a1a2e" stroke="#2a2a4a" stroke-width="1.5"/>
+<text x="115" y="56" text-anchor="middle" fill="#8888bb" font-size="13" font-weight="700">IDLE</text>
+<text x="115" y="72" text-anchor="middle" fill="#555577" font-size="10">no session</text>
+
+<!-- VOTING -->
+<rect x="420" y="36" width="140" height="50" rx="10" fill="#0a1e14" stroke="#1a5a2a" stroke-width="2"/>
+<text x="490" y="56" text-anchor="middle" fill="#31c060" font-size="13" font-weight="700">VOTING</text>
+<text x="490" y="72" text-anchor="middle" fill="#226640" font-size="10">players submit builds</text>
+
+<!-- RESULTS -->
+<rect x="820" y="36" width="140" height="50" rx="10" fill="#140a1e" stroke="#4a1a7a" stroke-width="2"/>
+<text x="890" y="56" text-anchor="middle" fill="#b06ae0" font-size="13" font-weight="700">RESULTS</text>
+<text x="890" y="72" text-anchor="middle" fill="#6a3090" font-size="10">builds computed</text>
+
+<!-- Idle → Voting -->
+<line x1="170" y1="61" x2="418" y2="61" stroke="#2680EB" stroke-width="1.8" marker-end="url(#ab2)"/>
+<rect x="240" y="48" width="120" height="20" rx="10" fill="#0a1428" stroke="#1a3050" stroke-width="1"/>
+<text x="300" y="62" text-anchor="middle" fill="#2680EB" font-size="10">mode=reset / seed</text>
+
+<!-- Voting → Results -->
+<line x1="560" y1="61" x2="818" y2="61" stroke="#9b59b6" stroke-width="1.8" marker-end="url(#ap2)"/>
+<rect x="610" y="40" width="160" height="34" rx="8" fill="#140a1e" stroke="#3a1060" stroke-width="1"/>
+<text x="690" y="54" text-anchor="middle" fill="#9b59b6" font-size="9.5">timer expired (300s)</text>
+<text x="690" y="66" text-anchor="middle" fill="#7a4090" font-size="9.5">OR teamsReady === 8</text>
+
+<!-- Results → Idle loop -->
+<path d="M890 86 Q890 108 550 108 Q210 108 115 86" fill="none" stroke="#e07020" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#ao2)"/>
+<rect x="420" y="98" width="118" height="20" rx="10" fill="#1e0e08" stroke="#3a2010" stroke-width="1"/>
+<text x="479" y="112" text-anchor="middle" fill="#e07020" font-size="10">mode=reset (new game)</text>
+
+<!-- Clarification notes -->
+<rect x="20" y="122" width="530" height="22" rx="6" fill="#0d0a20" stroke="#2a1a50" stroke-width="1"/>
+<text x="30" y="137" fill="#7060aa" font-size="9.5">ⓘ teamsReady counts the 8 team slugs with ≥1 vote (not total players). With 200 players, all 8 fill in ~60s — teamsReady===8 fires first in practice.</text>
+<rect x="564" y="122" width="516" height="22" rx="6" fill="#0d1808" stroke="#1a3a1a" stroke-width="1"/>
+<text x="574" y="137" fill="#3a7a3a" font-size="9.5">ⓘ Timer is server-authoritative: expiresAt stored in Redis at reset/seed time. Clients read it via mode=status — no client clock sync needed.</text>
+
+<!-- 8 TEAMS -->
+<text x="550" y="162" text-anchor="middle" fill="#5a5a8a" font-size="9.5" font-weight="700" letter-spacing="1.2">8 TEAMS — ASSIGNED RANDOMLY AT mode=join</text>
+
+<!-- Row 1 -->
+<rect x="20" y="172" width="240" height="58" rx="10" fill="#1a1408" stroke="#5a4a00" stroke-width="1.5"/>
+<rect x="20" y="172" width="8" height="58" rx="4" fill="#D4A017"/>
+<text x="40" y="192" fill="#D4A017" font-size="12" font-weight="700">Token Titans</text>
+<text x="40" y="207" fill="#886600" font-size="10">token-titans · top scorer</text>
+<text x="40" y="221" fill="#554400" font-size="9.5">HIGH CONSENSUS · 90%+ agreement</text>
+
+<rect x="280" y="172" width="240" height="58" rx="10" fill="#0e0820" stroke="#3a1a6a" stroke-width="1.5"/>
+<rect x="280" y="172" width="8" height="58" rx="4" fill="#8a4aee"/>
+<text x="300" y="192" fill="#8a4aee" font-size="12" font-weight="700">Context Window Warriors</text>
+<text x="300" y="207" fill="#5a2aaa" font-size="10">context-window-warriors</text>
+<text x="300" y="221" fill="#3a1a66" font-size="9.5">SLIM MAJORITY · brain tier voted</text>
+
+<rect x="540" y="172" width="240" height="58" rx="10" fill="#081820" stroke="#1a5a7a" stroke-width="1.5"/>
+<rect x="540" y="172" width="8" height="58" rx="4" fill="#2abaee"/>
+<text x="560" y="192" fill="#2abaee" font-size="12" font-weight="700">LLM Dreamers</text>
+<text x="560" y="207" fill="#1a7aaa" font-size="10">llm-dreamers</text>
+<text x="560" y="221" fill="#0a4466" font-size="9.5">NEAR UNANIMOUS · 95%+ agreement</text>
+
+<rect x="800" y="172" width="280" height="58" rx="10" fill="#1a0e08" stroke="#5a3010" stroke-width="1.5"/>
+<rect x="800" y="172" width="8" height="58" rx="4" fill="#e07820"/>
+<text x="820" y="192" fill="#e07820" font-size="12" font-weight="700">Mixture of Experts</text>
+<text x="820" y="207" fill="#aa5010" font-size="10">mixture-of-experts</text>
+<text x="820" y="221" fill="#663010" font-size="9.5">EXACT 2-WAY TIE · utility 10v10 (robot-arm wins)</text>
+
+<!-- Row 2 -->
+<rect x="20" y="242" width="240" height="58" rx="10" fill="#1a0808" stroke="#6a1010" stroke-width="1.5"/>
+<rect x="20" y="242" width="8" height="58" rx="4" fill="#ee4444"/>
+<text x="40" y="262" fill="#ee4444" font-size="12" font-weight="700">Agents of Chaos</text>
+<text x="40" y="277" fill="#aa2020" font-size="10">agents-of-chaos</text>
+<text x="40" y="291" fill="#661010" font-size="9.5">MANY-WAY chaos · fully random votes</text>
+
+<rect x="280" y="242" width="240" height="58" rx="10" fill="#081a0e" stroke="#1a5a2a" stroke-width="1.5"/>
+<rect x="280" y="242" width="8" height="58" rx="4" fill="#28c060"/>
+<text x="300" y="262" fill="#28c060" font-size="12" font-weight="700">Search Party</text>
+<text x="300" y="277" fill="#1a8040" font-size="10">search-party</text>
+<text x="300" y="291" fill="#0a4420" font-size="9.5">FULLY RANDOM · live event results vary</text>
+
+<rect x="540" y="242" width="240" height="58" rx="10" fill="#08101e" stroke="#1a3060" stroke-width="1.5"/>
+<rect x="540" y="242" width="8" height="58" rx="4" fill="#4488ee"/>
+<text x="560" y="262" fill="#4488ee" font-size="12" font-weight="700">Prompt Engineers</text>
+<text x="560" y="277" fill="#2a5aaa" font-size="10">prompt-engineers</text>
+<text x="560" y="291" fill="#1a3466" font-size="9.5">BT/SL TIE · mobility 9v9 (balanced-treads wins)</text>
+
+<rect x="800" y="242" width="280" height="58" rx="10" fill="#141414" stroke="#3a3a3a" stroke-width="1.5"/>
+<rect x="800" y="242" width="8" height="58" rx="4" fill="#aaaaaa"/>
+<text x="820" y="262" fill="#cccccc" font-size="12" font-weight="700">The Verifiers</text>
+<text x="820" y="277" fill="#888888" font-size="10">the-verifiers</text>
+<text x="820" y="291" fill="#555555" font-size="9.5">FULLY RANDOM · live event results vary</text>
+</svg>
+
+  <!-- HTML Vote Tiers with blur overlay -->
+  <div class="tier-wrap">
+    <div class="tiers-label">4 VOTE TIERS — PLAYERS CHOOSE ONE OPTION PER TIER</div>
+    <div class="tiers-sub">Majority vote wins · ties broken by higher point value · max total score = 1000 pts — <em>click 👁 to reveal</em></div>
+    <div class="tier-grid">
+
+      <!-- MOBILITY -->
+      <div class="tier-card" style="border-color:#1a3050">
+        <div class="tier-head" style="background:#1a3050;color:#4488ee">
+          🚗 Mobility <div class="tier-q">How does your robot get around?</div>
+        </div>
+        <div class="tier-opts hidden" id="tier-mobility">
+          <div class="tier-opt" style="border-color:#2a5090;background:#0d1828">
+            <div class="opt-stripe" style="background:#4488ee"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#4488ee">Balanced Treads</div><div class="opt-desc">Solid all-around, moderate speed</div></div>
+            <div class="opt-pts" style="color:#4488ee">250 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#225070;background:#0d1828">
+            <div class="opt-stripe" style="background:#336699"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#aabbdd">Scout Legs</div><div class="opt-desc">Fast but fragile — speed bonus</div></div>
+            <div class="opt-pts" style="color:#4488cc">150 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#1a3050;background:#0d1828">
+            <div class="opt-stripe" style="background:#445566"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#7788aa">Heavy Lift</div><div class="opt-desc">Deliberate and strong — slow, stable</div></div>
+            <div class="opt-pts" style="color:#445566">75 pts</div>
+          </div>
+        </div>
+        <button class="eye-btn" onclick="toggleTier('tier-mobility',this)" title="Reveal point values">👁</button>
+      </div>
+
+      <!-- UTILITY -->
+      <div class="tier-card" style="border-color:#4a2800">
+        <div class="tier-head" style="background:#3a1800;color:#ee8822">
+          🦾 Utility <div class="tier-q">What tool does your robot use?</div>
+        </div>
+        <div class="tier-opts hidden" id="tier-utility">
+          <div class="tier-opt" style="border-color:#6a3800;background:#1a0e04">
+            <div class="opt-stripe" style="background:#ee8822"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#ee8822">Robot Arm</div><div class="opt-desc">Precision grabber — works on most tasks</div></div>
+            <div class="opt-pts" style="color:#ee8822">250 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#4a2800;background:#1a0e04">
+            <div class="opt-stripe" style="background:#aa6616"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#ccaa88">Grapple Hook</div><div class="opt-desc">High range — risky on delicate objectives</div></div>
+            <div class="opt-pts" style="color:#aa7030">150 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#2a1800;background:#1a0e04">
+            <div class="opt-stripe" style="background:#665533"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#998866">Suction Cup</div><div class="opt-desc">Gentle handling — best for fragile items</div></div>
+            <div class="opt-pts" style="color:#6a5030">75 pts</div>
+          </div>
+        </div>
+        <button class="eye-btn" onclick="toggleTier('tier-utility',this)" title="Reveal point values">👁</button>
+      </div>
+
+      <!-- CARE -->
+      <div class="tier-card" style="border-color:#1a5020">
+        <div class="tier-head" style="background:#1a4420;color:#44cc66">
+          📦 Care <div class="tier-q">How does your robot protect cargo?</div>
+        </div>
+        <div class="tier-opts hidden" id="tier-care">
+          <div class="tier-opt" style="border-color:#2a6a30;background:#0c1e10">
+            <div class="opt-stripe" style="background:#44cc66"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#44cc66">Stabilizer Rig</div><div class="opt-desc">Active balance — best overall protection</div></div>
+            <div class="opt-pts" style="color:#44cc66">250 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#1a4820;background:#0c1e10">
+            <div class="opt-stripe" style="background:#28aa44"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#88dd99">Cushion Mount</div><div class="opt-desc">Passive padding — lighter, good enough</div></div>
+            <div class="opt-pts" style="color:#2a8040">150 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#0e2010;background:#0c1e10">
+            <div class="opt-stripe" style="background:#336644"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#557766">Unconstrained</div><div class="opt-desc">No protection — max speed, zero care</div></div>
+            <div class="opt-pts" style="color:#3a5540">75 pts</div>
+          </div>
+        </div>
+        <button class="eye-btn" onclick="toggleTier('tier-care',this)" title="Reveal point values">👁</button>
+      </div>
+
+      <!-- BRAIN -->
+      <div class="tier-card" style="border-color:#3a1060">
+        <div class="tier-head" style="background:#2a0c50;color:#cc88ff">
+          🧠 Brain <div class="tier-q">How does your robot decide?</div>
+        </div>
+        <div class="tier-opts hidden" id="tier-brain">
+          <div class="tier-opt" style="border-color:#5a1e9a;background:#1a0c28">
+            <div class="opt-stripe" style="background:#cc88ff"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#cc88ff">Structured Thinker</div><div class="opt-desc">Methodical — consistent, moderate speed</div></div>
+            <div class="opt-pts" style="color:#cc88ff">250 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#3a1470;background:#1a0c28">
+            <div class="opt-stripe" style="background:#aa66dd"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#bbaaee">Verifier</div><div class="opt-desc">Double-checks everything — slow but sure</div></div>
+            <div class="opt-pts" style="color:#9966cc">150 pts</div>
+          </div>
+          <div class="tier-opt" style="border-color:#2a0c50;background:#1a0c28">
+            <div class="opt-stripe" style="background:#664488"></div>
+            <div class="opt-info"><div class="opt-name" style="color:#9977bb">Fast Guesser</div><div class="opt-desc">Quick decisions — speed bonus, less reliable</div></div>
+            <div class="opt-pts" style="color:#5a3a77">75 pts</div>
+          </div>
+        </div>
+        <button class="eye-btn" onclick="toggleTier('tier-brain',this)" title="Reveal point values">👁</button>
+      </div>
+
+    </div><!-- .tier-grid -->
+  </div><!-- .tier-wrap -->
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 3 — VOTE CAS FLOW                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="cas">
+  <div class="sec-head">
+    <div class="sec-badge" style="background:#DC382D;color:#fff">3</div>
+    <h2>Vote Submission — CAS Write Flow</h2>
+  </div>
+  <p class="sec-sub">How a single player's vote travels from browser click to confirmed Redis write. The CAS verify step is what prevents silent lost updates under burst load.</p>
+  <div class="card">
+<svg viewBox="0 0 1100 500" width="1100" height="500" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,sans-serif">
+<defs>
+  <marker id="ab3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2680EB"/></marker>
+  <marker id="ar3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#DC382D"/></marker>
+  <marker id="ag3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#31a750"/></marker>
+  <marker id="ao3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#e07020"/></marker>
+  <style>@keyframes fd3{to{stroke-dashoffset:-26}}.fd3{stroke-dasharray:7 4;animation:fd3 1s linear infinite}</style>
+</defs>
+
+<rect x="60" y="20" width="120" height="36" rx="8" fill="#1a1a2e" stroke="#2a2a50" stroke-width="1.5"/>
+<text x="120" y="44" text-anchor="middle" fill="#8888cc" font-size="12" font-weight="700">🎮 Browser</text>
+<line x1="120" y1="56" x2="120" y2="490" stroke="#2a2a50" stroke-width="1" stroke-dasharray="4,4"/>
+
+<rect x="330" y="20" width="180" height="36" rx="8" fill="#0a1428" stroke="#1a3050" stroke-width="1.5"/>
+<text x="420" y="38" text-anchor="middle" fill="#4488cc" font-size="11" font-weight="700">Adobe I/O Runtime</text>
+<text x="420" y="50" text-anchor="middle" fill="#2a5080" font-size="9.5">robot-game action</text>
+<line x1="420" y1="56" x2="420" y2="490" stroke="#1a3050" stroke-width="1" stroke-dasharray="4,4"/>
+
+<rect x="660" y="20" width="200" height="36" rx="8" fill="#1a0808" stroke="#3a1010" stroke-width="1.5"/>
+<text x="760" y="38" text-anchor="middle" fill="#FF6B60" font-size="11" font-weight="700">aio-lib-state (Redis)</text>
+<text x="760" y="50" text-anchor="middle" fill="#7a2a2a" font-size="9.5">game-votes-{slug}</text>
+<line x1="760" y1="56" x2="760" y2="490" stroke="#3a1010" stroke-width="1" stroke-dasharray="4,4"/>
+
+<rect x="930" y="20" width="148" height="36" rx="8" fill="#0a1e14" stroke="#1a5020" stroke-width="1.5"/>
+<text x="1004" y="38" text-anchor="middle" fill="#44cc66" font-size="11" font-weight="700">Response</text>
+<text x="1004" y="50" text-anchor="middle" fill="#2a7040" font-size="9.5">{ teamsReady: N }</text>
+<line x1="1004" y1="56" x2="1004" y2="490" stroke="#1a5020" stroke-width="1" stroke-dasharray="4,4"/>
+
+<rect x="20" y="74" width="220" height="30" rx="8" fill="#0d1428" stroke="#1a3050" stroke-width="1"/>
+<text x="130" y="94" text-anchor="middle" fill="#6688aa" font-size="10.5">Player clicks "Lock In"</text>
+<line x1="120" y1="118" x2="418" y2="118" stroke="#2680EB" stroke-width="1.8" marker-end="url(#ab3)" class="fd3"/>
+<rect x="160" y="104" width="198" height="24" rx="6" fill="#0a1428" stroke="#1a3050" stroke-width="1"/>
+<text x="259" y="120" text-anchor="middle" fill="#2680EB" font-size="10.5">POST ?mode=submit { teamSlug, build }</text>
+
+<rect x="346" y="132" width="148" height="26" rx="6" fill="#0a1428" stroke="#1a3050" stroke-width="1"/>
+<text x="420" y="149" text-anchor="middle" fill="#4a80aa" font-size="10">validate teamSlug + build</text>
+
+<rect x="300" y="165" width="540" height="250" rx="10" fill="none" stroke="#2a2a44" stroke-width="1.5" stroke-dasharray="6,3"/>
+<text x="312" y="180" fill="#3a3a66" font-size="9.5" font-weight="700">withRetry — up to 6 attempts · delays: 25, 25, 25, 25, 50, 50 ms</text>
+
+<line x1="420" y1="194" x2="758" y2="194" stroke="#DC382D" stroke-width="1.6" marker-end="url(#ar3)" class="fd3"/>
+<text x="590" y="188" text-anchor="middle" fill="#DC382D" font-size="10.5">GET game-votes-token-titans</text>
+
+<line x1="758" y1="216" x2="422" y2="216" stroke="#DC382D" stroke-width="1.6" marker-end="url(#ar3)" class="fd3"/>
+<text x="590" y="210" text-anchor="middle" fill="#993333" font-size="10.5">{ playerCount: N, mobility:{…}, _v: prevId }</text>
+
+<rect x="346" y="226" width="148" height="36" rx="6" fill="#0a1428" stroke="#1a3050" stroke-width="1"/>
+<text x="420" y="240" text-anchor="middle" fill="#4a80aa" font-size="10">increment counts</text>
+<text x="420" y="253" text-anchor="middle" fill="#4a80aa" font-size="10">stamp _v = writeId</text>
+
+<line x1="420" y1="274" x2="758" y2="274" stroke="#DC382D" stroke-width="1.6" marker-end="url(#ar3)" class="fd3"/>
+<text x="590" y="268" text-anchor="middle" fill="#DC382D" font-size="10.5">PUT { playerCount: N+1, ..., _v: writeId }</text>
+
+<line x1="420" y1="296" x2="758" y2="296" stroke="#e07020" stroke-width="1.5" marker-end="url(#ao3)" class="fd3"/>
+<text x="590" y="290" text-anchor="middle" fill="#e07020" font-size="10.5">GET game-votes-token-titans (CAS verify)</text>
+
+<line x1="758" y1="318" x2="422" y2="318" stroke="#e07020" stroke-width="1.5" marker-end="url(#ao3)" class="fd3"/>
+<text x="590" y="312" text-anchor="middle" fill="#aa5510" font-size="10.5">{ _v: ? }</text>
+
+<polygon points="420,334 460,356 420,378 380,356" fill="#0a1428" stroke="#2a3a60" stroke-width="1.5"/>
+<text x="420" y="354" text-anchor="middle" fill="#6688aa" font-size="10">_v ?</text>
+<text x="420" y="365" text-anchor="middle" fill="#4a6088" font-size="9">== writeId</text>
+
+<line x1="460" y1="356" x2="840" y2="356" stroke="#31a750" stroke-width="1.5" marker-end="url(#ag3)"/>
+<text x="620" y="350" text-anchor="middle" fill="#31a750" font-size="10">✅ match — write confirmed</text>
+
+<path d="M380 356 Q340 356 340 298 Q340 240 380 240" fill="none" stroke="#e07020" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ao3)"/>
+<text x="290" y="300" text-anchor="middle" fill="#e07020" font-size="10" transform="rotate(-90 290 300)">⚡ conflict → retry</text>
+
+<line x1="420" y1="425" x2="758" y2="425" stroke="#2680EB" stroke-width="1.5" marker-end="url(#ab3)"/>
+<text x="590" y="419" text-anchor="middle" fill="#2680EB" font-size="10.5">countTeamsReady() — read all 8 vote keys</text>
+<line x1="758" y1="445" x2="422" y2="445" stroke="#2680EB" stroke-width="1.5" marker-end="url(#ab3)"/>
+<text x="590" y="439" text-anchor="middle" fill="#335577" font-size="10.5">N teams with playerCount &gt; 0</text>
+
+<line x1="420" y1="465" x2="1002" y2="465" stroke="#31a750" stroke-width="1.8" marker-end="url(#ag3)"/>
+<text x="711" y="459" text-anchor="middle" fill="#31a750" font-size="10.5">{ ok: true, teamsReady: N }  →  200 OK</text>
+</svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 4 — CLAUDE CODE DEPLOY FLOW                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="deploy">
+  <div class="sec-head">
+    <div class="sec-badge" style="background:#6b3dff;color:#fff">4</div>
+    <h2>Claude Code Deploy Flow &amp; Frontend Performance</h2>
+  </div>
+  <p class="sec-sub">How this system was built and deployed — Claude Code CLI with Adobe's FluffyJaws MCP, two separate deployment targets, and why the frontend is fast.</p>
+  <div class="card">
+<svg viewBox="0 0 1100 400" width="1100" height="400" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,sans-serif">
+<defs>
+  <marker id="adp" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#6b3dff"/></marker>
+  <marker id="adg" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#31a750"/></marker>
+  <marker id="adb" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2680EB"/></marker>
+</defs>
+
+<!-- DEVELOPMENT TOOLS row -->
+<text x="550" y="24" text-anchor="middle" fill="#5a5a8a" font-size="9.5" font-weight="700" letter-spacing="1.2">DEVELOPMENT TOOLCHAIN</text>
+
+<!-- Claude Code box -->
+<rect x="60" y="34" width="200" height="68" rx="10" fill="#1a0a28" stroke="#6b3dff" stroke-width="1.8"/>
+<text x="160" y="54" text-anchor="middle" fill="#cc99ff" font-size="13" font-weight="700">Claude Code CLI</text>
+<text x="160" y="70" text-anchor="middle" fill="#7a4aaa" font-size="10.5">claude-sonnet-4-6</text>
+<text x="160" y="84" text-anchor="middle" fill="#9b6dcc" font-size="10">Superpowers plugin · sub-agents</text>
+<text x="160" y="97" text-anchor="middle" fill="#7a4aaa" font-size="9.5">advisor · subagent-driven dev</text>
+
+<!-- FluffyJaws box -->
+<rect x="290" y="34" width="200" height="68" rx="10" fill="#0a1428" stroke="#2680EB" stroke-width="1.5"/>
+<text x="390" y="54" text-anchor="middle" fill="#4488cc" font-size="13" font-weight="700">FluffyJaws MCP</text>
+<text x="390" y="70" text-anchor="middle" fill="#2a5080" font-size="10.5">Adobe-internal toolchain</text>
+<text x="390" y="84" text-anchor="middle" fill="#4488cc" font-size="10">AEM docs · Jira · Slack · env search</text>
+<text x="390" y="97" text-anchor="middle" fill="#3366aa" font-size="9.5">Adobe service knowledge at dev time</text>
+
+<!-- Playwright MCP box -->
+<rect x="520" y="34" width="200" height="68" rx="10" fill="#081a10" stroke="#31a750" stroke-width="1.5"/>
+<text x="620" y="54" text-anchor="middle" fill="#44cc66" font-size="13" font-weight="700">Playwright MCP</text>
+<text x="620" y="70" text-anchor="middle" fill="#2a8040" font-size="10.5">Browser automation</text>
+<text x="620" y="84" text-anchor="middle" fill="#44aa66" font-size="10">Navigate · click · snapshot · fill</text>
+<text x="620" y="97" text-anchor="middle" fill="#2a8050" font-size="9.5">UI validation without manual testing</text>
+
+<!-- aio CLI box -->
+<rect x="750" y="34" width="200" height="68" rx="10" fill="#1a1008" stroke="#e07820" stroke-width="1.5"/>
+<text x="850" y="54" text-anchor="middle" fill="#ee9944" font-size="13" font-weight="700">aio CLI</text>
+<text x="850" y="70" text-anchor="middle" fill="#aa6020" font-size="10.5">Adobe I/O toolchain</text>
+<text x="850" y="84" text-anchor="middle" fill="#cc8822" font-size="10">aio app deploy · aio app run</text>
+<text x="850" y="97" text-anchor="middle" fill="#aa6620" font-size="9.5">Bundles + deploys App Builder actions</text>
+
+<!-- Separator arrows down -->
+<line x1="160" y1="102" x2="160" y2="148" stroke="#6b3dff" stroke-width="1.5" marker-end="url(#adp)" stroke-dasharray="4,3"/>
+<line x1="390" y1="102" x2="390" y2="148" stroke="#2680EB" stroke-width="1.5" marker-end="url(#adb)" stroke-dasharray="4,3"/>
+<line x1="620" y1="102" x2="620" y2="148" stroke="#31a750" stroke-width="1.5" marker-end="url(#adg)" stroke-dasharray="4,3"/>
+<line x1="850" y1="102" x2="850" y2="148" stroke="#e07820" stroke-width="1.5" marker-end="url(#adp)" stroke-dasharray="4,3"/>
+
+<!-- DEPLOY TARGETS row -->
+<text x="550" y="142" text-anchor="middle" fill="#5a5a8a" font-size="9.5" font-weight="700" letter-spacing="1.2">DEPLOYMENT TARGETS</text>
+
+<!-- Backend deploy -->
+<rect x="60" y="152" width="460" height="72" rx="10" fill="#090f1e" stroke="#142040" stroke-width="1.5"/>
+<text x="290" y="172" text-anchor="middle" fill="#6699dd" font-size="11" font-weight="700">Backend — Adobe App Builder / I/O Runtime</text>
+<text x="290" y="190" text-anchor="middle" fill="#3a5a80" font-size="10.5" font-family="monospace">aio app deploy</text>
+<text x="290" y="205" text-anchor="middle" fill="#2a4060" font-size="10">Bundles Node.js actions → deploys to OpenWhisk namespace</text>
+<text x="290" y="219" text-anchor="middle" fill="#1a2a40" font-size="9.5">768811-280maroonswan-stage / pstolmar-test / robot-game</text>
+
+<!-- Frontend deploy -->
+<rect x="580" y="152" width="460" height="72" rx="10" fill="#081a10" stroke="#1a5020" stroke-width="1.5"/>
+<text x="810" y="172" text-anchor="middle" fill="#44aa66" font-size="11" font-weight="700">Frontend — AEM Edge Delivery Services</text>
+<text x="810" y="190" text-anchor="middle" fill="#2a7040" font-size="10.5" font-family="monospace">git push → AEM EDS pipeline → CDN</text>
+<text x="810" y="205" text-anchor="middle" fill="#1a5030" font-size="10">GitHub push triggers automatic CDN deployment — zero build step</text>
+<text x="810" y="219" text-anchor="middle" fill="#0a3020" font-size="9.5">ai-club-pit-crew--diagram-editor--pstolmar.aem.live</text>
+
+<!-- Arrow from deploy to live -->
+<line x1="290" y1="224" x2="290" y2="258" stroke="#2680EB" stroke-width="1.5" marker-end="url(#adb)"/>
+<line x1="810" y1="224" x2="810" y2="258" stroke="#31a750" stroke-width="1.5" marker-end="url(#adg)"/>
+
+<!-- LIVE SYSTEMS row -->
+<text x="550" y="252" text-anchor="middle" fill="#5a5a8a" font-size="9.5" font-weight="700" letter-spacing="1.2">LIVE SYSTEMS</text>
+
+<rect x="60" y="262" width="460" height="50" rx="10" fill="#090f1e" stroke="#2680EB" stroke-width="1"/>
+<text x="290" y="282" text-anchor="middle" fill="#4488cc" font-size="11" font-weight="600">adobeioruntime.net — robot-game action</text>
+<text x="290" y="298" text-anchor="middle" fill="#2a5080" font-size="9.5">Stateless · scales instantly · ~50ms cold start · 0 drops realistic load</text>
+
+<rect x="580" y="262" width="460" height="50" rx="10" fill="#081a10" stroke="#31a750" stroke-width="1"/>
+<text x="810" y="282" text-anchor="middle" fill="#44aa66" font-size="11" font-weight="600">aem.live CDN — challenge.html</text>
+<text x="810" y="298" text-anchor="middle" fill="#2a7040" font-size="9.5">Lighthouse 100 · sub-100ms TTFB globally · vanilla JS · zero framework</text>
+
+<!-- PERF BADGES row -->
+<text x="550" y="336" text-anchor="middle" fill="#5a5a8a" font-size="9.5" font-weight="700" letter-spacing="1.2">FRONTEND PERFORMANCE FACTORS</text>
+
+<rect x="28" y="346" width="150" height="36" rx="8" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="103" y="360" text-anchor="middle" fill="#4488aa" font-size="10" font-weight="700">EDS CDN</text>
+<text x="103" y="374" text-anchor="middle" fill="#2a4a66" font-size="9">Globally cached · instant serve</text>
+
+<rect x="190" y="346" width="150" height="36" rx="8" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="265" y="360" text-anchor="middle" fill="#4488aa" font-size="10" font-weight="700">Zero SSR</text>
+<text x="265" y="374" text-anchor="middle" fill="#2a4a66" font-size="9">No server compute on page load</text>
+
+<rect x="352" y="346" width="150" height="36" rx="8" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="427" y="360" text-anchor="middle" fill="#4488aa" font-size="10" font-weight="700">Vanilla JS</text>
+<text x="427" y="374" text-anchor="middle" fill="#2a4a66" font-size="9">No React/framework on challenge page</text>
+
+<rect x="514" y="346" width="150" height="36" rx="8" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="589" y="360" text-anchor="middle" fill="#4488aa" font-size="10" font-weight="700">Zero auth</text>
+<text x="589" y="374" text-anchor="middle" fill="#2a4a66" font-size="9">No token overhead for players</text>
+
+<rect x="676" y="346" width="150" height="36" rx="8" fill="#0a1828" stroke="#153050" stroke-width="1"/>
+<text x="751" y="360" text-anchor="middle" fill="#4488aa" font-size="10" font-weight="700">Pre-built static</text>
+<text x="751" y="374" text-anchor="middle" fill="#2a4a66" font-size="9">Assets baked at deploy, not request</text>
+
+<rect x="838" y="346" width="234" height="36" rx="8" fill="#140a20" stroke="#3a1a50" stroke-width="1"/>
+<text x="955" y="360" text-anchor="middle" fill="#aa88cc" font-size="10" font-weight="700">Built by Claude Code + FluffyJaws</text>
+<text x="955" y="374" text-anchor="middle" fill="#5a3a7a" font-size="9">MCP-assisted dev · zero manual deploys</text>
+</svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 5 — LOAD TEST RESULTS                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="loadtest">
+  <div class="sec-head">
+    <div class="sec-badge" style="background:#31a750;color:#fff">5</div>
+    <h2>Load Test Results</h2>
+  </div>
+  <p class="sec-sub">Four progressive test runs showing the impact of CAS (compare-and-swap) and realistic player pacing on vote integrity and latency. Final result: 200/200 votes, 0 drops.</p>
+  <div class="card">
+<svg viewBox="0 0 1100 420" width="1100" height="420" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,sans-serif">
+
+<!-- Grid lines (y axis: 0, 250, 500, 750, 1000ms) -->
+<!-- Scale: 1000ms = 280px, bottom y=340, top y=60 -->
+<!-- y = 340 - (ms * 0.28) -->
+<line x1="80" y1="340" x2="1080" y2="340" stroke="#1a1a2a" stroke-width="1"/>
+<line x1="80" y1="270" x2="1080" y2="270" stroke="#1a1a2a" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="80" y1="200" x2="1080" y2="200" stroke="#1a1a2a" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="80" y1="130" x2="1080" y2="130" stroke="#1a1a2a" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="80" y1="60" x2="1080" y2="60" stroke="#1a1a2a" stroke-width="1" stroke-dasharray="4,4"/>
+
+<!-- Y axis labels -->
+<text x="72" y="344" text-anchor="end" fill="#444" font-size="10">0</text>
+<text x="72" y="274" text-anchor="end" fill="#444" font-size="10">250ms</text>
+<text x="72" y="204" text-anchor="end" fill="#444" font-size="10">500ms</text>
+<text x="72" y="134" text-anchor="end" fill="#444" font-size="10">750ms</text>
+<text x="72" y="64" text-anchor="end" fill="#444" font-size="10">1000ms</text>
+<text x="72" y="44" text-anchor="end" fill="#2680EB" font-size="9">↑ clip</text>
+
+<!-- Y axis label -->
+<text x="18" y="205" text-anchor="middle" fill="#555" font-size="10" transform="rotate(-90 18 205)">Response time (ms)</text>
+
+<!-- GROUP 1: v1 — 50p stress test -->
+<!-- center x = 190, P50 bar: x=154, P95 bar: x=202 -->
+<!-- v1 P50=367ms → height=102.8, top=237.2 -->
+<!-- v1 P95=897ms → height=251.2, top=88.8 (fits) -->
+<rect x="154" y="237" width="36" height="103" rx="3" fill="#2680EB" opacity=".85"/>
+<rect x="202" y="89" width="36" height="251" rx="3" fill="#9b59b6" opacity=".75"/>
+<text x="172" y="232" text-anchor="middle" fill="#2680EB" font-size="9.5" font-weight="700">367</text>
+<text x="220" y="84" text-anchor="middle" fill="#9b59b6" font-size="9.5" font-weight="700">897</text>
+
+<!-- GROUP 2: v2 — 200p burst -->
+<!-- center x = 410, P50=535 → height=149.8, top=190 -->
+<!-- P95=6720 → CLIPPED, show flame at y=60 -->
+<rect x="374" y="190" width="36" height="150" rx="3" fill="#2680EB" opacity=".85"/>
+<rect x="422" y="60" width="36" height="280" rx="3" fill="#DC382D" opacity=".7"/>
+<text x="392" y="185" text-anchor="middle" fill="#2680EB" font-size="9.5" font-weight="700">535</text>
+<!-- Flame cap and label for P95 -->
+<polygon points="440,60 430,74 450,74" fill="#DC382D"/>
+<text x="440" y="52" text-anchor="middle" fill="#DC382D" font-size="9" font-weight="700">6,720ms</text>
+
+<!-- GROUP 3: v3 — 160p burst+CAS -->
+<!-- center x = 630, P50=507 → height=141.96, top=198 -->
+<!-- P95=6340 → CLIPPED -->
+<rect x="594" y="198" width="36" height="142" rx="3" fill="#2680EB" opacity=".85"/>
+<rect x="642" y="60" width="36" height="280" rx="3" fill="#e07020" opacity=".7"/>
+<text x="612" y="193" text-anchor="middle" fill="#2680EB" font-size="9.5" font-weight="700">507</text>
+<polygon points="660,60 650,74 670,74" fill="#e07020"/>
+<text x="660" y="52" text-anchor="middle" fill="#e07020" font-size="9" font-weight="700">6,340ms</text>
+
+<!-- GROUP 4: v4 — 200p realistic -->
+<!-- center x = 880, P50=295 → height=82.6, top=257 -->
+<!-- P95=606 → height=169.7, top=170 -->
+<rect x="844" y="257" width="36" height="83" rx="3" fill="#2680EB" opacity=".85"/>
+<rect x="892" y="170" width="36" height="170" rx="3" fill="#31a750" opacity=".85"/>
+<text x="862" y="252" text-anchor="middle" fill="#2680EB" font-size="9.5" font-weight="700">295</text>
+<text x="910" y="165" text-anchor="middle" fill="#31a750" font-size="9.5" font-weight="700">606</text>
+
+<!-- Group labels below x axis -->
+<!-- v1 -->
+<text x="190" y="358" text-anchor="middle" fill="#6680aa" font-size="10.5" font-weight="700">v1 · 50 players</text>
+<text x="190" y="371" text-anchor="middle" fill="#445566" font-size="9.5">burst · exp backoff</text>
+<text x="190" y="384" text-anchor="middle" fill="#445566" font-size="9.5">no jitter</text>
+
+<!-- v2 -->
+<text x="430" y="358" text-anchor="middle" fill="#cc4444" font-size="10.5" font-weight="700">v2 · 200 players</text>
+<text x="430" y="371" text-anchor="middle" fill="#884444" font-size="9.5">burst · jitter</text>
+<text x="430" y="384" text-anchor="middle" fill="#884444" font-size="9.5">no CAS</text>
+
+<!-- v3 -->
+<text x="650" y="358" text-anchor="middle" fill="#cc8833" font-size="10.5" font-weight="700">v3 · 160 players</text>
+<text x="650" y="371" text-anchor="middle" fill="#886633" font-size="9.5">burst · jitter+CAS</text>
+<text x="650" y="384" text-anchor="middle" fill="#886633" font-size="9.5">flat backoff</text>
+
+<!-- v4 -->
+<text x="880" y="358" text-anchor="middle" fill="#44aa66" font-size="10.5" font-weight="700">v4 · 200 players</text>
+<text x="880" y="371" text-anchor="middle" fill="#2a7044" font-size="9.5">realistic pacing</text>
+<text x="880" y="384" text-anchor="middle" fill="#2a7044" font-size="9.5">jitter+CAS</text>
+
+<!-- Drop rate badges -->
+<rect x="150" y="396" width="80" height="18" rx="9" fill="#1e1408" stroke="#6a5010" stroke-width="1"/>
+<text x="190" y="409" text-anchor="middle" fill="#aaaa22" font-size="9.5" font-weight="700">⚠ 2% drops</text>
+<rect x="386" y="396" width="88" height="18" rx="9" fill="#1e0808" stroke="#6a1010" stroke-width="1"/>
+<text x="430" y="409" text-anchor="middle" fill="#cc4444" font-size="9.5" font-weight="700">🔴 8.5% drops</text>
+<rect x="604" y="396" width="92" height="18" rx="9" fill="#1e1408" stroke="#6a5010" stroke-width="1"/>
+<text x="650" y="409" text-anchor="middle" fill="#ccaa22" font-size="9.5" font-weight="700">⚠ 1.25% drops</text>
+<rect x="838" y="396" width="84" height="18" rx="9" fill="#081a10" stroke="#1a5a30" stroke-width="1"/>
+<text x="880" y="409" text-anchor="middle" fill="#44cc66" font-size="9.5" font-weight="700">✅ 0 drops</text>
+
+<!-- "What changed" annotations between groups -->
+<line x1="295" y1="390" x2="370" y2="390" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="333" y="386" text-anchor="middle" fill="#444" font-size="9">scaled load</text>
+<line x1="510" y1="390" x2="590" y2="390" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="550" y="386" text-anchor="middle" fill="#31a750" font-size="9">+ CAS fix</text>
+<line x1="730" y1="390" x2="830" y2="390" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="780" y="386" text-anchor="middle" fill="#31a750" font-size="9">+ realistic pacing</text>
+
+<!-- Legend -->
+<rect x="80" y="18" width="14" height="14" rx="3" fill="#2680EB" opacity=".85"/>
+<text x="100" y="29" fill="#8899bb" font-size="10">P50 (median)</text>
+<rect x="200" y="18" width="14" height="14" rx="3" fill="#9b59b6" opacity=".75"/>
+<text x="220" y="29" fill="#8899bb" font-size="10">P95 (95th pct)</text>
+<rect x="330" y="18" width="14" height="14" rx="3" fill="#DC382D" opacity=".7"/>
+<text x="350" y="29" fill="#8899bb" font-size="10">P95 clipped (off-scale)</text>
+<rect x="510" y="18" width="14" height="14" rx="3" fill="#31a750" opacity=".85"/>
+<text x="530" y="29" fill="#44cc66" font-size="10">P95 — final realistic test</text>
+<text x="850" y="29" fill="#2a7040" font-size="10">All 4/4 tie checks passed in v3–v4</text>
+</svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 6 — MERMAID DIAGRAMS (ACCORDION)                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="mermaid">
+  <div class="sec-head">
+    <div class="sec-badge" style="background:#555;color:#fff">6</div>
+    <h2>Mermaid Diagrams</h2>
+  </div>
+  <p class="sec-sub">Copy and paste into any Mermaid-compatible renderer (mermaid.live, GitHub, Notion, GitLab). Click to expand.</p>
+
+  <details class="mermaid-acc">
+    <summary>
+      <span class="mermaid-tag">MERMAID</span>
+      sequenceDiagram — end-to-end player vote flow
+      <span class="mermaid-note">mermaid.live · GitHub · Notion</span>
+      <span class="arr">▼</span>
+    </summary>
+    <div class="mermaid-card" style="border:none;border-radius:0;margin-bottom:0">
+<pre class="mermaid-code"><span class="mc">%%  AI Club Robot Game — Full Vote Flow</span>
+<span class="mc">%%  paste at mermaid.live to render</span>
+
+<span class="mk">sequenceDiagram</span>
+    <span class="mk">actor</span> <span class="mi">P</span> <span class="mk">as</span> <span class="ms">🎮 Player (up to 200)</span>
+    <span class="mk">participant</span> <span class="mi">EDS</span> <span class="mk">as</span> <span class="ms">AEM Edge Delivery</span>
+    <span class="mk">participant</span> <span class="mi">RT</span>  <span class="mk">as</span> <span class="ms">Adobe I/O Runtime — robot-game</span>
+    <span class="mk">participant</span> <span class="mi">KV</span>  <span class="mk">as</span> <span class="ms">aio-lib-state (Redis KV)</span>
+
+    <span class="mi">P</span><span class="ma">-&gt;&gt;</span><span class="mi">EDS</span><span class="ms">: GET /tools/ai-club-pit-crew-challenge.html</span>
+    <span class="mi">EDS</span><span class="ma">--&gt;&gt;</span><span class="mi">P</span><span class="ms">: Static HTML + JS (CDN cached — zero server cost)</span>
+
+    <span class="mi">P</span><span class="ma">-&gt;&gt;</span><span class="mi">RT</span><span class="ms">: GET ?mode=join</span>
+    <span class="mi">RT</span><span class="ma">--&gt;&gt;</span><span class="mi">P</span><span class="ms">: { teamSlug: "token-titans", teamName: "Token Titans" }</span>
+
+    <span class="mn">Note over P</span><span class="ms">: Player selects mobility / utility / care / brain options</span>
+
+    <span class="mi">P</span><span class="ma">-&gt;&gt;</span><span class="mi">RT</span><span class="ms">: POST ?mode=submit { teamSlug, build: { mobility, utility, care, brain } }</span>
+
+    <span class="mg">loop</span> <span class="ms">withRetry — up to 6 attempts · delays: 25, 25, 25, 25, 50, 50 ms</span>
+        <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">KV</span><span class="ms">: GET game-votes-token-titans</span>
+        <span class="mi">KV</span><span class="ma">--&gt;&gt;</span><span class="mi">RT</span><span class="ms">: { playerCount: N, mobility:{…}, _v: prevId }</span>
+        <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">RT</span><span class="ms">: increment playerCount · increment tier counts · set _v = writeId</span>
+        <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">KV</span><span class="ms">: PUT { playerCount: N+1, …, _v: writeId }</span>
+        <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">KV</span><span class="ms">: GET game-votes-token-titans  (CAS verify)</span>
+        <span class="mo">alt</span> <span class="ms">verify._v === writeId</span>
+            <span class="mn">Note over RT</span><span class="ms">: ✅ Write confirmed — no concurrent writer overwrote us</span>
+        <span class="mo">else</span> <span class="ms">verify._v !== writeId (another writer won the race)</span>
+            <span class="mn">Note over RT</span><span class="ms">: ⚡ CAS conflict — retry reads fresh state from winner</span>
+        <span class="mo">end</span>
+    <span class="mg">end</span>
+
+    <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">KV</span><span class="ms">: countTeamsReady() — parallel GET all 8 game-votes-* keys</span>
+    <span class="mi">KV</span><span class="ma">--&gt;&gt;</span><span class="mi">RT</span><span class="ms">: N records with playerCount &gt; 0</span>
+    <span class="mi">RT</span><span class="ma">--&gt;&gt;</span><span class="mi">P</span><span class="ms">: { ok: true, teamsReady: N }  ·  200 OK</span>
+
+    <span class="mn">Note over P,KV</span><span class="ms">: ── Game ends when timer expires (300s) OR all 8 teams have ≥1 vote ──</span>
+    <span class="mn">Note over P,KV</span><span class="ms">: ── Timer is server-authoritative (expiresAt in Redis) — clients read via mode=status ──</span>
+
+    <span class="mi">P</span><span class="ma">-&gt;&gt;</span><span class="mi">RT</span><span class="ms">: GET ?mode=status</span>
+    <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">KV</span><span class="ms">: GET game-session + parallel GET all 8 game-votes-* keys</span>
+    <span class="mi">KV</span><span class="ma">--&gt;&gt;</span><span class="mi">RT</span><span class="ms">: All vote records</span>
+    <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">RT</span><span class="ms">: computeActualBuild() — majority vote per tier · ties broken by point value</span>
+    <span class="mi">RT</span><span class="ma">-&gt;&gt;</span><span class="mi">KV</span><span class="ms">: PUT game-session { phase: "results" }</span>
+    <span class="mi">RT</span><span class="ma">--&gt;&gt;</span><span class="mi">P</span><span class="ms">: { phase: "results", results: { 8 teams with actualBuild + score } }</span></pre>
+    </div>
+  </details>
+
+  <details class="mermaid-acc">
+    <summary>
+      <span class="mermaid-tag">MERMAID</span>
+      flowchart TD — system architecture overview
+      <span class="mermaid-note">mermaid.live · GitHub · Notion</span>
+      <span class="arr">▼</span>
+    </summary>
+    <div class="mermaid-card" style="border:none;border-radius:0;margin-bottom:0">
+<pre class="mermaid-code"><span class="mc">%%  AI Club Robot Game — Architecture Flowchart</span>
+
+<span class="mk">flowchart</span> TD
+
+    <span class="mk">subgraph</span> <span class="mi">Players</span>[<span class="ms">"Players — up to 200 concurrent"</span>]
+        <span class="mi">B</span>[<span class="ms">"Browser / challenge.html"</span>]
+    <span class="mk">end</span>
+
+    <span class="mk">subgraph</span> <span class="mi">AEM</span>[<span class="ms">"Adobe Experience Manager"</span>]
+        <span class="mi">EDS</span>[<span class="ms">"Edge Delivery Services — aem.live / CDN-cached"</span>]
+    <span class="mk">end</span>
+
+    <span class="mk">subgraph</span> <span class="mi">AppBuilder</span>[<span class="ms">"Adobe App Builder"</span>]
+        <span class="mk">subgraph</span> <span class="mi">Runtime</span>[<span class="ms">"I/O Runtime — OpenWhisk"</span>]
+            <span class="mi">RG</span>[<span class="ms">"robot-game · Node.js 22 · pstolmar-test"</span>]
+        <span class="mk">end</span>
+        <span class="mk">subgraph</span> <span class="mi">Modes</span>[<span class="ms">"Action Modes"</span>]
+            <span class="mi">J</span>[<span class="ms">join</span>]
+            <span class="mi">SB</span>[<span class="ms">"submit · CAS write"</span>]
+            <span class="mi">ST</span>[<span class="ms">"status · phase flip"</span>]
+            <span class="mi">RS</span>[<span class="ms">"reset · deleteAll"</span>]
+            <span class="mi">SD</span>[<span class="ms">seed</span>]
+            <span class="mi">IN</span>[<span class="ms">inspect</span>]
+        <span class="mk">end</span>
+    <span class="mk">end</span>
+
+    <span class="mk">subgraph</span> <span class="mi">StateStore</span>[<span class="ms">"I/O State Store — aio-lib-state v5 Redis"</span>]
+        <span class="mi">SESS</span>[(<span class="ms">"game-session · TTL 86400s"</span>)]
+        <span class="mi">VOTES</span>[(<span class="ms">"game-votes-slug x8 · TTL 86400s"</span>)]
+        <span class="mi">ARR</span>[(<span class="ms">"game-arrivals · TTL 86400s"</span>)]
+    <span class="mk">end</span>
+
+    <span class="mi">B</span> <span class="ma">--&gt;</span>|<span class="ms">GET static</span>| <span class="mi">EDS</span>
+    <span class="mi">EDS</span> <span class="ma">--&gt;</span>|<span class="ms">CDN serve</span>| <span class="mi">B</span>
+    <span class="mi">B</span> <span class="ma">--&gt;</span>|<span class="ms">HTTPS POST/GET</span>| <span class="mi">RG</span>
+
+    <span class="mi">RG</span> <span class="ma">--&gt;</span> <span class="mi">J</span> <span class="ma">&amp;</span> <span class="mi">SB</span> <span class="ma">&amp;</span> <span class="mi">ST</span> <span class="ma">&amp;</span> <span class="mi">RS</span> <span class="ma">&amp;</span> <span class="mi">SD</span> <span class="ma">&amp;</span> <span class="mi">IN</span>
+
+    <span class="mi">SB</span> <span class="ma">--&gt;</span>|<span class="ms">"CAS 6x · 200ms max"</span>| <span class="mi">VOTES</span>
+    <span class="mi">ST</span> <span class="ma">--&gt;</span>|<span class="ms">read + phase flip</span>| <span class="mi">SESS</span>
+    <span class="mi">ST</span> <span class="ma">--&gt;</span>|<span class="ms">computeActualBuild</span>| <span class="mi">VOTES</span>
+    <span class="mi">RS</span> <span class="ma">--&gt;</span>|<span class="ms">deleteAll game-*</span>| <span class="mi">SESS</span> <span class="ma">&amp;</span> <span class="mi">VOTES</span> <span class="ma">&amp;</span> <span class="mi">ARR</span>
+    <span class="mi">J</span>  <span class="ma">-.-&gt;</span>|<span class="ms">read-only</span>| <span class="mi">SESS</span></pre>
+    </div>
+  </details>
+
+</section>
+
+<div style="height:48px"></div>
+</div><!-- .wrap -->
+
+<script>
+function toggleTier(id, btn) {
+  const el = document.getElementById(id);
+  const nowHidden = el.classList.toggle('hidden');
+  btn.innerHTML = nowHidden ? '👁' : '🙈';
+  btn.title = nowHidden ? 'Reveal point values' : 'Hide point values';
+}
+</script>
+</body>
+</html>

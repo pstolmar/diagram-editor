@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>16-Player Smoke Test Report</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#09090f;color:#e0e0ec;min-height:100vh;padding:32px 28px}
+.wrap{max-width:1200px;margin:0 auto}
+h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:4px}
+.subtitle{font-size:13px;color:#555;margin-bottom:32px}
+.banner{border-radius:12px;padding:16px 22px;margin-bottom:28px;display:flex;align-items:center;gap:16px}
+.stat-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.stat{background:#0e0e18;border:1px solid #1a1a2c;border-radius:12px;padding:14px 20px;flex:1;min-width:120px}
+.stat-val{font-size:28px;font-weight:800}
+.stat-lbl{font-size:11px;color:#555;margin-top:3px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid-4{grid-template-columns:1fr}}
+.section-label{font-size:9.5px;font-weight:700;letter-spacing:1.2px;color:#5a5a8a;text-transform:uppercase;margin-bottom:14px}
+table{width:100%;border-collapse:collapse}
+tr:hover{background:#111120}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>16-Player Smoke Test</h1>
+<div class="subtitle">Adobe I/O Runtime · Stage · 300s timer · timer-only phase transition</div>
+
+<!-- Status banner -->
+<div class="banner" style="background:#081a10;border:2px solid #31a750">
+  <div style="font-size:32px">✅</div>
+  <div>
+    <div style="font-size:16px;font-weight:700;color:#44cc66">All 16 votes recorded — phase ended by timer only</div>
+    <div style="font-size:12px;color:#555;margin-top:4px">
+      Phase flipped to <strong style="color:#b06ae0">results</strong> after 300s timer · teamsReady=8/8
+       · <span style="color:#e07820">Late joiner (#16 at t+120.4s) voted successfully ✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stat-row">
+  <div class="stat">
+    <div class="stat-val" style="color:#44cc66">16/16</div>
+    <div class="stat-lbl">Votes recorded</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" style="color:#2680EB">385ms</div>
+    <div class="stat-lbl">P50 latency</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" style="color:#9b59b6">663ms</div>
+    <div class="stat-lbl">P95 latency</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" style="color:#e07820">300s</div>
+    <div class="stat-lbl">Timer duration</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" style="color:#44cc66">8/8</div>
+    <div class="stat-lbl">Teams covered</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" style="color:#D4A017">1000</div>
+    <div class="stat-lbl">Top team score</div>
+  </div>
+</div>
+
+<!-- Timeline scatter -->
+<div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;padding:18px 20px;margin-bottom:28px">
+  <div class="section-label">Vote timeline (300s window)</div>
+  <svg viewBox="0 0 900 100" width="100%" height="100" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+    <!-- Timeline axis -->
+    <line x1="20" y1="90" x2="880" y2="90" stroke="#1a1a2c" stroke-width="1"/>
+    <line x1="20" y1="88" x2="20" y2="93" stroke="#333" stroke-width="1"/>
+              <text x="20" y="100" text-anchor="middle" fill="#444" font-size="8">0s</text><line x1="192" y1="88" x2="192" y2="93" stroke="#333" stroke-width="1"/>
+              <text x="192" y="100" text-anchor="middle" fill="#444" font-size="8">60s</text><line x1="364" y1="88" x2="364" y2="93" stroke="#333" stroke-width="1"/>
+              <text x="364" y="100" text-anchor="middle" fill="#444" font-size="8">120s</text><line x1="536" y1="88" x2="536" y2="93" stroke="#333" stroke-width="1"/>
+              <text x="536" y="100" text-anchor="middle" fill="#444" font-size="8">180s</text><line x1="708" y1="88" x2="708" y2="93" stroke="#333" stroke-width="1"/>
+              <text x="708" y="100" text-anchor="middle" fill="#444" font-size="8">240s</text><line x1="880" y1="88" x2="880" y2="93" stroke="#333" stroke-width="1"/>
+              <text x="880" y="100" text-anchor="middle" fill="#444" font-size="8">300s</text>
+    <!-- t=120 late-join marker -->
+    <line x1="364" y1="8" x2="364" y2="88" stroke="#e07820" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="364" y="6" text-anchor="middle" fill="#e07820" font-size="8">late joiner</text>
+    <!-- Dots -->
+    <circle cx="37" cy="84" r="5" fill="#D4A017" opacity=".8" stroke="none" stroke-width="0">
+      <title>#1 token-titans t+5.9s</title>
+    </circle><circle cx="86" cy="52" r="5" fill="#D4A017" opacity=".8" stroke="none" stroke-width="0">
+      <title>#2 token-titans t+22.9s</title>
+    </circle><circle cx="44" cy="62" r="5" fill="#2abaee" opacity=".8" stroke="none" stroke-width="0">
+      <title>#3 llm-dreamers t+8.3s</title>
+    </circle><circle cx="111" cy="68" r="5" fill="#2abaee" opacity=".8" stroke="none" stroke-width="0">
+      <title>#4 llm-dreamers t+31.9s</title>
+    </circle><circle cx="54" cy="59" r="5" fill="#e07820" opacity=".8" stroke="none" stroke-width="0">
+      <title>#5 mixture-of-experts t+11.9s</title>
+    </circle><circle cx="131" cy="59" r="5" fill="#e07820" opacity=".8" stroke="none" stroke-width="0">
+      <title>#6 mixture-of-experts t+38.6s</title>
+    </circle><circle cx="62" cy="82" r="5" fill="#4488ee" opacity=".8" stroke="none" stroke-width="0">
+      <title>#7 prompt-engineers t+14.5s</title>
+    </circle><circle cx="156" cy="42" r="5" fill="#4488ee" opacity=".8" stroke="none" stroke-width="0">
+      <title>#8 prompt-engineers t+47.3s</title>
+    </circle><circle cx="72" cy="59" r="5" fill="#ee4444" opacity=".8" stroke="none" stroke-width="0">
+      <title>#9 agents-of-chaos t+18.2s</title>
+    </circle><circle cx="179" cy="48" r="5" fill="#ee4444" opacity=".8" stroke="none" stroke-width="0">
+      <title>#10 agents-of-chaos t+55.3s</title>
+    </circle><circle cx="79" cy="70" r="5" fill="#8a4aee" opacity=".8" stroke="none" stroke-width="0">
+      <title>#11 context-window-warriors t+20.5s</title>
+    </circle><circle cx="203" cy="51" r="5" fill="#8a4aee" opacity=".8" stroke="none" stroke-width="0">
+      <title>#12 context-window-warriors t+64.0s</title>
+    </circle><circle cx="94" cy="81" r="5" fill="#28c060" opacity=".8" stroke="none" stroke-width="0">
+      <title>#13 search-party t+25.8s</title>
+    </circle><circle cx="228" cy="65" r="5" fill="#28c060" opacity=".8" stroke="none" stroke-width="0">
+      <title>#14 search-party t+72.7s</title>
+    </circle><circle cx="101" cy="55" r="5" fill="#aaaaaa" opacity=".8" stroke="none" stroke-width="0">
+      <title>#15 the-verifiers t+28.4s</title>
+    </circle><circle cx="365" cy="30" r="7" fill="#aaaaaa" opacity="1" stroke="#fff" stroke-width="2">
+      <title>#16 the-verifiers t+120.4s (LATE)</title>
+    </circle>
+  </svg>
+  <div style="font-size:10px;color:#444;margin-top:6px">Each dot = one player vote. White-ringed dot = late joiner. Hover for details.</div>
+</div>
+
+<!-- Leaderboard -->
+<div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;padding:18px 20px;margin-bottom:28px">
+  <div class="section-label">Leaderboard</div>
+  <table>
+    <thead><tr style="border-bottom:1px solid #1a1a2c">
+      <th style="padding:6px 10px;text-align:left;font-size:10px;color:#555;font-weight:600">#</th>
+      <th style="padding:6px 10px;text-align:left;font-size:10px;color:#555;font-weight:600">Team</th>
+      <th style="padding:6px 10px;text-align:left;font-size:10px;color:#555;font-weight:600">Score</th>
+      <th style="padding:6px 10px;text-align:left;font-size:10px;color:#555;font-weight:600">Players</th>
+    </tr></thead>
+    <tbody>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#1</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#8a4aee;margin-right:6px"></span>Context Window Warriors</td>
+      <td style="padding:6px 10px;font-weight:700;color:#8a4aee;font-size:15px">1000</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#2</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e07820;margin-right:6px"></span>Mixture of Experts</td>
+      <td style="padding:6px 10px;font-weight:700;color:#e07820;font-size:15px">1000</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#3</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#4488ee;margin-right:6px"></span>Prompt Engineers</td>
+      <td style="padding:6px 10px;font-weight:700;color:#4488ee;font-size:15px">1000</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#4</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#28c060;margin-right:6px"></span>Search Party</td>
+      <td style="padding:6px 10px;font-weight:700;color:#28c060;font-size:15px">1000</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#5</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#D4A017;margin-right:6px"></span>Token Titans</td>
+      <td style="padding:6px 10px;font-weight:700;color:#D4A017;font-size:15px">1000</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#6</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ee4444;margin-right:6px"></span>Agents of Chaos</td>
+      <td style="padding:6px 10px;font-weight:700;color:#ee4444;font-size:15px">900</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#7</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#aaaaaa;margin-right:6px"></span>The Verifiers</td>
+      <td style="padding:6px 10px;font-weight:700;color:#aaaaaa;font-size:15px">900</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr>
+    <tr>
+      <td style="color:#888;padding:6px 10px;font-size:13px">#8</td>
+      <td style="padding:6px 10px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#2abaee;margin-right:6px"></span>LLM Dreamers</td>
+      <td style="padding:6px 10px;font-weight:700;color:#2abaee;font-size:15px">525</td>
+      <td style="padding:6px 10px;color:#555;font-size:12px">2 votes</td>
+    </tr></tbody>
+  </table>
+</div>
+
+<!-- Team robot cards -->
+<div class="section-label">Team builds — actual configured robots</div>
+<div class="grid-4">
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#8a4aee">Context Window Warriors</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">context-window-warriors</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#8a4aee">1000</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#8a4aee" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#8a4aee" stroke-width="1.5" opacity=".5"/><line x1="36" y1="98" x2="36" y2="110" stroke="#8a4aee" stroke-width="1.5" opacity=".5"/><line x1="46" y1="98" x2="46" y2="110" stroke="#8a4aee" stroke-width="1.5" opacity=".5"/><line x1="56" y1="98" x2="56" y2="110" stroke="#8a4aee" stroke-width="1.5" opacity=".5"/><line x1="66" y1="98" x2="66" y2="110" stroke="#8a4aee" stroke-width="1.5" opacity=".5"/><line x1="76" y1="98" x2="76" y2="110" stroke="#8a4aee" stroke-width="1.5" opacity=".5"/><line x1="86" y1="98" x2="86" y2="110" stroke="#8a4aee" stroke-width="1.5" opacity=".5"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#8a4aee" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#8a4aee" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#8a4aee" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#8a4aee" stroke-width="1.8"/>
+  
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#8a4aee" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#8a4aee" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#8a4aee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#8a4aee" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q108 42 113 30" stroke="#8a4aee" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="114" cy="28" r="4.5" fill="#1a2e44" stroke="#8a4aee" stroke-width="1.5"/>
+      <line x1="111" y1="24" x2="108" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="114" y1="23" x2="114" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="117" y1="24" x2="120" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#8a4aee">
+        <span style="color:#555">Mobility </span>Balanced Treads
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#8a4aee">
+        <span style="color:#555">Utility </span>Robot Arm
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#8a4aee">
+        <span style="color:#555">Care </span>Stabilizer Rig
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#8a4aee">
+        <span style="color:#555">Brain </span>Structured Thinker
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#8a4aee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Balanced Treads">▶ Balanced Treads</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#8a4aee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#8a4aee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#8a4aee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Robot Arm">▶ Robot Arm</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#8a4aee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#8a4aee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Cushion Mount">Cushion Mount</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#8a4aee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Stabilizer Rig">▶ Stabilizer Rig</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#8a4aee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#8a4aee">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#8a4aee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Structured Thinker">▶ Structured Thinker</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#8a4aee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#8a4aee">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Verifier">Verifier</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div>
+      </div></div>
+      </div>
+    </div>
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#e07820">Mixture of Experts</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">mixture-of-experts</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#e07820">1000</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#e07820" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#e07820" stroke-width="1.5" opacity=".5"/><line x1="36" y1="98" x2="36" y2="110" stroke="#e07820" stroke-width="1.5" opacity=".5"/><line x1="46" y1="98" x2="46" y2="110" stroke="#e07820" stroke-width="1.5" opacity=".5"/><line x1="56" y1="98" x2="56" y2="110" stroke="#e07820" stroke-width="1.5" opacity=".5"/><line x1="66" y1="98" x2="66" y2="110" stroke="#e07820" stroke-width="1.5" opacity=".5"/><line x1="76" y1="98" x2="76" y2="110" stroke="#e07820" stroke-width="1.5" opacity=".5"/><line x1="86" y1="98" x2="86" y2="110" stroke="#e07820" stroke-width="1.5" opacity=".5"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#e07820" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#e07820" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#e07820" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#e07820" stroke-width="1.8"/>
+  
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#e07820" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#e07820" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#e07820" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#e07820" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q108 42 113 30" stroke="#e07820" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="114" cy="28" r="4.5" fill="#1a2e44" stroke="#e07820" stroke-width="1.5"/>
+      <line x1="111" y1="24" x2="108" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="114" y1="23" x2="114" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="117" y1="24" x2="120" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#e07820">
+        <span style="color:#555">Mobility </span>Balanced Treads
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#e07820">
+        <span style="color:#555">Utility </span>Robot Arm
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#e07820">
+        <span style="color:#555">Care </span>Stabilizer Rig
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#e07820">
+        <span style="color:#555">Brain </span>Structured Thinker
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#e07820;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Balanced Treads">▶ Balanced Treads</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#e07820;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#e07820">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Grapple Hook">Grapple Hook</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#e07820;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Robot Arm">▶ Robot Arm</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#e07820;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#e07820">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#e07820;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Stabilizer Rig">▶ Stabilizer Rig</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#e07820;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#e07820">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#e07820;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Structured Thinker">▶ Structured Thinker</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#e07820;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#e07820">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div></div>
+      </div>
+    </div>
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#4488ee">Prompt Engineers</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">prompt-engineers</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#4488ee">1000</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#4488ee" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/><line x1="36" y1="98" x2="36" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/><line x1="46" y1="98" x2="46" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/><line x1="56" y1="98" x2="56" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/><line x1="66" y1="98" x2="66" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/><line x1="76" y1="98" x2="76" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/><line x1="86" y1="98" x2="86" y2="110" stroke="#4488ee" stroke-width="1.5" opacity=".5"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#4488ee" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#4488ee" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#4488ee" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#4488ee" stroke-width="1.8"/>
+  
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#4488ee" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#4488ee" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#4488ee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#4488ee" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q108 42 113 30" stroke="#4488ee" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="114" cy="28" r="4.5" fill="#1a2e44" stroke="#4488ee" stroke-width="1.5"/>
+      <line x1="111" y1="24" x2="108" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="114" y1="23" x2="114" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="117" y1="24" x2="120" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#4488ee">
+        <span style="color:#555">Mobility </span>Balanced Treads
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#4488ee">
+        <span style="color:#555">Utility </span>Robot Arm
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#4488ee">
+        <span style="color:#555">Care </span>Stabilizer Rig
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#4488ee">
+        <span style="color:#555">Brain </span>Structured Thinker
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#4488ee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Balanced Treads">▶ Balanced Treads</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#4488ee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#4488ee">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Scout Legs">Scout Legs</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#4488ee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Robot Arm">▶ Robot Arm</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#4488ee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#4488ee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#4488ee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Stabilizer Rig">▶ Stabilizer Rig</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#4488ee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#4488ee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#4488ee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Structured Thinker">▶ Structured Thinker</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#4488ee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#4488ee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div></div>
+      </div>
+    </div>
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#28c060">Search Party</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">search-party</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#28c060">1000</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#28c060" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/><line x1="36" y1="98" x2="36" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/><line x1="46" y1="98" x2="46" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/><line x1="56" y1="98" x2="56" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/><line x1="66" y1="98" x2="66" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/><line x1="76" y1="98" x2="76" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/><line x1="86" y1="98" x2="86" y2="110" stroke="#28c060" stroke-width="1.5" opacity=".5"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#28c060" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#28c060" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#28c060" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#28c060" stroke-width="1.8"/>
+  
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#28c060" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#28c060" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#28c060" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#28c060" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q108 42 113 30" stroke="#28c060" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="114" cy="28" r="4.5" fill="#1a2e44" stroke="#28c060" stroke-width="1.5"/>
+      <line x1="111" y1="24" x2="108" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="114" y1="23" x2="114" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="117" y1="24" x2="120" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#28c060">
+        <span style="color:#555">Mobility </span>Balanced Treads
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#28c060">
+        <span style="color:#555">Utility </span>Robot Arm
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#28c060">
+        <span style="color:#555">Care </span>Stabilizer Rig
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#28c060">
+        <span style="color:#555">Brain </span>Structured Thinker
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#28c060;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Balanced Treads">▶ Balanced Treads</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#28c060;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#28c060">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#28c060;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Robot Arm">▶ Robot Arm</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#28c060;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#28c060">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Suction Cup">Suction Cup</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">75p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#28c060;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Stabilizer Rig">▶ Stabilizer Rig</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#28c060;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#28c060">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Fast Guesser">Fast Guesser</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">75p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#28c060;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Structured Thinker">▶ Structured Thinker</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#28c060;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#28c060">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div></div>
+      </div>
+    </div>
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#D4A017">Token Titans</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">token-titans</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#D4A017">1000</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#D4A017" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#D4A017" stroke-width="1.5" opacity=".5"/><line x1="36" y1="98" x2="36" y2="110" stroke="#D4A017" stroke-width="1.5" opacity=".5"/><line x1="46" y1="98" x2="46" y2="110" stroke="#D4A017" stroke-width="1.5" opacity=".5"/><line x1="56" y1="98" x2="56" y2="110" stroke="#D4A017" stroke-width="1.5" opacity=".5"/><line x1="66" y1="98" x2="66" y2="110" stroke="#D4A017" stroke-width="1.5" opacity=".5"/><line x1="76" y1="98" x2="76" y2="110" stroke="#D4A017" stroke-width="1.5" opacity=".5"/><line x1="86" y1="98" x2="86" y2="110" stroke="#D4A017" stroke-width="1.5" opacity=".5"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#D4A017" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#D4A017" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#D4A017" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#D4A017" stroke-width="1.8"/>
+  
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#D4A017" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#D4A017" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#D4A017" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#D4A017" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q108 42 113 30" stroke="#D4A017" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="114" cy="28" r="4.5" fill="#1a2e44" stroke="#D4A017" stroke-width="1.5"/>
+      <line x1="111" y1="24" x2="108" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="114" y1="23" x2="114" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="117" y1="24" x2="120" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#D4A017">
+        <span style="color:#555">Mobility </span>Balanced Treads
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#D4A017">
+        <span style="color:#555">Utility </span>Robot Arm
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#D4A017">
+        <span style="color:#555">Care </span>Stabilizer Rig
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#D4A017">
+        <span style="color:#555">Brain </span>Structured Thinker
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#D4A017;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Balanced Treads">▶ Balanced Treads</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#D4A017;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#D4A017">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#D4A017;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Robot Arm">▶ Robot Arm</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#D4A017;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#D4A017">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#D4A017;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Stabilizer Rig">▶ Stabilizer Rig</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#D4A017;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#D4A017">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#D4A017;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Structured Thinker">▶ Structured Thinker</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#D4A017;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#D4A017">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div></div>
+      </div>
+    </div>
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#ee4444">Agents of Chaos</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">agents-of-chaos</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#ee4444">900</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#ee4444" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#ee4444" stroke-width="1.5" opacity=".5"/><line x1="36" y1="98" x2="36" y2="110" stroke="#ee4444" stroke-width="1.5" opacity=".5"/><line x1="46" y1="98" x2="46" y2="110" stroke="#ee4444" stroke-width="1.5" opacity=".5"/><line x1="56" y1="98" x2="56" y2="110" stroke="#ee4444" stroke-width="1.5" opacity=".5"/><line x1="66" y1="98" x2="66" y2="110" stroke="#ee4444" stroke-width="1.5" opacity=".5"/><line x1="76" y1="98" x2="76" y2="110" stroke="#ee4444" stroke-width="1.5" opacity=".5"/><line x1="86" y1="98" x2="86" y2="110" stroke="#ee4444" stroke-width="1.5" opacity=".5"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#ee4444" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <rect x="26" y="41" width="68" height="50" rx="14" fill="none" stroke="#4a90d9" stroke-width="2" stroke-dasharray="5,3" opacity=".75"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#ee4444" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#ee4444" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#ee4444" stroke-width="1.8"/>
+  
+      <rect x="34" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="68" y="18" width="18" height="10" rx="4" fill="#0a1020"/>
+      <rect x="35" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="69" y="19" width="16" height="8" rx="3" fill="#ffd700" opacity=".9"/>
+      <rect x="39" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+      <rect x="73" y="21" width="8" height="4" rx="2" fill="#ffee55"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#ee4444" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#ee4444" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#ee4444" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#ee4444" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q108 42 113 30" stroke="#ee4444" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="114" cy="28" r="4.5" fill="#1a2e44" stroke="#ee4444" stroke-width="1.5"/>
+      <line x1="111" y1="24" x2="108" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="114" y1="23" x2="114" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="117" y1="24" x2="120" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#ee4444">
+        <span style="color:#555">Mobility </span>Balanced Treads
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#ee4444">
+        <span style="color:#555">Utility </span>Robot Arm
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#ee4444">
+        <span style="color:#555">Care </span>Cushion Mount
+        <span style="color:#333;margin-left:4px">150p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#ee4444">
+        <span style="color:#555">Brain </span>Structured Thinker
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#ee4444;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Balanced Treads">▶ Balanced Treads</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#ee4444;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#ee4444">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#ee4444;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Robot Arm">▶ Robot Arm</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#ee4444;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#ee4444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Suction Cup">Suction Cup</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">75p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#ee4444;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Cushion Mount">▶ Cushion Mount</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#ee4444;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#ee4444">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Fast Guesser">Fast Guesser</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">75p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#ee4444;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Structured Thinker">▶ Structured Thinker</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#ee4444;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#ee4444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div></div>
+      </div>
+    </div>
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#aaaaaa">The Verifiers</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">the-verifiers · <span style="color:#e07820">includes late joiner</span></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#aaaaaa">900</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <rect x="18" y="96" width="84" height="16" rx="8" fill="#aaaaaa" opacity=".85"/>
+      <rect x="20" y="98" width="80" height="12" rx="6" fill="#050810"/>
+      <line x1="26" y1="98" x2="26" y2="110" stroke="#aaaaaa" stroke-width="1.5" opacity=".5"/><line x1="36" y1="98" x2="36" y2="110" stroke="#aaaaaa" stroke-width="1.5" opacity=".5"/><line x1="46" y1="98" x2="46" y2="110" stroke="#aaaaaa" stroke-width="1.5" opacity=".5"/><line x1="56" y1="98" x2="56" y2="110" stroke="#aaaaaa" stroke-width="1.5" opacity=".5"/><line x1="66" y1="98" x2="66" y2="110" stroke="#aaaaaa" stroke-width="1.5" opacity=".5"/><line x1="76" y1="98" x2="76" y2="110" stroke="#aaaaaa" stroke-width="1.5" opacity=".5"/><line x1="86" y1="98" x2="86" y2="110" stroke="#aaaaaa" stroke-width="1.5" opacity=".5"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#aaaaaa" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <ellipse cx="60" cy="66" rx="36" ry="9" fill="none" stroke="#2d9d78" stroke-width="2" opacity=".75"/>
+      <ellipse cx="60" cy="66" rx="28" ry="6" fill="none" stroke="#2d9d78" stroke-width="1.2" opacity=".45"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#aaaaaa" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#aaaaaa" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#aaaaaa" stroke-width="1.8"/>
+  
+      <circle cx="38" cy="20" r="4.5" fill="#0a1020"/>
+      <circle cx="50" cy="24" r="4.5" fill="#0a1020"/>
+      <circle cx="70" cy="20" r="4.5" fill="#0a1020"/>
+      <circle cx="82" cy="24" r="4.5" fill="#0a1020"/>
+      <circle cx="38" cy="20" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="50" cy="24" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="70" cy="20" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="82" cy="24" r="2.8" fill="#cc88ff" opacity=".9"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#aaaaaa" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#aaaaaa" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#aaaaaa" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q108 42 113 30" stroke="#aaaaaa" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="114" cy="28" r="4.5" fill="#1a2e44" stroke="#aaaaaa" stroke-width="1.5"/>
+      <line x1="111" y1="24" x2="108" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="114" y1="23" x2="114" y2="20" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="117" y1="24" x2="120" y2="21" stroke="#88ccff" stroke-width="1.5" stroke-linecap="round"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#aaaaaa">
+        <span style="color:#555">Mobility </span>Balanced Treads
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#aaaaaa">
+        <span style="color:#555">Utility </span>Robot Arm
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#aaaaaa">
+        <span style="color:#555">Care </span>Stabilizer Rig
+        <span style="color:#333;margin-left:4px">250p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#aaaaaa">
+        <span style="color:#555">Brain </span>Verifier
+        <span style="color:#333;margin-left:4px">150p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#aaaaaa;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Balanced Treads">▶ Balanced Treads</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#aaaaaa;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#aaaaaa">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div><div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#555;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Heavy Lift">Heavy Lift</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:50%;background:#333;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#444">1/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">75p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#aaaaaa;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Robot Arm">▶ Robot Arm</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#aaaaaa;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#aaaaaa">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#aaaaaa;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Stabilizer Rig">▶ Stabilizer Rig</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#aaaaaa;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#aaaaaa">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">250p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#aaaaaa;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Verifier">▶ Verifier</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#aaaaaa;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#aaaaaa">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div>
+      </div></div>
+      </div>
+    </div>
+    <div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;background:#111120;border-bottom:1px solid #1a1a2c;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#2abaee">LLM Dreamers</div>
+          <div style="font-size:10px;color:#555;margin-top:2px">llm-dreamers</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#2abaee">525</div>
+          <div style="font-size:9px;color:#444">pts</div>
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 130 118" width="130" height="118" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block;margin:0 auto">
+  
+      <line x1="42" y1="88" x2="36" y2="112" stroke="#2abaee" stroke-width="4.5" stroke-linecap="round"/>
+      <line x1="78" y1="88" x2="84" y2="112" stroke="#2abaee" stroke-width="4.5" stroke-linecap="round"/>
+      <rect x="29" y="110" width="15" height="5" rx="2.5" fill="#2abaee"/>
+      <rect x="76" y="110" width="15" height="5" rx="2.5" fill="#2abaee"/>
+    
+  <rect x="30" y="44" width="60" height="44" rx="5" fill="#1a2e44" stroke="#2abaee" stroke-width="1.6"/>
+  <rect x="36" y="50" width="48" height="28" rx="3" fill="#0a1428" stroke="#1a3050" stroke-width=".8"/>
+  
+      <rect x="26" y="41" width="68" height="50" rx="14" fill="none" stroke="#4a90d9" stroke-width="2" stroke-dasharray="5,3" opacity=".75"/>
+    
+  <circle cx="47" cy="66" r="3" fill="#FA0F00"/>
+  <circle cx="58" cy="66" r="3" fill="#31a750"/>
+  <circle cx="69" cy="66" r="3" fill="#2680EB"/>
+  <circle cx="80" cy="66" r="3" fill="#2abaee" opacity=".7"/>
+  <rect x="52" y="40" width="16" height="4" rx="2" fill="#1a2e44" stroke="#2abaee" stroke-width=".8"/>
+  <rect x="26" y="8" width="68" height="32" rx="8" fill="#1e3450" stroke="#2abaee" stroke-width="1.8"/>
+  
+      <circle cx="38" cy="20" r="4.5" fill="#0a1020"/>
+      <circle cx="50" cy="24" r="4.5" fill="#0a1020"/>
+      <circle cx="70" cy="20" r="4.5" fill="#0a1020"/>
+      <circle cx="82" cy="24" r="4.5" fill="#0a1020"/>
+      <circle cx="38" cy="20" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="50" cy="24" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="70" cy="20" r="2.8" fill="#cc88ff" opacity=".9"/>
+      <circle cx="82" cy="24" r="2.8" fill="#cc88ff" opacity=".9"/>
+    
+  <rect x="42" y="33" width="36" height="4" rx="2" fill="#0a1428"/>
+  <line x1="60" y1="8" x2="60" y2="2" stroke="#2abaee" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="60" cy="1.5" r="3" fill="#2abaee" opacity=".9"/>
+  <circle cx="60" cy="1.5" r="1.5" fill="#88ccff"/>
+  <path d="M30 52 Q18 60 14 72" stroke="#2abaee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="13" cy="74" r="3.5" fill="#1e3450" stroke="#2abaee" stroke-width="1.2"/>
+  
+      <path d="M94 52 Q110 52 118 52" stroke="#2abaee" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <ellipse cx="122" cy="52" rx="5" ry="8" fill="none" stroke="#2abaee" stroke-width="2.5"/>
+      <ellipse cx="122" cy="52" rx="3" ry="5" fill="#2abaee" opacity=".25"/>
+    
+</svg>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;max-width:130px"><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#2abaee">
+        <span style="color:#555">Mobility </span>Scout Legs
+        <span style="color:#333;margin-left:4px">150p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#2abaee">
+        <span style="color:#555">Utility </span>Suction Cup
+        <span style="color:#333;margin-left:4px">75p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#2abaee">
+        <span style="color:#555">Care </span>Cushion Mount
+        <span style="color:#333;margin-left:4px">150p</span>
+      </div><div style="background:#0d0d1a;border:1px solid #1a1a2c;border-radius:6px;padding:3px 8px;font-size:9.5px;color:#2abaee">
+        <span style="color:#555">Brain </span>Verifier
+        <span style="color:#333;margin-left:4px">150p</span>
+      </div></div>
+        </div>
+        <div style="flex:1;min-width:0"><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🚗 Mobility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#2abaee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Scout Legs">▶ Scout Legs</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#2abaee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#2abaee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🦾 Utility</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#2abaee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Suction Cup">▶ Suction Cup</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#2abaee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#2abaee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">75p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">📦 Care</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#2abaee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Cushion Mount">▶ Cushion Mount</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#2abaee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#2abaee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div>
+      </div><div style="margin-bottom:8px">
+        <div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.8px;margin-bottom:3px">🧠 Brain</div>
+        <div style="margin:2px 0;display:flex;align-items:center;gap:6px">
+          <div style="width:90px;font-size:9.5px;color:#2abaee;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Verifier">▶ Verifier</div>
+          <div style="flex:1;background:#0d0d1a;border-radius:3px;height:8px;overflow:hidden">
+            <div style="width:100%;background:#2abaee;height:100%;border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="width:28px;text-align:right;font-size:9px;color:#2abaee">2/2</div>
+          <div style="width:30px;font-size:9px;color:#333;text-align:right">150p</div>
+        </div>
+      </div></div>
+      </div>
+    </div></div>
+
+<!-- Raw results table -->
+<div style="background:#0e0e18;border:1px solid #1a1a2c;border-radius:14px;padding:18px 20px;margin-top:28px">
+  <div class="section-label">All 16 player votes</div>
+  <table>
+    <thead><tr style="border-bottom:1px solid #1a1a2c">
+      <th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">#</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">Team</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">Mobility</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">Utility</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">Care</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">Brain</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">t+</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">ms</th><th style="padding:5px 8px;text-align:left;font-size:10px;color:#555;font-weight:600">OK</th>
+    </tr></thead>
+    <tbody>
+    <tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">1</td>
+        <td style="padding:5px 8px;font-size:11px;color:#D4A017">Token Titans</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">5.9s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">663</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">2</td>
+        <td style="padding:5px 8px;font-size:11px;color:#D4A017">Token Titans</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">22.9s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">360</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">3</td>
+        <td style="padding:5px 8px;font-size:11px;color:#2abaee">LLM Dreamers</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Scout Legs</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Suction Cup</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Cushion Mount</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Verifier</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">8.3s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">385</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">4</td>
+        <td style="padding:5px 8px;font-size:11px;color:#2abaee">LLM Dreamers</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Scout Legs</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Suction Cup</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Cushion Mount</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Verifier</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">31.9s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">301</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">5</td>
+        <td style="padding:5px 8px;font-size:11px;color:#e07820">Mixture of Experts</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">11.9s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">357</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">6</td>
+        <td style="padding:5px 8px;font-size:11px;color:#e07820">Mixture of Experts</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Grapple Hook</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">38.6s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">357</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">7</td>
+        <td style="padding:5px 8px;font-size:11px;color:#4488ee">Prompt Engineers</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">14.5s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">396</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">8</td>
+        <td style="padding:5px 8px;font-size:11px;color:#4488ee">Prompt Engineers</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Scout Legs</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">47.3s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">508</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">9</td>
+        <td style="padding:5px 8px;font-size:11px;color:#ee4444">Agents of Chaos</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Cushion Mount</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">18.2s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">295</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">10</td>
+        <td style="padding:5px 8px;font-size:11px;color:#ee4444">Agents of Chaos</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Suction Cup</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Cushion Mount</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Fast Guesser</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">55.3s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">385</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">11</td>
+        <td style="padding:5px 8px;font-size:11px;color:#8a4aee">Context Window Warriors</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">20.5s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">394</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">12</td>
+        <td style="padding:5px 8px;font-size:11px;color:#8a4aee">Context Window Warriors</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Cushion Mount</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Verifier</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">64.0s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">518</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">13</td>
+        <td style="padding:5px 8px;font-size:11px;color:#28c060">Search Party</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Fast Guesser</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">25.8s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">369</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">14</td>
+        <td style="padding:5px 8px;font-size:11px;color:#28c060">Search Party</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Suction Cup</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Structured Thinker</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">72.7s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">516</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120">
+        <td style="padding:5px 8px;font-size:12px;color:#555">15</td>
+        <td style="padding:5px 8px;font-size:11px;color:#aaaaaa">The Verifiers</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Balanced Treads</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Verifier</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">28.4s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">298</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr><tr style="border-bottom:1px solid #111120;background:#1a0e08">
+        <td style="padding:5px 8px;font-size:12px;color:#555">16 🕐</td>
+        <td style="padding:5px 8px;font-size:11px;color:#aaaaaa">The Verifiers</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Heavy Lift</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Robot Arm</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Stabilizer Rig</td>
+        <td style="padding:5px 8px;font-size:11px;color:#888">Verifier</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">120.4s</td>
+        <td style="padding:5px 8px;font-size:11px;color:#666">419</td>
+        <td style="padding:5px 8px;font-size:13px">✅</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+</body>
+</html>
