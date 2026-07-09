@@ -22,7 +22,7 @@
       border-bottom: 1px solid rgba(97,218,251,.12);
     }
     .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--cyan); font-size: .9375rem; }
-    .atom { width: 24px; height: 24px; animation: spin 8s linear infinite; }
+    .atom { width: 22px; height: 22px; animation: spin 8s linear infinite; flex-shrink: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .nav-links { display: flex; gap: 20px; }
     .nav-links a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .875rem; font-weight: 500; transition: color .15s; }
@@ -33,23 +33,89 @@
 
     .hero-media {
       background: var(--mid); display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 28px; padding: 48px;
+      align-items: center; justify-content: center; gap: 24px; padding: 48px;
       position: relative; overflow: hidden;
     }
     .hero-media::before {
       content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(ellipse at 30% 65%, rgba(97,218,251,.08) 0%, transparent 65%);
+      background: radial-gradient(ellipse at 35% 60%, rgba(97,218,251,.07) 0%, transparent 65%);
     }
-    .ring-wrap {
-      width: min(320px, 100%); aspect-ratio: 1; border-radius: 50%; padding: 3px;
-      background: conic-gradient(from 0deg, #61DAFB, #a855f7, #ec4899, #61DAFB);
-      animation: spin 5s linear infinite;
+
+    /* ── Hover-reveal image stage ─────────────────────────────── */
+    .img-stage {
+      position: relative;
+      width: min(340px, 100%);
+      aspect-ratio: 1;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(0,0,0,.5);
+      transition:
+        border-radius .55s cubic-bezier(.4,0,.2,1),
+        box-shadow    .55s cubic-bezier(.4,0,.2,1),
+        transform     .55s cubic-bezier(.4,0,.2,1);
     }
-    .ring-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: var(--mid); }
-    .ring-inner img {
-      width: 100%; height: 100%; object-fit: cover;
-      filter: saturate(1.1) brightness(.85);
+    .img-stage:hover {
+      border-radius: 4px;
+      box-shadow: 0 32px 64px rgba(97,218,251,.22), 0 0 0 1.5px rgba(97,218,251,.35);
+      transform: scale(1.015);
     }
+
+    /* bottom layer — zoomed detail crop, revealed on hover */
+    .layer-zoom {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: 72% 18%;   /* pulls toward upper-right detail */
+      transform: scale(1.38);
+      transition: transform .75s cubic-bezier(.4,0,.2,1);
+      filter: saturate(1.5) brightness(.82) contrast(1.05);
+      display: block;
+    }
+    .img-stage:hover .layer-zoom {
+      transform: scale(1.16);      /* gentle de-zoom as the detail settles */
+    }
+
+    /* top layer — wide crop, sweeps to the right on hover */
+    .layer-base {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: saturate(.85) brightness(.78);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path .6s cubic-bezier(.77,0,.175,1);
+    }
+    .img-stage:hover .layer-base {
+      /* wipe: sweep right — slight diagonal (top edge leads by ~8%) */
+      clip-path: polygon(108% 0, 108% 0, 100% 100%, 100% 100%);
+    }
+
+    /* accent line that trails the sweep edge */
+    .sweep-line {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      /* a thin bright stripe clipped to the same path as layer-base */
+      background: linear-gradient(90deg, transparent 0%, rgba(97,218,251,.55) 50%, transparent 100%);
+      width: 3px; left: calc(100% + 2px);
+      transition: left .6s cubic-bezier(.77,0,.175,1), opacity .6s;
+      opacity: 0;
+    }
+    .img-stage:hover .sweep-line {
+      left: 100%; opacity: 1;
+    }
+
+    /* "hover" hint that fades when the effect fires */
+    .stage-hint {
+      position: absolute; bottom: 14px; right: 16px;
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(97,218,251,.55);
+      transition: opacity .25s;
+      pointer-events: none;
+    }
+    .img-stage:hover .stage-hint { opacity: 0; }
+    /* ───────────────────────────────────────────────────────────── */
+
     .fw-badge {
       display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 24px;
       background: rgba(40,44,52,.9); border: 1px solid rgba(97,218,251,.25);
@@ -95,7 +161,6 @@
 <body>
 <div id="root"></div>
 <script>
-  /* React 18 without Babel — React.createElement directly */
   const { useState, useEffect, createElement: h } = React;
   const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
   const FB = {
@@ -144,14 +209,16 @@
         'data-aue-label': 'Hero CF', 'data-aue-model': 'hero',
       },
       h('div', { className: 'hero-media' },
-        h('div', { className: 'ring-wrap' },
-          h('div', { className: 'ring-inner' },
-            h('img', {
-              src: c.image, alt: '',
-              'data-aue-resource': RES, 'data-aue-prop': 'contentReference',
-              'data-aue-type': 'image', 'data-aue-label': 'Hero Image',
-            })
-          )
+        h('div', { className: 'img-stage' },
+          /* bottom: zoomed detail crop revealed by the sweep */
+          h('img', { className: 'layer-zoom', src: c.image, alt: '' }),
+          /* top: normal crop — carries UE attributes, sweeps away on hover */
+          h('img', {
+            className: 'layer-base', src: c.image, alt: '',
+            'data-aue-resource': RES, 'data-aue-prop': 'contentReference',
+            'data-aue-type': 'image', 'data-aue-label': 'Hero Image',
+          }),
+          h('div', { className: 'stage-hint' }, 'hover →'),
         ),
         h('div', { className: 'fw-badge' },
           h('span', { className: 'pulse' }),
