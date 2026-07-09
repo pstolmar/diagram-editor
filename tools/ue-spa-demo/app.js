@@ -60,7 +60,7 @@ async function loadContent() {
 }
 
 function render(content) {
-  const resource = `urn:aem:${demoConfig.fragmentResource}`;
+  const resource = `urn:aemconnection:${demoConfig.fragmentResource}`;
 
   app.innerHTML = `
     <section
@@ -143,4 +143,3 @@ async function init() {
 }
 
 init();
-
