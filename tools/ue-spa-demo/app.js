@@ -29,6 +29,7 @@ function escapeHtml(value = '') {
 
 function normalizeGraphQlPayload(payload) {
   const item =
+    payload?.data?.homeHeroByPath?.item ||
     payload?.data?.heroByPath?.item ||
     payload?.data?.fragmentByPath?.item ||
     payload?.data?.contentFragmentByPath?.item ||
@@ -36,9 +37,20 @@ function normalizeGraphQlPayload(payload) {
     payload?.data ||
     payload;
 
+  const image = item?.contentReference?._publishUrl
+    || item?.contentReference?._path
+    || item?.image?._publishUrl
+    || item?.image;
+
+  const description = item?.description?.plaintext
+    || item?.description?.html
+    || item?.description;
+
   return {
     ...demoConfig.fallbackContent,
     ...item,
+    ...(image && { image }),
+    ...(description && { description }),
   };
 }
 
@@ -61,7 +73,7 @@ async function loadContent() {
 
 function render(content) {
   const fragmentVariation = demoConfig.fragmentVariation || 'master';
-const resource = `urn:aem:${demoConfig.fragmentResource}/jcr:content/data/${fragmentVariation}`;
+  const resource = `urn:aem:${demoConfig.fragmentResource}/jcr:content/data/${fragmentVariation}`;
 
   app.innerHTML = `
     <section
@@ -76,7 +88,7 @@ const resource = `urn:aem:${demoConfig.fragmentResource}/jcr:content/data/${frag
           src="${escapeHtml(content.image)}"
           alt=""
           data-aue-resource="${escapeHtml(resource)}"
-          data-aue-prop="image"
+          data-aue-prop="contentReference"
           data-aue-type="image"
           data-aue-label="Hero Image"
         />
