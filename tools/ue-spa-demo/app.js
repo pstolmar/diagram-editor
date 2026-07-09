@@ -60,7 +60,8 @@ async function loadContent() {
 }
 
 function render(content) {
-  const resource = `urn:aem:${demoConfig.fragmentResource}`;
+  const fragmentVariation = demoConfig.fragmentVariation || 'master';
+const resource = `urn:aem:${demoConfig.fragmentResource}/jcr:content/data/${fragmentVariation}`;
 
   app.innerHTML = `
     <section
