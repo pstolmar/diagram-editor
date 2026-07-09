@@ -1,5 +1,5 @@
 export const demoConfig = {
-  authorUrl: 'https://author-p138879-e1411795.adobeaemcloud.com',
+  authorUrl: 'https://author-pXXXXX-eYYYYYY.adobeaemcloud.com',
 
   // Content Fragment path used by Universal Editor as the persistence resource.
   fragmentResource: '/content/dam/ue-demo/fragments/home-hero',

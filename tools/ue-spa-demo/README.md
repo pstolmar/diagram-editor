@@ -18,9 +18,20 @@ App Builder is useful when you need Universal Editor extensions or Adobe shell i
 
 ## Configure
 
-Edit `config.js`.
+Edit both `index.html` and `config.js`.
 
 Required for a real AEM demo:
+
+In `index.html`, set the Universal Editor AEM connection:
+
+```html
+<meta
+  name="urn:adobe:aue:system:aem"
+  content="aem:https://author-pXXXXX-eYYYYYY.adobeaemcloud.com"
+/>
+```
+
+In `config.js`, use the same author URL and point at the editable resource:
 
 ```js
 authorUrl: 'https://author-pXXXXX-eYYYYYY.adobeaemcloud.com',
@@ -33,7 +44,7 @@ Optional, if fetching Content Fragment content:
 graphQlEndpoint: 'https://publish-pXXXXX-eYYYYYY.adobeaemcloud.com/graphql/execute.json/YOUR_PROJECT/YOUR_QUERY',
 ```
 
-If `graphQlEndpoint` is blank, the demo uses local fallback content and still renders Universal Editor overlays.
+If `graphQlEndpoint` is blank, the demo uses local fallback content and still renders Universal Editor overlays. Saving edits still requires `fragmentResource` to point at a real editable AEM resource.
 
 ## Host
 
@@ -55,8 +66,9 @@ Universal Editor itself needs a reachable HTTPS URL for a realistic remote-app d
 
 ## Notes
 
-- The `meta[name="urn:adobe:aue:system:aemconnection"]` tag is created dynamically from `config.js`.
+- The `meta[name="urn:adobe:aue:system:aem"]` tag is declared in `index.html` so Universal Editor can see the AEM connection before the app JavaScript runs.
+- `app.js` also refreshes that meta tag from `config.js` at runtime; keep both values aligned.
+- Editable resources use the matching `urn:aem:/content/...` prefix.
 - The Universal Editor CORS helper is loaded from `https://universal-editor-service.adobe.io/cors.js`.
 - Editability comes from `data-aue-resource`, `data-aue-prop`, `data-aue-type`, and related attributes in the rendered DOM.
 - The exact Content Fragment field names must match your model/query.
-

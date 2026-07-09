@@ -4,7 +4,7 @@ const app = document.querySelector('#app');
 
 function addAemConnection(authorUrl) {
   const existing = document.querySelector(
-    'meta[name="urn:adobe:aue:system:aemconnection"]',
+    'meta[name="urn:adobe:aue:system:aem"]',
   );
 
   if (existing) {
@@ -13,7 +13,7 @@ function addAemConnection(authorUrl) {
   }
 
   const meta = document.createElement('meta');
-  meta.name = 'urn:adobe:aue:system:aemconnection';
+  meta.name = 'urn:adobe:aue:system:aem';
   meta.content = `aem:${authorUrl}`;
   document.head.append(meta);
 }
@@ -60,7 +60,7 @@ async function loadContent() {
 }
 
 function render(content) {
-  const resource = `urn:aemconnection:${demoConfig.fragmentResource}`;
+  const resource = `urn:aem:${demoConfig.fragmentResource}`;
 
   app.innerHTML = `
     <section
