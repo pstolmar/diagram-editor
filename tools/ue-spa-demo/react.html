@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet"/>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,7 +55,7 @@
       background: rgba(40,44,52,.9); border: 1px solid rgba(97,218,251,.25);
       font-size: .8125rem; font-weight: 600; color: var(--cyan); backdrop-filter: blur(8px);
     }
-    .pulse { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: blink 2s ease-in-out infinite; }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; animation: blink 2s ease-in-out infinite; }
     @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.3; } }
 
     .hero-content {
@@ -94,9 +93,10 @@
   </style>
 </head>
 <body>
-<div id="root"><p style="padding:32px;opacity:.4">Loading React…</p></div>
-<script type="text/babel" data-presets="react">
-  const { useState, useEffect } = React;
+<div id="root"></div>
+<script>
+  /* React 18 without Babel — React.createElement directly */
+  const { useState, useEffect, createElement: h } = React;
   const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
   const FB = {
     eyebrow: 'React · AEM Demo', title: 'Editable from AEM',
@@ -121,34 +121,78 @@
 
   function AppMetrics() {
     const sessions = useCount(1247);
-    return (
-      <div className="metrics-strip">
-        <div className="metric"><div className="metric-val">{sessions.toLocaleString()}</div><div className="metric-lbl">Sessions</div></div>
-        <div className="metric"><div className="metric-val">94%</div><div className="metric-lbl">Satisfaction</div></div>
-        <div className="metric"><div className="metric-val">2.4s</div><div className="metric-lbl">TTI</div></div>
-      </div>
+    return h('div', { className: 'metrics-strip' },
+      h('div', { className: 'metric' },
+        h('div', { className: 'metric-val' }, sessions.toLocaleString()),
+        h('div', { className: 'metric-lbl' }, 'Sessions')
+      ),
+      h('div', { className: 'metric' },
+        h('div', { className: 'metric-val' }, '94%'),
+        h('div', { className: 'metric-lbl' }, 'Satisfaction')
+      ),
+      h('div', { className: 'metric' },
+        h('div', { className: 'metric-val' }, '2.4s'),
+        h('div', { className: 'metric-lbl' }, 'TTI')
+      )
     );
   }
 
   function Hero({ c }) {
-    return (
-      <section className="hero" data-aue-resource={RES} data-aue-type="component" data-aue-label="Hero CF" data-aue-model="hero">
-        <div className="hero-media">
-          <div className="ring-wrap">
-            <div className="ring-inner">
-              <img src={c.image} alt="" data-aue-resource={RES} data-aue-prop="contentReference" data-aue-type="image" data-aue-label="Hero Image"/>
-            </div>
-          </div>
-          <div className="fw-badge"><span className="pulse"/> ⚛ Rendered by React 18</div>
-        </div>
-        <div className="hero-content">
-          <p className="eyebrow" data-aue-resource={RES} data-aue-prop="eyebrow" data-aue-type="text" data-aue-label="Eyebrow">{c.eyebrow}</p>
-          <h1 data-aue-resource={RES} data-aue-prop="title" data-aue-type="text" data-aue-label="Title">{c.title}</h1>
-          <AppMetrics/>
-          <p className="description" data-aue-resource={RES} data-aue-prop="description" data-aue-type="richtext" data-aue-label="Description">{c.description}</p>
-          <a className="cta" href="#more" data-aue-resource={RES} data-aue-prop="ctaLabel" data-aue-type="text" data-aue-label="CTA">{c.ctaLabel} →</a>
-        </div>
-      </section>
+    return h('section', {
+        className: 'hero',
+        'data-aue-resource': RES, 'data-aue-type': 'component',
+        'data-aue-label': 'Hero CF', 'data-aue-model': 'hero',
+      },
+      h('div', { className: 'hero-media' },
+        h('div', { className: 'ring-wrap' },
+          h('div', { className: 'ring-inner' },
+            h('img', {
+              src: c.image, alt: '',
+              'data-aue-resource': RES, 'data-aue-prop': 'contentReference',
+              'data-aue-type': 'image', 'data-aue-label': 'Hero Image',
+            })
+          )
+        ),
+        h('div', { className: 'fw-badge' },
+          h('span', { className: 'pulse' }),
+          ' ⚛ Rendered by React 18'
+        )
+      ),
+      h('div', { className: 'hero-content' },
+        h('p', {
+            className: 'eyebrow',
+            'data-aue-resource': RES, 'data-aue-prop': 'eyebrow',
+            'data-aue-type': 'text', 'data-aue-label': 'Eyebrow',
+          }, c.eyebrow
+        ),
+        h('h1', {
+            'data-aue-resource': RES, 'data-aue-prop': 'title',
+            'data-aue-type': 'text', 'data-aue-label': 'Title',
+          }, c.title
+        ),
+        h(AppMetrics, null),
+        h('p', {
+            className: 'description',
+            'data-aue-resource': RES, 'data-aue-prop': 'description',
+            'data-aue-type': 'richtext', 'data-aue-label': 'Description',
+          }, c.description
+        ),
+        h('a', {
+            className: 'cta', href: '#more',
+            'data-aue-resource': RES, 'data-aue-prop': 'ctaLabel',
+            'data-aue-type': 'text', 'data-aue-label': 'CTA',
+          }, c.ctaLabel + ' →'
+        )
+      )
+    );
+  }
+
+  function AtomIcon() {
+    return h('svg', { className: 'atom', viewBox: '0 0 100 100', fill: 'none' },
+      h('ellipse', { cx: 50, cy: 50, rx: 46, ry: 17, stroke: '#61DAFB', strokeWidth: 5 }),
+      h('ellipse', { cx: 50, cy: 50, rx: 46, ry: 17, stroke: '#61DAFB', strokeWidth: 5, transform: 'rotate(60 50 50)' }),
+      h('ellipse', { cx: 50, cy: 50, rx: 46, ry: 17, stroke: '#61DAFB', strokeWidth: 5, transform: 'rotate(120 50 50)' }),
+      h('circle', { cx: 50, cy: 50, r: 7, fill: '#61DAFB' })
     );
   }
 
@@ -166,29 +210,26 @@
         })
         .catch(() => setContent(FB));
     }, []);
-    if (!content) return <p style={{padding:'32px',opacity:.4}}>Loading React…</p>;
-    return (
-      <>
-        <nav className="app-nav">
-          <div className="nav-brand">
-            <svg className="atom" viewBox="0 0 100 100" fill="none">
-              <ellipse cx="50" cy="50" rx="46" ry="17" stroke="#61DAFB" strokeWidth="5"/>
-              <ellipse cx="50" cy="50" rx="46" ry="17" stroke="#61DAFB" strokeWidth="5" transform="rotate(60 50 50)"/>
-              <ellipse cx="50" cy="50" rx="46" ry="17" stroke="#61DAFB" strokeWidth="5" transform="rotate(120 50 50)"/>
-              <circle cx="50" cy="50" r="7" fill="#61DAFB"/>
-            </svg>
-            MyApp · React
-          </div>
-          <div className="nav-links">
-            <a href="#">Products</a><a href="#">Docs</a><a href="#" className="active">Demo</a>
-          </div>
-        </nav>
-        <Hero c={content}/>
-      </>
+
+    if (!content) return h('p', { style: { padding: '32px', opacity: .4 } }, 'Loading React…');
+
+    return h(React.Fragment, null,
+      h('nav', { className: 'app-nav' },
+        h('div', { className: 'nav-brand' },
+          h(AtomIcon, null),
+          'MyApp · React'
+        ),
+        h('div', { className: 'nav-links' },
+          h('a', { href: '#' }, 'Products'),
+          h('a', { href: '#' }, 'Docs'),
+          h('a', { href: '#', className: 'active' }, 'Demo')
+        )
+      ),
+      h(Hero, { c: content })
     );
   }
 
-  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  ReactDOM.createRoot(document.getElementById('root')).render(h(App, null));
 </script>
 </body>
 </html>
