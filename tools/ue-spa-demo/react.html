@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1411795.adobeaemcloud.com"/>
+  <title>React · UE SPA Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --cyan: #61DAFB; --navy: #20232a; --mid: #282c34; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--navy); color: #fff; min-height: 100vh; }
+
+    .app-nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 56px;
+      background: rgba(32,35,42,.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(97,218,251,.12);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--cyan); font-size: .9375rem; }
+    .atom { width: 24px; height: 24px; animation: spin 8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .875rem; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--cyan); }
+    .nav-links a.active { color: #fff; }
+
+    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 56px); }
+
+    .hero-media {
+      background: var(--mid); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 28px; padding: 48px;
+      position: relative; overflow: hidden;
+    }
+    .hero-media::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 30% 65%, rgba(97,218,251,.08) 0%, transparent 65%);
+    }
+    .ring-wrap {
+      width: min(320px, 100%); aspect-ratio: 1; border-radius: 50%; padding: 3px;
+      background: conic-gradient(from 0deg, #61DAFB, #a855f7, #ec4899, #61DAFB);
+      animation: spin 5s linear infinite;
+    }
+    .ring-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: var(--mid); }
+    .ring-inner img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: saturate(1.1) brightness(.85);
+    }
+    .fw-badge {
+      display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 24px;
+      background: rgba(40,44,52,.9); border: 1px solid rgba(97,218,251,.25);
+      font-size: .8125rem; font-weight: 600; color: var(--cyan); backdrop-filter: blur(8px);
+    }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+
+    .hero-content {
+      padding: clamp(32px,6vw,80px); display: flex; flex-direction: column;
+      justify-content: center; gap: 20px; background: #fff; color: #111;
+    }
+    .eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #1a8fa8; }
+    h1 { font-size: clamp(2.25rem,4vw,4rem); font-weight: 900; line-height: .96; letter-spacing: -.04em; color: #111; }
+
+    .metrics-strip {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+      padding: 16px; border-radius: 12px;
+      background: rgba(97,218,251,.05); border: 1.5px dashed rgba(97,218,251,.3);
+      position: relative;
+    }
+    .metrics-strip::before {
+      content: '<AppMetrics />'; position: absolute; top: -11px; left: 12px;
+      font-size: .68rem; font-family: 'Courier New', monospace; font-weight: 700;
+      background: #fff; padding: 0 6px; color: #1a8fa8;
+    }
+    .metric { text-align: center; }
+    .metric-val { font-size: 1.375rem; font-weight: 900; color: #111; }
+    .metric-lbl { font-size: .68rem; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; }
+
+    .description { font-size: 1.0625rem; line-height: 1.65; color: #4b5563; }
+    .cta {
+      align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 8px; background: var(--cyan); color: var(--navy);
+      font-weight: 700; text-decoration: none; font-size: .9375rem;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(97,218,251,.35); }
+
+    @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div id="root"><p style="padding:32px;opacity:.4">Loading React…</p></div>
+<script type="text/babel" data-presets="react">
+  const { useState, useEffect } = React;
+  const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+  const FB = {
+    eyebrow: 'React · AEM Demo', title: 'Editable from AEM',
+    description: 'This SPA renders Universal Editor annotations so authors can edit fields in context.',
+    ctaLabel: 'Get started',
+    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+  };
+
+  function useCount(target) {
+    const [n, setN] = useState(0);
+    useEffect(() => {
+      const step = Math.ceil(target / 40);
+      const id = setInterval(() => setN(c => {
+        const next = Math.min(c + step, target);
+        if (next >= target) clearInterval(id);
+        return next;
+      }), 28);
+      return () => clearInterval(id);
+    }, []);
+    return n;
+  }
+
+  function AppMetrics() {
+    const sessions = useCount(1247);
+    return (
+      <div className="metrics-strip">
+        <div className="metric"><div className="metric-val">{sessions.toLocaleString()}</div><div className="metric-lbl">Sessions</div></div>
+        <div className="metric"><div className="metric-val">94%</div><div className="metric-lbl">Satisfaction</div></div>
+        <div className="metric"><div className="metric-val">2.4s</div><div className="metric-lbl">TTI</div></div>
+      </div>
+    );
+  }
+
+  function Hero({ c }) {
+    return (
+      <section className="hero" data-aue-resource={RES} data-aue-type="component" data-aue-label="Hero CF" data-aue-model="hero">
+        <div className="hero-media">
+          <div className="ring-wrap">
+            <div className="ring-inner">
+              <img src={c.image} alt="" data-aue-resource={RES} data-aue-prop="contentReference" data-aue-type="image" data-aue-label="Hero Image"/>
+            </div>
+          </div>
+          <div className="fw-badge"><span className="pulse"/> ⚛ Rendered by React 18</div>
+        </div>
+        <div className="hero-content">
+          <p className="eyebrow" data-aue-resource={RES} data-aue-prop="eyebrow" data-aue-type="text" data-aue-label="Eyebrow">{c.eyebrow}</p>
+          <h1 data-aue-resource={RES} data-aue-prop="title" data-aue-type="text" data-aue-label="Title">{c.title}</h1>
+          <AppMetrics/>
+          <p className="description" data-aue-resource={RES} data-aue-prop="description" data-aue-type="richtext" data-aue-label="Description">{c.description}</p>
+          <a className="cta" href="#more" data-aue-resource={RES} data-aue-prop="ctaLabel" data-aue-type="text" data-aue-label="CTA">{c.ctaLabel} →</a>
+        </div>
+      </section>
+    );
+  }
+
+  function App() {
+    const [content, setContent] = useState(null);
+    useEffect(() => {
+      fetch('./content.json', { credentials: 'include', headers: { Accept: 'application/json' } })
+        .then(r => r.json())
+        .then(d => {
+          const item = d?.data?.homeHeroByPath?.item || d;
+          setContent({ ...FB, ...item,
+            image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+            description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+          });
+        })
+        .catch(() => setContent(FB));
+    }, []);
+    if (!content) return <p style={{padding:'32px',opacity:.4}}>Loading React…</p>;
+    return (
+      <>
+        <nav className="app-nav">
+          <div className="nav-brand">
+            <svg className="atom" viewBox="0 0 100 100" fill="none">
+              <ellipse cx="50" cy="50" rx="46" ry="17" stroke="#61DAFB" strokeWidth="5"/>
+              <ellipse cx="50" cy="50" rx="46" ry="17" stroke="#61DAFB" strokeWidth="5" transform="rotate(60 50 50)"/>
+              <ellipse cx="50" cy="50" rx="46" ry="17" stroke="#61DAFB" strokeWidth="5" transform="rotate(120 50 50)"/>
+              <circle cx="50" cy="50" r="7" fill="#61DAFB"/>
+            </svg>
+            MyApp · React
+          </div>
+          <div className="nav-links">
+            <a href="#">Products</a><a href="#">Docs</a><a href="#" className="active">Demo</a>
+          </div>
+        </nav>
+        <Hero c={content}/>
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

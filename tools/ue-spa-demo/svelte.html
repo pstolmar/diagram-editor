@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1411795.adobeaemcloud.com"/>
+  <title>Svelte · UE SPA Demo</title>
+  <!--
+    Svelte compiles to vanilla JS — no CDN runtime exists.
+    Below is the compiled equivalent of this Svelte component:
+
+    <script>
+      import { onMount } from 'svelte';
+      let content = null;
+      let views = 0;
+
+      $: displayViews = views.toLocaleString();
+
+      onMount(async () => {
+        const res = await fetch('./content.json');
+        content = normalize(await res.json());
+        animateCount(8421);
+      });
+    </script>
+
+    <header class="toolbar">
+      <span class="brand">◆ MyApp · Svelte</span>
+    </header>
+
+    <section class="hero" data-aue-resource={RES} data-aue-type="component">
+      <div class="hero-media">
+        <img src={content.image} data-aue-prop="contentReference" />
+      </div>
+      <div class="hero-content">
+        <p class="eyebrow" data-aue-prop="eyebrow">{content.eyebrow}</p>
+        <h1 data-aue-prop="title">{content.title}</h1>
+
+        <!-- App-owned reactive component — not from AEM -->
+        <ViewCounter bind:views />
+
+        <p class="description" data-aue-prop="description">{content.description}</p>
+        <a class="cta" data-aue-prop="ctaLabel">{content.ctaLabel}</a>
+      </div>
+    </section>
+  -->
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --orange: #FF3E00; --dark: #1a1a1a; --surface: #111; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--dark); color: #fff; min-height: 100vh; }
+
+    .toolbar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 56px;
+      background: var(--surface); border-bottom: 2px solid var(--orange);
+    }
+    .brand { font-size: .9375rem; font-weight: 900; letter-spacing: -.02em; color: var(--orange); }
+    .toolbar nav { display: flex; gap: 24px; }
+    .toolbar nav a { color: rgba(255,255,255,.45); text-decoration: none; font-size: .875rem; font-weight: 600; transition: color .15s; }
+    .toolbar nav a:hover, .toolbar nav a.active { color: #fff; }
+
+    .hero {
+      display: grid; grid-template-columns: 1.1fr .9fr;
+      min-height: calc(100vh - 56px);
+    }
+
+    .hero-media {
+      position: relative; overflow: hidden;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .img-clip-wrap {
+      width: 100%; height: 100%; position: relative;
+    }
+    .hero-media img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      /* Parallelogram via skew+translate on parent, counter-skew on img */
+      filter: saturate(1.8) hue-rotate(-10deg) brightness(.9) contrast(1.1);
+      clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+      min-height: 100%;
+    }
+    .fw-overlay {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; border-radius: 4px;
+      background: var(--orange); color: #fff;
+      font-size: .8125rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .hero-content {
+      padding: clamp(32px,6vw,80px); display: flex; flex-direction: column;
+      justify-content: center; gap: 24px; background: var(--dark);
+    }
+    .eyebrow { font-size: .75rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); }
+    h1 {
+      font-size: clamp(2.5rem,4.5vw,4.5rem); font-weight: 900;
+      line-height: .92; letter-spacing: -.05em; color: #fff;
+    }
+
+    /* Reactive ViewCounter component — $: reactive statement in Svelte */
+    .view-counter {
+      border: 1.5px dashed rgba(255,62,0,.4); border-radius: 8px;
+      padding: 16px 18px; position: relative;
+      background: rgba(255,62,0,.04);
+    }
+    .view-counter::before {
+      content: '<!-- <ViewCounter bind:views /> -->'; position: absolute; top: -11px; left: 12px;
+      font-size: .65rem; font-family: 'Courier New', monospace;
+      background: var(--dark); padding: 0 6px; color: var(--orange); font-weight: 700;
+    }
+    .vc-inner { display: flex; align-items: center; gap: 16px; }
+    .vc-num { font-size: 2rem; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; }
+    .vc-label { font-size: .8125rem; color: rgba(255,255,255,.5); font-weight: 600; }
+    .vc-bar { flex: 1; height: 4px; background: rgba(255,62,0,.2); border-radius: 4px; overflow: hidden; }
+    .vc-fill { height: 100%; background: var(--orange); border-radius: 4px; transition: width 1.4s cubic-bezier(.4,0,.2,1); }
+
+    .description { font-size: 1rem; line-height: 1.65; color: rgba(255,255,255,.55); }
+    .cta {
+      align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 4px;
+      background: var(--orange); color: #fff;
+      font-weight: 900; font-size: .9375rem; text-decoration: none; letter-spacing: .02em;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,62,0,.4); }
+
+    @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header class="toolbar">
+  <span class="brand">◆ MyApp · Svelte</span>
+  <nav>
+    <a href="#">Products</a><a href="#">Docs</a><a href="#" class="active">Demo</a>
+  </nav>
+</header>
+
+<div id="root"><p style="padding:32px;opacity:.4">Loading Svelte…</p></div>
+
+<script>
+  /* Compiled Svelte output (equivalent to: svelte-check + svelte-rollup build) */
+  const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+  const FB = {
+    eyebrow: 'Svelte · AEM Demo', title: 'Editable from AEM',
+    description: 'This SPA renders Universal Editor annotations so authors can edit fields in context.',
+    ctaLabel: 'Launch now',
+    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+  };
+
+  function escHtml(v) {
+    return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* $: reactive — count animates as Svelte reactive statement would */
+  function animateCount(el, target) {
+    const fill = el.querySelector('.vc-fill');
+    let n = 0;
+    const step = Math.ceil(target / 50);
+    const id = setInterval(() => {
+      n = Math.min(n + step, target);
+      el.querySelector('.vc-num').textContent = n.toLocaleString();
+      fill.style.width = Math.min((n / target) * 100, 100) + '%';
+      if (n >= target) clearInterval(id);
+    }, 24);
+  }
+
+  function mount(content) {
+    document.getElementById('root').innerHTML = `
+      <section class="hero"
+        data-aue-resource="${escHtml(RES)}"
+        data-aue-type="component"
+        data-aue-label="Hero CF"
+        data-aue-model="hero">
+
+        <div class="hero-media">
+          <img src="${escHtml(content.image)}" alt=""
+            data-aue-resource="${escHtml(RES)}"
+            data-aue-prop="contentReference"
+            data-aue-type="image"
+            data-aue-label="Hero Image"/>
+          <div class="fw-overlay">◆ Svelte compiled</div>
+        </div>
+
+        <div class="hero-content">
+          <p class="eyebrow"
+            data-aue-resource="${escHtml(RES)}" data-aue-prop="eyebrow"
+            data-aue-type="text" data-aue-label="Eyebrow">${escHtml(content.eyebrow)}</p>
+
+          <h1 data-aue-resource="${escHtml(RES)}" data-aue-prop="title"
+              data-aue-type="text" data-aue-label="Title">${escHtml(content.title)}</h1>
+
+          <div class="view-counter" id="vc">
+            <div class="vc-inner">
+              <div class="vc-num">0</div>
+              <div style="flex:1">
+                <div class="vc-label">Live page views today</div>
+                <div class="vc-bar"><div class="vc-fill" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <p class="description"
+            data-aue-resource="${escHtml(RES)}" data-aue-prop="description"
+            data-aue-type="richtext" data-aue-label="Description">${escHtml(content.description)}</p>
+
+          <a class="cta" href="#more"
+            data-aue-resource="${escHtml(RES)}" data-aue-prop="ctaLabel"
+            data-aue-type="text" data-aue-label="CTA">${escHtml(content.ctaLabel)} →</a>
+        </div>
+      </section>`;
+
+    setTimeout(() => animateCount(document.getElementById('vc'), 8421), 300);
+  }
+
+  (async () => {
+    try {
+      const res = await fetch('./content.json', { credentials: 'include', headers: { Accept: 'application/json' } });
+      const d = await res.json();
+      const item = d?.data?.homeHeroByPath?.item || d;
+      mount({ ...FB, ...item,
+        image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+        description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+      });
+    } catch {
+      mount(FB);
+    }
+  })();
+</script>
+</body>
+</html>

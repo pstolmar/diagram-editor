@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1411795.adobeaemcloud.com"/>
+  <title>Vue · UE SPA Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --green: #42b883; --dark-green: #35495e; --light: #f0fdf4; }
+    body { font-family: 'Nunito', system-ui, sans-serif; background: var(--light); color: var(--dark-green); min-height: 100vh; }
+
+    .app-bar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 60px;
+      background: #fff; border-bottom: 2px solid var(--green);
+      box-shadow: 0 2px 12px rgba(66,184,131,.1);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; color: var(--dark-green); font-size: 1rem; }
+    .vue-logo { width: 28px; height: 28px; }
+    .app-bar nav { display: flex; gap: 8px; }
+    .app-bar nav a {
+      padding: 6px 14px; border-radius: 20px; text-decoration: none;
+      font-size: .875rem; font-weight: 700; color: var(--dark-green);
+      transition: background .15s, color .15s;
+    }
+    .app-bar nav a:hover { background: var(--light); }
+    .app-bar nav a.active { background: var(--green); color: #fff; }
+
+    .hero {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 60px);
+    }
+
+    .hero-media {
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      padding: 64px 48px; position: relative; overflow: hidden;
+    }
+    .hero-media::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(66,184,131,.08) 0%, transparent 60%);
+    }
+    .img-card {
+      position: relative; width: min(360px, 100%);
+      border-radius: 32px;
+      padding: 4px;
+      background: linear-gradient(135deg, var(--green), #38bdf8, #818cf8, var(--green));
+      background-size: 300% 300%;
+      animation: grad-shift 4s ease infinite;
+      box-shadow: 0 32px 64px rgba(66,184,131,.2), 0 8px 24px rgba(0,0,0,.08);
+      transform: rotate(-1.5deg);
+    }
+    @keyframes grad-shift {
+      0%,100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .img-card img {
+      width: 100%; border-radius: 28px; display: block;
+      aspect-ratio: 4/3; object-fit: cover;
+      filter: saturate(1.1);
+    }
+    .fw-chip {
+      position: absolute; bottom: -14px; right: 20px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 20px;
+      background: var(--dark-green); color: #fff;
+      font-size: .8rem; font-weight: 800; letter-spacing: .02em;
+      box-shadow: 0 4px 12px rgba(53,73,94,.3);
+    }
+
+    .hero-content {
+      padding: clamp(32px,6vw,80px); display: flex; flex-direction: column;
+      justify-content: center; gap: 22px;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .8rem; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: .08em;
+    }
+    .eyebrow::before { content: ''; width: 24px; height: 2px; background: var(--green); border-radius: 2px; }
+    h1 { font-size: clamp(2.25rem,4vw,3.75rem); font-weight: 900; line-height: 1; letter-spacing: -.03em; color: var(--dark-green); }
+
+    .campaign-bar {
+      border-radius: 16px; padding: 18px 20px;
+      background: #fff; border: 1.5px dashed rgba(66,184,131,.4);
+      box-shadow: 0 2px 12px rgba(66,184,131,.08);
+      position: relative;
+    }
+    .campaign-bar::before {
+      content: '<CampaignPerformance />'; position: absolute; top: -11px; left: 16px;
+      font-size: .68rem; font-family: 'Courier New', monospace; font-weight: 700;
+      background: var(--light); padding: 0 6px; color: var(--green);
+    }
+    .bar-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: .8125rem; font-weight: 700; color: var(--dark-green); }
+    .bar-track { height: 10px; background: #dcfce7; border-radius: 10px; overflow: hidden; }
+    .bar-fill {
+      height: 100%; border-radius: 10px;
+      background: linear-gradient(90deg, var(--green), #38bdf8);
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+    }
+    .bar-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+    .tag {
+      padding: 4px 12px; border-radius: 12px; font-size: .75rem; font-weight: 700;
+      background: #dcfce7; color: var(--dark-green);
+    }
+
+    .description { font-size: 1.0625rem; line-height: 1.65; color: #4b6d5e; }
+    .cta {
+      align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 30px;
+      background: var(--green); color: #fff;
+      font-weight: 800; font-size: .9375rem; text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(66,184,131,.4); }
+
+    @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div id="app">
+  <p style="padding:32px;opacity:.4">Loading Vue…</p>
+</div>
+<script>
+  const { createApp, ref, onMounted } = Vue;
+  const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+  const FB = {
+    eyebrow: 'Vue · AEM Demo', title: 'Editable from AEM',
+    description: 'This SPA renders Universal Editor annotations so authors can edit fields in context.',
+    ctaLabel: 'Get started',
+    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+  };
+
+  createApp({
+    template: `
+      <div>
+        <header class="app-bar">
+          <div class="brand">
+            <svg class="vue-logo" viewBox="0 0 128 110" fill="none">
+              <polygon points="64,0 128,110 0,110" fill="#42b883"/>
+              <polygon points="64,22 105,90 23,90" fill="#35495e"/>
+            </svg>
+            MyApp · Vue
+          </div>
+          <nav>
+            <a href="#">Products</a>
+            <a href="#">Docs</a>
+            <a href="#" class="active">Demo</a>
+          </nav>
+        </header>
+
+        <section v-if="content" class="hero"
+          data-aue-resource="${RES}" data-aue-type="component"
+          data-aue-label="Hero CF" data-aue-model="hero">
+
+          <div class="hero-media">
+            <div class="img-card">
+              <img :src="content.image" alt=""
+                data-aue-resource="${RES}" data-aue-prop="contentReference"
+                data-aue-type="image" data-aue-label="Hero Image"/>
+              <div class="fw-chip">▲ Vue 3</div>
+            </div>
+          </div>
+
+          <div class="hero-content">
+            <p class="eyebrow"
+              data-aue-resource="${RES}" data-aue-prop="eyebrow"
+              data-aue-type="text" data-aue-label="Eyebrow">
+              {{ content.eyebrow }}
+            </p>
+            <h1 data-aue-resource="${RES}" data-aue-prop="title"
+                data-aue-type="text" data-aue-label="Title">
+              {{ content.title }}
+            </h1>
+
+            <div class="campaign-bar">
+              <div class="bar-label"><span>Campaign performance</span><span>{{ barVal }}%</span></div>
+              <div class="bar-track"><div class="bar-fill" :style="{ width: barVal + '%' }"></div></div>
+              <div class="bar-tags">
+                <span class="tag" v-for="t in tags" :key="t">{{ t }}</span>
+              </div>
+            </div>
+
+            <p class="description"
+              data-aue-resource="${RES}" data-aue-prop="description"
+              data-aue-type="richtext" data-aue-label="Description">
+              {{ content.description }}
+            </p>
+            <a class="cta" href="#more"
+              data-aue-resource="${RES}" data-aue-prop="ctaLabel"
+              data-aue-type="text" data-aue-label="CTA">
+              {{ content.ctaLabel }} →
+            </a>
+          </div>
+        </section>
+
+        <p v-else style="padding:32px;opacity:.4">Loading Vue…</p>
+      </div>
+    `,
+    setup() {
+      const content = ref(null);
+      const barVal = ref(0);
+      const tags = ['EMEA Launch', 'B2B', 'Q3 2026', 'Digital'];
+
+      onMounted(async () => {
+        try {
+          const res = await fetch('./content.json', { credentials: 'include', headers: { Accept: 'application/json' } });
+          const d = await res.json();
+          const item = d?.data?.homeHeroByPath?.item || d;
+          content.value = { ...FB, ...item,
+            image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+            description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+          };
+        } catch {
+          content.value = FB;
+        }
+        setTimeout(() => { barVal.value = 94; }, 400);
+      });
+
+      return { content, barVal, tags };
+    }
+  }).mount('#app');
+</script>
+</body>
+</html>

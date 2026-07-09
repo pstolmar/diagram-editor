@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1411795.adobeaemcloud.com"/>
+  <title>Angular · UE SPA Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <!--
+    Angular Elements — what `ng build --configuration=elements` produces.
+    Components are compiled to Web Components (Custom Elements).
+
+    @Component({ selector: 'ng-hero', template: `...` })
+    export class HeroComponent { @Input() content: HeroContent; }
+
+    @NgModule({ declarations: [HeroComponent], imports: [BrowserModule] })
+    export class AppModule implements DoBootstrap {
+      ngDoBootstrap(appRef: ApplicationRef) {
+        const hero = createCustomElement(HeroComponent, { injector: appRef.injector });
+        customElements.define('ng-hero', hero);
+      }
+    }
+  -->
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --red: #DD0031; --blue: #1976D2; --surface: #fff; --bg: #fafafa; }
+    body { font-family: 'Roboto', system-ui, sans-serif; background: var(--bg); color: #212121; min-height: 100vh; }
+
+    /* Material toolbar */
+    mat-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 64px;
+      background: var(--red); color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,.2), 0 4px 5px rgba(0,0,0,.14);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .toolbar-brand { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 500; }
+    .toolbar-brand .material-icons { font-size: 28px; }
+    .toolbar-spacer { flex: 1; }
+    .mat-button {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,.75); font-size: .875rem; font-weight: 500;
+      font-family: 'Roboto', sans-serif;
+      padding: 0 16px; height: 36px; border-radius: 4px;
+      transition: background .15s, color .15s;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .mat-button:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+    /* Material card layout */
+    .page-content { max-width: 1200px; margin: 32px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    mat-card {
+      display: block; background: var(--surface); border-radius: 4px;
+      box-shadow: 0 2px 1px rgba(0,0,0,.09), 0 1px 1px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+      overflow: hidden;
+    }
+    .mat-card-media { position: relative; overflow: hidden; }
+    .mat-card-media img {
+      width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block;
+      filter: brightness(.92);
+    }
+    .mat-card-media-scrim {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 55%);
+    }
+    .media-badge {
+      position: absolute; bottom: 16px; left: 16px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 2px;
+      background: var(--red); color: #fff;
+      font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    }
+    mat-card-header {
+      display: block; padding: 16px 16px 0;
+    }
+    .mat-card-subheader { font-size: .75rem; font-weight: 500; color: var(--red); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+    mat-card-title { font-size: 1.5rem; font-weight: 700; line-height: 1.2; color: #212121; margin: 0; display: block; }
+    mat-card-content { display: block; padding: 16px; }
+    mat-card-actions { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px; border-top: 1px solid #e0e0e0; }
+
+    /* App component — chip set */
+    .app-component-card {
+      border: 1.5px dashed rgba(25,118,210,.35); border-radius: 4px;
+      padding: 16px; position: relative; background: rgba(25,118,210,.02);
+    }
+    .app-component-card::before {
+      content: '@Component: <NgTagCloud />'; position: absolute; top: -11px; left: 12px;
+      font-size: .65rem; font-family: 'Courier New', monospace;
+      background: var(--bg); padding: 0 6px; color: var(--blue); font-weight: 700;
+    }
+    mat-chip-set { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    mat-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 14px; border-radius: 16px;
+      background: #e3f2fd; color: var(--blue);
+      font-size: .8125rem; font-weight: 500;
+      border: 1px solid rgba(25,118,210,.2);
+    }
+    mat-chip .material-icons { font-size: 14px; }
+
+    .description { font-size: .9375rem; line-height: 1.65; color: #616161; }
+
+    .mat-raised-button {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0 16px; height: 36px; border-radius: 4px;
+      background: var(--red); color: #fff; border: none; cursor: pointer;
+      font-family: 'Roboto', sans-serif; font-size: .875rem; font-weight: 500;
+      letter-spacing: .04em; text-transform: uppercase;
+      box-shadow: 0 3px 1px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 1px 5px rgba(0,0,0,.12);
+      text-decoration: none;
+      transition: box-shadow .2s;
+    }
+    .mat-raised-button:hover { box-shadow: 0 5px 5px rgba(0,0,0,.2), 0 3px 14px rgba(0,0,0,.12); }
+    .mat-stroked-button {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 0 16px; height: 36px; border-radius: 4px;
+      background: none; color: var(--blue); border: 1px solid rgba(25,118,210,.4); cursor: pointer;
+      font-family: 'Roboto', sans-serif; font-size: .875rem; font-weight: 500;
+      letter-spacing: .04em; text-transform: uppercase; text-decoration: none;
+      transition: background .15s;
+    }
+    .mat-stroked-button:hover { background: rgba(25,118,210,.05); }
+    .mat-icon-button {
+      width: 40px; height: 40px; border-radius: 50%; background: none; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #757575; transition: background .15s;
+    }
+    .mat-icon-button:hover { background: rgba(0,0,0,.05); }
+
+    @media (max-width: 720px) { .page-content { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<mat-toolbar>
+  <div class="toolbar-brand">
+    <span class="material-icons">change_history</span>
+    MyApp · Angular
+  </div>
+  <span class="toolbar-spacer"></span>
+  <button class="mat-button">Products</button>
+  <button class="mat-button">Docs</button>
+  <button class="mat-button">Demo</button>
+</mat-toolbar>
+
+<div id="root"><p style="padding:32px;opacity:.4">Loading Angular…</p></div>
+
+<script>
+  /* Angular Elements — custom elements compiled from @angular/elements */
+  const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+  const FB = {
+    eyebrow: 'Angular · AEM Demo', title: 'Editable from AEM',
+    description: 'This SPA renders Universal Editor annotations so authors can edit fields in context.',
+    ctaLabel: 'Learn more',
+    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+  };
+
+  /* Web Component — compiled output of @Component({ selector: 'ng-hero' }) */
+  class NgHero extends HTMLElement {
+    static get observedAttributes() { return ['content']; }
+    set data(val) { this._data = val; this._render(); }
+    _esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    _render() {
+      const c = this._data;
+      if (!c) return;
+      const r = this._esc(RES);
+      this.innerHTML = `
+        <div class="page-content" data-aue-resource="${r}" data-aue-type="component" data-aue-label="Hero CF" data-aue-model="hero">
+          <mat-card>
+            <div class="mat-card-media">
+              <img src="${this._esc(c.image)}" alt=""
+                data-aue-resource="${r}" data-aue-prop="contentReference"
+                data-aue-type="image" data-aue-label="Hero Image"/>
+              <div class="mat-card-media-scrim"></div>
+              <div class="media-badge"><span class="material-icons" style="font-size:14px">change_history</span> Angular Element</div>
+            </div>
+            <mat-card-header>
+              <div class="mat-card-subheader"
+                data-aue-resource="${r}" data-aue-prop="eyebrow"
+                data-aue-type="text" data-aue-label="Eyebrow">${this._esc(c.eyebrow)}</div>
+              <mat-card-title
+                data-aue-resource="${r}" data-aue-prop="title"
+                data-aue-type="text" data-aue-label="Title">${this._esc(c.title)}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="app-component-card" style="margin-bottom:16px">
+                <mat-chip-set>
+                  <mat-chip><span class="material-icons">public</span>EMEA</mat-chip>
+                  <mat-chip><span class="material-icons">business</span>B2B</mat-chip>
+                  <mat-chip><span class="material-icons">auto_graph</span>Q3 2026</mat-chip>
+                  <mat-chip><span class="material-icons">verified</span>Approved</mat-chip>
+                </mat-chip-set>
+              </div>
+              <p class="description"
+                data-aue-resource="${r}" data-aue-prop="description"
+                data-aue-type="richtext" data-aue-label="Description">${this._esc(c.description)}</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <a class="mat-raised-button" href="#more"
+                data-aue-resource="${r}" data-aue-prop="ctaLabel"
+                data-aue-type="text" data-aue-label="CTA">
+                <span class="material-icons" style="font-size:18px">arrow_forward</span>
+                ${this._esc(c.ctaLabel)}
+              </a>
+              <button class="mat-stroked-button"><span class="material-icons" style="font-size:18px">share</span>Share</button>
+              <span style="flex:1"></span>
+              <button class="mat-icon-button"><span class="material-icons">bookmark_border</span></button>
+            </mat-card-actions>
+          </mat-card>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <mat-card style="padding:20px">
+              <div style="font-size:.8rem;font-weight:700;color:#1976D2;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Content provenance</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                ${['Fragment path', '/content/dam/ue-demo/…', 'Model', 'homeHero', 'Variation', 'master', 'Status', '● Published'].map((t,i) =>
+                  i % 2 === 0
+                    ? `<div style="font-size:.75rem;color:#9e9e9e;font-weight:500">${t}</div>`
+                    : `<div style="font-size:.8125rem;font-weight:700;color:#212121">${t}</div>`
+                ).join('')}
+              </div>
+            </mat-card>
+            <mat-card style="padding:20px">
+              <div style="font-size:.8rem;font-weight:700;color:#1976D2;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">@Component — app layer</div>
+              <p style="font-size:.875rem;color:#616161;line-height:1.6">
+                Everything in the left card is AEM-authored via Universal Editor.
+                This panel is pure Angular — custom logic, real-time data, personalization — coexisting alongside CF content in the same view.
+              </p>
+            </mat-card>
+          </div>
+        </div>`;
+    }
+  }
+
+  customElements.define('ng-hero', NgHero);
+
+  (async () => {
+    const root = document.getElementById('root');
+    root.innerHTML = '<ng-hero></ng-hero>';
+    const el = root.querySelector('ng-hero');
+
+    try {
+      const res = await fetch('./content.json', { credentials: 'include', headers: { Accept: 'application/json' } });
+      const d = await res.json();
+      const item = d?.data?.homeHeroByPath?.item || d;
+      el.data = { ...FB, ...item,
+        image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+        description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+      };
+    } catch {
+      el.data = FB;
+    }
+  })();
+</script>
+</body>
+</html>
