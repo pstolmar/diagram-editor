@@ -60,7 +60,6 @@ async function loadContent() {
   }
 
   const response = await fetch(demoConfig.graphQlEndpoint, {
-    credentials: 'include',
     headers: { Accept: 'application/json' },
   });
 

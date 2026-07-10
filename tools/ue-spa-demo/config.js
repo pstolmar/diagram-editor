@@ -9,7 +9,7 @@ export const demoConfig = {
   // Expected response can be either:
   // { data: { heroByPath: { item: { title, eyebrow, description, image } } } }
   // or any object with top-level title/eyebrow/description/image fields.
-  graphQlEndpoint: './content.json',
+  graphQlEndpoint: 'https://publish-p138879-e1411795.adobeaemcloud.com/graphql/execute.json/global/hero',
 
   fallbackContent: {
     eyebrow: 'Universal Editor SPA demo',

@@ -241,7 +241,7 @@
     const el = root.querySelector('ng-hero');
 
     try {
-      const res = await fetch('./content.json', { credentials: 'include', headers: { Accept: 'application/json' } });
+      const res = await fetch('https://publish-p138879-e1411795.adobeaemcloud.com/graphql/execute.json/global/hero', { headers: { Accept: 'application/json' } });
       const d = await res.json();
       const item = d?.data?.homeHeroByPath?.item || d;
       el.data = { ...FB, ...item,

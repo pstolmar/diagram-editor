@@ -266,7 +266,6 @@
   function App() {
     const [content, setContent] = useState(null);
     useEffect(() => {
-      fetch('./content.json', { credentials: 'include', headers: { Accept: 'application/json' } })
         .then(r => r.json())
         .then(d => {
           const item = d?.data?.homeHeroByPath?.item || d;

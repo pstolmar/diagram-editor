@@ -261,7 +261,6 @@
 
   (async () => {
     try {
-      const res = await fetch('./content.json', { credentials: 'include', headers: { Accept: 'application/json' } });
       const d = await res.json();
       const item = d?.data?.homeHeroByPath?.item || d;
       render({ ...FB, ...item,
