@@ -188,7 +188,7 @@
 /* ── React setup ── */
 const { useState, useEffect, useReducer, useCallback, useRef, createElement: h, Fragment, memo } = React;
 
-const GRAPHQL  = './content.json';
+const GRAPHQL  = 'https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero';
 const RES      = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
 
 /* CF fallback */
@@ -265,7 +265,9 @@ function useContent() {
         const item = d?.data?.homeHeroByPath?.item || d;
         setContent({
           ...FB, ...item,
-          image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+          image: item?.contentReference?._publishUrl
+            || (item?.contentReference?._path ? 'https://publish-p138879-e1741192.adobeaemcloud.com' + item.contentReference._path : null)
+            || item?.image || FB.image,
           description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
         });
       })

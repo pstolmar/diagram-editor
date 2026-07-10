@@ -162,6 +162,7 @@
 <div id="root"></div>
 <script>
   const { useState, useEffect, createElement: h } = React;
+  const GRAPHQL = 'https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero';
   const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
   const FB = {
     eyebrow: 'React · AEM Demo', title: 'Editable from AEM',
@@ -266,12 +267,15 @@
   function App() {
     const [content, setContent] = useState(null);
     useEffect(() => {
-      fetch('./content.json', { headers: { Accept: 'application/json' } })
+      fetch(GRAPHQL, { headers: { Accept: 'application/json' } })
         .then(r => r.json())
         .then(d => {
           const item = d?.data?.homeHeroByPath?.item || d;
+          const imgUrl = item?.contentReference?._publishUrl
+            || (item?.contentReference?._path ? 'https://publish-p138879-e1741192.adobeaemcloud.com' + item.contentReference._path : null)
+            || item?.image || FB.image;
           setContent({ ...FB, ...item,
-            image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+            image: imgUrl,
             description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
           });
         })
