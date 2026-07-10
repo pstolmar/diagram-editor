@@ -17,7 +17,7 @@
       $: displayViews = views.toLocaleString();
 
       onMount(async () => {
-        const res = await fetch('https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero');
+        const res = await fetch('./content.json');
         content = normalize(await res.json());
         animateCount(8421);
       });
