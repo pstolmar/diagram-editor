@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1411795.adobeaemcloud.com"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
   <title>Svelte · UE SPA Demo</title>
   <!--
     Svelte compiles to vanilla JS — no CDN runtime exists.
@@ -17,7 +17,7 @@
       $: displayViews = views.toLocaleString();
 
       onMount(async () => {
-        const res = await fetch('https://publish-p138879-e1411795.adobeaemcloud.com/graphql/execute.json/global/hero');
+        const res = await fetch('https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero');
         content = normalize(await res.json());
         animateCount(8421);
       });

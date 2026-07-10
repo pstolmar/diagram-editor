@@ -1,5 +1,5 @@
 export const demoConfig = {
-  authorUrl: 'https://author-p138879-e1411795.adobeaemcloud.com',
+  authorUrl: 'https://author-p138879-e1741192.adobeaemcloud.com',
 
   // Content Fragment path used by Universal Editor as the persistence resource.
   fragmentVariation: 'master',
@@ -9,7 +9,7 @@ export const demoConfig = {
   // Expected response can be either:
   // { data: { heroByPath: { item: { title, eyebrow, description, image } } } }
   // or any object with top-level title/eyebrow/description/image fields.
-  graphQlEndpoint: 'https://publish-p138879-e1411795.adobeaemcloud.com/graphql/execute.json/global/hero',
+  graphQlEndpoint: 'https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero',
 
   fallbackContent: {
     eyebrow: 'Universal Editor SPA demo',

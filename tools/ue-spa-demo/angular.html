@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1411795.adobeaemcloud.com"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
   <title>Angular · UE SPA Demo</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
@@ -241,7 +241,7 @@
     const el = root.querySelector('ng-hero');
 
     try {
-      const res = await fetch('https://publish-p138879-e1411795.adobeaemcloud.com/graphql/execute.json/global/hero', { headers: { Accept: 'application/json' } });
+      const res = await fetch('https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero', { headers: { Accept: 'application/json' } });
       const d = await res.json();
       const item = d?.data?.homeHeroByPath?.item || d;
       el.data = { ...FB, ...item,
