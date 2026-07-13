@@ -98,6 +98,22 @@
       text-shadow: 0 0 60px rgba(97,218,251,.6), 0 0 120px rgba(97,218,251,.3);
       line-height: .95;
     }
+    .dc-cta {
+      margin-top: 28px; padding: 14px 40px; border-radius: 32px;
+      border: 2px solid rgba(97,218,251,.45);
+      background: rgba(97,218,251,.1); color: #61DAFB;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 1.0625rem; font-weight: 700; letter-spacing: .02em;
+      cursor: pointer; pointer-events: auto;
+      text-shadow: 0 0 20px rgba(97,218,251,.5);
+      box-shadow: 0 0 32px rgba(97,218,251,.15);
+      transition: background .2s, border-color .2s, box-shadow .2s, transform .15s;
+    }
+    .dc-cta:hover {
+      background: rgba(97,218,251,.22); border-color: rgba(97,218,251,.75);
+      box-shadow: 0 0 52px rgba(97,218,251,.4);
+      transform: translateY(-2px);
+    }
 
     /* globe legend */
     .globe-legend {
@@ -558,8 +574,9 @@ function DatacenterFly({ titleRef }) {
     camera.lookAt(0, 1.2, camera.position.z - 15);
 
     // Drive title overlay opacity directly (no React re-render)
+    // Start fading in at p=0.65 (camera still moving) so there's no dead-air pause
     if (titleRef?.current) {
-      const opacity = Math.max(0, Math.min(1, (p - 0.78) * 4.5));
+      const opacity = Math.max(0, Math.min(1, (p - 0.65) * 5.0));
       titleRef.current.style.opacity = opacity.toString();
     }
   });
@@ -672,6 +689,7 @@ const CAM = {
 function App() {
   const [scene,    setScene]    = useState('globe');
   const [cfTitle,  setCfTitle]  = useState('React Three Fiber · AEM Demo');
+  const [cfCta,    setCfCta]    = useState('Get started →');
   const [tourActive, setTour]   = useState(false);
   const [archNode, setArchNode] = useState(ARCH[0]);
   const titleOverlayRef         = useRef();
@@ -683,6 +701,7 @@ function App() {
       .then(d => {
         const item = d?.data?.homeHeroByPath?.item || d;
         if (item?.title) setCfTitle(item.title);
+        if (item?.ctaLabel) setCfCta(item.ctaLabel + ' →');
       })
       .catch(() => {});
   }
@@ -772,12 +791,12 @@ function App() {
         )
       ),
 
-      // Datacenter: CF title overlay (opacity driven by ref from useFrame)
+      // Datacenter: CF title + CTA overlay (opacity driven by ref from useFrame)
       scene === 'dc' && h('div', {
           ref: titleOverlayRef,
           className: 'dc-title-overlay',
         },
-        h('div', { className: 'dc-title-label' }, '↓ AEM Content Fragment · title field'),
+        h('div', { className: 'dc-title-label' }, '↓ AEM Content Fragment · title + ctaLabel'),
         h('h1', {
             className: 'dc-title-text',
             'data-aue-resource': RES,
@@ -785,6 +804,14 @@ function App() {
             'data-aue-type':     'text',
             'data-aue-label':    'CF Title',
           }, cfTitle
+        ),
+        h('button', {
+            className: 'dc-cta',
+            'data-aue-resource': RES,
+            'data-aue-prop':     'ctaLabel',
+            'data-aue-type':     'text',
+            'data-aue-label':    'CTA Label',
+          }, cfCta
         )
       )
     ),
