@@ -144,7 +144,10 @@ const h = React.createElement;
 const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
 const GRAPHQL = `${PUBLISH}/graphql/execute.json/global/hero`;
 const RES     = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
-const EARTH_TEX = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/textures/land_ocean_ice_cloud_2048.jpg';
+// NASA Blue Marble — public domain, Wikimedia CDN (CORS-open)
+const EARTH_TEX  = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_cloud_hires.jpg/2048px-Land_ocean_ice_cloud_hires.jpg';
+// Fallback: Three.js GitHub (used if Wikimedia fails)
+const EARTH_TEX2 = 'https://raw.githubusercontent.com/mrdoob/three.js/r160/examples/textures/land_ocean_ice_cloud_2048.jpg';
 
 // ── Globe data ─────────────────────────────────────────────────────────────────
 const DCS = [
@@ -222,48 +225,106 @@ function Stars({ count = 2000 }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function EarthSphere() {
-  const meshRef = useRef();
+  const groupRef = useRef();
   const [texture, setTexture] = useState(null);
+  const dotRefs  = useRef([]);
 
   useEffect(() => {
-    new THREE.TextureLoader().load(EARTH_TEX, (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); });
+    const loader = new THREE.TextureLoader();
+    loader.load(EARTH_TEX, (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); },
+      undefined,
+      () => loader.load(EARTH_TEX2, (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); })
+    );
   }, []);
 
-  useFrame((_, dt) => { if (meshRef.current) meshRef.current.rotation.y += dt * 0.06; });
+  useFrame((state, dt) => {
+    if (groupRef.current) groupRef.current.rotation.y += dt * 0.055;
+    // Pulse the halo rings
+    const t = state.clock.elapsedTime;
+    dotRefs.current.forEach((r, i) => {
+      if (r?.material) {
+        const s = 1 + 0.35 * Math.abs(Math.sin(t * 1.6 + i * 1.1));
+        r.scale.setScalar(s);
+        r.material.opacity = 0.25 + 0.2 * Math.abs(Math.sin(t * 1.6 + i * 1.1));
+      }
+    });
+  });
 
-  return h('group', { ref: meshRef },
-    // Solid earth
+  return h('group', { ref: groupRef },
+    // Earth surface
     h('mesh', null,
-      h('sphereGeometry', { args: [2, 64, 32] }),
+      h('sphereGeometry', { args: [2, 96, 48] }),
       h('meshPhongMaterial', {
         map: texture,
-        color: texture ? 0xffffff : '#1a3a6b',
-        shininess: 90,
-        specular: new THREE.Color(0x3366aa),
+        color: texture ? 0xffffff : '#0d2a5a',
+        shininess: 200,
+        specular: new THREE.Color(0x2255aa),
       })
     ),
-    // Atmosphere glow
+    // Atmosphere — inner bright band
     h('mesh', null,
-      h('sphereGeometry', { args: [2.08, 32, 32] }),
+      h('sphereGeometry', { args: [2.03, 48, 48] }),
       h('meshPhongMaterial', {
-        color: '#4488ff', transparent: true, opacity: 0.07,
+        color: '#2244ee', transparent: true, opacity: 0.22,
         side: THREE.FrontSide, depthWrite: false, blending: THREE.AdditiveBlending,
+      })
+    ),
+    // Atmosphere — mid haze
+    h('mesh', null,
+      h('sphereGeometry', { args: [2.14, 32, 32] }),
+      h('meshPhongMaterial', {
+        color: '#3366ff', transparent: true, opacity: 0.10,
+        side: THREE.FrontSide, depthWrite: false, blending: THREE.AdditiveBlending,
+      })
+    ),
+    // Atmosphere — outer corona
+    h('mesh', null,
+      h('sphereGeometry', { args: [2.38, 24, 24] }),
+      h('meshPhongMaterial', {
+        color: '#5588ff', transparent: true, opacity: 0.045,
+        side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending,
       })
     ),
     // Data center dots
     ...DCS.map((dc, i) =>
       h('mesh', { key: i, position: latLng(dc.lat, dc.lng) },
-        h('sphereGeometry', { args: [0.045, 10, 10] }),
+        h('sphereGeometry', { args: [0.05, 12, 12] }),
         h('meshBasicMaterial', { color: dc.color })
       )
     ),
-    // Dot glow halos
+    // Pulsing halo rings
     ...DCS.map((dc, i) =>
-      h('mesh', { key: `h${i}`, position: latLng(dc.lat, dc.lng) },
-        h('sphereGeometry', { args: [0.09, 10, 10] }),
+      h('mesh', {
+          key: `h${i}`, position: latLng(dc.lat, dc.lng),
+          ref: el => { dotRefs.current[i] = el; },
+        },
+        h('sphereGeometry', { args: [0.11, 10, 10] }),
         h('meshBasicMaterial', { color: dc.color, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false })
       )
     )
+  );
+}
+
+// Animated particle that travels along an arc
+function ArcParticle({ a, b, offset = 0, speed = 0.18 }) {
+  const ref     = useRef();
+  const progRef = useRef(offset);
+  const pts     = useMemo(() => {
+    const from  = new THREE.Vector3(...latLng(DCS[a].lat, DCS[a].lng));
+    const to    = new THREE.Vector3(...latLng(DCS[b].lat, DCS[b].lng));
+    const mid   = from.clone().add(to).multiplyScalar(0.5).normalize().multiplyScalar(3.5);
+    return new THREE.QuadraticBezierCurve3(from, mid, to).getPoints(120);
+  }, [a, b]);
+
+  useFrame((_, dt) => {
+    progRef.current = (progRef.current + dt * speed) % 1;
+    const idx = Math.floor(progRef.current * (pts.length - 1));
+    ref.current.position.copy(pts[idx]);
+  });
+
+  return h('mesh', { ref },
+    h('sphereGeometry', { args: [0.035, 6, 6] }),
+    h('meshBasicMaterial', { color: DCS[a].color, blending: THREE.AdditiveBlending, depthWrite: false })
   );
 }
 
@@ -284,13 +345,21 @@ function GlobeArc({ a, b }) {
 
 function GlobeScene() {
   return h(React.Fragment, null,
-    h('ambientLight',     { intensity: 0.25 }),
-    h('directionalLight', { position: [6, 3, 5],   intensity: 1.4, color: '#fff8e8' }),
-    h('pointLight',       { position: [-6,-3,-5],  intensity: 0.4, color: '#223355' }),
-    h(Stars, null),
+    // Near-black ambient so the dark side is actually dark
+    h('ambientLight',     { intensity: 0.04 }),
+    // Sun: warm, strong, from upper-right
+    h('directionalLight', { position: [8, 4, 6],   intensity: 3.0, color: '#fff5e0' }),
+    // Subtle earthshine backfill — blue, very dim, opposite the sun
+    h('pointLight',       { position: [-5,-2,-4],  intensity: 0.12, color: '#1a3a8a' }),
+    h(Stars, { count: 3000 }),
     h(EarthSphere, null),
     ...ARC_PAIRS.map(([a, b], i) => h(GlobeArc, { key: i, a, b })),
-    h(OrbitalControls, { minDist: 3, maxDist: 9 })
+    // Animated data flow particles along each arc
+    ...ARC_PAIRS.flatMap(([a, b], i) => [
+      h(ArcParticle, { key: `p0-${i}`, a, b, offset: 0,    speed: 0.16 + i * 0.02 }),
+      h(ArcParticle, { key: `p1-${i}`, a, b, offset: 0.5,  speed: 0.16 + i * 0.02 }),
+    ]),
+    h(OrbitalControls, { minDist: 2.8, maxDist: 9 })
   );
 }
 
@@ -595,7 +664,7 @@ const SCENES = [
 ];
 
 const CAM = {
-  globe: { position: [0, 1, 5.5],  fov: 55 },
+  globe: { position: [0, 0.8, 4.8], fov: 52 },
   arch:  { position: [0.5, 2, 10], fov: 58 },
   dc:    { position: [0, 1.6, 20], fov: 68 },
 };
