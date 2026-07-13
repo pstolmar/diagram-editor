@@ -301,7 +301,7 @@ const ExpBar = memo(function ExpBar({ label, value, max, color }) {
 /* ── Nav ─────────────────────────────────────────────────────────────────── */
 function Nav() {
   function openInUE() {
-    window.open('https://experience.adobe.com/#/aem/editor/canvas/' + window.location.href.replace('https://', 'https:/'), '_blank');
+    window.open('https://experience.adobe.com/#/aem/editor/canvas/' + window.location.href.replace('https://', ''), '_blank');
   }
   return h('nav', { className: 'nav' },
     h('a', { href: '#', className: 'nav-logo' }, h('span', { className: 'logo-dot' }), 'MyApp · Enterprise'),

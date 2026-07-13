@@ -29,6 +29,18 @@
     .nav-links a:hover { color: var(--cyan); }
     .nav-links a.active { color: #fff; }
 
+    .variant-toggle {
+      display: flex; gap: 2px;
+      background: rgba(97,218,251,.08); border: 1px solid rgba(97,218,251,.18);
+      border-radius: 20px; padding: 3px;
+    }
+    .vt-btn {
+      padding: 4px 14px; border-radius: 16px; border: none; cursor: pointer;
+      font-family: inherit; font-size: .8125rem; font-weight: 600;
+      background: transparent; color: rgba(255,255,255,.4); transition: all .15s;
+    }
+    .vt-btn.active { background: var(--cyan); color: var(--navy); }
+
     .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 56px); }
 
     .hero-media {
@@ -162,13 +174,21 @@
 <div id="root"></div>
 <script>
   const { useState, useEffect, createElement: h } = React;
-  const GRAPHQL = 'https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero';
-  const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
-  const FB = {
+  const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+  const GRAPHQL  = PUBLISH + '/graphql/execute.json/global/hero';
+  const RES_MASTER = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+  const RES_BRIEF  = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/brief';
+  const FB_MASTER = {
     eyebrow: 'React · AEM Demo', title: 'Editable from AEM',
     description: 'This SPA renders Universal Editor annotations so authors can edit fields in context.',
     ctaLabel: 'Get started',
     image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+  };
+  const FB_BRIEF = {
+    eyebrow: 'Brief · AEM Demo', title: 'The Condensed Cut',
+    description: 'A shorter-form variation — authored separately in Universal Editor with its own title, image, and call to action.',
+    ctaLabel: 'Read brief',
+    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80',
   };
 
   function useCount(target) {
@@ -203,20 +223,18 @@
     );
   }
 
-  function Hero({ c }) {
+  function Hero({ c, res }) {
     return h('section', {
         className: 'hero',
-        'data-aue-resource': RES, 'data-aue-type': 'component',
+        'data-aue-resource': res, 'data-aue-type': 'component',
         'data-aue-label': 'Hero CF', 'data-aue-model': 'hero',
       },
       h('div', { className: 'hero-media' },
         h('div', { className: 'img-stage' },
-          /* bottom: zoomed detail crop revealed by the sweep */
           h('img', { className: 'layer-zoom', src: c.image, alt: '' }),
-          /* top: normal crop — carries UE attributes, sweeps away on hover */
           h('img', {
             className: 'layer-base', src: c.image, alt: '',
-            'data-aue-resource': RES, 'data-aue-prop': 'contentReference',
+            'data-aue-resource': res, 'data-aue-prop': 'contentReference',
             'data-aue-type': 'image', 'data-aue-label': 'Hero Image',
           }),
           h('div', { className: 'stage-hint' }, 'hover →'),
@@ -229,25 +247,25 @@
       h('div', { className: 'hero-content' },
         h('p', {
             className: 'eyebrow',
-            'data-aue-resource': RES, 'data-aue-prop': 'eyebrow',
+            'data-aue-resource': res, 'data-aue-prop': 'eyebrow',
             'data-aue-type': 'text', 'data-aue-label': 'Eyebrow',
           }, c.eyebrow
         ),
         h('h1', {
-            'data-aue-resource': RES, 'data-aue-prop': 'title',
+            'data-aue-resource': res, 'data-aue-prop': 'title',
             'data-aue-type': 'text', 'data-aue-label': 'Title',
           }, c.title
         ),
         h(AppMetrics, null),
         h('p', {
             className: 'description',
-            'data-aue-resource': RES, 'data-aue-prop': 'description',
+            'data-aue-resource': res, 'data-aue-prop': 'description',
             'data-aue-type': 'richtext', 'data-aue-label': 'Description',
           }, c.description
         ),
         h('a', {
             className: 'cta', href: '#more',
-            'data-aue-resource': RES, 'data-aue-prop': 'ctaLabel',
+            'data-aue-resource': res, 'data-aue-prop': 'ctaLabel',
             'data-aue-type': 'text', 'data-aue-label': 'CTA',
           }, c.ctaLabel + ' →'
         )
@@ -265,24 +283,41 @@
   }
 
   function App() {
+    const [variant, setVariant] = useState('master');
     const [content, setContent] = useState(null);
-    useEffect(() => {
-      fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
+
+    function fetchContent(v) {
+      const fb     = v === 'brief' ? FB_BRIEF : FB_MASTER;
+      const suffix = v === 'brief' ? ';variation=brief' : '';
+      fetch(GRAPHQL + suffix + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
         .then(r => r.json())
         .then(d => {
           const item = d?.data?.homeHeroByPath?.item || d;
           const imgUrl = item?.contentReference?._publishUrl
-            || (item?.contentReference?._path ? 'https://publish-p138879-e1741192.adobeaemcloud.com' + item.contentReference._path : null)
-            || item?.image || FB.image;
-          setContent({ ...FB, ...item,
+            || (item?.contentReference?._path ? PUBLISH + item.contentReference._path : null)
+            || item?.image || fb.image;
+          setContent({ ...fb, ...item,
             image: imgUrl,
-            description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+            description: item?.description?.plaintext || item?.description?.html || item?.description || fb.description,
           });
         })
-        .catch(() => setContent(FB));
-    }, []);
+        .catch(() => setContent(fb));
+    }
+
+    useEffect(() => {
+      fetchContent(variant);
+      function onMsg(e) {
+        if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
+          setTimeout(() => fetchContent(variant), 600);
+        }
+      }
+      window.addEventListener('message', onMsg);
+      return () => window.removeEventListener('message', onMsg);
+    }, [variant]);
 
     if (!content) return h('p', { style: { padding: '32px', opacity: .4 } }, 'Loading React…');
+
+    const res = variant === 'master' ? RES_MASTER : RES_BRIEF;
 
     return h(React.Fragment, null,
       h('nav', { className: 'app-nav' },
@@ -294,9 +329,13 @@
           h('a', { href: '#' }, 'Products'),
           h('a', { href: '#' }, 'Docs'),
           h('a', { href: '#', className: 'active' }, 'Demo')
+        ),
+        h('div', { className: 'variant-toggle' },
+          h('button', { className: 'vt-btn' + (variant === 'master' ? ' active' : ''), onClick: () => setVariant('master') }, 'Master'),
+          h('button', { className: 'vt-btn' + (variant === 'brief'  ? ' active' : ''), onClick: () => setVariant('brief')  }, 'Brief')
         )
       ),
-      h(Hero, { c: content })
+      h(Hero, { c: content, res })
     );
   }
 
