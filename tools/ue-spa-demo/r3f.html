@@ -240,16 +240,119 @@ function Stars({ count = 2000 }) {
 // SCENE 1: GLOBE
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Procedural Earth — always loads instantly, replaced by photo if URL succeeds
+function makeEarthCanvas() {
+  const W = 1024, H = 512;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  // Equirectangular coordinate helper
+  const p = (lng, lat) => [(lng + 180) / 360 * W, (90 - lat) / 180 * H];
+  function land(pts, fill) {
+    ctx.beginPath();
+    ctx.moveTo(...p(...pts[0]));
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(...p(...pts[i]));
+    ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill();
+  }
+
+  // Ocean base
+  ctx.fillStyle = '#06173a'; ctx.fillRect(0, 0, W, H);
+  const og = ctx.createLinearGradient(0, 0, 0, H);
+  og.addColorStop(0, 'rgba(10,40,100,.4)'); og.addColorStop(.5, 'rgba(15,55,140,.2)'); og.addColorStop(1, 'rgba(5,20,70,.4)');
+  ctx.fillStyle = og; ctx.fillRect(0, 0, W, H);
+
+  const F='#2e6828', G='#4a8038', D='#b8722a', T='#5e6e52', I='#d4e8f8', M='#6a685a';
+
+  // North America
+  land([[-167,72],[-140,70],[-80,74],[-64,62],[-55,47],[-66,44],[-70,41],[-76,35],[-80,25],[-87,16],[-92,16],[-105,20],[-117,30],[-117,33],[-122,37],[-124,49],[-130,55],[-140,58],[-155,60],[-165,63]], G);
+  land([[-118,33],[-104,28],[-100,32],[-108,37],[-118,37]], D); // SW desert
+  land([[-104,50],[-90,48],[-90,35],[-100,32],[-104,36]], '#7ea050'); // Great Plains
+  // Greenland
+  land([[-72,60],[-52,59],[-17,65],[-17,77],[-42,83],[-65,83],[-72,78]], I);
+
+  // South America
+  land([[-80,12],[-67,12],[-60,5],[-50,-1],[-35,-5],[-35,-15],[-40,-23],[-48,-28],[-53,-34],[-68,-56],[-75,-50],[-80,-40],[-75,-15],[-80,-5]], G);
+  land([[-74,0],[-50,0],[-48,-10],[-58,-15],[-75,-10]], F); // Amazon
+  land([[-73,-25],[-65,-24],[-65,-39],[-73,-39]], D); // Atacama
+
+  // Europe
+  land([[-10,36],[3,36],[15,37],[28,36],[36,37],[42,40],[35,43],[38,43],[42,46],[32,47],[26,49],[25,55],[22,57],[10,56],[5,58],[-4,57],[-8,52],[-4,44],[-10,44]], G);
+  land([[5,57],[10,58],[20,64],[28,70],[25,71],[15,70],[5,63]], T); // Scandinavia
+  land([[-9,44],[-1,44],[3,40],[0,37],[-7,36],[-9,38]], D); // Iberia
+
+  // Africa
+  land([[-17,36],[10,38],[32,36],[42,13],[51,12],[52,2],[42,-12],[36,-18],[33,-35],[18,-35],[16,-29],[12,-18],[8,4],[0,6],[-5,10],[-17,15]], G);
+  land([[-5,36],[35,36],[35,18],[25,18],[10,18],[-5,22]], D); // Sahara
+  land([[-5,22],[25,18],[35,18],[35,10],[25,10],[10,10],[-5,14]], '#a08030'); // Sahel
+  land([[10,4],[28,4],[28,-5],[16,-5],[10,0]], F); // Congo
+  land([[16,-22],[30,-22],[30,-32],[18,-32]], D); // Kalahari
+
+  // Asia (main body)
+  land([[40,38],[58,38],[65,24],[72,18],[80,10],[102,10],[110,18],[122,26],[130,32],[140,42],[145,48],[140,55],[145,62],[135,68],[115,72],[100,76],[80,74],[60,70],[40,65],[32,60],[26,50],[32,47],[42,46],[40,38]], G);
+  land([[58,48],[85,48],[90,42],[75,36],[60,36]], D); // Central Asia
+  land([[65,62],[105,68],[140,66],[135,72],[100,76],[80,74],[65,70]], T); // Siberia
+  land([[85,46],[110,48],[115,42],[105,38],[85,40]], D); // Gobi
+  land([[36,30],[56,22],[58,14],[44,12],[38,16],[36,22]], D); // Arabia
+  land([[65,24],[72,24],[80,18],[80,8],[77,6],[72,18]], F); // India
+  land([[95,28],[105,24],[108,16],[106,2],[100,4],[96,18]], G); // SE Asia
+
+  // Japan
+  land([[130,32],[132,35],[136,36],[136,34],[132,32]], G);
+  land([[130,43],[132,43],[136,36],[132,36],[128,42]], T);
+
+  // SE Asia islands
+  land([[108,4],[118,6],[118,-2],[114,-4],[108,-2]], F); // Borneo
+  land([[96,5],[106,2],[106,-6],[96,-4],[95,2]], F); // Sumatra
+  land([[131,-2],[150,-6],[148,-8],[131,-8]], F); // New Guinea
+
+  // Australia
+  land([[114,-22],[118,-20],[122,-18],[130,-14],[136,-12],[142,-12],[150,-22],[154,-28],[152,-38],[144,-38],[136,-36],[125,-34],[114,-30]], D);
+  land([[148,-38],[154,-28],[154,-22],[150,-20],[144,-20],[144,-36]], G); // E coast
+  land([[166,-46],[172,-46],[172,-34],[168,-35],[166,-40]], G); // NZ
+
+  // Ice caps
+  ctx.fillStyle = I; ctx.fillRect(0, H * 0.835, W, H * 0.165); // Antarctica
+  ctx.fillStyle = I; ctx.fillRect(0, 0, W, H * 0.04); // Arctic
+
+  // Cloud wisps
+  ctx.globalAlpha = 0.28; ctx.fillStyle = '#ffffff';
+  for (let i = 0; i < 18; i++) {
+    ctx.beginPath();
+    ctx.ellipse((i / 18 + Math.sin(i * 2.3) * 0.04) * W, H * (0.46 + Math.sin(i * 1.7) * 0.03), 55 + Math.cos(i) * 22, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  for (let i = 0; i < 24; i++) {
+    const t = i / 24;
+    ctx.beginPath(); ctx.ellipse(t * W * 1.05, H * (0.21 + Math.sin(i * 2.1) * 0.07), 42 + Math.cos(i * 3) * 22, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(t * W * 1.05, H * (0.71 + Math.sin(i * 1.9) * 0.05), 38 + Math.cos(i * 2.7) * 18, 6, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  return c;
+}
+
 function EarthSphere() {
   const groupRef = useRef();
   const [texture, setTexture] = useState(null);
   const dotRefs  = useRef([]);
 
   useEffect(() => {
+    // Show procedural canvas texture immediately
+    const canvasTex = new THREE.CanvasTexture(makeEarthCanvas());
+    canvasTex.colorSpace = THREE.SRGBColorSpace;
+    setTexture(canvasTex);
+
+    // Upgrade to photo texture if URL is reachable
     const loader = new THREE.TextureLoader();
-    loader.load(EARTH_TEX, (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); },
+    loader.load(EARTH_TEX,
+      (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); },
       undefined,
-      () => loader.load(EARTH_TEX2, (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); })
+      () => loader.load(EARTH_TEX2,
+        (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); },
+        undefined,
+        () => {} // canvas already set, keep it
+      )
     );
   }, []);
 
@@ -273,8 +376,8 @@ function EarthSphere() {
       h('meshPhongMaterial', {
         map: texture,
         color: texture ? 0xffffff : '#0d2a5a',
-        shininess: 200,
-        specular: new THREE.Color(0x2255aa),
+        shininess: 30,
+        specular: new THREE.Color(0x111a33),
       })
     ),
     // Atmosphere — inner bright band
@@ -361,12 +464,12 @@ function GlobeArc({ a, b }) {
 
 function GlobeScene() {
   return h(React.Fragment, null,
-    // Near-black ambient so the dark side is actually dark
-    h('ambientLight',     { intensity: 0.04 }),
-    // Sun: warm, strong, from upper-right
-    h('directionalLight', { position: [8, 4, 6],   intensity: 3.0, color: '#fff5e0' }),
-    // Subtle earthshine backfill — blue, very dim, opposite the sun
-    h('pointLight',       { position: [-5,-2,-4],  intensity: 0.12, color: '#1a3a8a' }),
+    // Very low ambient so the night side stays dark
+    h('ambientLight',     { intensity: 0.10 }),
+    // Sun: warm daylight, pulled back from 3.0 so it doesn't blow out the texture
+    h('directionalLight', { position: [8, 4, 6],   intensity: 1.6, color: '#ffe8c0' }),
+    // Earthshine backfill — faint blue on the night side
+    h('pointLight',       { position: [-6,-2,-4],  intensity: 0.15, color: '#1a3a8a' }),
     h(Stars, { count: 3000 }),
     h(EarthSphere, null),
     ...ARC_PAIRS.map(([a, b], i) => h(GlobeArc, { key: i, a, b })),
@@ -382,6 +485,26 @@ function GlobeScene() {
 // ─────────────────────────────────────────────────────────────────────────────
 // SCENE 2: ARCHITECTURE WALKTHROUGH
 // ─────────────────────────────────────────────────────────────────────────────
+
+function makeLabel(text, color) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 360; canvas.height = 80;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 360, 80);
+  ctx.fillStyle = 'rgba(4,10,24,0.86)';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.roundRect(4, 8, 352, 64, 10); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.font = 'bold 24px Inter,system-ui,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, 180, 40);
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const sp = new THREE.Sprite(mat);
+  sp.scale.set(3.2, 0.71, 1);
+  return sp;
+}
 
 function ArchEdge({ fromId, toId }) {
   const obj = useMemo(() => {
@@ -418,30 +541,40 @@ function FlowParticle({ fromId, toId, offset = 0, speed = 0.35 }) {
 function ArchNode({ node, active }) {
   const ref      = useRef();
   const scaleRef = useRef(new THREE.Vector3(1, 1, 1));
+  const label    = useMemo(() => makeLabel(node.label, node.color), [node.label, node.color]);
 
   useFrame((_, dt) => {
     if (!ref.current) return;
-    ref.current.rotation.y += dt * (active ? 1.2 : 0.25);
-    const target = active ? 1.25 : 1.0;
+    ref.current.rotation.y += dt * (active ? 1.0 : 0.22);
+    ref.current.rotation.x += dt * (active ? 0.35 : 0.08);
+    const target = active ? 1.3 : 1.0;
     scaleRef.current.lerp({ x: target, y: target, z: target }, 0.07);
     ref.current.scale.copy(scaleRef.current);
   });
 
   return h('group', { position: node.pos },
+    // Solid icosahedron
     h('mesh', { ref },
-      h('boxGeometry', { args: [0.85, 0.85, 0.85] }),
+      h('icosahedronGeometry', { args: [0.54, 1] }),
       h('meshPhongMaterial', {
         color: node.color,
         emissive: node.color,
-        emissiveIntensity: active ? 0.55 : 0.18,
-        shininess: 60,
+        emissiveIntensity: active ? 0.6 : 0.2,
+        shininess: 80,
       })
     ),
-    // outer glow ring (ring = torus)
+    // Wireframe overlay for a "holographic" tech look
+    h('mesh', null,
+      h('icosahedronGeometry', { args: [0.58, 1] }),
+      h('meshBasicMaterial', { color: node.color, wireframe: true, transparent: true, opacity: active ? 0.55 : 0.2 })
+    ),
+    // Outer glow ring
     active && h('mesh', { rotation: [Math.PI / 2, 0, 0] },
-      h('torusGeometry', { args: [0.75, 0.04, 8, 40] }),
-      h('meshBasicMaterial', { color: node.color, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending })
-    )
+      h('torusGeometry', { args: [0.82, 0.04, 8, 48] }),
+      h('meshBasicMaterial', { color: node.color, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending })
+    ),
+    // Floating label
+    h('primitive', { object: label, position: [0, 1.1, 0] })
   );
 }
 
