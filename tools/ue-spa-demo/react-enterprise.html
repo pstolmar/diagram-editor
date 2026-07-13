@@ -5,799 +5,589 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
   <title>Enterprise React · AEM Content Fragments</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --brand: #1473E6;
-      --brand-dark: #0D66D0;
-      --brand-light: #E8F0FD;
-      --ink: #2c2c2c;
-      --muted: #6e6e6e;
-      --line: #e1e1e1;
-      --surface: #fff;
-      --bg: #f8f8f8;
-      --success: #2D9D78;
-      --warning: #E68619;
-      --error: #E34850;
-      --aep: #9B59B6;
-      --ajo: #E67E22;
-      --cja: #27AE60;
+      --brand: #1473E6; --brand-dk: #0D66D0; --brand-bg: #EBF3FE;
+      --ink: #1d1d1d; --sub: #505050; --muted: #767676; --line: #e5e5e5;
+      --bg: #f5f5f5; --surface: #fff;
+      --green: #2D9D78; --amber: #E68619; --red: #E34850;
     }
+    html { scroll-behavior: smooth; }
     body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
 
-    /* ── Shell ── */
-    .shell { display: flex; flex-direction: column; min-height: 100vh; }
-
-    /* ── Top bar ── */
-    .topbar {
+    /* ── Nav ────────────────────────────────────────────────── */
+    .nav {
       position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; gap: 16px;
-      padding: 0 24px; height: 48px;
-      background: #1d1d1d; color: #fff;
-      border-bottom: 1px solid #3a3a3a;
+      display: flex; align-items: center; gap: 0; height: 56px;
+      padding: 0 24px;
+      background: rgba(255,255,255,.92); backdrop-filter: blur(14px) saturate(180%);
+      border-bottom: 1px solid var(--line);
     }
-    .topbar-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: .875rem; color: #fff; text-decoration: none; }
-    .adobe-logo { display: flex; align-items: center; gap: 3px; }
-    .adobe-logo span { width: 10px; height: 10px; border-radius: 2px; }
-    .adobe-logo span:nth-child(1) { background: #FF0000; }
-    .adobe-logo span:nth-child(2) { background: #FF0000; opacity: .6; }
-    .adobe-logo span:nth-child(3) { background: #FF0000; opacity: .3; }
-    .topbar-divider { width: 1px; height: 24px; background: #3a3a3a; }
-    .topbar-product { font-size: .8125rem; font-weight: 500; color: rgba(255,255,255,.75); }
-    .topbar-space { flex: 1; }
-    .topbar-search {
-      display: flex; align-items: center; gap: 8px;
-      padding: 5px 12px; border-radius: 6px;
-      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
-      font-size: .8125rem; color: rgba(255,255,255,.5); cursor: text;
-      width: 240px;
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: .9375rem; color: var(--ink); text-decoration: none; margin-right: 32px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
+    .nav-links { display: flex; align-items: center; gap: 2px; flex: 1; }
+    .nav-link {
+      padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: .875rem;
+      font-weight: 500; color: var(--sub); transition: color .12s, background .12s;
     }
-    .topbar-actions { display: flex; align-items: center; gap: 8px; }
-    .topbar-icon-btn {
-      width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer;
-      background: rgba(255,255,255,.1); color: rgba(255,255,255,.75);
-      display: flex; align-items: center; justify-content: center; font-size: .875rem;
+    .nav-link:hover { color: var(--ink); background: var(--bg); }
+    .nav-link.active { color: var(--brand); background: var(--brand-bg); font-weight: 600; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-ue-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 6px;
+      background: var(--brand); color: #fff;
+      font-size: .8125rem; font-weight: 600; border: none; cursor: pointer;
       transition: background .15s;
     }
-    .topbar-icon-btn:hover { background: rgba(255,255,255,.2); }
-    .notif-badge {
-      position: relative;
-    }
-    .notif-badge::after {
-      content: '3'; position: absolute; top: 2px; right: 2px;
-      width: 14px; height: 14px; border-radius: 50%;
-      background: var(--error); color: #fff;
-      font-size: .55rem; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: #fff; font-size: .7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .nav-ue-btn:hover { background: var(--brand-dk); }
 
-    /* ── Body layout ── */
-    .body-layout { display: flex; flex: 1; }
-
-    /* ── Left rail ── */
-    .left-rail {
-      width: 52px; background: #2c2c2c; display: flex; flex-direction: column;
-      align-items: center; padding: 12px 0; gap: 4px;
-      position: sticky; top: 48px; height: calc(100vh - 48px); overflow: hidden;
-    }
-    .rail-btn {
-      width: 40px; height: 40px; border-radius: 8px; border: none; cursor: pointer;
-      background: transparent; color: rgba(255,255,255,.45); font-size: .875rem;
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 3px;
-      transition: background .15s, color .15s;
-    }
-    .rail-btn:hover { background: rgba(255,255,255,.08); color: rgba(255,255,255,.8); }
-    .rail-btn.active { background: var(--brand); color: #fff; }
-    .rail-btn span { font-size: .5rem; font-weight: 600; letter-spacing: .03em; }
-
-    /* ── Content ── */
-    .content { flex: 1; min-width: 0; }
-
-    /* ── Personalization bar ── */
+    /* ── Personalization bar ─────────────────────────────────── */
     .persona-bar {
       background: var(--surface); border-bottom: 1px solid var(--line);
-      padding: 8px 24px; display: flex; align-items: center; gap: 16px;
+      padding: 8px 24px; display: flex; align-items: center; gap: 12px;
+      font-size: .8125rem;
     }
-    .persona-label { font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-    .persona-chips { display: flex; gap: 6px; }
+    .persona-label { font-weight: 600; color: var(--muted); }
+    .persona-chips { display: flex; gap: 5px; }
     .persona-chip {
-      padding: 4px 12px; border-radius: 20px; font-size: .75rem; font-weight: 600;
+      padding: 4px 13px; border-radius: 20px; font-size: .75rem; font-weight: 600;
       border: 1.5px solid var(--line); background: transparent; cursor: pointer;
-      transition: all .15s; color: var(--muted);
+      transition: all .14s; color: var(--sub);
     }
     .persona-chip.active { background: var(--brand); border-color: var(--brand); color: #fff; }
     .persona-chip:hover:not(.active) { border-color: var(--brand); color: var(--brand); }
-    .persona-status { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--success); font-weight: 500; }
-    .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: blink 2s ease-in-out infinite; }
-    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+    .persona-live { margin-left: auto; display: flex; align-items: center; gap: 6px; color: var(--green); font-weight: 500; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
 
-    /* ── Hero CF section ── */
-    .hero-section {
-      display: grid; grid-template-columns: 1.1fr .9fr;
-      min-height: 480px; background: var(--surface);
-      border-bottom: 1px solid var(--line);
+    /* ── Hero ───────────────────────────────────────────────── */
+    .hero {
+      display: grid; grid-template-columns: 1.05fr .95fr;
+      background: var(--surface); border-bottom: 1px solid var(--line);
     }
-    .hero-media {
-      position: relative; overflow: hidden; background: #111;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(.85) saturate(1.1); }
-    .hero-media-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(20,115,230,.25) 0%, transparent 60%);
-    }
-    .hero-cf-badge {
-      position: absolute; top: 16px; left: 16px;
-      display: flex; align-items: center; gap: 6px;
-      padding: 5px 12px; border-radius: 6px;
-      background: rgba(20,115,230,.9); backdrop-filter: blur(8px);
-      font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #fff;
-      border: 1px solid rgba(255,255,255,.2);
+    .hero-media { position: relative; overflow: hidden; background: #111; min-height: 420px; }
+    .hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(.88) saturate(1.1); }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(20,115,230,.22) 0%, transparent 55%); }
+    .hero-cf-chip {
+      position: absolute; top: 14px; left: 14px;
+      padding: 4px 11px; border-radius: 5px;
+      background: rgba(20,115,230,.88); backdrop-filter: blur(8px);
+      font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #fff;
     }
     .hero-content {
-      padding: clamp(32px,5vw,64px);
-      display: flex; flex-direction: column; justify-content: center; gap: 20px;
+      padding: clamp(32px,5vw,72px); display: flex; flex-direction: column;
+      justify-content: center; gap: 18px;
     }
-    .cf-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--muted); font-weight: 500; }
-    .cf-breadcrumb span { color: var(--brand); font-weight: 600; }
-    .eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); }
-    h1 { font-size: clamp(1.875rem,3.5vw,3rem); font-weight: 900; line-height: .97; letter-spacing: -.035em; color: var(--ink); }
-    .description { font-size: 1rem; line-height: 1.65; color: var(--muted); }
-    .cta-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); }
+    .hero-title { font-size: clamp(2rem,3.8vw,3.25rem); font-weight: 900; line-height: .96; letter-spacing: -.04em; }
+    .hero-desc { font-size: 1rem; line-height: 1.68; color: var(--sub); }
+    .cta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .btn-primary {
       display: inline-flex; align-items: center; gap: 7px;
-      padding: 11px 22px; border-radius: 6px; background: var(--brand); color: #fff;
-      font-weight: 600; font-size: .9375rem; text-decoration: none;
-      transition: background .15s, transform .15s;
+      padding: 11px 22px; border-radius: 7px; background: var(--brand); color: #fff;
+      font-weight: 600; font-size: .9375rem; text-decoration: none; border: none; cursor: pointer;
+      transition: background .14s, transform .12s;
     }
-    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .btn-primary:hover { background: var(--brand-dk); transform: translateY(-1px); }
     .btn-ghost {
       display: inline-flex; align-items: center; gap: 7px;
-      padding: 11px 22px; border-radius: 6px;
-      border: 1.5px solid var(--line); color: var(--ink);
-      font-weight: 600; font-size: .9375rem; text-decoration: none;
-      transition: border-color .15s, background .15s;
+      padding: 11px 22px; border-radius: 7px; text-decoration: none;
+      border: 1.5px solid var(--line); color: var(--ink); font-weight: 600; font-size: .9375rem;
+      transition: border-color .14s, background .14s;
     }
-    .btn-ghost:hover { border-color: var(--brand); background: var(--brand-light); }
+    .btn-ghost:hover { border-color: var(--brand); background: var(--brand-bg); }
 
-    /* ── Analytics strip ── */
-    .analytics-strip {
+    /* ── Analytics strip ─────────────────────────────────────── */
+    .analytics {
       background: var(--surface); border-bottom: 1px solid var(--line);
-      padding: 20px 24px; display: grid;
-      grid-template-columns: repeat(4, 1fr); gap: 1px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
     }
-    .metric-cell {
-      padding: 16px 20px; position: relative;
-      border-right: 1px solid var(--line);
-    }
+    .metric-cell { padding: 20px 24px; border-right: 1px solid var(--line); }
     .metric-cell:last-child { border-right: none; }
-    .metric-label { font-size: .7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-    .metric-value { font-size: 1.875rem; font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; }
-    .metric-delta { font-size: .75rem; font-weight: 600; margin-top: 4px; }
-    .metric-delta.up { color: var(--success); }
-    .metric-delta.down { color: var(--error); }
-    .metric-source { font-size: .65rem; font-weight: 500; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
-    .source-dot { width: 5px; height: 5px; border-radius: 50%; }
+    .metric-label { font-size: .68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+    .metric-value { font-size: 1.875rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .metric-delta { font-size: .75rem; font-weight: 600; margin-top: 3px; }
+    .delta-up   { color: var(--green); }
+    .delta-down { color: var(--red); }
+    .metric-src  { font-size: .65rem; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+    .src-dot     { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 
-    /* ── Fragment grid ── */
-    .fragments-section { padding: 32px 24px; }
-    .section-header {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+    /* ── Features ────────────────────────────────────────────── */
+    .features { padding: 48px 24px; }
+    .section-hd {
+      display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px;
     }
-    .section-title { font-size: 1.125rem; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 10px; }
-    .section-badge {
-      font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 4px; background: var(--brand-light); color: var(--brand);
+    .section-title { font-size: 1.25rem; font-weight: 800; color: var(--ink); }
+    .section-sub { font-size: .8125rem; color: var(--muted); margin-top: 2px; }
+    .section-ue-note {
+      font-size: .72rem; font-weight: 600; color: var(--brand);
+      display: flex; align-items: center; gap: 5px;
     }
-    .section-action { font-size: .8125rem; font-weight: 600; color: var(--brand); text-decoration: none; }
-    .section-action:hover { text-decoration: underline; }
-
-    .fragment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .fragment-card {
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature-card {
       background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px;
-      overflow: hidden; transition: border-color .2s, box-shadow .2s;
+      padding: 24px; transition: border-color .2s, box-shadow .2s;
     }
-    .fragment-card:hover { border-color: var(--brand); box-shadow: 0 4px 16px rgba(20,115,230,.1); }
-    .fragment-card-img {
-      aspect-ratio: 16/9; background: #f0f0f0; position: relative; overflow: hidden;
-    }
-    .fragment-card-img img { width: 100%; height: 100%; object-fit: cover; }
-    .fragment-card-img-placeholder {
-      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, #e8f0fd 0%, #d0e2fb 100%);
-      font-size: 2rem;
-    }
-    .fragment-status {
-      position: absolute; top: 8px; right: 8px;
+    .feature-card:hover { border-color: var(--brand); box-shadow: 0 4px 20px rgba(20,115,230,.1); }
+    .feature-icon { font-size: 1.75rem; margin-bottom: 12px; display: block; }
+    .feature-tag {
+      display: inline-block; margin-bottom: 8px;
       padding: 2px 8px; border-radius: 4px;
       font-size: .65rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+      background: var(--brand-bg); color: var(--brand);
     }
-    .fragment-status.published { background: rgba(45,157,120,.15); color: var(--success); }
-    .fragment-status.draft { background: rgba(230,134,25,.15); color: var(--warning); }
-    .fragment-card-body { padding: 16px; }
-    .fragment-model { font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-    .fragment-title { font-size: .9375rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; line-height: 1.3; }
-    .fragment-path { font-size: .7rem; color: var(--muted); font-family: monospace; margin-bottom: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .fragment-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--line); }
-    .fragment-modified { font-size: .7rem; color: var(--muted); }
-    .fragment-edit-btn {
-      font-size: .75rem; font-weight: 600; color: var(--brand); background: var(--brand-light);
-      border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;
-      transition: background .15s;
+    .feature-title { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
+    .feature-desc  { font-size: .875rem; line-height: 1.6; color: var(--sub); }
+    .feature-ue-hint {
+      margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line);
+      font-size: .7rem; color: var(--muted); display: flex; align-items: center; gap: 5px;
     }
-    .fragment-edit-btn:hover { background: #d0e2fb; }
 
-    /* ── Integration row ── */
-    .integrations-section { padding: 0 24px 32px; }
-    .integration-row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .integration-card {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 18px; border-radius: 10px; border: 1.5px solid var(--line);
-      background: var(--surface); flex: 1; min-width: 200px;
-      transition: border-color .2s;
-    }
-    .integration-card:hover { border-color: currentColor; }
-    .integration-icon {
-      width: 36px; height: 36px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; font-weight: 900; flex-shrink: 0;
-    }
-    .integration-info { flex: 1; min-width: 0; }
-    .integration-name { font-size: .8125rem; font-weight: 700; color: var(--ink); }
-    .integration-status { font-size: .7rem; font-weight: 500; display: flex; align-items: center; gap: 4px; }
-    .status-pill {
-      padding: 1px 7px; border-radius: 20px;
-      font-size: .65rem; font-weight: 700; text-transform: uppercase;
-    }
-    .status-pill.connected { background: rgba(45,157,120,.12); color: var(--success); }
-    .status-pill.syncing { background: rgba(20,115,230,.12); color: var(--brand); }
-    .integration-metric { font-size: .8125rem; font-weight: 700; text-align: right; }
-    .integration-metric-label { font-size: .65rem; color: var(--muted); text-align: right; }
-
-    /* ── Experimentation section ── */
-    .experimentation-section { padding: 0 24px 32px; }
+    /* ── A/B experiment ──────────────────────────────────────── */
+    .experiment { padding: 0 24px 40px; }
     .exp-card {
       background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px;
-      padding: 24px; position: relative; overflow: hidden;
+      overflow: hidden;
     }
-    .exp-card::before {
-      content: 'Experimentation · A/B Test Active'; position: absolute; top: 0; left: 0; right: 0;
-      padding: 5px 20px; background: linear-gradient(90deg, #8B5CF6, #A78BFA);
-      color: #fff; font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-      text-align: center;
+    .exp-top-strip {
+      padding: 5px 20px; font-size: .65rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #fff; text-align: center;
+      background: linear-gradient(90deg, #7C3AED, #A78BFA);
     }
-    .exp-inner { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .exp-variant {
-      border: 1.5px solid var(--line); border-radius: 8px; padding: 16px; position: relative;
-    }
-    .exp-variant.winner { border-color: var(--success); }
-    .exp-variant-label {
-      position: absolute; top: -10px; left: 12px;
-      padding: 1px 10px; border-radius: 4px;
+    .exp-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .exp-variant { padding: 20px 24px; position: relative; }
+    .exp-variant + .exp-variant { border-left: 1px solid var(--line); }
+    .exp-variant.winner { background: rgba(45,157,120,.04); }
+    .exp-vtag {
+      display: inline-block; margin-bottom: 8px;
+      padding: 2px 10px; border-radius: 4px;
       font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
     }
-    .exp-variant.control .exp-variant-label { background: #f0f0f0; color: var(--muted); }
-    .exp-variant.winner .exp-variant-label { background: var(--success); color: #fff; }
-    .exp-variant-title { font-size: .9375rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; margin-top: 4px; }
-    .exp-bars { display: flex; flex-direction: column; gap: 6px; }
-    .exp-bar-label { display: flex; justify-content: space-between; font-size: .75rem; }
-    .exp-bar-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
-    .exp-bar-fill { height: 100%; border-radius: 3px; transition: width 1.4s cubic-bezier(.4,0,.2,1); }
+    .exp-variant.control .exp-vtag { background: var(--bg); color: var(--muted); }
+    .exp-variant.winner  .exp-vtag { background: var(--green); color: #fff; }
+    .exp-variant-title { font-size: .9375rem; font-weight: 700; margin-bottom: 14px; color: var(--ink); }
+    .exp-bar-row { margin-bottom: 8px; }
+    .exp-bar-labels { display: flex; justify-content: space-between; font-size: .75rem; font-weight: 600; margin-bottom: 4px; color: var(--sub); }
+    .exp-bar-track { height: 7px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+    .exp-bar-fill { height: 100%; border-radius: 4px; transition: width 1.4s cubic-bezier(.4,0,.2,1); width: 0; }
 
-    /* ── CF sidebar ── */
-    .cf-sidebar {
-      width: 280px; background: var(--surface); border-left: 1px solid var(--line);
-      padding: 20px 16px;
-      position: sticky; top: 48px; height: calc(100vh - 48px);
-      overflow-y: auto; flex-shrink: 0;
+    /* ── Integrations ─────────────────────────────────────────── */
+    .integrations { padding: 0 24px 48px; }
+    .int-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .int-card {
+      background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px;
+      padding: 16px 18px; transition: border-color .18s;
     }
-    .sidebar-section-title { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 10px; }
-    .cf-meta-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-    .cf-meta-item { border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-    .cf-meta-key { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 3px; }
-    .cf-meta-val { font-size: .8125rem; font-weight: 500; color: var(--ink); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .cf-live-status { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; background: rgba(45,157,120,.08); border: 1.5px solid rgba(45,157,120,.25); margin-bottom: 20px; }
-    .cf-live-status span { font-size: .75rem; font-weight: 600; color: var(--success); }
-    .cf-actions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-    .cf-action-btn {
-      width: 100%; padding: 9px; border-radius: 6px; font-size: .8125rem; font-weight: 600;
-      cursor: pointer; border: none; transition: all .15s; text-align: center;
-    }
-    .cf-action-btn.primary { background: var(--brand); color: #fff; }
-    .cf-action-btn.primary:hover { background: var(--brand-dark); }
-    .cf-action-btn.ghost { background: var(--bg); color: var(--ink); border: 1.5px solid var(--line); }
-    .cf-action-btn.ghost:hover { border-color: var(--brand); color: var(--brand); }
-    .sidebar-divider { border: none; border-top: 1px solid var(--line); margin: 16px 0; }
-    .fragment-tree { display: flex; flex-direction: column; gap: 4px; }
-    .tree-item {
-      display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px;
-      font-size: .8125rem; cursor: pointer; transition: background .15s;
-    }
-    .tree-item:hover { background: var(--bg); }
-    .tree-item.active { background: var(--brand-light); color: var(--brand); font-weight: 600; }
-    .tree-icon { font-size: .75rem; width: 16px; text-align: center; flex-shrink: 0; }
-    .tree-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .tree-status { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .int-card:hover { border-color: var(--brand); }
+    .int-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 10px; }
+    .int-name { font-size: .875rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .int-status { font-size: .72rem; font-weight: 600; display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+    .int-pill { padding: 1px 7px; border-radius: 20px; font-size: .65rem; font-weight: 700; text-transform: uppercase; }
+    .int-pill.connected { background: rgba(45,157,120,.12); color: var(--green); }
+    .int-pill.syncing   { background: rgba(20,115,230,.12); color: var(--brand); }
+    .int-metric { font-size: 1.125rem; font-weight: 800; }
+    .int-metric-lbl { font-size: .68rem; color: var(--muted); margin-top: 1px; }
 
-    /* ── Right panel wrapper ── */
-    .main-with-sidebar { display: flex; flex: 1; }
+    /* ── Footer CTA ──────────────────────────────────────────── */
+    .footer-cta {
+      text-align: center; padding: 56px 24px;
+      background: var(--surface); border-top: 1px solid var(--line);
+    }
+    .footer-cta-label { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); margin-bottom: 12px; }
+    .footer-cta-title { font-size: clamp(1.75rem,3.5vw,2.75rem); font-weight: 900; letter-spacing: -.04em; margin-bottom: 16px; }
+    .footer-cta-desc { font-size: 1rem; line-height: 1.65; color: var(--sub); max-width: 560px; margin: 0 auto 28px; }
 
-    @media (max-width: 1100px) { .fragment-grid { grid-template-columns: repeat(2, 1fr); } .cf-sidebar { display: none; } }
-    @media (max-width: 800px) { .hero-section { grid-template-columns: 1fr; } .fragment-grid { grid-template-columns: 1fr; } .analytics-strip { grid-template-columns: repeat(2, 1fr); } .exp-inner { grid-template-columns: 1fr; } }
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .int-grid       { grid-template-columns: 1fr 1fr; }
+      .analytics      { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .hero { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .int-grid { grid-template-columns: 1fr; }
+      .exp-inner { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><p style="padding:48px;opacity:.35">Loading from AEM GraphQL…</p></div>
 <script>
-  const { useState, useEffect, useRef, createElement: h, Fragment } = React;
+const { useState, useEffect, useRef, createElement: h, Fragment, memo } = React;
 
-  /* ── AEM config ── */
-  const AUTHOR   = 'https://author-p138879-e1741192.adobeaemcloud.com';
-  const PUBLISH  = 'https://publish-p138879-e1741192.adobeaemcloud.com';
-  const GRAPHQL  = `${PUBLISH}/graphql/execute.json/global/hero`;
+/* ── AEM config ─────────────────────────────────────────────────────────── */
+const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+const GRAPHQL = `${PUBLISH}/graphql/execute.json/global/hero`;
 
-  /* CF resource paths */
-  const RES_HERO     = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
-  const RES_FEATURES = 'urn:aem:/content/dam/ue-demo/fragments/features-hero/jcr:content/data/master';
-  const RES_PROMO    = 'urn:aem:/content/dam/ue-demo/fragments/promo-banner/jcr:content/data/master';
+/* CF resource URNs */
+const RES_HERO = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+const RES_F1   = 'urn:aem:/content/dam/ue-demo/fragments/feature-headless/jcr:content/data/master';
+const RES_F2   = 'urn:aem:/content/dam/ue-demo/fragments/feature-personalization/jcr:content/data/master';
+const RES_F3   = 'urn:aem:/content/dam/ue-demo/fragments/feature-experimentation/jcr:content/data/master';
 
-  /* Fallback content */
-  const FB_HERO = {
-    eyebrow: 'Enterprise Platform', title: 'Deliver at Digital Scale',
-    description: 'Manage, personalize, and publish content across all channels — from a single AEM source of truth.',
-    ctaLabel: 'Explore platform',
-    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
-  };
+/* Segments */
+const SEGMENTS = ['Enterprise', 'SMB', 'Startup'];
+const SEG_COPY = {
+  Enterprise: { eyebrow: 'Enterprise Platform',  title: 'Deliver at Digital Scale',  cta: 'Schedule a demo' },
+  SMB:        { eyebrow: 'Built for Growth',      title: 'Scale Without Limits',      cta: 'Start free trial' },
+  Startup:    { eyebrow: 'Launch Fast',            title: 'Ship Content in Days',      cta: 'Get started free' },
+};
 
-  const SEGMENTS = ['Enterprise', 'SMB', 'Startup'];
-  const SEGMENT_COPY = {
-    Enterprise: { eyebrow: 'Enterprise Platform', title: 'Deliver at Digital Scale', cta: 'Schedule a demo' },
-    SMB:        { eyebrow: 'Built for Growth',    title: 'Scale Without Limits',     cta: 'Start free trial' },
-    Startup:    { eyebrow: 'Launch Fast',          title: 'Ship Content in Days',     cta: 'Get started free' },
-  };
+/* Feature card data (shown while CFs don't exist in AEM) */
+const FEATURES = [
+  {
+    res: RES_F1, icon: '🧩', tag: 'GraphQL',
+    title: 'Headless Content Delivery',
+    desc: 'Persisted queries with sub-10ms edge caching. Build any SPA — React, Next.js, Vue, Angular, Svelte — from a single AEM content source.',
+  },
+  {
+    res: RES_F2, icon: '🎯', tag: 'AEP · Real-Time CDP',
+    title: 'Real-Time Personalization',
+    desc: 'AEP profiles matched at the edge drive content variants per segment. 12.4k profiles resolved on this session alone.',
+  },
+  {
+    res: RES_F3, icon: '🔬', tag: 'EDS Experimentation',
+    title: 'Built-in A/B Testing',
+    desc: 'EDS Experimentation splits traffic automatically. Current winner: Variant B at +6.1% conversion lift with 87% confidence.',
+  },
+];
 
-  const FRAGMENT_LIST = [
-    { id: 'home-hero', model: 'Hero CF', title: 'Home Hero', path: '/content/dam/ue-demo/fragments/home-hero', status: 'published', modified: '2m ago', img: null, res: RES_HERO },
-    { id: 'features', model: 'Feature List CF', title: 'Platform Features', path: '/content/dam/ue-demo/fragments/features-hero', status: 'published', modified: '1h ago', img: null, res: RES_FEATURES },
-    { id: 'promo', model: 'Promo Banner CF', title: 'Q3 Launch Promo', path: '/content/dam/ue-demo/fragments/promo-banner', status: 'draft', modified: '3h ago', img: null, res: RES_PROMO },
-    { id: 'testimonial', model: 'Testimonial CF', title: 'Gartner Magic Quadrant', path: '/content/dam/ue-demo/fragments/testimonial', status: 'published', modified: '2d ago', img: null, res: null },
-    { id: 'pricing', model: 'Pricing Tier CF', title: 'Enterprise Pricing', path: '/content/dam/ue-demo/fragments/pricing', status: 'published', modified: '5d ago', img: null, res: null },
-    { id: 'footer-xf', model: 'Experience Fragment', title: 'Global Footer', path: '/content/experience-fragments/ue-demo/footer', status: 'published', modified: '12d ago', img: null, res: null },
-  ];
+/* Hero fallback */
+const FB = {
+  eyebrow: 'Enterprise Platform', title: 'Deliver at Digital Scale',
+  description: 'Manage, personalize, and publish content across all channels — from a single AEM source of truth.',
+  ctaLabel: 'Schedule a demo',
+  image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+};
 
-  /* ── Counter hook ── */
-  function useCount(target, duration = 1200) {
-    const [n, setN] = useState(0);
-    useEffect(() => {
-      const steps = 50;
-      const interval = duration / steps;
+/* Experiment data */
+const EXP = { A: { rate: 3.4, eng: 41 }, B: { rate: 4.9, eng: 78 } };
+
+/* ── Animated counter ────────────────────────────────────────────────────── */
+function useCount(target, delay = 0) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const steps = 50; const dur = 1200;
       let i = 0;
-      const id = setInterval(() => {
+      const tick = setInterval(() => {
         i++;
-        setN(Math.round(target * (i / steps)));
-        if (i >= steps) clearInterval(id);
-      }, interval);
-      return () => clearInterval(id);
-    }, [target]);
-    return n;
-  }
+        setN(Math.round(target * Math.pow(i / steps, 0.6)));
+        if (i >= steps) { setN(target); clearInterval(tick); }
+      }, dur / steps);
+    }, delay);
+    return () => clearTimeout(id);
+  }, [target]);
+  return n;
+}
 
-  /* ── Experiment bar ── */
-  function ExpBar({ label, value, max, color }) {
-    const ref = useRef(null);
-    useEffect(() => {
-      setTimeout(() => { if (ref.current) ref.current.style.width = ((value / max) * 100) + '%'; }, 300);
-    }, []);
-    return h('div', null,
-      h('div', { className: 'exp-bar-label' },
-        h('span', null, label),
-        h('span', { style: { fontWeight: 700 } }, value + '%')
-      ),
-      h('div', { className: 'exp-bar-track' },
-        h('div', { ref, className: 'exp-bar-fill', style: { width: '0%', background: color } })
-      )
-    );
-  }
+/* ── Animated experiment bar ─────────────────────────────────────────────── */
+const ExpBar = memo(function ExpBar({ label, value, max, color }) {
+  const ref = useRef(null);
+  useEffect(() => { setTimeout(() => { if (ref.current) ref.current.style.width = (value/max*100) + '%'; }, 400); }, []);
+  return h('div', { className: 'exp-bar-row' },
+    h('div', { className: 'exp-bar-labels' }, h('span', null, label), h('span', null, value + '%')),
+    h('div', { className: 'exp-bar-track' }, h('div', { ref, className: 'exp-bar-fill', style: { background: color } }))
+  );
+});
 
-  /* ── Analytics strip ── */
-  function AnalyticsStrip() {
-    const sessions   = useCount(48291);
-    const conversions = useCount(3847);
-    const revenue    = useCount(284900);
-    return h('div', { className: 'analytics-strip' },
-      h('div', { className: 'metric-cell' },
-        h('div', { className: 'metric-label' }, 'Sessions · 30d'),
-        h('div', { className: 'metric-value' }, sessions.toLocaleString()),
-        h('div', { className: 'metric-delta up' }, '↑ 18.4% vs prior period'),
-        h('div', { className: 'metric-source' },
-          h('span', { className: 'source-dot', style: { background: '#2980B9' } }),
-          'Adobe Customer Journey Analytics'
-        )
-      ),
-      h('div', { className: 'metric-cell' },
-        h('div', { className: 'metric-label' }, 'Conversions'),
-        h('div', { className: 'metric-value' }, conversions.toLocaleString()),
-        h('div', { className: 'metric-delta up' }, '↑ 6.1% lift from A/B test'),
-        h('div', { className: 'metric-source' },
-          h('span', { className: 'source-dot', style: { background: '#27AE60' } }),
-          'Adobe Target (Winner: Variant B)'
-        )
-      ),
-      h('div', { className: 'metric-cell' },
-        h('div', { className: 'metric-label' }, 'Pipeline Revenue'),
-        h('div', { className: 'metric-value' }, '$' + (revenue/1000).toFixed(1) + 'k'),
-        h('div', { className: 'metric-delta up' }, '↑ 23.7% YoY'),
-        h('div', { className: 'metric-source' },
-          h('span', { className: 'source-dot', style: { background: '#9B59B6' } }),
-          'Adobe Experience Platform'
-        )
-      ),
-      h('div', { className: 'metric-cell' },
-        h('div', { className: 'metric-label' }, 'Content Velocity'),
-        h('div', { className: 'metric-value' }, '2.4×'),
-        h('div', { className: 'metric-delta up' }, '↑ fragments published per sprint'),
-        h('div', { className: 'metric-source' },
-          h('span', { className: 'source-dot', style: { background: '#E67E22' } }),
-          'AEM Cloud Manager · cf branch'
-        )
-      )
-    );
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+function Nav() {
+  function openInUE() {
+    window.open('https://experience.adobe.com/#/aem/editor/canvas/' + window.location.href, '_blank');
   }
+  return h('nav', { className: 'nav' },
+    h('a', { href: '#', className: 'nav-logo' }, h('span', { className: 'logo-dot' }), 'MyApp · Enterprise'),
+    h('div', { className: 'nav-links' },
+      h('a', { href: '#hero',         className: 'nav-link active' }, 'Hero'),
+      h('a', { href: '#features',     className: 'nav-link' }, 'Features'),
+      h('a', { href: '#experiment',   className: 'nav-link' }, 'A/B Test'),
+      h('a', { href: '#integrations', className: 'nav-link' }, 'Integrations')
+    ),
+    h('div', { className: 'nav-right' },
+      h('button', { className: 'nav-ue-btn', onClick: openInUE }, '✎ Open in Universal Editor')
+    )
+  );
+}
 
-  /* ── Fragment card ── */
-  function FragmentCard({ frag }) {
-    return h('div', {
-        className: 'fragment-card',
-        ...(frag.res ? { 'data-aue-resource': frag.res, 'data-aue-type': 'component', 'data-aue-label': frag.title } : {}),
-      },
-      h('div', { className: 'fragment-card-img' },
-        frag.img
-          ? h('img', { src: frag.img, alt: '' })
-          : h('div', { className: 'fragment-card-img-placeholder' }, frag.model === 'Experience Fragment' ? '🧩' : '📄'),
-        h('div', { className: `fragment-status ${frag.status}` }, frag.status)
-      ),
-      h('div', { className: 'fragment-card-body' },
-        h('div', { className: 'fragment-model' }, frag.model),
-        h('div', { className: 'fragment-title',
-            ...(frag.res ? { 'data-aue-resource': frag.res, 'data-aue-prop': 'title', 'data-aue-type': 'text', 'data-aue-label': 'Title' } : {}),
-          }, frag.title
-        ),
-        h('div', { className: 'fragment-path' }, frag.path),
-        h('div', { className: 'fragment-footer' },
-          h('span', { className: 'fragment-modified' }, 'Modified ' + frag.modified),
-          h('button', {
-              className: 'fragment-edit-btn',
-              onClick: () => {
-                if (frag.res) {
-                  window.postMessage({ type: 'aue:ui:select', detail: { resource: frag.res } }, '*');
-                }
-              }
-            }, frag.res ? '✎ Edit in UE' : 'View'
-          )
-        )
-      )
-    );
-  }
-
-  /* ── Integration card ── */
-  function IntegrationCard({ icon, name, status, metric, metricLabel, color, statusType }) {
-    return h('div', { className: 'integration-card', style: { color } },
-      h('div', { className: 'integration-icon', style: { background: color + '18' } }, icon),
-      h('div', { className: 'integration-info' },
-        h('div', { className: 'integration-name' }, name),
-        h('div', { className: 'integration-status' },
-          h('span', { className: `status-pill ${statusType}` }, status)
-        )
-      ),
-      h('div', null,
-        h('div', { className: 'integration-metric', style: { color } }, metric),
-        h('div', { className: 'integration-metric-label' }, metricLabel)
-      )
-    );
-  }
-
-  /* ── CF Sidebar ── */
-  function CfSidebar({ heroPath, heroStatus }) {
-    const [activeFragment, setActiveFragment] = useState('home-hero');
-    return h('aside', { className: 'cf-sidebar' },
-      h('div', { className: 'sidebar-section-title' }, 'Active CF'),
-      h('div', { className: 'cf-live-status' },
-        h('span', { className: 'dot-live' }),
-        h('span', null, heroStatus)
-      ),
-      h('div', { className: 'cf-meta-row' },
-        h('div', { className: 'cf-meta-item' },
-          h('div', { className: 'cf-meta-key' }, 'Model'),
-          h('div', { className: 'cf-meta-val' }, 'Hero CF')
-        ),
-        h('div', { className: 'cf-meta-item' },
-          h('div', { className: 'cf-meta-key' }, 'Path'),
-          h('div', { className: 'cf-meta-val', title: heroPath }, heroPath)
-        ),
-        h('div', { className: 'cf-meta-item' },
-          h('div', { className: 'cf-meta-key' }, 'Variation'),
-          h('div', { className: 'cf-meta-val' }, 'master')
-        ),
-        h('div', { className: 'cf-meta-item' },
-          h('div', { className: 'cf-meta-key' }, 'Endpoint'),
-          h('div', { className: 'cf-meta-val' }, 'global/hero')
-        )
-      ),
-      h('div', { className: 'cf-actions' },
+/* ── Persona bar ─────────────────────────────────────────────────────────── */
+function PersonaBar({ segment, onSegment }) {
+  return h('div', { className: 'persona-bar' },
+    h('span', { className: 'persona-label' }, '🎯 Audience segment'),
+    h('div', { className: 'persona-chips' },
+      SEGMENTS.map(s =>
         h('button', {
-            className: 'cf-action-btn primary',
-            onClick: () => window.open(`https://experience.adobe.com/#/aem/editor/canvas/${encodeURIComponent(window.location.href)}`, '_blank')
-          }, '✎ Open in Universal Editor'
-        ),
-        h('button', { className: 'cf-action-btn ghost' }, '↗ View in DAM')
+            key: s, className: 'persona-chip' + (segment === s ? ' active' : ''),
+            onClick: () => onSegment(s),
+          }, s
+        )
+      )
+    ),
+    h('div', { className: 'persona-live' },
+      h('span', { className: 'live-dot' }),
+      'AEP profile active · Personalization live'
+    )
+  );
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+function HeroSection({ content, segment }) {
+  const copy = SEG_COPY[segment] || {};
+  return h('section', {
+      id: 'hero', className: 'hero',
+      'data-aue-resource': RES_HERO, 'data-aue-type': 'component',
+      'data-aue-label': 'Hero Content Fragment', 'data-aue-model': 'hero',
+    },
+    h('div', { className: 'hero-media' },
+      h('img', {
+          src: content.image, alt: '',
+          'data-aue-resource': RES_HERO, 'data-aue-prop': 'contentReference',
+          'data-aue-type': 'image', 'data-aue-label': 'Hero Image',
+        }),
+      h('div', { className: 'hero-overlay' }),
+      h('div', { className: 'hero-cf-badge' }, '⚛ AEM CF · ' + segment)
+    ),
+    h('div', { className: 'hero-content' },
+      h('p', {
+          className: 'eyebrow',
+          'data-aue-resource': RES_HERO, 'data-aue-prop': 'eyebrow',
+          'data-aue-type': 'text', 'data-aue-label': 'Eyebrow',
+        }, copy.eyebrow || content.eyebrow
       ),
-      h('hr', { className: 'sidebar-divider' }),
-      h('div', { className: 'sidebar-section-title' }, 'Page Fragments'),
-      h('div', { className: 'fragment-tree' },
-        FRAGMENT_LIST.map(f =>
+      h('h1', {
+          className: 'hero-title',
+          'data-aue-resource': RES_HERO, 'data-aue-prop': 'title',
+          'data-aue-type': 'text', 'data-aue-label': 'Title',
+        }, copy.title || content.title
+      ),
+      h('p', {
+          className: 'hero-desc',
+          'data-aue-resource': RES_HERO, 'data-aue-prop': 'description',
+          'data-aue-type': 'richtext', 'data-aue-label': 'Description',
+        }, content.description
+      ),
+      h('div', { className: 'cta-row' },
+        h('a', {
+            className: 'btn-primary', href: '#demo',
+            'data-aue-resource': RES_HERO, 'data-aue-prop': 'ctaLabel',
+            'data-aue-type': 'text', 'data-aue-label': 'Primary CTA',
+          }, (copy.cta || content.ctaLabel) + ' →'
+        ),
+        h('a', { className: 'btn-ghost', href: '#tour' }, 'Watch tour ▶')
+      )
+    )
+  );
+}
+
+/* ── Analytics strip ─────────────────────────────────────────────────────── */
+function AnalyticsStrip() {
+  const sessions  = useCount(48291, 200);
+  const convs     = useCount(3847,  300);
+  const revenue   = useCount(284900, 400);
+  return h('div', { className: 'analytics' },
+    h('div', { className: 'metric-cell' },
+      h('div', { className: 'metric-label' }, 'Sessions · 30d'),
+      h('div', { className: 'metric-value' }, sessions.toLocaleString()),
+      h('div', { className: 'metric-delta delta-up' }, '↑ 18.4% vs prior period'),
+      h('div', { className: 'metric-src' }, h('span', { className: 'src-dot', style: { background: '#2980B9' } }), 'Adobe Customer Journey Analytics')
+    ),
+    h('div', { className: 'metric-cell' },
+      h('div', { className: 'metric-label' }, 'Conversions'),
+      h('div', { className: 'metric-value' }, convs.toLocaleString()),
+      h('div', { className: 'metric-delta delta-up' }, '↑ 6.1% lift · A/B winner Variant B'),
+      h('div', { className: 'metric-src' }, h('span', { className: 'src-dot', style: { background: '#E67E22' } }), 'Adobe Target')
+    ),
+    h('div', { className: 'metric-cell' },
+      h('div', { className: 'metric-label' }, 'Pipeline revenue'),
+      h('div', { className: 'metric-value' }, '$' + (revenue / 1000).toFixed(1) + 'k'),
+      h('div', { className: 'metric-delta delta-up' }, '↑ 23.7% YoY'),
+      h('div', { className: 'metric-src' }, h('span', { className: 'src-dot', style: { background: '#9B59B6' } }), 'Adobe Experience Platform')
+    ),
+    h('div', { className: 'metric-cell' },
+      h('div', { className: 'metric-label' }, 'Content velocity'),
+      h('div', { className: 'metric-value' }, '2.4×'),
+      h('div', { className: 'metric-delta delta-up' }, '↑ fragments published per sprint'),
+      h('div', { className: 'metric-src' }, h('span', { className: 'src-dot', style: { background: '#2D9D78' } }), 'AEM Cloud Manager · cf branch')
+    )
+  );
+}
+
+/* ── Features grid ───────────────────────────────────────────────────────── */
+function FeaturesSection() {
+  return h('section', { id: 'features', className: 'features' },
+    h('div', { className: 'section-hd' },
+      h('div', null,
+        h('div', { className: 'section-title' }, 'Platform Features'),
+        h('div', { className: 'section-sub' }, 'Each card is a separate Content Fragment — click in Universal Editor to edit independently')
+      ),
+      h('span', { className: 'section-ue-note' }, '✎ 3 editable fragments')
+    ),
+    h('div', { className: 'features-grid' },
+      FEATURES.map((f, i) =>
+        h('div', {
+            key: i, className: 'feature-card',
+            'data-aue-resource': f.res,
+            'data-aue-type':     'component',
+            'data-aue-label':    f.title,
+            'data-aue-model':    'feature',
+          },
+          h('span', { className: 'feature-icon' }, f.icon),
+          h('span', { className: 'feature-tag' }, f.tag),
           h('div', {
-              key: f.id,
-              className: `tree-item ${activeFragment === f.id ? 'active' : ''}`,
-              onClick: () => setActiveFragment(f.id),
-            },
-            h('span', { className: 'tree-icon' }, f.model === 'Experience Fragment' ? '🧩' : '📄'),
-            h('span', { className: 'tree-name' }, f.title),
-            h('span', { className: 'tree-status', style: { background: f.status === 'published' ? 'var(--success)' : 'var(--warning)' } })
+              className: 'feature-title',
+              'data-aue-resource': f.res, 'data-aue-prop': 'title',
+              'data-aue-type': 'text', 'data-aue-label': 'Feature title',
+            }, f.title
+          ),
+          h('p', {
+              className: 'feature-desc',
+              'data-aue-resource': f.res, 'data-aue-prop': 'description',
+              'data-aue-type': 'richtext', 'data-aue-label': 'Feature description',
+            }, f.desc
+          ),
+          h('div', { className: 'feature-ue-hint' },
+            '✎ Editable in UE as ',
+            h('code', { style: { fontFamily: 'monospace', fontSize: '.68rem' } }, f.res.split('/fragments/')[1]?.split('/jcr')[0] || 'CF')
           )
         )
       )
-    );
-  }
+    )
+  );
+}
 
-  /* ── Hero section ── */
-  function HeroSection({ content, segment }) {
-    const copy = SEGMENT_COPY[segment] || {};
-    return h('section', {
-        className: 'hero-section',
-        'data-aue-resource': RES_HERO, 'data-aue-type': 'component',
-        'data-aue-label': 'Hero Content Fragment', 'data-aue-model': 'hero',
-      },
-      h('div', { className: 'hero-media' },
-        h('img', {
-            src: content.image, alt: '',
-            'data-aue-resource': RES_HERO, 'data-aue-prop': 'contentReference',
-            'data-aue-type': 'image', 'data-aue-label': 'Hero Image',
-          }),
-        h('div', { className: 'hero-media-overlay' }),
-        h('div', { className: 'hero-cf-badge' }, '⚛ AEM CF · ' + (segment || 'Master'))
-      ),
-      h('div', { className: 'hero-content' },
-        h('div', { className: 'cf-breadcrumb' }, 'DAM / ue-demo / fragments / ',
-          h('span', null, 'home-hero')
+/* ── A/B Experiment ──────────────────────────────────────────────────────── */
+function ExperimentSection() {
+  return h('section', { id: 'experiment', className: 'experiment' },
+    h('div', { className: 'section-hd' },
+      h('div', { className: 'section-title' }, 'A/B Experiment · Hero CTA Copy'),
+      h('span', { style: { fontSize: '.8125rem', color: 'var(--green)', fontWeight: 600 } }, '● Running · Day 12 of 30')
+    ),
+    h('div', { className: 'exp-card' },
+      h('div', { className: 'exp-top-strip' }, 'Experimentation · A/B Test Active'),
+      h('div', { className: 'exp-inner' },
+        h('div', { className: 'exp-variant control' },
+          h('span', { className: 'exp-vtag' }, 'Control · A'),
+          h('div', { className: 'exp-variant-title' }, '"Explore platform →"'),
+          h(ExpBar, { label: 'Conversion rate', value: EXP.A.rate, max: 6, color: '#767676' }),
+          h(ExpBar, { label: 'Engagement',      value: EXP.A.eng,  max: 100, color: '#767676' })
         ),
-        h('p', {
-            className: 'eyebrow',
-            'data-aue-resource': RES_HERO, 'data-aue-prop': 'eyebrow',
-            'data-aue-type': 'text', 'data-aue-label': 'Eyebrow',
-          }, copy.eyebrow || content.eyebrow
-        ),
-        h('h1', {
-            'data-aue-resource': RES_HERO, 'data-aue-prop': 'title',
-            'data-aue-type': 'text', 'data-aue-label': 'Title',
-          }, copy.title || content.title
-        ),
-        h('p', {
-            className: 'description',
-            'data-aue-resource': RES_HERO, 'data-aue-prop': 'description',
-            'data-aue-type': 'richtext', 'data-aue-label': 'Description',
-          }, content.description
-        ),
-        h('div', { className: 'cta-row' },
-          h('a', {
-              className: 'btn-primary', href: '#demo',
-              'data-aue-resource': RES_HERO, 'data-aue-prop': 'ctaLabel',
-              'data-aue-type': 'text', 'data-aue-label': 'Primary CTA',
-            }, (copy.cta || content.ctaLabel) + ' →'
-          ),
-          h('a', { className: 'btn-ghost', href: '#tour' }, 'Watch tour ▶')
+        h('div', { className: 'exp-variant winner' },
+          h('span', { className: 'exp-vtag' }, '🏆 Winner · B'),
+          h('div', { className: 'exp-variant-title' }, '"Schedule a demo →"'),
+          h(ExpBar, { label: 'Conversion rate', value: EXP.B.rate, max: 6, color: 'var(--green)' }),
+          h(ExpBar, { label: 'Engagement',      value: EXP.B.eng,  max: 100, color: 'var(--green)' })
         )
       )
-    );
-  }
+    )
+  );
+}
 
-  /* ── App ── */
-  function App() {
-    const [content, setContent]   = useState(null);
-    const [segment, setSegment]   = useState('Enterprise');
-    const [loading, setLoading]   = useState(true);
-    const [heroStatus, setHeroStatus] = useState('Fetching from AEM GraphQL…');
+/* ── Integrations ────────────────────────────────────────────────────────── */
+function IntegrationsSection() {
+  const INTS = [
+    { icon: '📊', name: 'Adobe Analytics · CJA', status: 'Connected', pill: 'connected', metric: '48.3k', lbl: 'events today',       color: '#2980B9' },
+    { icon: '🎯', name: 'Adobe Target',            status: 'A/B Active', pill: 'connected', metric: '+6.1%', lbl: 'conversion lift',   color: '#E67E22' },
+    { icon: '👤', name: 'Adobe Experience Platform',status: 'Syncing',   pill: 'syncing',   metric: '12.4k', lbl: 'profiles matched', color: '#9B59B6' },
+    { icon: '✉️', name: 'Adobe Journey Optimizer',  status: 'Connected', pill: 'connected', metric: '3',     lbl: 'journeys active',  color: '#16A085' },
+  ];
+  return h('section', { id: 'integrations', className: 'integrations' },
+    h('div', { className: 'section-hd' },
+      h('div', { className: 'section-title' }, 'Adobe Experience Cloud Integrations')
+    ),
+    h('div', { className: 'int-grid' },
+      INTS.map((c, i) =>
+        h('div', { key: i, className: 'int-card' },
+          h('div', { className: 'int-icon', style: { background: c.color + '18' } }, c.icon),
+          h('div', { className: 'int-name' }, c.name),
+          h('div', { className: 'int-status' }, h('span', { className: 'int-pill ' + c.pill }, c.status)),
+          h('div', { className: 'int-metric', style: { color: c.color } }, c.metric),
+          h('div', { className: 'int-metric-lbl' }, c.lbl)
+        )
+      )
+    )
+  );
+}
 
-    useEffect(() => {
-      fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
-        .then(r => r.json())
-        .then(d => {
-          const item = d?.data?.homeHeroByPath?.item || d;
-          const imgUrl = item?.contentReference?._publishUrl
+/* ── Footer CTA ──────────────────────────────────────────────────────────── */
+function FooterCTA({ content }) {
+  return h('footer', { className: 'footer-cta' },
+    h('div', { className: 'footer-cta-label' }, 'AEM Content Fragment · Editable in Universal Editor'),
+    h('h2', {
+        className: 'footer-cta-title',
+        'data-aue-resource': RES_HERO, 'data-aue-prop': 'title',
+        'data-aue-type': 'text', 'data-aue-label': 'Footer title (CF title)',
+      }, content?.title || 'Ready to deliver at digital scale?'
+    ),
+    h('p', { className: 'footer-cta-desc' },
+      'This entire page is powered by a single AEM Content Fragment. Edit in Universal Editor — changes propagate via GraphQL to every SPA that consumes this CF.'
+    ),
+    h('div', { className: 'cta-row', style: { justifyContent: 'center' } },
+      h('button', {
+          className: 'btn-primary',
+          onClick: () => window.open('https://experience.adobe.com/#/aem/editor/canvas/' + window.location.href, '_blank'),
+        }, '✎ Open in Universal Editor →'
+      ),
+      h('a', { className: 'btn-ghost', href: 'react.html' }, '← Back to React demo')
+    )
+  );
+}
+
+/* ── App ─────────────────────────────────────────────────────────────────── */
+function App() {
+  const [content,  setContent]  = useState(null);
+  const [segment,  setSegment]  = useState('Enterprise');
+  const [loading,  setLoading]  = useState(true);
+
+  function fetchContent() {
+    return fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(d => {
+        const item = d?.data?.homeHeroByPath?.item || d;
+        setContent({
+          ...FB, ...item,
+          image: item?.contentReference?._publishUrl
             || (item?.contentReference?._path ? PUBLISH + item.contentReference._path : null)
-            || item?.image || FB_HERO.image;
-          setContent({ ...FB_HERO, ...item,
-            image: imgUrl,
-            description: item?.description?.plaintext || item?.description?.html || item?.description || FB_HERO.description,
-          });
-          setHeroStatus('Live · Published · ' + new Date().toLocaleTimeString());
-          setLoading(false);
-        })
-        .catch(() => { setContent(FB_HERO); setHeroStatus('Fallback content — AEM unavailable'); setLoading(false); });
-    }, []);
-
-    /* Re-fetch when UE notifies content changed */
-    useEffect(() => {
-      function onUeMessage(e) {
-        if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
-          setHeroStatus('Refreshing from AEM…');
-          fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
-            .then(r => r.json())
-            .then(d => {
-              const item = d?.data?.homeHeroByPath?.item || d;
-              const imgUrl = item?.contentReference?._publishUrl
-                || (item?.contentReference?._path ? PUBLISH + item.contentReference._path : null)
-                || item?.image || FB_HERO.image;
-              setContent({ ...FB_HERO, ...item,
-                image: imgUrl,
-                description: item?.description?.plaintext || item?.description?.html || item?.description || FB_HERO.description,
-              });
-              setHeroStatus('Live · Updated · ' + new Date().toLocaleTimeString());
-            })
-            .catch(() => {});
-        }
-      }
-      window.addEventListener('message', onUeMessage);
-      return () => window.removeEventListener('message', onUeMessage);
-    }, []);
-
-    if (loading) return h('p', { style: { padding: '48px', opacity: .4 } }, 'Loading from AEM GraphQL…');
-
-    return h(Fragment, null,
-      /* Top bar */
-      h('header', { className: 'topbar' },
-        h('a', { href: '#', className: 'topbar-logo' },
-          h('div', { className: 'adobe-logo' },
-            h('span'), h('span'), h('span')
-          ),
-          'Adobe'
-        ),
-        h('div', { className: 'topbar-divider' }),
-        h('span', { className: 'topbar-product' }, 'Experience Manager · Content Hub'),
-        h('div', { className: 'topbar-space' }),
-        h('div', { className: 'topbar-search' }, '🔍 Search content, assets, fragments…'),
-        h('div', { className: 'topbar-actions' },
-          h('button', { className: 'topbar-icon-btn notif-badge', title: '3 new notifications' }, '🔔'),
-          h('button', { className: 'topbar-icon-btn', title: 'Settings' }, '⚙'),
-          h('div', { className: 'avatar', title: 'pstolmar@adobe.com' }, 'PS')
-        )
-      ),
-
-      /* Body */
-      h('div', { className: 'body-layout' },
-
-        /* Left rail */
-        h('div', { className: 'left-rail' },
-          h('button', { className: 'rail-btn active', title: 'Content' }, '📄', h('span', null, 'Content')),
-          h('button', { className: 'rail-btn', title: 'Assets' }, '🖼', h('span', null, 'Assets')),
-          h('button', { className: 'rail-btn', title: 'Analytics' }, '📊', h('span', null, 'Analytics')),
-          h('button', { className: 'rail-btn', title: 'Personalization' }, '🎯', h('span', null, 'Target')),
-          h('button', { className: 'rail-btn', title: 'Workflows' }, '⚡', h('span', null, 'Flows')),
-          h('div', { style: { flex: 1 } }),
-          h('button', { className: 'rail-btn', title: 'Help' }, '❓')
-        ),
-
-        /* Main + sidebar */
-        h('div', { className: 'main-with-sidebar' },
-
-          /* Scrollable content */
-          h('div', { className: 'content' },
-
-            /* Personalization bar */
-            h('div', { className: 'persona-bar' },
-              h('span', { className: 'persona-label' }, '🎯 Audience'),
-              h('div', { className: 'persona-chips' },
-                SEGMENTS.map(s =>
-                  h('button', {
-                      key: s, className: `persona-chip ${segment === s ? 'active' : ''}`,
-                      onClick: () => setSegment(s),
-                    }, s
-                  )
-                )
-              ),
-              h('div', { className: 'persona-status' },
-                h('span', { className: 'dot-live' }),
-                'AEP profile active · Personalization live'
-              )
-            ),
-
-            /* Hero CF */
-            h(HeroSection, { content, segment }),
-
-            /* Analytics */
-            h(AnalyticsStrip, null),
-
-            /* Fragment grid */
-            h('div', { className: 'fragments-section' },
-              h('div', { className: 'section-header' },
-                h('div', { className: 'section-title' },
-                  'Content Fragments',
-                  h('span', { className: 'section-badge' }, FRAGMENT_LIST.length + ' active')
-                ),
-                h('a', { href: '#', className: 'section-action' }, 'View all in DAM →')
-              ),
-              h('div', { className: 'fragment-grid' },
-                FRAGMENT_LIST.map(f => h(FragmentCard, { key: f.id, frag: f }))
-              )
-            ),
-
-            /* Experimentation */
-            h('div', { className: 'experimentation-section' },
-              h('div', { className: 'section-header' },
-                h('div', { className: 'section-title' }, 'A/B Experiment · Hero CTA Copy'),
-                h('span', { style: { fontSize: '.75rem', color: 'var(--success)', fontWeight: 600 } }, '● Running · Day 12 of 30')
-              ),
-              h('div', { className: 'exp-card' },
-                h('div', { className: 'exp-inner' },
-                  h('div', { className: 'exp-variant control' },
-                    h('div', { className: 'exp-variant-label' }, 'Control · A'),
-                    h('div', { className: 'exp-variant-title' }, '"Explore platform →"'),
-                    h(ExpBar, { label: 'Conversion rate', value: 3.4, max: 5.0, color: '#6e6e6e' }),
-                    h(ExpBar, { label: 'Engagement', value: 41, max: 100, color: '#6e6e6e' })
-                  ),
-                  h('div', { className: 'exp-variant winner' },
-                    h('div', { className: 'exp-variant-label' }, '🏆 Winner · B'),
-                    h('div', { className: 'exp-variant-title' }, '"Schedule a demo →"'),
-                    h(ExpBar, { label: 'Conversion rate', value: 4.9, max: 5.0, color: 'var(--success)' }),
-                    h(ExpBar, { label: 'Engagement', value: 78, max: 100, color: 'var(--success)' })
-                  )
-                )
-              )
-            ),
-
-            /* Integrations */
-            h('div', { className: 'integrations-section' },
-              h('div', { className: 'section-header' },
-                h('div', { className: 'section-title' }, 'Adobe Experience Cloud Integrations')
-              ),
-              h('div', { className: 'integration-row' },
-                h(IntegrationCard, {
-                    icon: '📊', name: 'Adobe Analytics · CJA', status: 'Connected',
-                    metric: '48.3k', metricLabel: 'events today',
-                    color: '#2980B9', statusType: 'connected'
-                  }),
-                h(IntegrationCard, {
-                    icon: '🎯', name: 'Adobe Target', status: 'A/B Active',
-                    metric: '+6.1%', metricLabel: 'conversion lift',
-                    color: '#E67E22', statusType: 'connected'
-                  }),
-                h(IntegrationCard, {
-                    icon: '🧑‍💼', name: 'Adobe Experience Platform', status: 'Syncing',
-                    metric: '12.4k', metricLabel: 'profiles matched',
-                    color: '#9B59B6', statusType: 'syncing'
-                  }),
-                h(IntegrationCard, {
-                    icon: '✉️', name: 'Adobe Journey Optimizer', status: 'Connected',
-                    metric: '3', metricLabel: 'journeys active',
-                    color: '#16A085', statusType: 'connected'
-                  })
-              )
-            )
-          ),
-
-          /* Right: CF Sidebar */
-          h(CfSidebar, { heroPath: '/content/dam/ue-demo/fragments/home-hero', heroStatus })
-        )
-      )
-    );
+            || item?.image || FB.image,
+          description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+        });
+        setLoading(false);
+      })
+      .catch(() => { setContent(FB); setLoading(false); });
   }
 
-  ReactDOM.createRoot(document.getElementById('root')).render(h(App, null));
+  useEffect(() => {
+    fetchContent();
+    function onUeMsg(e) {
+      if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
+        setTimeout(fetchContent, 600);
+      }
+    }
+    window.addEventListener('message', onUeMsg);
+    return () => window.removeEventListener('message', onUeMsg);
+  }, []);
+
+  if (loading) return h('p', { style: { padding: '48px', opacity: .35 } }, 'Loading from AEM GraphQL…');
+
+  return h(Fragment, null,
+    h(Nav, null),
+    h(PersonaBar, { segment, onSegment: setSegment }),
+    h(HeroSection,       { content, segment }),
+    h(AnalyticsStrip,    null),
+    h(FeaturesSection,   null),
+    h(ExperimentSection, null),
+    h(IntegrationsSection, null),
+    h(FooterCTA,         { content })
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App, null));
 </script>
 </body>
 </html>

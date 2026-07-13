@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>R3F · React Three Fiber · AEM Demo</title>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three":                               "https://esm.sh/three@0.160.0",
+      "three/examples/jsm/controls/OrbitControls": "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls",
+      "react":                               "https://esm.sh/react@18.2.0",
+      "react-dom/client":                    "https://esm.sh/react-dom@18.2.0/client",
+      "@react-three/fiber":                  "https://esm.sh/@react-three/fiber@8.17.10?deps=three@0.160.0,react@18.2.0"
+    }
+  }
+  </script>
+
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #000408; color: #fff; }
+    #root { height: 100vh; display: flex; flex-direction: column; }
+
+    /* top bar */
+    .r3f-bar {
+      position: relative; z-index: 20;
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 20px; height: 48px; flex-shrink: 0;
+      background: rgba(0,4,8,.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(97,218,251,.12);
+    }
+    .r3f-brand { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: .875rem; color: #61DAFB; white-space: nowrap; }
+    .r3f-sep   { color: rgba(255,255,255,.15); }
+    .r3f-sub   { font-size: .8125rem; color: rgba(255,255,255,.45); white-space: nowrap; }
+    .r3f-space { flex: 1; }
+
+    /* scene tabs */
+    .scene-tabs { display: flex; gap: 4px; }
+    .scene-tab {
+      padding: 5px 14px; border-radius: 6px; border: none; cursor: pointer;
+      font-family: 'Inter', system-ui, sans-serif; font-size: .8125rem; font-weight: 600;
+      background: rgba(255,255,255,.06); color: rgba(255,255,255,.45);
+      border: 1px solid rgba(255,255,255,.08); transition: all .15s;
+    }
+    .scene-tab.active {
+      background: rgba(97,218,251,.18); color: #61DAFB;
+      border-color: rgba(97,218,251,.35);
+    }
+    .scene-tab:hover:not(.active) { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); }
+
+    /* CF title badge */
+    .cf-badge {
+      padding: 4px 14px; border-radius: 20px; max-width: 260px;
+      background: rgba(97,218,251,.08); border: 1px solid rgba(97,218,251,.2);
+      color: #61DAFB; font-size: .75rem; font-weight: 600;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      cursor: default;
+    }
+
+    /* canvas container */
+    .canvas-wrap { flex: 1; position: relative; overflow: hidden; }
+
+    /* scene info overlay (arch walkthrough) */
+    .scene-info {
+      position: absolute; bottom: 56px; left: 24px;
+      padding: 14px 18px; border-radius: 10px;
+      background: rgba(0,4,8,.8); backdrop-filter: blur(12px);
+      border: 1px solid rgba(97,218,251,.2); max-width: 320px;
+      pointer-events: none; transition: opacity .4s;
+    }
+    .scene-info-label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #61DAFB; margin-bottom: 5px; }
+    .scene-info-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .scene-info-desc  { font-size: .8125rem; line-height: 1.55; color: rgba(255,255,255,.6); }
+    .tour-btn {
+      position: absolute; bottom: 56px; right: 24px;
+      padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(97,218,251,.3);
+      background: rgba(97,218,251,.12); color: #61DAFB; font-size: .8125rem; font-weight: 700;
+      cursor: pointer; backdrop-filter: blur(8px); transition: all .15s; font-family: inherit;
+    }
+    .tour-btn:hover { background: rgba(97,218,251,.22); }
+
+    /* datacenter title overlay */
+    .dc-title-overlay {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      pointer-events: none; opacity: 0; transition: none;
+    }
+    .dc-title-label { font-size: .65rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #61DAFB; margin-bottom: 12px; }
+    .dc-title-text {
+      font-size: clamp(1.75rem,5vw,4rem); font-weight: 900;
+      letter-spacing: -.04em; text-align: center;
+      text-shadow: 0 0 60px rgba(97,218,251,.6), 0 0 120px rgba(97,218,251,.3);
+      line-height: .95;
+    }
+
+    /* globe legend */
+    .globe-legend {
+      position: absolute; bottom: 56px; right: 24px;
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 12px 14px; border-radius: 8px;
+      background: rgba(0,4,8,.75); backdrop-filter: blur(10px);
+      border: 1px solid rgba(97,218,251,.15); pointer-events: none;
+    }
+    .globe-legend-row { display: flex; align-items: center; gap: 8px; font-size: .7rem; color: rgba(255,255,255,.6); }
+    .globe-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* footer */
+    .r3f-footer {
+      position: relative; z-index: 20; flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 20px; height: 36px;
+      background: rgba(0,4,8,.9); border-top: 1px solid rgba(97,218,251,.08);
+    }
+    .r3f-footer span { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: rgba(255,255,255,.22); }
+    .r3f-footer .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; animation: blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+  </style>
+</head>
+<body>
+<div id="root">
+  <div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;color:rgba(255,255,255,.4)">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:#61DAFB">⚛</span>
+    <span style="font-size:.875rem">Initialising React Three Fiber…</span>
+  </div>
+</div>
+
+<script type="module">
+/* eslint-disable */
+import * as THREE       from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
+import { createRoot }   from 'react-dom/client';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+
+const h = React.createElement;
+
+// ── AEM config ────────────────────────────────────────────────────────────────
+const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+const GRAPHQL = `${PUBLISH}/graphql/execute.json/global/hero`;
+const RES     = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+const EARTH_TEX = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/textures/land_ocean_ice_cloud_2048.jpg';
+
+// ── Globe data ─────────────────────────────────────────────────────────────────
+const DCS = [
+  { label: 'San Jose',   lat:  37.3, lng: -121.9, color: '#61DAFB' }, // Adobe HQ
+  { label: 'London',     lat:  51.5, lng:   -0.1, color: '#FF6B6B' },
+  { label: 'Singapore',  lat:   1.3, lng:  103.8, color: '#4ECDC4' },
+  { label: 'Sydney',     lat: -33.9, lng:  151.2, color: '#FFE66D' },
+  { label: 'São Paulo',  lat: -23.5, lng:  -46.6, color: '#A8E6CF' },
+  { label: 'Frankfurt',  lat:  50.1, lng:    8.7, color: '#C3B1E1' },
+];
+const ARC_PAIRS = [[0,1],[1,5],[5,2],[2,3],[3,4],[4,0],[0,2],[1,3]];
+
+function latLng(lat, lng, r = 2.05) {
+  const phi   = (90 - lat) * (Math.PI / 180);
+  const theta = (lng + 180) * (Math.PI / 180);
+  return [
+    -(r * Math.sin(phi) * Math.cos(theta)),
+    r * Math.cos(phi),
+    r * Math.sin(phi) * Math.sin(theta),
+  ];
+}
+
+// ── Arch data ──────────────────────────────────────────────────────────────────
+const ARCH = [
+  { id: 'author',  label: 'AEM Author',   info: 'Authors edit Content Fragments in Universal Editor — changes saved to JCR on the author tier.',  pos: [-5, 0, 0], color: '#E34850' },
+  { id: 'publish', label: 'AEM Publish',  info: 'Publish tier serves content. Delta replication from author is near-instant via Sling Content Distribution.', pos: [-1.7, 0, 0], color: '#2D9D78' },
+  { id: 'gql',     label: 'GraphQL API',  info: 'Persisted queries at /graphql/execute.json — cached at edge. This page fetches from here on every load.',  pos: [ 1.7, 0, 0], color: '#61DAFB' },
+  { id: 'cdn',     label: 'EDS / CDN',    info: 'Adobe Edge Delivery Services. HTML, CSS, JS served in under 100ms globally with auto CDN invalidation on publish.', pos: [ 5, 0, 0], color: '#FF8C00' },
+  { id: 'spa',     label: '⚛ This page',  info: 'React Three Fiber SPA — rendered in the browser, annotated for Universal Editor, content from AEM GraphQL.', pos: [ 5, -2.5, 2.5], color: '#A78BFA' },
+];
+const ARCH_EDGES = [
+  ['author','publish'],['publish','gql'],['gql','cdn'],['cdn','spa']
+];
+
+// ── Shared: OrbitControls ────────────────────────────────────────────────────
+function OrbitalControls({ minDist = 3, maxDist = 10 }) {
+  const { camera, gl } = useThree();
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = new OrbitControls(camera, gl.domElement);
+    ref.current.enableDamping    = true;
+    ref.current.dampingFactor    = 0.05;
+    ref.current.rotateSpeed      = 0.5;
+    ref.current.minDistance      = minDist;
+    ref.current.maxDistance      = maxDist;
+    return () => ref.current.dispose();
+  }, []);
+  useFrame(() => ref.current?.update());
+  return null;
+}
+
+// ── Shared: star field ────────────────────────────────────────────────────────
+function Stars({ count = 2000 }) {
+  const { geo } = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i += 3) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi   = Math.acos(2 * Math.random() - 1);
+      const r     = 60 + Math.random() * 60;
+      pos[i]   = r * Math.sin(phi) * Math.cos(theta);
+      pos[i+1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i+2] = r * Math.cos(phi);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    return { geo: g };
+  }, [count]);
+  return h('points', { geometry: geo },
+    h('pointsMaterial', { color: '#ffffff', size: 0.18, sizeAttenuation: true, transparent: true, opacity: 0.7 })
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCENE 1: GLOBE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function EarthSphere() {
+  const meshRef = useRef();
+  const [texture, setTexture] = useState(null);
+
+  useEffect(() => {
+    new THREE.TextureLoader().load(EARTH_TEX, (t) => { t.colorSpace = THREE.SRGBColorSpace; setTexture(t); });
+  }, []);
+
+  useFrame((_, dt) => { if (meshRef.current) meshRef.current.rotation.y += dt * 0.06; });
+
+  return h('group', { ref: meshRef },
+    // Solid earth
+    h('mesh', null,
+      h('sphereGeometry', { args: [2, 64, 32] }),
+      h('meshPhongMaterial', {
+        map: texture,
+        color: texture ? 0xffffff : '#1a3a6b',
+        shininess: 90,
+        specular: new THREE.Color(0x3366aa),
+      })
+    ),
+    // Atmosphere glow
+    h('mesh', null,
+      h('sphereGeometry', { args: [2.08, 32, 32] }),
+      h('meshPhongMaterial', {
+        color: '#4488ff', transparent: true, opacity: 0.07,
+        side: THREE.FrontSide, depthWrite: false, blending: THREE.AdditiveBlending,
+      })
+    ),
+    // Data center dots
+    ...DCS.map((dc, i) =>
+      h('mesh', { key: i, position: latLng(dc.lat, dc.lng) },
+        h('sphereGeometry', { args: [0.045, 10, 10] }),
+        h('meshBasicMaterial', { color: dc.color })
+      )
+    ),
+    // Dot glow halos
+    ...DCS.map((dc, i) =>
+      h('mesh', { key: `h${i}`, position: latLng(dc.lat, dc.lng) },
+        h('sphereGeometry', { args: [0.09, 10, 10] }),
+        h('meshBasicMaterial', { color: dc.color, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false })
+      )
+    )
+  );
+}
+
+function GlobeArc({ a, b }) {
+  const obj = useMemo(() => {
+    const from  = new THREE.Vector3(...latLng(DCS[a].lat, DCS[a].lng));
+    const to    = new THREE.Vector3(...latLng(DCS[b].lat, DCS[b].lng));
+    const mid   = from.clone().add(to).multiplyScalar(0.5).normalize().multiplyScalar(3.5);
+    const curve = new THREE.QuadraticBezierCurve3(from, mid, to);
+    const pts   = curve.getPoints(80);
+    const geo   = new THREE.BufferGeometry().setFromPoints(pts);
+    const mat   = new THREE.LineBasicMaterial({ color: DCS[a].color, transparent: true, opacity: 0.6 });
+    const line  = new THREE.Line(geo, mat);
+    return line;
+  }, [a, b]);
+  return h('primitive', { object: obj });
+}
+
+function GlobeScene() {
+  return h(React.Fragment, null,
+    h('ambientLight',     { intensity: 0.25 }),
+    h('directionalLight', { position: [6, 3, 5],   intensity: 1.4, color: '#fff8e8' }),
+    h('pointLight',       { position: [-6,-3,-5],  intensity: 0.4, color: '#223355' }),
+    h(Stars, null),
+    h(EarthSphere, null),
+    ...ARC_PAIRS.map(([a, b], i) => h(GlobeArc, { key: i, a, b })),
+    h(OrbitalControls, { minDist: 3, maxDist: 9 })
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCENE 2: ARCHITECTURE WALKTHROUGH
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ArchEdge({ fromId, toId }) {
+  const obj = useMemo(() => {
+    const a   = ARCH.find(n => n.id === fromId);
+    const b   = ARCH.find(n => n.id === toId);
+    const pts = [new THREE.Vector3(...a.pos), new THREE.Vector3(...b.pos)];
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const mat = new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.18 });
+    return new THREE.Line(geo, mat);
+  }, [fromId, toId]);
+  return h('primitive', { object: obj });
+}
+
+function FlowParticle({ fromId, toId, offset = 0, speed = 0.35 }) {
+  const ref      = useRef();
+  const progRef  = useRef(offset);
+  const fromVec  = useMemo(() => new THREE.Vector3(...ARCH.find(n => n.id === fromId).pos), [fromId]);
+  const toVec    = useMemo(() => new THREE.Vector3(...ARCH.find(n => n.id === toId).pos),   [toId]);
+  const color    = ARCH.find(n => n.id === toId).color;
+
+  useFrame((_, dt) => {
+    progRef.current = (progRef.current + dt * speed) % 1;
+    ref.current.position.lerpVectors(fromVec, toVec, progRef.current);
+    const s = 1 + Math.sin(progRef.current * Math.PI) * 0.6;
+    ref.current.scale.setScalar(s);
+  });
+
+  return h('mesh', { ref },
+    h('sphereGeometry', { args: [0.07, 8, 8] }),
+    h('meshBasicMaterial', { color })
+  );
+}
+
+function ArchNode({ node, active }) {
+  const ref      = useRef();
+  const scaleRef = useRef(new THREE.Vector3(1, 1, 1));
+
+  useFrame((_, dt) => {
+    if (!ref.current) return;
+    ref.current.rotation.y += dt * (active ? 1.2 : 0.25);
+    const target = active ? 1.25 : 1.0;
+    scaleRef.current.lerp({ x: target, y: target, z: target }, 0.07);
+    ref.current.scale.copy(scaleRef.current);
+  });
+
+  return h('group', { position: node.pos },
+    h('mesh', { ref },
+      h('boxGeometry', { args: [0.85, 0.85, 0.85] }),
+      h('meshPhongMaterial', {
+        color: node.color,
+        emissive: node.color,
+        emissiveIntensity: active ? 0.55 : 0.18,
+        shininess: 60,
+      })
+    ),
+    // outer glow ring (ring = torus)
+    active && h('mesh', { rotation: [Math.PI / 2, 0, 0] },
+      h('torusGeometry', { args: [0.75, 0.04, 8, 40] }),
+      h('meshBasicMaterial', { color: node.color, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending })
+    )
+  );
+}
+
+// Camera tour controller — lives inside Canvas
+function ArchCamera({ tourActive, activeIdx, onAdvance }) {
+  const { camera } = useThree();
+  const elapsed    = useRef(0);
+  const DWELL      = 3.2; // seconds per node
+
+  useFrame((_, dt) => {
+    if (!tourActive) return;
+    elapsed.current += dt;
+    if (elapsed.current > DWELL) {
+      elapsed.current = 0;
+      onAdvance();
+    }
+    const node   = ARCH[activeIdx];
+    const target = new THREE.Vector3(node.pos[0], node.pos[1] + 0.4, node.pos[2] + 3.8);
+    camera.position.lerp(target, 0.035);
+    camera.lookAt(node.pos[0], node.pos[1], node.pos[2]);
+  });
+  return null;
+}
+
+function ArchScene({ onNodeChange, tourActive }) {
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  const advance = () => {
+    setActiveIdx(prev => {
+      const next = (prev + 1) % ARCH.length;
+      onNodeChange(ARCH[next]);
+      return next;
+    });
+  };
+
+  return h(React.Fragment, null,
+    h('ambientLight',     { intensity: 0.35 }),
+    h('directionalLight', { position: [0, 8, 6], intensity: 1.0 }),
+    h('pointLight',       { position: [0, 0, 4], intensity: 0.6, color: '#4488ff' }),
+    h('gridHelper',       { args: [18, 18, '#1a2a3a', '#0d1a24'] }),
+
+    // Nodes
+    ...ARCH.map((node, i) =>
+      h(ArchNode, { key: node.id, node, active: i === activeIdx })
+    ),
+
+    // Edges
+    ...ARCH_EDGES.map(([f, t], i) => h(ArchEdge, { key: i, fromId: f, toId: t })),
+
+    // Flow particles (3 per edge, staggered)
+    ...ARCH_EDGES.flatMap(([f, t], i) =>
+      [0, 0.33, 0.66].map((off, j) =>
+        h(FlowParticle, { key: `${i}-${j}`, fromId: f, toId: t, offset: off, speed: 0.3 + i * 0.07 })
+      )
+    ),
+
+    h(ArchCamera, { tourActive, activeIdx, onAdvance: advance }),
+    !tourActive && h(OrbitalControls, { minDist: 2, maxDist: 16 })
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCENE 3: DATACENTER FLYTHROUGH
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ServerRack({ pos }) {
+  // Slight flicker on the LED panel per rack (seeded random, stable across renders)
+  const seed = useMemo(() => Math.random(), []);
+  const ledRef = useRef();
+  useFrame((state) => {
+    if (ledRef.current) {
+      ledRef.current.material.opacity = 0.12 + Math.abs(Math.sin(state.clock.elapsedTime * 0.7 + seed * 10)) * 0.18;
+    }
+  });
+  return h('group', { position: pos },
+    // Rack chassis
+    h('mesh', null,
+      h('boxGeometry', { args: [0.82, 2.5, 0.55] }),
+      h('meshPhongMaterial', { color: '#0d0d1a', shininess: 50 })
+    ),
+    // Rack door detail
+    h('mesh', { position: [0, 0, 0.28] },
+      h('boxGeometry', { args: [0.75, 2.4, 0.04] }),
+      h('meshPhongMaterial', { color: '#15152a', shininess: 30 })
+    ),
+    // LED activity strip
+    h('mesh', { ref: ledRef, position: [0.35, 0, 0.29] },
+      h('boxGeometry', { args: [0.03, 2.4, 0.02] }),
+      h('meshBasicMaterial', { color: '#0040ff', transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending })
+    ),
+    // Status LED row
+    ...[0.8, 0.3, -0.2, -0.7].map((y, i) =>
+      h('mesh', { key: i, position: [-0.3, y, 0.3] },
+        h('sphereGeometry', { args: [0.025, 6, 6] }),
+        h('meshBasicMaterial', { color: i === 1 ? '#ff4400' : '#00ff88', blending: THREE.AdditiveBlending })
+      )
+    )
+  );
+}
+
+function CableRun({ from, to, color }) {
+  const obj = useMemo(() => {
+    const pts   = [new THREE.Vector3(...from), new THREE.Vector3(...to)];
+    const mid   = pts[0].clone().add(pts[1]).multiplyScalar(0.5);
+    mid.y       += 0.35 + Math.random() * 0.25;
+    const curve = new THREE.QuadraticBezierCurve3(pts[0], mid, pts[1]);
+    const geo   = new THREE.TubeGeometry(curve, 16, 0.018, 6, false);
+    const mat   = new THREE.MeshPhongMaterial({ color, emissive: color, emissiveIntensity: 0.45, shininess: 40 });
+    return new THREE.Mesh(geo, mat);
+  }, []);
+  return h('primitive', { object: obj });
+}
+
+function DatacenterFly({ titleRef }) {
+  const { camera } = useThree();
+  const t          = useRef(0);
+  const DURATION   = 16;
+
+  function ease(x) { return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
+
+  useFrame((_, dt) => {
+    t.current = Math.min(t.current + dt / DURATION, 1);
+    const p = ease(t.current);
+    // Fly from z=20 (aisle entrance) toward z=-10 (end wall)
+    camera.position.set(
+      Math.sin(p * Math.PI * 1.5) * 0.3,  // gentle side sway
+      1.6 + Math.sin(p * Math.PI) * 0.25,  // gentle rise and settle
+      THREE.MathUtils.lerp(20, -9.5, p)
+    );
+    camera.lookAt(0, 1.2, camera.position.z - 15);
+
+    // Drive title overlay opacity directly (no React re-render)
+    if (titleRef?.current) {
+      const opacity = Math.max(0, Math.min(1, (p - 0.78) * 4.5));
+      titleRef.current.style.opacity = opacity.toString();
+    }
+  });
+  return null;
+}
+
+function DatacenterScene({ cfTitle, titleRef }) {
+  const racks = useMemo(() => {
+    const out = [];
+    for (let row = 0; row < 10; row++) {
+      for (const side of [-1.8, 1.8]) {
+        out.push({ pos: [side, 0, row * -2.8 + 12], key: `${row}-${side}` });
+      }
+    }
+    return out;
+  }, []);
+
+  const cables = useMemo(() => {
+    const colors = ['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7','#14b8a6','#f97316','#06b6d4'];
+    const out    = [];
+    for (let i = 0; i < 9; i++) {
+      out.push({
+        from:  [-1.4, 2.0,  i * -2.8 + 12],
+        to:    [ 1.4, 2.0, (i + 1) * -2.8 + 12],
+        color: colors[i % colors.length],
+        key: `c${i}`,
+      });
+      // cross-aisle drops
+      out.push({
+        from: [-1.4, 1.85, i * -2.8 + 11],
+        to:   [-1.4, 1.2,  i * -2.8 + 11],
+        color: colors[(i + 3) % colors.length],
+        key: `d${i}`,
+      });
+    }
+    return out;
+  }, []);
+
+  return h(React.Fragment, null,
+    h('ambientLight', { intensity: 0.08 }),
+    h('pointLight', { position: [ 0, 2.5,  15], intensity: 3.0, color: '#aaccff', distance: 12, decay: 2 }),
+    h('pointLight', { position: [ 0, 2.5,   0], intensity: 3.0, color: '#aaccff', distance: 12, decay: 2 }),
+    h('pointLight', { position: [ 0, 2.5, -10], intensity: 3.0, color: '#8899dd', distance: 12, decay: 2 }),
+    // End wall glow
+    h('pointLight', { position: [ 0, 1.5, -13], intensity: 2.5, color: '#4466ff', distance: 6, decay: 2 }),
+
+    // Floor
+    h('mesh', { position: [0, -1.26, 0], rotation: [-Math.PI / 2, 0, 0] },
+      h('planeGeometry', { args: [7, 50] }),
+      h('meshPhongMaterial', { color: '#080810', shininess: 120 })
+    ),
+    // Ceiling
+    h('mesh', { position: [0, 3.3, 0], rotation: [Math.PI / 2, 0, 0] },
+      h('planeGeometry', { args: [7, 50] }),
+      h('meshPhongMaterial', { color: '#0a0a16' })
+    ),
+    // Left wall
+    h('mesh', { position: [-3.2, 1, 0] },
+      h('planeGeometry', { args: [50, 6] }),
+      h('meshPhongMaterial', { color: '#080812', side: THREE.BackSide })
+    ),
+    // Right wall
+    h('mesh', { position: [3.2, 1, 0], rotation: [0, Math.PI, 0] },
+      h('planeGeometry', { args: [50, 6] }),
+      h('meshPhongMaterial', { color: '#080812', side: THREE.BackSide })
+    ),
+    // Overhead cable tray — structural channel
+    h('mesh', { position: [0, 2.15, 0] },
+      h('boxGeometry', { args: [0.9, 0.08, 50] }),
+      h('meshPhongMaterial', { color: '#111122' })
+    ),
+
+    // End wall — LED display
+    h('mesh', { position: [0, 1.2, -14.5] },
+      h('planeGeometry', { args: [5.5, 3.2] }),
+      h('meshPhongMaterial', { color: '#001022', emissive: '#001033', emissiveIntensity: 1.0 })
+    ),
+    // Display border
+    h('mesh', { position: [0, 1.2, -14.4] },
+      h('planeGeometry', { args: [5.7, 3.4] }),
+      h('meshBasicMaterial', { color: '#4466ff', transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending })
+    ),
+
+    // Racks
+    ...racks.map(r => h(ServerRack, { key: r.key, pos: r.pos })),
+
+    // Cables
+    ...cables.map(c => h(CableRun, { key: c.key, from: c.from, to: c.to, color: c.color })),
+
+    // Fly camera
+    h(DatacenterFly, { titleRef })
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// APP
+// ─────────────────────────────────────────────────────────────────────────────
+const SCENES = [
+  { id: 'globe', label: '🌍 Globe',          footer: 'AEM content delivery network — six global data centers, real-time replication arcs.' },
+  { id: 'arch',  label: '🔗 Architecture',   footer: 'AEM authoring pipeline — click Play to walk through Author → Publish → GraphQL → CDN → SPA.' },
+  { id: 'dc',    label: '🖥 Datacenter',     footer: 'Flythrough of server infrastructure — watch for your AEM-authored title on the end wall.' },
+];
+
+const CAM = {
+  globe: { position: [0, 1, 5.5],  fov: 55 },
+  arch:  { position: [0.5, 2, 10], fov: 58 },
+  dc:    { position: [0, 1.6, 20], fov: 68 },
+};
+
+function App() {
+  const [scene,    setScene]    = useState('globe');
+  const [cfTitle,  setCfTitle]  = useState('React Three Fiber · AEM Demo');
+  const [tourActive, setTour]   = useState(false);
+  const [archNode, setArchNode] = useState(ARCH[0]);
+  const titleOverlayRef         = useRef();
+
+  // Fetch CF title
+  function fetchTitle() {
+    fetch(`${GRAPHQL}?_v=${Date.now()}`, { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(d => {
+        const item = d?.data?.homeHeroByPath?.item || d;
+        if (item?.title) setCfTitle(item.title);
+      })
+      .catch(() => {});
+  }
+  useEffect(() => {
+    fetchTitle();
+    function onUeMsg(e) {
+      if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
+        setTimeout(fetchTitle, 600);
+      }
+    }
+    window.addEventListener('message', onUeMsg);
+    return () => window.removeEventListener('message', onUeMsg);
+  }, []);
+
+  // Reset tour when leaving arch scene
+  useEffect(() => { if (scene !== 'arch') setTour(false); }, [scene]);
+
+  const currentScene = SCENES.find(s => s.id === scene);
+
+  return h('div', { id: 'shell', style: { height: '100vh', display: 'flex', flexDirection: 'column' } },
+
+    // ── Top bar ──────────────────────────────────────────────────────────────
+    h('header', { className: 'r3f-bar' },
+      h('span', { className: 'r3f-brand' }, '⚛ @react-three/fiber'),
+      h('span', { className: 'r3f-sep' }, '·'),
+      h('span', { className: 'r3f-sub' }, 'AEM Content Fragments'),
+      h('div',  { className: 'r3f-space' }),
+      h('nav',  { className: 'scene-tabs' },
+        ...SCENES.map(s =>
+          h('button', {
+              key: s.id, className: `scene-tab ${scene === s.id ? 'active' : ''}`,
+              onClick: () => setScene(s.id),
+            }, s.label
+          )
+        )
+      ),
+      h('div', {
+          className: 'cf-badge',
+          'data-aue-resource': RES, 'data-aue-prop': 'title',
+          'data-aue-type': 'text', 'data-aue-label': 'Page Title',
+          title: cfTitle,
+        }, cfTitle
+      )
+    ),
+
+    // ── Canvas area ───────────────────────────────────────────────────────────
+    h('div', { className: 'canvas-wrap' },
+
+      h(Canvas, {
+          key: scene,
+          camera: CAM[scene],
+          gl: { antialias: true, alpha: false },
+          style: { background: scene === 'globe' ? '#000408' : scene === 'arch' ? '#020d1a' : '#07070f' },
+        },
+        scene === 'globe' && h(GlobeScene, null),
+        scene === 'arch'  && h(ArchScene, {
+            tourActive,
+            onNodeChange: setArchNode,
+          }),
+        scene === 'dc' && h(DatacenterScene, {
+            cfTitle,
+            titleRef: titleOverlayRef,
+          })
+      ),
+
+      // Globe legend
+      scene === 'globe' && h('div', { className: 'globe-legend' },
+        ...DCS.map(dc =>
+          h('div', { key: dc.label, className: 'globe-legend-row' },
+            h('span', { className: 'globe-legend-dot', style: { background: dc.color } }),
+            dc.label
+          )
+        )
+      ),
+
+      // Arch: info panel + tour button
+      scene === 'arch' && h(React.Fragment, null,
+        h('div', { className: 'scene-info' },
+          h('div', { className: 'scene-info-label' }, 'AEM Architecture · ' + (tourActive ? 'Auto-tour' : 'Manual')),
+          h('div', { className: 'scene-info-title' }, archNode.label),
+          h('div', { className: 'scene-info-desc' },  archNode.info)
+        ),
+        h('button', {
+            className: 'tour-btn',
+            onClick: () => setTour(t => !t),
+          }, tourActive ? '⏸ Pause tour' : '▶ Play walkthrough'
+        )
+      ),
+
+      // Datacenter: CF title overlay (opacity driven by ref from useFrame)
+      scene === 'dc' && h('div', {
+          ref: titleOverlayRef,
+          className: 'dc-title-overlay',
+        },
+        h('div', { className: 'dc-title-label' }, '↓ AEM Content Fragment · title field'),
+        h('h1', {
+            className: 'dc-title-text',
+            'data-aue-resource': RES,
+            'data-aue-prop':     'title',
+            'data-aue-type':     'text',
+            'data-aue-label':    'CF Title',
+          }, cfTitle
+        )
+      )
+    ),
+
+    // ── Footer ─────────────────────────────────────────────────────────────────
+    h('footer', { className: 'r3f-footer' },
+      h('span', { className: 'dot' }),
+      h('span', null, currentScene.footer),
+      h('div', { style: { flex: 1 } }),
+      h('span', null, 'three.js r160  ·  @react-three/fiber 8.17  ·  AEM GraphQL  ·  EDS cf branch')
+    )
+  );
+}
+
+// ── Mount ─────────────────────────────────────────────────────────────────────
+try {
+  createRoot(document.getElementById('root')).render(h(React.StrictMode, null, h(App, null)));
+} catch (e) {
+  document.getElementById('root').innerHTML =
+    `<div style="padding:48px;color:#ff6b6b;font-family:monospace">
+      <strong>R3F init error</strong><br/><br/>${e.message}<br/><br/>
+      <small style="opacity:.5">Check browser console — likely importmap / ESM resolution issue</small>
+    </div>`;
+}
+</script>
+</body>
+</html>

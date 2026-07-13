@@ -258,8 +258,9 @@ function useAnimatedCount(target, duration = 1100) {
 /* fetches CF content */
 function useContent() {
   const [content, setContent] = useState(null);
-  useEffect(() => {
-    fetch(GRAPHQL, { headers: { Accept: 'application/json' } })
+
+  function fetchContent() {
+    return fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
       .then(r => r.json())
       .then(d => {
         const item = d?.data?.homeHeroByPath?.item || d;
@@ -272,7 +273,19 @@ function useContent() {
         });
       })
       .catch(() => setContent(FB));
+  }
+
+  useEffect(() => {
+    fetchContent();
+    function onUeMsg(e) {
+      if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
+        setTimeout(fetchContent, 600);
+      }
+    }
+    window.addEventListener('message', onUeMsg);
+    return () => window.removeEventListener('message', onUeMsg);
   }, []);
+
   return content;
 }
 
