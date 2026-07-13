@@ -204,21 +204,61 @@
   };
 
   const FEATURES = [
-    { id: 'headless',        icon: '⚡', title: 'Headless Delivery',   body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.' },
-    { id: 'personalization', icon: '🎯', title: 'Personalization',     body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.' },
-    { id: 'experimentation', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
+    { id: 'feature-headless',        icon: '⚡', title: 'Headless Delivery',   body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.' },
+    { id: 'feature-personalization', icon: '🎯', title: 'Personalization',     body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.' },
+    { id: 'feature-experimentation', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
   ];
 
-  // Real React component with its own open/close state
+  // Each card fetches its own CF and is independently editable in UE
   function FeatureCard({ feat }) {
     const [open, setOpen] = useState(false);
+    const [title, setTitle] = useState(feat.title);
+    const [body,  setBody]  = useState(feat.body);
+    const cfPath = '/content/dam/ue-demo/fragments/' + feat.id;
+    const res    = 'urn:aem:' + cfPath + '/jcr:content/data/master';
+
+    useEffect(() => {
+      function fetchCard() {
+        fetch(GRAPHQL + ';path=' + cfPath + '?_v=' + Date.now(),
+          { headers: { Accept: 'application/json' } })
+          .then(r => r.json())
+          .then(d => {
+            const item = d?.data?.homeHeroByPath?.item;
+            if (!item) return;
+            if (item.title) setTitle(item.title);
+            const desc = item.description?.plaintext || item.description?.html || item.description;
+            if (desc) setBody(desc);
+          })
+          .catch(() => {});
+      }
+      fetchCard();
+      function onMsg(e) {
+        if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
+          setTimeout(fetchCard, 600);
+        }
+      }
+      window.addEventListener('message', onMsg);
+      return () => window.removeEventListener('message', onMsg);
+    }, []);
+
     return h('div', {
         className: 'feature-card' + (open ? ' open' : ''),
         onClick: () => setOpen(o => !o),
+        'data-aue-resource': res, 'data-aue-type': 'component',
+        'data-aue-label': title,  'data-aue-model': 'hero',
       },
       h('div', { className: 'feature-icon' }, feat.icon),
-      h('div', { className: 'feature-title' }, feat.title),
-      h('div', { className: 'feature-body', style: { maxHeight: open ? '160px' : '44px' } }, feat.body),
+      h('div', {
+          className: 'feature-title',
+          'data-aue-resource': res, 'data-aue-prop': 'title',
+          'data-aue-type': 'text', 'data-aue-label': 'Title',
+        }, title),
+      h('div', {
+          className: 'feature-body',
+          style: { maxHeight: open ? '160px' : '44px' },
+          'data-aue-resource': res, 'data-aue-prop': 'description',
+          'data-aue-type': 'richtext', 'data-aue-label': 'Description',
+        }, body),
       h('span', { className: 'feature-chevron' }, '▾')
     );
   }
