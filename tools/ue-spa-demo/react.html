@@ -287,9 +287,13 @@
     const [content, setContent] = useState(null);
 
     function fetchContent(v) {
-      const fb     = v === 'brief' ? FB_BRIEF : FB_MASTER;
-      const suffix = v === 'brief' ? ';variation=brief' : '';
-      fetch(GRAPHQL + suffix + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
+      const fb = v === 'brief' ? FB_BRIEF : FB_MASTER;
+      setContent(fb); // show fallback immediately so the toggle is always visible
+
+      if (v === 'brief') return; // Brief uses static fallback until the AEM variation is created
+
+      // Main: upgrade with live CF data
+      fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
         .then(r => r.json())
         .then(d => {
           const item = d?.data?.homeHeroByPath?.item || d;
@@ -301,7 +305,7 @@
             description: item?.description?.plaintext || item?.description?.html || item?.description || fb.description,
           });
         })
-        .catch(() => setContent(fb));
+        .catch(() => {}); // keep fallback on error
     }
 
     useEffect(() => {
@@ -331,7 +335,7 @@
           h('a', { href: '#', className: 'active' }, 'Demo')
         ),
         h('div', { className: 'variant-toggle' },
-          h('button', { className: 'vt-btn' + (variant === 'master' ? ' active' : ''), onClick: () => setVariant('master') }, 'Master'),
+          h('button', { className: 'vt-btn' + (variant === 'master' ? ' active' : ''), onClick: () => setVariant('master') }, 'Main'),
           h('button', { className: 'vt-btn' + (variant === 'brief'  ? ' active' : ''), onClick: () => setVariant('brief')  }, 'Brief')
         )
       ),
