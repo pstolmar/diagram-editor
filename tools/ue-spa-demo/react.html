@@ -267,7 +267,7 @@
   function App() {
     const [content, setContent] = useState(null);
     useEffect(() => {
-      fetch(GRAPHQL, { headers: { Accept: 'application/json' } })
+      fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
         .then(r => r.json())
         .then(d => {
           const item = d?.data?.homeHeroByPath?.item || d;

@@ -1,5 +1,17 @@
 {
   "project": "AEM XWalk Boilerplate",
   "editUrlLabel": "AEM Editor",
-  "editUrlPattern": "{{contentSourceUrl}}{{pathname}}?cmd=open"
+  "editUrlPattern": "{{contentSourceUrl}}{{pathname}}?cmd=open",
+  "plugins": [
+    {
+      "id": "open-in-ue",
+      "title": "Edit in Universal Editor",
+      "environments": ["dev", "preview", "live"],
+      "condition": {
+        "include": ["/tools/ue-spa-demo/"]
+      },
+      "url": "https://experience.adobe.com/#/aem/editor/canvas/{{liveUrl}}",
+      "isPalette": false
+    }
+  ]
 }
