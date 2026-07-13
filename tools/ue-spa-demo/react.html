@@ -29,18 +29,6 @@
     .nav-links a:hover { color: var(--cyan); }
     .nav-links a.active { color: #fff; }
 
-    .variant-toggle {
-      display: flex; gap: 2px;
-      background: rgba(97,218,251,.08); border: 1px solid rgba(97,218,251,.18);
-      border-radius: 20px; padding: 3px;
-    }
-    .vt-btn {
-      padding: 4px 14px; border-radius: 16px; border: none; cursor: pointer;
-      font-family: inherit; font-size: .8125rem; font-weight: 600;
-      background: transparent; color: rgba(255,255,255,.4); transition: all .15s;
-    }
-    .vt-btn.active { background: var(--cyan); color: var(--navy); }
-
     .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 56px); }
 
     .hero-media {
@@ -167,7 +155,31 @@
     }
     .cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(97,218,251,.35); }
 
-    @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } }
+    .feature-section {
+      background: var(--mid); padding: 52px 32px;
+      border-top: 1px solid rgba(97,218,251,.08);
+    }
+    .feature-section-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(97,218,251,.35); text-align: center; margin-bottom: 32px;
+      font-family: 'Courier New', monospace;
+    }
+    .feature-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; max-width: 960px; margin: 0 auto; }
+    .feature-card {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(97,218,251,.12);
+      border-radius: 14px; padding: 24px 22px; cursor: pointer;
+      transition: border-color .2s, background .2s, transform .2s;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .feature-card:hover { border-color: rgba(97,218,251,.32); background: rgba(97,218,251,.06); transform: translateY(-2px); }
+    .feature-card.open { border-color: rgba(97,218,251,.45); background: rgba(97,218,251,.08); }
+    .feature-icon { font-size: 1.75rem; line-height: 1; }
+    .feature-title { font-size: .9375rem; font-weight: 700; color: #fff; }
+    .feature-body { font-size: .8125rem; line-height: 1.65; color: rgba(255,255,255,.5); overflow: hidden; transition: max-height .3s ease; }
+    .feature-chevron { font-size: .7rem; color: rgba(97,218,251,.4); align-self: flex-end; transition: transform .2s; }
+    .feature-card.open .feature-chevron { transform: rotate(180deg); }
+
+    @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } .feature-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -175,21 +187,74 @@
 <script>
   const { useState, useEffect, createElement: h } = React;
   const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
-  const GRAPHQL  = PUBLISH + '/graphql/execute.json/global/hero';
-  const RES_MASTER = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
-  const RES_BRIEF  = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/brief';
-  const FB_MASTER = {
+  const GRAPHQL = PUBLISH + '/graphql/execute.json/global/hero';
+  const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+  const FB = {
     eyebrow: 'React · AEM Demo', title: 'Editable from AEM',
     description: 'This SPA renders Universal Editor annotations so authors can edit fields in context.',
     ctaLabel: 'Get started',
     image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
   };
-  const FB_BRIEF = {
-    eyebrow: 'Brief · AEM Demo', title: 'The Condensed Cut',
-    description: 'A shorter-form variation — authored separately in Universal Editor with its own title, image, and call to action.',
-    ctaLabel: 'Read brief',
-    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80',
-  };
+
+  // Feature cards — each backed by its own CF, independently editable in UE
+  const FEATURES = [
+    {
+      res: 'urn:aem:/content/dam/ue-demo/fragments/feature-headless/jcr:content/data/master',
+      icon: '⚡', model: 'feature',
+      title: 'Headless Delivery',
+      body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.',
+    },
+    {
+      res: 'urn:aem:/content/dam/ue-demo/fragments/feature-personalization/jcr:content/data/master',
+      icon: '🎯', model: 'feature',
+      title: 'Personalization',
+      body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.',
+    },
+    {
+      res: 'urn:aem:/content/dam/ue-demo/fragments/feature-experimentation/jcr:content/data/master',
+      icon: '🧪', model: 'feature',
+      title: 'Experimentation',
+      body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.',
+    },
+  ];
+
+  // Real React component with its own state — click to expand/collapse
+  function FeatureCard({ feat }) {
+    const [open, setOpen] = useState(false);
+    return h('div', {
+        className: 'feature-card' + (open ? ' open' : ''),
+        onClick: () => setOpen(o => !o),
+        'data-aue-resource': feat.res,
+        'data-aue-type': 'component',
+        'data-aue-label': feat.title,
+        'data-aue-model': feat.model,
+      },
+      h('div', { className: 'feature-icon' }, feat.icon),
+      h('div', {
+          className: 'feature-title',
+          'data-aue-resource': feat.res, 'data-aue-prop': 'title',
+          'data-aue-type': 'text', 'data-aue-label': 'Card title',
+        }, feat.title),
+      h('div', {
+          className: 'feature-body',
+          style: { maxHeight: open ? '160px' : '44px' },
+          'data-aue-resource': feat.res, 'data-aue-prop': 'body',
+          'data-aue-type': 'richtext', 'data-aue-label': 'Card body',
+        }, feat.body),
+      h('span', { className: 'feature-chevron' }, '▾')
+    );
+  }
+
+  function FeatureSection() {
+    return h('section', { className: 'feature-section' },
+      h('p', { className: 'feature-section-label' },
+        '⚛ &lt;FeatureCard /&gt; — three React components, each backed by its own AEM Content Fragment'
+      ),
+      h('div', { className: 'feature-grid' },
+        ...FEATURES.map(f => h(FeatureCard, { key: f.res, feat: f }))
+      )
+    );
+  }
 
   function useCount(target) {
     const [n, setN] = useState(0);
@@ -223,10 +288,10 @@
     );
   }
 
-  function Hero({ c, res }) {
+  function Hero({ c }) {
     return h('section', {
         className: 'hero',
-        'data-aue-resource': res, 'data-aue-type': 'component',
+        'data-aue-resource': RES, 'data-aue-type': 'component',
         'data-aue-label': 'Hero CF', 'data-aue-model': 'hero',
       },
       h('div', { className: 'hero-media' },
@@ -234,7 +299,7 @@
           h('img', { className: 'layer-zoom', src: c.image, alt: '' }),
           h('img', {
             className: 'layer-base', src: c.image, alt: '',
-            'data-aue-resource': res, 'data-aue-prop': 'contentReference',
+            'data-aue-resource': RES, 'data-aue-prop': 'contentReference',
             'data-aue-type': 'image', 'data-aue-label': 'Hero Image',
           }),
           h('div', { className: 'stage-hint' }, 'hover →'),
@@ -247,28 +312,24 @@
       h('div', { className: 'hero-content' },
         h('p', {
             className: 'eyebrow',
-            'data-aue-resource': res, 'data-aue-prop': 'eyebrow',
+            'data-aue-resource': RES, 'data-aue-prop': 'eyebrow',
             'data-aue-type': 'text', 'data-aue-label': 'Eyebrow',
-          }, c.eyebrow
-        ),
+          }, c.eyebrow),
         h('h1', {
-            'data-aue-resource': res, 'data-aue-prop': 'title',
+            'data-aue-resource': RES, 'data-aue-prop': 'title',
             'data-aue-type': 'text', 'data-aue-label': 'Title',
-          }, c.title
-        ),
+          }, c.title),
         h(AppMetrics, null),
         h('p', {
             className: 'description',
-            'data-aue-resource': res, 'data-aue-prop': 'description',
+            'data-aue-resource': RES, 'data-aue-prop': 'description',
             'data-aue-type': 'richtext', 'data-aue-label': 'Description',
-          }, c.description
-        ),
+          }, c.description),
         h('a', {
             className: 'cta', href: '#more',
-            'data-aue-resource': res, 'data-aue-prop': 'ctaLabel',
+            'data-aue-resource': RES, 'data-aue-prop': 'ctaLabel',
             'data-aue-type': 'text', 'data-aue-label': 'CTA',
-          }, c.ctaLabel + ' →'
-        )
+          }, c.ctaLabel + ' →')
       )
     );
   }
@@ -283,59 +344,48 @@
   }
 
   function App() {
-    const [variant, setVariant] = useState('master');
     const [content, setContent] = useState(null);
 
-    function fetchContent(v) {
-      const fb     = v === 'brief' ? FB_BRIEF : FB_MASTER;
-      const suffix = v === 'brief' ? ';variation=brief' : '';
-      fetch(GRAPHQL + suffix + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
+    function fetchHero() {
+      fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
         .then(r => r.json())
         .then(d => {
           const item = d?.data?.homeHeroByPath?.item || d;
           const imgUrl = item?.contentReference?._publishUrl
             || (item?.contentReference?._path ? PUBLISH + item.contentReference._path : null)
-            || item?.image || fb.image;
-          setContent({ ...fb, ...item,
+            || item?.image || FB.image;
+          setContent({ ...FB, ...item,
             image: imgUrl,
-            description: item?.description?.plaintext || item?.description?.html || item?.description || fb.description,
+            description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
           });
         })
-        .catch(() => setContent(fb));
+        .catch(() => setContent(FB));
     }
 
     useEffect(() => {
-      fetchContent(variant);
+      fetchHero();
       function onMsg(e) {
         if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
-          setTimeout(() => fetchContent(variant), 600);
+          setTimeout(fetchHero, 600);
         }
       }
       window.addEventListener('message', onMsg);
       return () => window.removeEventListener('message', onMsg);
-    }, [variant]);
+    }, []);
 
     if (!content) return h('p', { style: { padding: '32px', opacity: .4 } }, 'Loading React…');
 
-    const res = variant === 'master' ? RES_MASTER : RES_BRIEF;
-
     return h(React.Fragment, null,
       h('nav', { className: 'app-nav' },
-        h('div', { className: 'nav-brand' },
-          h(AtomIcon, null),
-          'MyApp · React'
-        ),
+        h('div', { className: 'nav-brand' }, h(AtomIcon, null), 'MyApp · React'),
         h('div', { className: 'nav-links' },
           h('a', { href: '#' }, 'Products'),
           h('a', { href: '#' }, 'Docs'),
           h('a', { href: '#', className: 'active' }, 'Demo')
-        ),
-        h('div', { className: 'variant-toggle' },
-          h('button', { className: 'vt-btn' + (variant === 'master' ? ' active' : ''), onClick: () => setVariant('master') }, 'Main'),
-          h('button', { className: 'vt-btn' + (variant === 'brief'  ? ' active' : ''), onClick: () => setVariant('brief')  }, 'Brief')
         )
       ),
-      h(Hero, { c: content, res })
+      h(Hero, { c: content }),
+      h(FeatureSection, null)
     );
   }
 
