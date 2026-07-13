@@ -12,7 +12,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --cyan: #61DAFB; --navy: #20232a; --mid: #282c34; }
-    body { font-family: 'Inter', system-ui, sans-serif; background: var(--navy); color: #fff; min-height: 100vh; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--navy); color: #fff; }
 
     .app-nav {
       position: sticky; top: 0; z-index: 50;
@@ -28,8 +28,15 @@
     .nav-links a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .875rem; font-weight: 500; transition: color .15s; }
     .nav-links a:hover { color: var(--cyan); }
     .nav-links a.active { color: #fff; }
+    .ue-btn {
+      padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(97,218,251,.35);
+      background: rgba(97,218,251,.1); color: var(--cyan);
+      font-family: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .ue-btn:hover { background: rgba(97,218,251,.2); border-color: rgba(97,218,251,.6); }
 
-    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 56px); }
+    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 640px; }
 
     .hero-media {
       background: var(--mid); display: flex; flex-direction: column;
@@ -196,62 +203,31 @@
     image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
   };
 
-  // Feature cards — each backed by its own CF, independently editable in UE
   const FEATURES = [
-    {
-      res: 'urn:aem:/content/dam/ue-demo/fragments/feature-headless/jcr:content/data/master',
-      icon: '⚡', model: 'feature',
-      title: 'Headless Delivery',
-      body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.',
-    },
-    {
-      res: 'urn:aem:/content/dam/ue-demo/fragments/feature-personalization/jcr:content/data/master',
-      icon: '🎯', model: 'feature',
-      title: 'Personalization',
-      body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.',
-    },
-    {
-      res: 'urn:aem:/content/dam/ue-demo/fragments/feature-experimentation/jcr:content/data/master',
-      icon: '🧪', model: 'feature',
-      title: 'Experimentation',
-      body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.',
-    },
+    { id: 'headless',        icon: '⚡', title: 'Headless Delivery',   body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.' },
+    { id: 'personalization', icon: '🎯', title: 'Personalization',     body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.' },
+    { id: 'experimentation', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
   ];
 
-  // Real React component with its own state — click to expand/collapse
+  // Real React component with its own open/close state
   function FeatureCard({ feat }) {
     const [open, setOpen] = useState(false);
     return h('div', {
         className: 'feature-card' + (open ? ' open' : ''),
         onClick: () => setOpen(o => !o),
-        'data-aue-resource': feat.res,
-        'data-aue-type': 'component',
-        'data-aue-label': feat.title,
-        'data-aue-model': feat.model,
       },
       h('div', { className: 'feature-icon' }, feat.icon),
-      h('div', {
-          className: 'feature-title',
-          'data-aue-resource': feat.res, 'data-aue-prop': 'title',
-          'data-aue-type': 'text', 'data-aue-label': 'Card title',
-        }, feat.title),
-      h('div', {
-          className: 'feature-body',
-          style: { maxHeight: open ? '160px' : '44px' },
-          'data-aue-resource': feat.res, 'data-aue-prop': 'body',
-          'data-aue-type': 'richtext', 'data-aue-label': 'Card body',
-        }, feat.body),
+      h('div', { className: 'feature-title' }, feat.title),
+      h('div', { className: 'feature-body', style: { maxHeight: open ? '160px' : '44px' } }, feat.body),
       h('span', { className: 'feature-chevron' }, '▾')
     );
   }
 
   function FeatureSection() {
     return h('section', { className: 'feature-section' },
-      h('p', { className: 'feature-section-label' },
-        '⚛ &lt;FeatureCard /&gt; — three React components, each backed by its own AEM Content Fragment'
-      ),
+      h('p', { className: 'feature-section-label' }, '⚛ <FeatureCard /> — three React components with local state'),
       h('div', { className: 'feature-grid' },
-        ...FEATURES.map(f => h(FeatureCard, { key: f.res, feat: f }))
+        ...FEATURES.map(f => h(FeatureCard, { key: f.id, feat: f }))
       )
     );
   }
@@ -382,7 +358,11 @@
           h('a', { href: '#' }, 'Products'),
           h('a', { href: '#' }, 'Docs'),
           h('a', { href: '#', className: 'active' }, 'Demo')
-        )
+        ),
+        h('button', {
+          className: 'ue-btn',
+          onClick: () => window.open('https://experience.adobe.com/#/aem/editor/canvas/' + window.location.href.replace('https://', ''), '_blank'),
+        }, 'Edit in UE')
       ),
       h(Hero, { c: content }),
       h(FeatureSection, null)
