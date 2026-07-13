@@ -203,13 +203,13 @@
     image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
   };
 
+  // hasUE: only true for CFs that already exist in AEM — prevents UE 404 errors + growth loop
   const FEATURES = [
-    { id: 'feature-headless',        icon: '⚡', title: 'Headless Delivery',   body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.' },
-    { id: 'feature-personalization', icon: '🎯', title: 'Personalization',     body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.' },
-    { id: 'feature-experimentation', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
+    { id: 'feature-headless',        icon: '⚡', hasUE: true,  title: 'Headless Delivery',   body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.' },
+    { id: 'feature-personalization', icon: '🎯', hasUE: false, title: 'Personalization',     body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.' },
+    { id: 'feature-experimentation', icon: '🧪', hasUE: false, title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
   ];
 
-  // Each card fetches its own CF and is independently editable in UE
   function FeatureCard({ feat }) {
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState(feat.title);
@@ -218,6 +218,7 @@
     const res    = 'urn:aem:' + cfPath + '/jcr:content/data/master';
 
     useEffect(() => {
+      if (!feat.hasUE) return;
       function fetchCard() {
         fetch(GRAPHQL + ';path=' + cfPath + '?_v=' + Date.now(),
           { headers: { Accept: 'application/json' } })
@@ -241,24 +242,14 @@
       return () => window.removeEventListener('message', onMsg);
     }, []);
 
-    return h('div', {
-        className: 'feature-card' + (open ? ' open' : ''),
-        onClick: () => setOpen(o => !o),
-        'data-aue-resource': res, 'data-aue-type': 'component',
-        'data-aue-label': title,  'data-aue-model': 'hero',
-      },
+    const ueCard  = feat.hasUE ? { 'data-aue-resource': res, 'data-aue-type': 'component', 'data-aue-label': title, 'data-aue-model': 'hero' } : {};
+    const ueTitle = feat.hasUE ? { 'data-aue-resource': res, 'data-aue-prop': 'title', 'data-aue-type': 'text', 'data-aue-label': 'Title' } : {};
+    const ueBody  = feat.hasUE ? { 'data-aue-resource': res, 'data-aue-prop': 'description', 'data-aue-type': 'richtext', 'data-aue-label': 'Description' } : {};
+
+    return h('div', { className: 'feature-card' + (open ? ' open' : ''), onClick: () => setOpen(o => !o), ...ueCard },
       h('div', { className: 'feature-icon' }, feat.icon),
-      h('div', {
-          className: 'feature-title',
-          'data-aue-resource': res, 'data-aue-prop': 'title',
-          'data-aue-type': 'text', 'data-aue-label': 'Title',
-        }, title),
-      h('div', {
-          className: 'feature-body',
-          style: { maxHeight: open ? '160px' : '44px' },
-          'data-aue-resource': res, 'data-aue-prop': 'description',
-          'data-aue-type': 'richtext', 'data-aue-label': 'Description',
-        }, body),
+      h('div', { className: 'feature-title', ...ueTitle }, title),
+      h('div', { className: 'feature-body', style: { maxHeight: open ? '160px' : '44px' }, ...ueBody }, body),
       h('span', { className: 'feature-chevron' }, '▾')
     );
   }
