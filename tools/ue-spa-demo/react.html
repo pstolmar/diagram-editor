@@ -252,19 +252,13 @@
   }
 
   async function fetchFeatureCf(id) {
-    // AEM Assets HTTP API — returns CF properties without requiring a persisted query
-    const url = PUBLISH + '/api/assets/ue-demo/fragments/' + id + '.json?_v=' + Date.now();
+    const path = '/content/dam/ue-demo/fragments/' + id;
+    const url = PUBLISH + '/graphql/execute.json/global/feature;path=' + path + '?_v=' + Date.now();
     try {
       const r = await fetch(url, { headers: { Accept: 'application/json' } });
       if (!r.ok) return null;
       const d = await r.json();
-      const el = d?.properties?.elements;
-      if (!el) return null;
-      return {
-        eyebrow: el.eyebrow?.value || '',
-        title: el.title?.value || '',
-        description: { plaintext: el.description?.value?.replace(/<[^>]*>/g, '') || '', html: el.description?.value || '' },
-      };
+      return d?.data?.homeHeroByPath?.item || null;
     } catch {
       return null;
     }
