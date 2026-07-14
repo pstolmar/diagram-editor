@@ -272,7 +272,7 @@
       border-top: 1px solid rgba(255,255,255,.07); padding-top: 1rem;
     }
 
-    /* ── CF × DM flip section ───────────────────────────────────────── */
+    /* ── CF × DM section ────────────────────────────────────────────── */
     .cfdm-section {
       padding: 4rem 2rem 5rem; max-width: 1100px; margin: 0 auto;
       border-top: 1px solid rgba(255,255,255,.07);
@@ -285,47 +285,22 @@
     }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 
-    .flip-grid {
+    .cfdm-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
-      margin-bottom: 3rem; perspective: 1400px;
+      margin-bottom: 3rem;
     }
-    .flip-card {
-      height: 360px; cursor: default;
+    .fade-card {
+      border-radius: 12px; overflow: hidden;
+      background: #07080d; box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .7s ease, transform .7s ease;
     }
-    .flip-card-inner {
-      position: relative; width: 100%; height: 100%;
-      transform-style: preserve-3d;
-      transition: transform .85s cubic-bezier(.45,.05,.55,.95);
-    }
-    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
-    .flip-card-front, .flip-card-back {
-      position: absolute; inset: 0; border-radius: 12px;
-      backface-visibility: hidden; overflow: hidden;
-    }
-    .flip-card-front {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.1);
-      padding: 1.75rem; display: flex; flex-direction: column; gap: .75rem;
-    }
-    .flip-card-front .cf-eyebrow {
-      font-size: .7rem; font-weight: 700; letter-spacing: .18em;
-      text-transform: uppercase; color: #61DAFB;
-    }
-    .flip-card-front .cf-label {
-      font-size: .65rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: rgba(255,255,255,.28);
-      margin-top: auto; margin-bottom: .25rem;
-    }
-    .flip-card-front .cf-field {
-      display: flex; flex-direction: column; gap: .25rem;
-    }
-    .flip-card-front .cf-field-key {
-      font-family: 'Courier New', monospace; font-size: .7rem;
-      color: rgba(255,255,255,.3);
-    }
-    .flip-card-front .cf-field-val {
-      font-size: .9375rem; font-weight: 600; color: rgba(255,255,255,.88);
-      line-height: 1.35;
+    .fade-card.visible { opacity: 1; transform: translateY(0); }
+    .fade-card img { width: 100%; display: block; }
+    .fade-card-label {
+      padding: .75rem 1.25rem; font-size: .75rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.5); border-top: 1px solid rgba(255,255,255,.07);
     }
     .cf-loading-shimmer {
       background: linear-gradient(90deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 100%);
@@ -333,23 +308,6 @@
       border-radius: 4px; height: 1em;
     }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .flip-arrow {
-      margin-top: auto; font-size: .8rem; color: rgba(255,255,255,.3);
-      display: flex; align-items: center; gap: .375rem;
-    }
-    .flip-card-back { background: #07080d; }
-    .flip-card-back img {
-      width: 100%; height: 100%; object-fit: cover;
-      transform: rotateY(180deg);
-    }
-    .flip-back-label {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: .875rem 1.25rem;
-      background: linear-gradient(0deg, rgba(0,0,0,.8) 0%, transparent 100%);
-      transform: rotateY(180deg);
-      font-size: .75rem; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; color: rgba(255,255,255,.55);
-    }
 
     /* Same CF, two templates row */
     .two-templates-heading {
@@ -388,7 +346,7 @@
       .ab-cards { flex-direction: column; }
       .sweep-card, .reveal-card { height: 280px; }
       .locale-layout { grid-template-columns: 1fr; }
-      .flip-grid { grid-template-columns: 1fr; }
+      .cfdm-grid { grid-template-columns: 1fr; }
       .two-templates-row { grid-template-columns: 1fr; }
     }
   </style>
@@ -466,9 +424,10 @@ function dmUrl({ percent, image, category, hideBackground, enddate }, width) {
 const INTL_BASE = 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/InternationalOffer';
 function intlUrl(cfItem, width = 900) {
   const enc   = encodeURIComponent;
-  const title = cfItem?.title   || 'Adobe Experience';
-  const brow  = cfItem?.eyebrow || 'feature';
-  return `${INTL_BASE}?$offer=${enc(title)}&$price=${enc(brow)}&$hideprice=0` +
+  const title = cfItem?.title || 'Adobe Experience';
+  /* description goes into $offer — InternationalOffer has relaxed Copyfit (3 lines) */
+  const desc  = cfItem?.description?.plaintext || title;
+  return `${INTL_BASE}?$offer=${enc(desc)}&$price=${enc(title)}&$hideprice=0` +
     `&$hidepurplecircle=1&$hideyellowcircle=0&$hidemiddlecircle=1` +
     `&wid=${width}&qlt=85&fmt=jpeg`;
 }
@@ -708,18 +667,22 @@ function ABSection() {
     ),
 
     h('p', { className: 'ab-row-label', style: { marginTop: '2rem' } },
-      'Row 2 — InternationalOffer · DE vs IT sweep (Copyfit drama) · EN hover reveal price'),
-    h('div', { className: 'ab-cards' },
-      h(SweepCard, {
-        urlA: INTL_DE, urlB: INTL_IT,
-        badge: 'Variant C', color: '#0d9488',
-        hint: '← DE / IT — sweep to see Copyfit handle long text →',
-      }),
+      'Row 2 — InternationalOffer · DE vs IT sweep · EN → IT hover (font-size drama)'),
+    h('div', { className: 'ab-cards', style: { justifyContent: 'center' } },
+      /* Variant C — shrunk so it doesn't dominate; sweep DE ↔ IT Copyfit */
+      h('div', { style: { flex: '0 0 420px', maxWidth: '420px' } },
+        h(SweepCard, {
+          urlA: INTL_DE, urlB: INTL_IT,
+          badge: 'Variant C', color: '#0d9488',
+          hint: '← DE / IT — watch Copyfit handle the Lira price →',
+        }),
+      ),
+      /* Variant D — English default, hover shows Italian (dramatic Copyfit shrink) */
       h(HoverRevealCard, {
-        urlClean: INTL_EN_CLEAN, urlOffer: INTL_EN_FULL,
+        urlClean: INTL_EN_FULL, urlOffer: INTL_IT,
         badge: 'Variant D',
         topLabel: 'Adventure Travel Deals',
-        bottomLabel: 'Price: As low as $800',
+        bottomLabel: '',
       }),
     ),
   );
@@ -784,109 +747,82 @@ function LocaleSection() {
   );
 }
 
-/* ── CF × DM flip cards ─────────────────────────────────────────── */
+/* ── CF × DM fade cards ─────────────────────────────────────────── */
 const CF_IDS = ['feature-headless', 'feature-personalization', 'feature-experimentation'];
 
-function FlipCard({ cfItem, templateLabel, bgUrl, delay }) {
+function FadeCard({ cfItem, templateLabel, bgUrl, delay }) {
   const cardRef = useRef(null);
-  const [flipped, setFlipped] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setTimeout(() => setFlipped(true), delay || 0); obs.disconnect(); }
-    }, { threshold: 0.35 });
+      if (entry.isIntersecting) { setTimeout(() => setVisible(true), delay || 0); obs.disconnect(); }
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
     obs.observe(el);
     return () => obs.disconnect();
   }, [delay]);
 
   const loading = !cfItem;
-  const title   = cfItem?.title || '';
-  const eyebrow = cfItem?.eyebrow || '';
-  const desc    = cfItem?.description?.plaintext || '';
 
-  return h('div', { ref: cardRef, className: 'flip-card' + (flipped ? ' flipped' : '') },
-    h('div', { className: 'flip-card-inner' },
-      /* Front — CF editorial view */
-      h('div', { className: 'flip-card-front' },
-        loading
-          ? h('div', { className: 'cf-loading-shimmer', style: { width: '60%' } })
-          : h('p', { className: 'cf-eyebrow' }, eyebrow),
-        h('div', { className: 'cf-field' },
-          h('span', { className: 'cf-field-key' }, 'title'),
-          loading
-            ? h('div', { className: 'cf-loading-shimmer', style: { width: '80%' } })
-            : h('span', { className: 'cf-field-val' }, title),
-        ),
-        h('div', { className: 'cf-field' },
-          h('span', { className: 'cf-field-key' }, 'description'),
-          loading
-            ? h('div', null,
-                h('div', { className: 'cf-loading-shimmer', style: { width: '100%', marginBottom: '.35rem' } }),
-                h('div', { className: 'cf-loading-shimmer', style: { width: '75%' } }),
-              )
-            : h('span', { className: 'cf-field-val', style: { fontSize: '.82rem', opacity: .75 } }, desc.slice(0, 90) + (desc.length > 90 ? '…' : '')),
-        ),
-        h('p', { className: 'cf-label' }, 'Content Fragment → Dynamic Media'),
-        h('p', { className: 'flip-arrow' }, '↩ flip to see DM render'),
-      ),
-      /* Back — DM template image */
-      h('div', { className: 'flip-card-back' },
-        bgUrl
-          ? h('img', { src: bgUrl, alt: title, loading: 'lazy' })
-          : h('div', { className: 'cf-loading-shimmer', style: { width: '100%', height: '100%' } }),
-        h('div', { className: 'flip-back-label' }, templateLabel),
-      ),
-    ),
+  return h('div', { ref: cardRef, className: 'fade-card' + (visible ? ' visible' : '') },
+    loading
+      ? h('div', { className: 'cf-loading-shimmer', style: { height: '260px' } })
+      : h('img', { src: bgUrl, alt: cfItem.title, loading: 'lazy' }),
+    h('div', { className: 'fade-card-label' }, templateLabel),
   );
 }
 
 function CFDMSection() {
-  const [cfs, setCfs]   = useState({});
-  const [err, setErr]   = useState(null);
+  const [cfs, setCfs] = useState({});
+  const [err, setErr] = useState(null);
 
   useEffect(() => {
     fetchCFs().then(setCfs).catch(e => setErr(e.message));
   }, []);
 
-  const headless = cfs['feature-headless'];
+  /* feature-experimentation title/desc maps well to both offer contexts */
+  const cf2 = cfs['feature-experimentation'];
 
   return h('section', { className: 'cfdm-section' },
     h('h2', { className: 'ab-heading' }, 'Content Fragments × Dynamic Media'),
     h('p', { className: 'ab-sub' },
-      'CF title flows directly into $offer / $category params at request time — ' +
-      'no image editing. Scroll down to flip each card and see how CF text becomes a DM-rendered offer. ' +
-      err ? `(CF fetch error: ${err} — check CORS/publish)` : 'Live from AEM publish.',
+      'CF description and title flow directly into DM template params at request time — no image editing. ' +
+      'Cards fade in on scroll. ' + (err ? `(CF fetch error: ${err})` : 'Live from AEM publish.'),
     ),
 
-    /* Three flip cards — one per CF, on InternationalOffer */
-    h('div', { className: 'flip-grid' },
-      CF_IDS.map((id, i) => h(FlipCard, {
+    /* Three fade cards — one per CF, description → $offer on InternationalOffer */
+    h('div', { className: 'cfdm-grid' },
+      CF_IDS.map((id, i) => h(FadeCard, {
         key: id,
         cfItem: cfs[id],
-        templateLabel: 'InternationalOffer',
+        templateLabel: `InternationalOffer · ${id.replace('feature-', '')} CF`,
         bgUrl: intlUrl(cfs[id]),
-        delay: i * 180,
+        delay: i * 160,
       })),
     ),
 
-    /* Same CF text on two different templates */
+    /* Same CF, two different templates side-by-side */
     h('p', { className: 'two-templates-heading' },
       'Same content fragment — two different Dynamic Media templates:',
     ),
     h('div', { className: 'two-templates-row' },
       h('div', { className: 'template-card' },
-        headless
-          ? h('img', { src: dmUrl({ ...COUCH_OFFER, category: headless.title, hideBackground: 0 }, 900), alt: 'DiscountOffer + CF', loading: 'lazy' })
+        cf2
+          ? h('img', {
+              src: dmUrl({ ...COUCH_OFFER, category: cf2.title, hideBackground: 0 }, 900),
+              alt: 'DiscountOffer + CF', loading: 'lazy',
+            })
           : h('div', { className: 'cf-loading-shimmer', style: { height: '240px' } }),
-        h('div', { className: 'template-card-label' }, 'DiscountOffer — CF title as $category'),
+        h('div', { className: 'template-card-label' }, 'DiscountOffer — CF title → $category'),
       ),
       h('div', { className: 'template-card' },
-        headless
-          ? h('img', { src: intlUrl(headless, 900), alt: 'InternationalOffer + CF', loading: 'lazy' })
+        cf2
+          ? h('img', { src: intlUrl(cf2, 900), alt: 'InternationalOffer + CF', loading: 'lazy' })
           : h('div', { className: 'cf-loading-shimmer', style: { height: '240px' } }),
-        h('div', { className: 'template-card-label' }, 'InternationalOffer — CF title as $offer'),
+        h('div', { className: 'template-card-label' },
+          'InternationalOffer — CF description → $offer (3-line Copyfit) · title → $price'),
       ),
     ),
   );
