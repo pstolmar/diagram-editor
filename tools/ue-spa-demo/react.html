@@ -210,24 +210,33 @@
     { id: 'feature-experimentation', eyebrow: 'feature', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
   ];
 
+  const IN_UE = window.self !== window.top;
+
   function FeatureCard({ feat, cf }) {
     const [open, setOpen] = useState(false);
     const res = 'urn:aem:/content/dam/ue-demo/fragments/' + feat.id + '/jcr:content/data/master';
     const eyebrow = cf?.eyebrow || feat.eyebrow;
     const title = cf?.title || feat.title;
     const body = cf?.description?.plaintext || cf?.description?.html || cf?.description || feat.body;
-    // No data-aue-type="component" on the card — onClick+max-height toggle conflicts with UE's overlay and causes the growth loop.
-    return h('div', {
-        className: 'feature-card' + (open ? ' open' : ''),
-        onClick: () => setOpen(o => !o),
-      },
+    // In UE: render as a static component (no toggle, full height) so all fields are clickable.
+    // On live page: accordion behaviour with no component annotation (avoids the growth loop).
+    const cardProps = IN_UE ? {
+      className: 'feature-card open',
+      'data-aue-resource': res,
+      'data-aue-type': 'component',
+      'data-aue-label': feat.title,
+      'data-aue-model': 'hero',
+    } : {
+      className: 'feature-card' + (open ? ' open' : ''),
+      onClick: () => setOpen(o => !o),
+    };
+    return h('div', cardProps,
       h('p', {
         className: 'feature-eyebrow',
         'data-aue-resource': res,
         'data-aue-prop': 'eyebrow',
         'data-aue-type': 'text',
         'data-aue-label': 'Eyebrow',
-        'data-aue-model': 'hero',
       }, eyebrow),
       h('div', { className: 'feature-icon' }, feat.icon),
       h('div', {
@@ -236,18 +245,16 @@
         'data-aue-prop': 'title',
         'data-aue-type': 'text',
         'data-aue-label': 'Title',
-        'data-aue-model': 'hero',
       }, title),
       h('div', {
         className: 'feature-body',
-        style: { maxHeight: open ? '160px' : '44px' },
+        style: { maxHeight: IN_UE ? 'none' : (open ? '160px' : '44px') },
         'data-aue-resource': res,
         'data-aue-prop': 'description',
         'data-aue-type': 'text',
         'data-aue-label': 'Description',
-        'data-aue-model': 'hero',
       }, body),
-      h('span', { className: 'feature-chevron' }, '▾')
+      !IN_UE && h('span', { className: 'feature-chevron' }, '▾')
     );
   }
 
