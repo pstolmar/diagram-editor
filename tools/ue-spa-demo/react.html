@@ -252,26 +252,22 @@
   }
 
   async function fetchFeatureCf(id) {
-    const path = '/content/dam/ue-demo/fragments/' + id;
-    const query = `{ homeHeroByPath(path:"${path}") { item { eyebrow title description { plaintext html } } } }`;
-    const endpoints = [
-      PUBLISH + '/content/_cq_graphql/global/endpoint.json',
-      PUBLISH + '/graphql/endpoint.json',
-    ];
-    for (const url of endpoints) {
-      try {
-        const r = await fetch(url + '?_v=' + Date.now(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ query }),
-        });
-        if (!r.ok) continue;
-        const d = await r.json();
-        const item = d?.data?.homeHeroByPath?.item;
-        if (item) return item;
-      } catch { /* try next */ }
+    // AEM Assets HTTP API — returns CF properties without requiring a persisted query
+    const url = PUBLISH + '/api/assets/ue-demo/fragments/' + id + '.json?_v=' + Date.now();
+    try {
+      const r = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!r.ok) return null;
+      const d = await r.json();
+      const el = d?.properties?.elements;
+      if (!el) return null;
+      return {
+        eyebrow: el.eyebrow?.value || '',
+        title: el.title?.value || '',
+        description: { plaintext: el.description?.value?.replace(/<[^>]*>/g, '') || '', html: el.description?.value || '' },
+      };
+    } catch {
+      return null;
     }
-    return null;
   }
 
   function FeatureSection() {
