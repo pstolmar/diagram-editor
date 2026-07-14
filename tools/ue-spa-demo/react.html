@@ -180,6 +180,7 @@
     }
     .feature-card:hover { border-color: rgba(97,218,251,.32); background: rgba(97,218,251,.06); transform: translateY(-2px); }
     .feature-card.open { border-color: rgba(97,218,251,.45); background: rgba(97,218,251,.08); }
+    .feature-eyebrow { font-size: .625rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(97,218,251,.45); font-family: 'Courier New', monospace; }
     .feature-icon { font-size: 1.75rem; line-height: 1; }
     .feature-title { font-size: .9375rem; font-weight: 700; color: #fff; }
     .feature-body { font-size: .8125rem; line-height: 1.65; color: rgba(255,255,255,.5); overflow: hidden; transition: max-height .3s ease; }
@@ -204,38 +205,70 @@
   };
 
   const FEATURES = [
-    { id: 'feature-headless',        icon: '⚡', title: 'Headless Delivery',   body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.' },
-    { id: 'feature-personalization', icon: '🎯', title: 'Personalization',     body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.' },
-    { id: 'feature-experimentation', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
+    { id: 'feature-headless',        eyebrow: 'feature', icon: '⚡', title: 'Headless Delivery',   body: 'Content served via GraphQL persisted queries. This page fetches its hero from AEM at load time — no build step needed.' },
+    { id: 'feature-personalization', eyebrow: 'feature', icon: '🎯', title: 'Personalization',     body: 'Target audiences with Adobe Target. Segment content by context, behaviour, and profile without a redeploy.' },
+    { id: 'feature-experimentation', eyebrow: 'feature', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
   ];
 
-  function FeatureCard({ feat }) {
+  function FeatureCard({ feat, cf }) {
     const [open, setOpen] = useState(false);
     const res = 'urn:aem:/content/dam/ue-demo/fragments/' + feat.id + '/jcr:content/data/master';
+    const eyebrow = cf?.eyebrow || feat.eyebrow;
+    const title = cf?.title || feat.title;
+    const body = cf?.description?.plaintext || cf?.description?.html || cf?.description || feat.body;
     // No data-aue-type="component" on the card — onClick+max-height toggle conflicts with UE's overlay and causes the growth loop.
     return h('div', {
         className: 'feature-card' + (open ? ' open' : ''),
         onClick: () => setOpen(o => !o),
       },
+      h('p', {
+        className: 'feature-eyebrow',
+        'data-aue-resource': res,
+        'data-aue-prop': 'eyebrow',
+        'data-aue-type': 'text',
+        'data-aue-label': 'Eyebrow',
+        'data-aue-model': 'hero',
+      }, eyebrow),
       h('div', { className: 'feature-icon' }, feat.icon),
       h('div', {
         className: 'feature-title',
         'data-aue-resource': res,
         'data-aue-prop': 'title',
         'data-aue-type': 'text',
-        'data-aue-label': feat.title,
+        'data-aue-label': 'Title',
         'data-aue-model': 'hero',
-      }, feat.title),
-      h('div', { className: 'feature-body', style: { maxHeight: open ? '160px' : '44px' } }, feat.body),
+      }, title),
+      h('div', {
+        className: 'feature-body',
+        style: { maxHeight: open ? '160px' : '44px' },
+        'data-aue-resource': res,
+        'data-aue-prop': 'description',
+        'data-aue-type': 'text',
+        'data-aue-label': 'Description',
+        'data-aue-model': 'hero',
+      }, body),
       h('span', { className: 'feature-chevron' }, '▾')
     );
   }
 
   function FeatureSection() {
+    const [cfs, setCfs] = useState({});
+    useEffect(() => {
+      FEATURES.forEach(({ id }) => {
+        const path = '/content/dam/ue-demo/fragments/' + id;
+        fetch(GRAPHQL + ';path=' + path + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
+          .then(r => r.json())
+          .then(d => {
+            const item = d?.data?.homeHeroByPath?.item;
+            if (item) setCfs(prev => ({ ...prev, [id]: item }));
+          })
+          .catch(() => {});
+      });
+    }, []);
     return h('section', { className: 'feature-section' },
       h('p', { className: 'feature-section-label' }, '⚛ <FeatureCard /> — three React components with local state'),
       h('div', { className: 'feature-grid' },
-        ...FEATURES.map(f => h(FeatureCard, { key: f.id, feat: f }))
+        ...FEATURES.map(f => h(FeatureCard, { key: f.id, feat: f, cf: cfs[f.id] }))
       )
     );
   }
