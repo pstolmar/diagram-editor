@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <!--
+    CF Authoring Story:
+    All content below is sourced from AEM Content Fragments (simulated inline as JS constants).
+    In production: blocks fetch via /graphql/execute.json/club/{query}
+    No Dynamic Media required — all visuals are pure HTML + CSS from CF text fields.
+    Live-copy regionalization: cf-path per locale, override select fields (headline, price, cta).
+  -->
+  <title>Club Offers Demo — AEM/EDS CF Authoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:      #003087;
+      --blue:      #1565C0;
+      --blue-btn:  #0033A0;
+      --gold:      #F5B700;
+      --light-bg:  #EEF2FF;
+      --card-bg:   #F0F4FF;
+      --border:    #CBD5E1;
+      --text:      #1a1a2e;
+      --muted:     #64748B;
+      --red-badge: #C0392B;
+      --pur-badge: #6B21A8;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); background: #fff; line-height: 1.5; }
+
+    /* ── Navbar ─────────────────────────────────────────────────────── */
+    .club-nav { display:flex; align-items:center; justify-content:space-between; padding: 0 2rem; height:56px; background:var(--navy); color:#fff; }
+    .club-nav-brand { font-size:1.125rem; font-weight:800; letter-spacing:.04em; }
+    .club-nav-links { display:flex; gap:1.75rem; }
+    .club-nav-links a { color:rgba(255,255,255,.82); text-decoration:none; font-size:.875rem; font-weight:500; transition:color .15s; }
+    .club-nav-links a:hover { color:#fff; }
+    .club-nav-cta { background:#fff; color:var(--navy); padding:.45rem 1.25rem; border-radius:4px; font-weight:700; font-size:.875rem; text-decoration:none; }
+
+    /* ── Section wrapper utility ─────────────────────────────────────── */
+    .section-wrap { max-width:1160px; margin:0 auto; padding:0 1.5rem; }
+    .section-label {
+      display:inline-flex; align-items:center; gap:.5rem; padding:.3rem .75rem; border-radius:4px;
+      font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+      background: rgba(0,48,135,.08); color:var(--navy); margin-bottom:1rem;
+    }
+    .section-label::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--blue); }
+
+    /* ── Hero ────────────────────────────────────────────────────────── */
+    /* CF: /content/dam/club/offers/hero-july4 */
+    .club-hero {
+      background: linear-gradient(108deg, #e8dfd0 0%, #d4c8b5 40%, #c2b09a 75%, #b09880 100%);
+      padding: 4.5rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .club-hero::before {
+      content:''; position:absolute; inset:0;
+      background: radial-gradient(ellipse 70% 100% at 30% 50%, rgba(255,255,255,.55) 0%, transparent 70%);
+    }
+    .hero-inner { max-width:1160px; margin:0 auto; display:grid; grid-template-columns:1fr 420px; gap:3rem; align-items:center; position:relative; }
+    .hero-eyebrow { font-size:.7rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--blue); margin-bottom:.875rem; }
+    .hero-h1 { font-size:clamp(2rem,3.5vw,3rem); font-weight:900; color:var(--navy); line-height:1.12; margin-bottom:1rem; }
+    .hero-body { font-size:1rem; color:#444; line-height:1.65; max-width:420px; margin-bottom:1.5rem; }
+    .hero-offer-hl { font-size:clamp(1.75rem,3vw,2.625rem); font-weight:900; color:var(--navy); line-height:1.1; margin-bottom:.375rem; }
+    .hero-offer-sub { font-size:1.25rem; font-weight:700; color:var(--navy); margin-bottom:1.75rem; }
+    .hero-cta { display:inline-block; background:var(--blue-btn); color:#fff; padding:.875rem 2rem; border-radius:5px; font-weight:700; font-size:1rem; text-decoration:none; transition:background .15s; margin-bottom:1.25rem; }
+    .hero-cta:hover { background:#002080; }
+    .hero-checks { display:flex; gap:1.5rem; flex-wrap:wrap; font-size:.875rem; color:#444; }
+    .hero-checks span::before { content:'✓ '; color:var(--blue); font-weight:700; }
+
+    /* Offer card (right side of hero) */
+    /* CF fields: badge, circleBadge, headline, subline, qualifier, starBox, features[], ctaLabel, finePrint */
+    .offer-card {
+      background:#fff; border-radius:12px; padding:2rem 1.75rem 1.5rem;
+      box-shadow:0 12px 48px rgba(0,0,0,.18); position:relative; overflow:visible;
+    }
+    .offer-prime-badge {
+      display:inline-block; background:var(--gold); color:var(--navy);
+      font-size:.75rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+      padding:.35rem 1rem; border-radius:3px; margin-bottom:1rem;
+    }
+    .offer-circle-badge {
+      position:absolute; top:-18px; right:-18px;
+      width:84px; height:84px; border-radius:50%;
+      background:var(--navy); color:#fff; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; text-align:center;
+      font-size:.7rem; font-weight:700; line-height:1.2;
+      box-shadow:0 4px 14px rgba(0,0,0,.25);
+    }
+    .offer-circle-badge .circle-amt { font-size:1.25rem; font-weight:900; }
+    .offer-eyebrow { font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:.5rem; }
+    .offer-headline { font-size:1.5rem; font-weight:900; color:var(--navy); line-height:1.15; margin-bottom:.75rem; }
+    .offer-gift-line { font-size:1.0625rem; font-weight:600; color:var(--navy); margin-bottom:.25rem; }
+    .offer-gift-line mark { background:var(--gold); color:var(--navy); padding:.05em .3em; border-radius:3px; font-weight:800; }
+    .offer-qualifier { font-size:.825rem; color:var(--muted); margin-bottom:1rem; }
+    .offer-star-box {
+      border:2px dashed var(--blue); border-radius:6px; background:var(--light-bg);
+      padding:.75rem 1rem; margin-bottom:1rem; font-size:.875rem; color:var(--navy); font-weight:500;
+      display:flex; gap:.5rem; align-items:flex-start;
+    }
+    .offer-star-box::before { content:'★'; color:var(--gold); flex-shrink:0; font-size:1rem; }
+    .offer-features { list-style:none; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:.5rem; }
+    .offer-features li { font-size:.9rem; display:flex; align-items:center; gap:.5rem; }
+    .offer-features li::before { content:''; width:20px; height:20px; border-radius:50%; background:var(--blue); flex-shrink:0; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'/%3E%3C/svg%3E"); background-size:12px; background-repeat:no-repeat; background-position:center; }
+    .offer-cta { display:block; width:100%; text-align:center; background:var(--navy); color:#fff; padding:.9rem 1.5rem; border-radius:6px; font-weight:700; font-size:1rem; text-decoration:none; margin-bottom:.75rem; transition:background .15s; }
+    .offer-cta:hover { background:#001a4d; }
+    .offer-fine { font-size:.78rem; color:var(--muted); text-align:center; }
+
+    /* ── Offer Tiles ─────────────────────────────────────────────────── */
+    /* CF list: /graphql/execute.json/club/current-offers */
+    .offer-tiles { background:#F4F6FA; padding:4rem 1.5rem; }
+    .offer-tiles-heading { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:.375rem; }
+    .offer-tiles-sub { font-size:.9rem; color:var(--muted); margin-bottom:2.5rem; max-width:680px; }
+    .tiles-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.45fr) 260px; gap:1.25rem; align-items:start; }
+
+    /* Compact variant */
+    .tile-card { border-radius:8px; overflow:hidden; background:var(--card-bg); border:1.5px solid var(--border); }
+    .tile-card + .tile-card { margin-top:1.25rem; }
+    .tile-card-body { padding:1.25rem 1.25rem 1.5rem; }
+    .tile-category { font-size:.875rem; font-weight:700; color:var(--text); margin-bottom:.375rem; }
+    .tile-headline { font-size:1.125rem; font-weight:900; color:var(--blue); line-height:1.25; margin-bottom:.625rem; }
+    .tile-body { font-size:.85rem; color:var(--muted); line-height:1.55; margin-bottom:1.125rem; }
+    .tile-cta { display:inline-block; background:var(--blue-btn); color:#fff; padding:.55rem 1.25rem; border-radius:5px; font-size:.875rem; font-weight:700; text-decoration:none; transition:background .15s; }
+    .tile-cta:hover { background:#001a60; }
+
+    /* Featured / large variant — same CF, different block class */
+    .tile-card--featured { background:var(--card-bg); border:1.5px solid var(--border); border-radius:8px; }
+    .tile-card--featured .tile-card-body { padding:2rem 2rem 2.5rem; }
+    .tile-card--featured .tile-category { font-size:.9375rem; margin-bottom:.5rem; }
+    .tile-card--featured .tile-headline { font-size:1.875rem; font-weight:900; margin-bottom:.875rem; }
+    .tile-card--featured .tile-body { font-size:.9375rem; margin-bottom:0; }
+    .tile-card--featured + .tile-card--featured { margin-top:1.25rem; }
+
+    /* Sidebar variant */
+    .tile-card--sidebar { border-radius:8px; background:#fff; border:1.5px solid var(--border); padding:1.5rem 1.25rem; }
+    .tile-sidebar-hl { font-size:1.125rem; font-weight:800; color:var(--text); line-height:1.3; margin-bottom:.625rem; }
+    .tile-sidebar-body { font-size:.825rem; color:var(--muted); line-height:1.55; margin-bottom:1.125rem; }
+    .tile-inner-box { border:1.5px solid var(--border); border-radius:6px; padding:1rem; margin-bottom:1.25rem; }
+    .tile-inner-label { font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.375rem; }
+    .tile-inner-pct { font-size:2.25rem; font-weight:900; color:var(--blue); line-height:1; margin-bottom:.375rem; }
+    .tile-inner-body { font-size:.78rem; color:var(--muted); line-height:1.5; }
+    .tile-pill-cta { display:inline-flex; align-items:center; gap:.35rem; background:var(--blue-btn); color:#fff; padding:.45rem 1rem; border-radius:20px; font-size:.825rem; font-weight:700; text-decoration:none; transition:background .15s; }
+    .tile-pill-cta:hover { background:#001a60; }
+
+    /* ── Pricing ─────────────────────────────────────────────────────── */
+    /* CF: /content/dam/club/pricing/membership-tiers */
+    .pricing-section { padding:4rem 1.5rem; }
+    .pricing-heading { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:.375rem; }
+    .pricing-sub { font-size:.9rem; color:var(--muted); margin-bottom:3rem; max-width:680px; }
+    .pricing-row-label { font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:.875rem; border-bottom:1px solid var(--border); padding-bottom:.5rem; }
+    .pricing-row { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:3rem; }
+
+    /* Style A: minimal */
+    .price-card { border-radius:10px; background:#fff; border:1px solid var(--border); padding:1.75rem 1.5rem; position:relative; }
+    .price-badge { position:absolute; top:-.75rem; left:1rem; font-size:.72rem; font-weight:800; letter-spacing:.06em; padding:.28rem .75rem; border-radius:3px; color:#fff; }
+    .price-badge--best    { background:var(--red-badge); }
+    .price-badge--excl    { background:var(--pur-badge); }
+    .price-name { font-size:.9375rem; color:var(--muted); margin-bottom:.625rem; }
+    .price-amount { font-size:2.75rem; font-weight:900; color:var(--text); line-height:1; }
+    .price-amount sup { font-size:1.25rem; font-weight:900; vertical-align:top; margin-top:.4rem; display:inline-block; }
+    .price-period { font-size:.875rem; font-weight:700; color:var(--text); margin-bottom:.875rem; }
+    .price-original { font-size:.825rem; color:var(--muted); text-decoration:line-through; margin-bottom:.25rem; }
+    .price-card-cta { display:block; text-align:center; background:var(--blue); color:#fff; padding:.6rem 1rem; border-radius:20px; font-size:.825rem; font-weight:700; text-decoration:none; margin-bottom:.875rem; transition:background .15s; }
+    .price-card-cta:hover { background:#0d47a1; }
+    .price-feature { font-size:.8rem; color:var(--muted); }
+
+    /* Style B: tier-badge header bands */
+    .price-card--tier { padding:0; overflow:hidden; border-radius:10px; background:#fff; border:1px solid var(--border); }
+    .price-tier-header { padding:.875rem 1.25rem; display:flex; align-items:center; gap:.5rem; font-size:.8125rem; font-weight:700; }
+    .price-tier-icon { font-size:1rem; }
+    .price-tier-body { padding:1.25rem 1.5rem 1.75rem; }
+    .price-tier-header--essential { background:#EEF2FF; color:var(--blue); }
+    .price-tier-header--best      { background:#FFF0F0; color:var(--red-badge); }
+    .price-tier-header--excl      { background:#F5F0FF; color:var(--pur-badge); }
+
+    /* Style C: sale pricing */
+    .pricing-row-split { display:grid; grid-template-columns:2fr 1fr; gap:1.5rem; margin-bottom:3rem; align-items:start; }
+    .pricing-row-sale { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .price-card--sale { background:var(--card-bg); }
+    .price-monthly { font-size:.8rem; color:var(--muted); }
+    .pricing-compact { display:grid; grid-template-columns:repeat(3,1fr); gap:.625rem; background:var(--light-bg); border:1px solid var(--border); border-radius:10px; padding:1.25rem; }
+    .pricing-compact-tier { text-align:center; }
+    .pricing-compact-label { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.375rem; }
+    .pricing-compact-name  { font-size:.825rem; font-weight:700; color:var(--navy); margin-bottom:.5rem; }
+    .pricing-compact-price { font-size:1.625rem; font-weight:900; color:var(--text); line-height:1; }
+    .pricing-compact-price sup { font-size:.875rem; font-weight:700; }
+    .pricing-compact-orig  { font-size:.7rem; color:var(--muted); text-decoration:line-through; }
+    + .pricing-compact-tier { border-left:1px solid var(--border); }
+
+    /* ── City Map ────────────────────────────────────────────────────── */
+    /* CF list: /graphql/execute.json/club/branch-cities  */
+    .city-map-section { padding:4rem 1.5rem 5rem; background:#F4F6FA; border-top:1px solid var(--border); }
+    .city-map-heading { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:.375rem; }
+    .city-map-sub { font-size:.9rem; color:var(--muted); margin-bottom:2rem; max-width:680px; }
+    .city-layout { display:grid; grid-template-columns:1fr 360px; gap:1.25rem; align-items:start; }
+    #club-map { height:560px; border-radius:10px; overflow:hidden; border:1px solid var(--border); box-shadow:0 4px 24px rgba(0,0,0,.08); }
+    .city-panel { background:#fff; border:1px solid var(--border); border-radius:10px; height:560px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.08); }
+    .city-panel-head { padding:1rem 1.125rem; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .city-panel-title { font-size:.875rem; font-weight:700; color:var(--navy); margin-bottom:.25rem; }
+    .city-panel-hint  { font-size:.75rem; color:var(--muted); }
+    .distance-box { background:var(--light-bg); border:1px solid rgba(21,101,192,.2); border-radius:6px; padding:.625rem .875rem; margin:.75rem 1.125rem; font-size:.82rem; min-height:52px; display:flex; align-items:center; }
+    .distance-box.active { border-color:var(--blue); background:#E3EDFF; }
+    .distance-text { color:var(--navy); font-weight:600; }
+    .distance-hint { color:var(--muted); }
+    .city-list { flex:1; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+    .city-item { display:flex; align-items:center; gap:.625rem; padding:.625rem 1.125rem; cursor:pointer; border-bottom:1px solid rgba(0,0,0,.05); transition:background .12s; user-select:none; }
+    .city-item:hover { background:var(--light-bg); }
+    .city-item.sel-a { background:#DBEAFE; }
+    .city-item.sel-b { background:#D1FAE5; }
+    .city-rank { font-size:.7rem; font-weight:700; color:var(--muted); width:18px; flex-shrink:0; }
+    .city-dot  { width:10px; height:10px; border-radius:50%; background:var(--navy); flex-shrink:0; transition:background .15s; }
+    .city-item.sel-a .city-dot { background:#1D4ED8; }
+    .city-item.sel-b .city-dot { background:#059669; }
+    .city-info { flex:1; min-width:0; }
+    .city-name-row { font-size:.875rem; font-weight:600; color:var(--text); }
+    .city-pop  { font-size:.72rem; color:var(--muted); }
+    .city-badge { font-size:.68rem; font-weight:700; padding:.18rem .5rem; border-radius:10px; flex-shrink:0; }
+    .city-badge-a { background:#BFDBFE; color:#1D4ED8; }
+    .city-badge-b { background:#A7F3D0; color:#059669; }
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    .club-footer { background:var(--navy); color:rgba(255,255,255,.55); text-align:center; padding:1.25rem 2rem; font-size:.8125rem; letter-spacing:.03em; }
+
+    @media (max-width:860px) {
+      .hero-inner { grid-template-columns:1fr; }
+      .tiles-grid  { grid-template-columns:1fr; }
+      .pricing-row, .pricing-row-sale { grid-template-columns:1fr; }
+      .pricing-row-split { grid-template-columns:1fr; }
+      .city-layout { grid-template-columns:1fr; }
+      #club-map    { height:360px; }
+      .city-panel  { height:320px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ───────────────────────────────────────────────────────── -->
+<nav class="club-nav">
+  <span class="club-nav-brand">◈ AAA Club</span>
+  <div class="club-nav-links">
+    <a href="#">Membership</a>
+    <a href="#">Travel</a>
+    <a href="#">Insurance</a>
+    <a href="#">Financial</a>
+  </div>
+  <a href="#" class="club-nav-cta">Join today</a>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────── -->
+<!--
+  EDS block: offer-hero
+  CF fields mapped below with data-cf comments
+  Authorable via UE: all text fields; live-copy overrides headline + cta per region
+-->
+<section class="club-hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <!-- data-cf="hero.eyebrow" -->
+      <p class="hero-eyebrow">Trusted by over 60 million members</p>
+      <!-- data-cf="hero.headline" -->
+      <h1 class="hero-h1">Become a AAA member and save from day one</h1>
+      <!-- data-cf="hero.body" -->
+      <p class="hero-body">Become a member today and unlock 24/7 roadside assistance, exclusive everyday discounts, and identity protection — all backed by the peace of mind that comes with AAA. Join online with Auto Pay and get</p>
+      <!-- data-cf="hero.offerHeadline" -->
+      <p class="hero-offer-hl">Buy one Membership get one free</p>
+      <!-- data-cf="hero.offerSubline" -->
+      <p class="hero-offer-sub">+get a $25 gift card</p>
+      <!-- data-cf="hero.ctaLabel" -->
+      <a href="#" class="hero-cta">Join now — get $25 gift card</a>
+      <!-- data-cf="hero.checkmarks[]" -->
+      <div class="hero-checks">
+        <span>Join in minutes</span>
+        <span>Immediate savings</span>
+        <span>24/7/365 roadside</span>
+      </div>
+    </div>
+
+    <!-- Offer card — CF: /content/dam/club/offers/hero-july4-card -->
+    <div class="offer-card">
+      <!-- data-cf="card.circleBadge" -->
+      <div class="offer-circle-badge">
+        <span>Free</span>
+        <span class="circle-amt">$25</span>
+        <span>gift card</span>
+      </div>
+      <!-- data-cf="card.badge" -->
+      <div class="offer-prime-badge">Prime savings!</div>
+      <!-- data-cf="card.eyebrow" -->
+      <p class="offer-eyebrow">Join today and save</p>
+      <!-- data-cf="card.headline" -->
+      <h2 class="offer-headline">Buy 1 membership get one free</h2>
+      <!-- data-cf="card.giftLine" -->
+      <p class="offer-gift-line">Plus get a <mark>$25</mark> gift card</p>
+      <!-- data-cf="card.qualifier" -->
+      <p class="offer-qualifier">when you select classic benefits with Auto Pay</p>
+      <!-- data-cf="card.starBox" -->
+      <div class="offer-star-box">includes 1 family member for FREE &amp; pay no admission fee</div>
+      <!-- data-cf="card.features[]" -->
+      <ul class="offer-features">
+        <li>24/7 roadside assistance</li>
+        <li>Exclusive member discounts</li>
+        <li>Free identity theft protection</li>
+      </ul>
+      <!-- data-cf="card.ctaLabel" -->
+      <a href="#" class="offer-cta">Become a member — claim offer</a>
+      <!-- data-cf="card.finePrint" -->
+      <p class="offer-fine">Activate in minutes — savings start right away.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Offer Tiles ───────────────────────────────────────────────────── -->
+<!--
+  EDS block: offer-tiles
+  Same two CFs rendered into three block variant classes: compact, featured, sidebar
+  No images — all text + CSS. Localizable via live copy: override category + headline.
+-->
+<section class="offer-tiles">
+  <div class="section-wrap">
+    <div class="section-label">offer-tiles block · 3 variant sizes · same CF data</div>
+    <h2 class="offer-tiles-heading">Current Promotions</h2>
+    <p class="offer-tiles-sub">Each card is a Content Fragment — the same CF renders into compact, featured, or sidebar layouts depending on the block variant class. No Dynamic Media required.</p>
+
+    <div class="tiles-grid">
+
+      <!-- Column A: compact variant (block class="offer-tiles compact") -->
+      <div>
+        <!-- CF: /content/dam/club/offers/july4-sale -->
+        <div class="tile-card">
+          <div class="tile-card-body">
+            <p class="tile-category">4th of July Sale</p>
+            <h3 class="tile-headline">Celebrate America's 250th<br>2 Memberships. Just $25</h3>
+            <p class="tile-body">Up to 75% off when you select Classic benefits + Auto Pay.</p>
+            <a href="#" class="tile-cta">Become a AAA member</a>
+          </div>
+        </div>
+        <!-- CF: /content/dam/club/offers/online-only -->
+        <div class="tile-card">
+          <div class="tile-card-body">
+            <p class="tile-category">Online only!</p>
+            <h3 class="tile-headline" style="font-size:2rem;">53% OFF</h3>
+            <p class="tile-body">Including one free family member when you select Classic benefits with Auto Pay.</p>
+            <a href="#" class="tile-cta">Become a AAA member</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column B: featured variant (block class="offer-tiles featured") — same CFs, bigger layout -->
+      <div>
+        <div class="tile-card tile-card--featured">
+          <div class="tile-card-body">
+            <p class="tile-category">4th of July Sale</p>
+            <h3 class="tile-headline">Celebrate America's 250th<br>2 Memberships. Just $25</h3>
+            <p class="tile-body">Up to 75% off when you select Classic benefits + Auto Pay.</p>
+          </div>
+        </div>
+        <div class="tile-card tile-card--featured">
+          <div class="tile-card-body">
+            <p class="tile-category">Online only!</p>
+            <h3 class="tile-headline" style="font-size:3rem;line-height:1;">53% OFF</h3>
+            <p class="tile-body">Including one free family member<br>when you select Classic benefits with Auto Pay.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column C: sidebar variant — different CF -->
+      <!-- CF: /content/dam/club/offers/sidebar-companion -->
+      <div class="tile-card--sidebar">
+        <h3 class="tile-sidebar-hl">Your trusted companion, on every road</h3>
+        <p class="tile-sidebar-body">We're here to provide peace of mind, wherever your journey takes you.</p>
+        <div class="tile-inner-box">
+          <p class="tile-inner-label">Online only offer for a limited time</p>
+          <p class="tile-inner-pct">65% OFF</p>
+          <p class="tile-inner-body">Including one free family member when you select Classic benefits with Auto Pay.</p>
+        </div>
+        <a href="#" class="tile-pill-cta">✓ Join AAA today!</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ───────────────────────────────────────────────────────── -->
+<!--
+  EDS block: pricing-table
+  Three visual variants (block modifier class) — same CF tier data.
+  Price fields (price, salePrice, monthlyPrice) overridden per region via live copy.
+-->
+<section class="pricing-section">
+  <div class="section-wrap">
+    <div class="section-label">pricing-table block · 3 visual variants · same CF tiers</div>
+    <h2 class="pricing-heading">Membership Tiers</h2>
+    <p class="pricing-sub">The same three tier Content Fragments rendered in three different pricing-table block variants. Price fields are the primary live-copy override target per region/club.</p>
+
+    <!-- Variant A: Simple / default (pricing-table) -->
+    <p class="pricing-row-label">Variant A — Simple (pricing-table)</p>
+    <div class="pricing-row">
+      <!-- CF: /content/dam/club/pricing/classic -->
+      <div class="price-card">
+        <p class="price-name">Classic level</p>
+        <p class="price-amount"><sup>$</sup>54</p>
+        <p class="price-period">first year</p>
+        <a href="#" class="price-card-cta">Select Classic level</a>
+        <p class="price-feature">Roadside assistance</p>
+      </div>
+      <!-- CF: /content/dam/club/pricing/plus -->
+      <div class="price-card">
+        <div class="price-badge price-badge--best">Best value ⚑</div>
+        <p class="price-name">Plus® level</p>
+        <p class="price-amount"><sup>$</sup>90</p>
+        <p class="price-period">first year</p>
+        <a href="#" class="price-card-cta">Select Plus level</a>
+        <p class="price-feature">Roadside assistance</p>
+      </div>
+      <!-- CF: /content/dam/club/pricing/premier -->
+      <div class="price-card">
+        <div class="price-badge price-badge--excl">Most exclusive ✦</div>
+        <p class="price-name">Premier® level</p>
+        <p class="price-amount"><sup>$</sup>119</p>
+        <p class="price-period">first year</p>
+        <a href="#" class="price-card-cta">Select Premier level</a>
+      </div>
+    </div>
+
+    <!-- Variant B: Tier-badge header (pricing-table tier-badge) -->
+    <p class="pricing-row-label">Variant B — Tier badges (pricing-table tier-badge)</p>
+    <div class="pricing-row">
+      <div class="price-card price-card--tier">
+        <div class="price-tier-header price-tier-header--essential">
+          <span class="price-tier-icon">♥</span> Essential
+        </div>
+        <div class="price-tier-body">
+          <p class="price-name">Classic</p>
+          <p class="price-amount"><sup>$</sup>54</p>
+          <p class="price-original">$59 /year</p>
+          <a href="#" class="price-card-cta" style="margin-top:.875rem;">Select Classic level</a>
+        </div>
+      </div>
+      <div class="price-card price-card--tier">
+        <div class="price-tier-header price-tier-header--best">
+          <span class="price-tier-icon">🏆</span> Best value
+        </div>
+        <div class="price-tier-body">
+          <p class="price-name">Plus®</p>
+          <p class="price-amount"><sup>$</sup>90</p>
+          <p class="price-original">$95 /year</p>
+          <a href="#" class="price-card-cta" style="margin-top:.875rem;">Select Plus level</a>
+        </div>
+      </div>
+      <div class="price-card price-card--tier">
+        <div class="price-tier-header price-tier-header--excl">
+          <span class="price-tier-icon">💎</span> Most exclusive
+        </div>
+        <div class="price-tier-body">
+          <p class="price-name">Premier®</p>
+          <p class="price-amount"><sup>$</sup>119</p>
+          <p class="price-original">$124 /year</p>
+          <a href="#" class="price-card-cta" style="margin-top:.875rem;">Select Premier level</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variant C: Sale + monthly compact (pricing-table sale) -->
+    <p class="pricing-row-label">Variant C — Sale + monthly compact (pricing-table sale)</p>
+    <div class="pricing-row-split">
+      <div class="pricing-row-sale">
+        <div class="price-card price-card--sale">
+          <p class="price-name">Classic level</p>
+          <p class="price-amount"><sup>$</sup>25</p>
+          <p class="price-period">first year</p>
+          <p class="price-monthly">or $2.67 per month</p>
+          <a href="#" class="price-card-cta" style="margin-top:.875rem;">Select Classic level</a>
+        </div>
+        <div class="price-card price-card--sale">
+          <div class="price-badge price-badge--best">Best value ⚑</div>
+          <p class="price-name">Plus® level</p>
+          <p class="price-amount"><sup>$</sup>64</p>
+          <p class="price-period">first year</p>
+          <p class="price-monthly">or $6.67 per month</p>
+          <a href="#" class="price-card-cta" style="margin-top:.875rem;">Select Plus level</a>
+        </div>
+        <div class="price-card price-card--sale">
+          <div class="price-badge price-badge--excl">Most exclusive ✦</div>
+          <p class="price-name">Premier® level</p>
+          <p class="price-amount"><sup>$</sup>109</p>
+          <p class="price-period">first year</p>
+          <p class="price-monthly">or $10.67 per month</p>
+          <a href="#" class="price-card-cta" style="margin-top:.875rem;">Select Premier level</a>
+        </div>
+      </div>
+      <!-- Compact monthly sidebar -->
+      <div class="pricing-compact">
+        <div class="pricing-compact-tier">
+          <p class="pricing-compact-label">Essential</p>
+          <p class="pricing-compact-name">Classic</p>
+          <p class="pricing-compact-price"><sup>$</sup>2.67</p>
+          <p class="pricing-compact-orig">$6 /month</p>
+        </div>
+        <div class="pricing-compact-tier" style="border-left:1px solid var(--border);">
+          <p class="pricing-compact-label">Best value</p>
+          <p class="pricing-compact-name">Plus®</p>
+          <p class="pricing-compact-price"><sup>$</sup>6.67</p>
+          <p class="pricing-compact-orig">$10 /month</p>
+        </div>
+        <div class="pricing-compact-tier" style="border-left:1px solid var(--border);">
+          <p class="pricing-compact-label">Most exclusive</p>
+          <p class="pricing-compact-name">Premier®</p>
+          <p class="pricing-compact-price"><sup>$</sup>10.67</p>
+          <p class="pricing-compact-orig">$14 /month</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── City Map ──────────────────────────────────────────────────────── -->
+<!--
+  EDS block: city-map
+  CF list: 20 City fragments with lat/lng, population, name, state
+  Click panel entry → fly to marker + open popup
+  Click marker → scroll + highlight panel entry
+  Select two cities → Haversine great-circle distance
+-->
+<section class="city-map-section">
+  <div class="section-wrap">
+    <div class="section-label">city-map block · CF: /content/dam/club/cities/* · Haversine distance</div>
+    <h2 class="city-map-heading">Find Your Local Club</h2>
+    <p class="city-map-sub">Top 20 US metro areas by population — each a Content Fragment with lat/lng, member count, and services. Click two cities to calculate driving-distance estimate (Haversine great-circle).</p>
+    <div class="city-layout">
+      <div id="club-map"></div>
+      <div class="city-panel">
+        <div class="city-panel-head">
+          <p class="city-panel-title">Club Locations</p>
+          <p class="city-panel-hint">Click a city to snap the map · select two for distance</p>
+        </div>
+        <div class="distance-box" id="distance-box">
+          <span class="distance-hint">Select two cities to calculate distance</span>
+        </div>
+        <ul class="city-list" id="city-list"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="club-footer">
+  CF-driven demo — no Dynamic Media required. All content authorable in AEM Universal Editor.
+</footer>
+
+<script>
+'use strict';
+
+/* ── Simulated Content Fragment data ────────────────────────────────
+   In production: fetched via /graphql/execute.json/club/branch-cities
+   Each object = one Content Fragment of model type "City"
+   Fields: _path, name, state, population, latitude, longitude
+   Live copy: name/state are read-only; services[] and memberCount overridden per locale
+   ─────────────────────────────────────────────────────────────────── */
+const CITIES = [
+  { _path:'/content/dam/club/cities/new-york',      name:'New York',      state:'NY', pop:8_336_817, lat:40.7128, lng:-74.0060 },
+  { _path:'/content/dam/club/cities/los-angeles',   name:'Los Angeles',   state:'CA', pop:3_979_576, lat:34.0522, lng:-118.2437 },
+  { _path:'/content/dam/club/cities/chicago',       name:'Chicago',       state:'IL', pop:2_693_976, lat:41.8781, lng:-87.6298 },
+  { _path:'/content/dam/club/cities/houston',       name:'Houston',       state:'TX', pop:2_320_268, lat:29.7604, lng:-95.3698 },
+  { _path:'/content/dam/club/cities/phoenix',       name:'Phoenix',       state:'AZ', pop:1_680_992, lat:33.4484, lng:-112.0740 },
+  { _path:'/content/dam/club/cities/philadelphia',  name:'Philadelphia',  state:'PA', pop:1_584_064, lat:39.9526, lng:-75.1652 },
+  { _path:'/content/dam/club/cities/san-antonio',   name:'San Antonio',   state:'TX', pop:1_547_253, lat:29.4241, lng:-98.4936 },
+  { _path:'/content/dam/club/cities/san-diego',     name:'San Diego',     state:'CA', pop:1_423_851, lat:32.7157, lng:-117.1611 },
+  { _path:'/content/dam/club/cities/dallas',        name:'Dallas',        state:'TX', pop:1_343_573, lat:32.7767, lng:-96.7970 },
+  { _path:'/content/dam/club/cities/san-jose',      name:'San Jose',      state:'CA', pop:1_036_242, lat:37.3382, lng:-121.8863 },
+  { _path:'/content/dam/club/cities/austin',        name:'Austin',        state:'TX', pop:978_908,   lat:30.2672, lng:-97.7431 },
+  { _path:'/content/dam/club/cities/jacksonville',  name:'Jacksonville',  state:'FL', pop:911_507,   lat:30.3322, lng:-81.6557 },
+  { _path:'/content/dam/club/cities/fort-worth',    name:'Fort Worth',    state:'TX', pop:918_915,   lat:32.7555, lng:-97.3308 },
+  { _path:'/content/dam/club/cities/columbus',      name:'Columbus',      state:'OH', pop:905_748,   lat:39.9612, lng:-82.9988 },
+  { _path:'/content/dam/club/cities/charlotte',     name:'Charlotte',     state:'NC', pop:879_709,   lat:35.2271, lng:-80.8431 },
+  { _path:'/content/dam/club/cities/indianapolis',  name:'Indianapolis',  state:'IN', pop:887_642,   lat:39.7684, lng:-86.1581 },
+  { _path:'/content/dam/club/cities/san-francisco', name:'San Francisco', state:'CA', pop:873_965,   lat:37.7749, lng:-122.4194 },
+  { _path:'/content/dam/club/cities/seattle',       name:'Seattle',       state:'WA', pop:737_255,   lat:47.6062, lng:-122.3321 },
+  { _path:'/content/dam/club/cities/denver',        name:'Denver',        state:'CO', pop:715_522,   lat:39.7392, lng:-104.9903 },
+  { _path:'/content/dam/club/cities/nashville',     name:'Nashville',     state:'TN', pop:689_447,   lat:36.1627, lng:-86.7816 },
+];
+
+/* Haversine great-circle distance (miles) */
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 3958.8;
+  const d2r = Math.PI / 180;
+  const dLat = (lat2 - lat1) * d2r;
+  const dLng = (lng2 - lng1) * d2r;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*d2r) * Math.cos(lat2*d2r) * Math.sin(dLng/2)**2;
+  return Math.round(R * 2 * Math.asin(Math.sqrt(a)));
+}
+
+function fmtPop(n) { return n.toLocaleString('en-US'); }
+
+/* ── City Map Init ────────────────────────────────────────────────── */
+(function initMap() {
+  const map = L.map('club-map', { zoomControl: true }).fitBounds([
+    [24.5, -125], [49, -66.5]
+  ]);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; <a href="https://carto.com">CARTO</a> / <a href="https://openstreetmap.org">OSM</a>',
+    subdomains:'abcd', maxZoom:18,
+  }).addTo(map);
+
+  const listEl     = document.getElementById('city-list');
+  const distBoxEl  = document.getElementById('distance-box');
+  let selected = []; // up to 2 city indices
+  let markers  = [];
+
+  function markerColor(idx) {
+    if (selected[0] === idx) return '#1D4ED8';
+    if (selected[1] === idx) return '#059669';
+    return '#003087';
+  }
+
+  function makeIcon(idx) {
+    const color = markerColor(idx);
+    const size  = (selected[0] === idx || selected[1] === idx) ? 14 : 10;
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:all .2s;"></div>`,
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2],
+    });
+  }
+
+  function updateDistance() {
+    if (selected.length === 2) {
+      const a = CITIES[selected[0]], b = CITIES[selected[1]];
+      const mi = haversine(a.lat, a.lng, b.lat, b.lng);
+      const km = Math.round(mi * 1.60934);
+      distBoxEl.className = 'distance-box active';
+      distBoxEl.innerHTML = `<span class="distance-text">${a.name} → ${b.name}: <strong>${mi.toLocaleString()} mi</strong> (${km.toLocaleString()} km)</span>`;
+    } else if (selected.length === 1) {
+      const a = CITIES[selected[0]];
+      distBoxEl.className = 'distance-box';
+      distBoxEl.innerHTML = `<span class="distance-hint">${a.name} selected — pick a second city</span>`;
+    } else {
+      distBoxEl.className = 'distance-box';
+      distBoxEl.innerHTML = '<span class="distance-hint">Select two cities to calculate distance</span>';
+    }
+  }
+
+  function refreshMarkers() {
+    markers.forEach((m, i) => m.setIcon(makeIcon(i)));
+  }
+
+  function refreshList() {
+    listEl.querySelectorAll('.city-item').forEach((el, i) => {
+      el.className = 'city-item' +
+        (selected[0] === i ? ' sel-a' : selected[1] === i ? ' sel-b' : '');
+      const badge = el.querySelector('.city-badge');
+      if (badge) {
+        if (selected[0] === i) { badge.className='city-badge city-badge-a'; badge.textContent='A'; }
+        else if (selected[1] === i) { badge.className='city-badge city-badge-b'; badge.textContent='B'; }
+        else { badge.className='city-badge'; badge.textContent=''; }
+      }
+    });
+  }
+
+  function selectCity(idx, fromPanel) {
+    const pos = selected.indexOf(idx);
+    if (pos !== -1) {
+      selected.splice(pos, 1);
+    } else {
+      if (selected.length >= 2) selected.shift();
+      selected.push(idx);
+    }
+    refreshMarkers();
+    refreshList();
+    updateDistance();
+
+    const city = CITIES[idx];
+    if (fromPanel) {
+      map.flyTo([city.lat, city.lng], 9, { duration: 1.1 });
+      markers[idx].openPopup();
+    }
+  }
+
+  function snapPanel(idx) {
+    const items = listEl.querySelectorAll('.city-item');
+    if (items[idx]) {
+      items[idx].scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+  }
+
+  /* Build markers */
+  CITIES.forEach((city, i) => {
+    const marker = L.marker([city.lat, city.lng], { icon: makeIcon(i) })
+      .addTo(map)
+      .bindPopup(`
+        <div style="font-family:Inter,system-ui,sans-serif;min-width:160px;">
+          <strong style="color:#003087;">${city.name}, ${city.state}</strong><br>
+          <span style="font-size:.8rem;color:#64748B;">Pop. ${fmtPop(city.pop)}</span><br>
+          <a href="#" style="font-size:.78rem;color:#1565C0;" onclick="return false;">Club details →</a>
+        </div>
+      `, { offset:[0, -6], maxWidth:200 });
+
+    marker.on('click', () => {
+      selectCity(i, false);
+      snapPanel(i);
+    });
+
+    markers.push(marker);
+  });
+
+  /* Build panel list */
+  CITIES.forEach((city, i) => {
+    const li = document.createElement('li');
+    li.className = 'city-item';
+    li.dataset.idx = i;
+    li.innerHTML = `
+      <span class="city-rank">#${i+1}</span>
+      <span class="city-dot"></span>
+      <span class="city-info">
+        <span class="city-name-row">${city.name}, <span style="color:#64748B;font-weight:400;">${city.state}</span></span>
+        <span class="city-pop">Pop. ${fmtPop(city.pop)}</span>
+      </span>
+      <span class="city-badge"></span>
+    `;
+    li.addEventListener('click', () => selectCity(i, true));
+    listEl.appendChild(li);
+  });
+
+})();
+</script>
+</body>
+</html>
