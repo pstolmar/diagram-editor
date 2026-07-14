@@ -135,19 +135,12 @@
     }
     .ab-cards { display: flex; gap: 1.5rem; }
 
-    /* Card A — sweep */
+    /* Sweep card */
     .sweep-card {
       flex: 1; height: 420px; border-radius: 12px; overflow: hidden;
       cursor: ew-resize; position: relative;
       user-select: none; box-shadow: 0 8px 32px rgba(0,0,0,.4);
-    }
-    .sweep-bg {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(circle at 50% 55%, rgba(26,111,212,.28) 0%, transparent 65%),
-        repeating-linear-gradient(0deg,   rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 44px),
-        repeating-linear-gradient(90deg,  rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 44px),
-        #07080d;
+      background: #07080d;
     }
     .sweep-card img.dm-img {
       position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
@@ -180,7 +173,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,.5); margin-left: -15px;
     }
 
-    /* Card B — hover reveal */
+    /* Hover-reveal card */
     .reveal-card {
       flex: 1; height: 420px; border-radius: 12px; overflow: hidden;
       cursor: pointer; position: relative;
@@ -208,6 +201,7 @@
       letter-spacing: .08em; text-transform: uppercase;
       color: rgba(255,255,255,.9); z-index: 10;
       text-shadow: 0 2px 12px rgba(0,0,0,.8);
+      transition: opacity .4s;
     }
     .reveal-bottom-text {
       position: absolute; bottom: 0; left: 0; right: 0;
@@ -227,7 +221,7 @@
 
     /* ── Locale section ─────────────────────────────────────────────── */
     .locale-section {
-      padding: 3.5rem 2rem 5rem; max-width: 1100px; margin: 0 auto;
+      padding: 3.5rem 2rem 4rem; max-width: 1100px; margin: 0 auto;
       border-top: 1px solid rgba(255,255,255,.07);
     }
     .locale-flags {
@@ -254,9 +248,7 @@
       background: #07080d; border-radius: 12px; overflow: hidden;
       box-shadow: 0 8px 32px rgba(0,0,0,.4);
     }
-    .locale-preview img {
-      width: 100%; display: block; transition: opacity .3s;
-    }
+    .locale-preview img { width: 100%; display: block; }
     .locale-params {
       background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
       border-radius: 12px; padding: 1.75rem;
@@ -273,13 +265,111 @@
       font-family: 'Courier New', monospace; color: #61DAFB;
       font-size: .82rem; flex-shrink: 0; min-width: 100px;
     }
-    .param-val {
-      color: rgba(255,255,255,.8); word-break: break-word;
-    }
+    .param-val { color: rgba(255,255,255,.8); word-break: break-word; }
     .copyfit-note {
       margin-top: 1.5rem; font-size: .82rem;
       color: rgba(255,255,255,.4); line-height: 1.6;
       border-top: 1px solid rgba(255,255,255,.07); padding-top: 1rem;
+    }
+
+    /* ── CF × DM flip section ───────────────────────────────────────── */
+    .cfdm-section {
+      padding: 4rem 2rem 5rem; max-width: 1100px; margin: 0 auto;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .cfdm-section .ab-heading::before {
+      content: ''; display: inline-block; width: 10px; height: 10px;
+      border-radius: 50%; background: #61DAFB;
+      margin-right: .625rem; vertical-align: middle;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+    .flip-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+      margin-bottom: 3rem; perspective: 1400px;
+    }
+    .flip-card {
+      height: 360px; cursor: default;
+    }
+    .flip-card-inner {
+      position: relative; width: 100%; height: 100%;
+      transform-style: preserve-3d;
+      transition: transform .85s cubic-bezier(.45,.05,.55,.95);
+    }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back {
+      position: absolute; inset: 0; border-radius: 12px;
+      backface-visibility: hidden; overflow: hidden;
+    }
+    .flip-card-front {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      padding: 1.75rem; display: flex; flex-direction: column; gap: .75rem;
+    }
+    .flip-card-front .cf-eyebrow {
+      font-size: .7rem; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: #61DAFB;
+    }
+    .flip-card-front .cf-label {
+      font-size: .65rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.28);
+      margin-top: auto; margin-bottom: .25rem;
+    }
+    .flip-card-front .cf-field {
+      display: flex; flex-direction: column; gap: .25rem;
+    }
+    .flip-card-front .cf-field-key {
+      font-family: 'Courier New', monospace; font-size: .7rem;
+      color: rgba(255,255,255,.3);
+    }
+    .flip-card-front .cf-field-val {
+      font-size: .9375rem; font-weight: 600; color: rgba(255,255,255,.88);
+      line-height: 1.35;
+    }
+    .cf-loading-shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 100%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite;
+      border-radius: 4px; height: 1em;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .flip-arrow {
+      margin-top: auto; font-size: .8rem; color: rgba(255,255,255,.3);
+      display: flex; align-items: center; gap: .375rem;
+    }
+    .flip-card-back { background: #07080d; }
+    .flip-card-back img {
+      width: 100%; height: 100%; object-fit: cover;
+      transform: rotateY(180deg);
+    }
+    .flip-back-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: .875rem 1.25rem;
+      background: linear-gradient(0deg, rgba(0,0,0,.8) 0%, transparent 100%);
+      transform: rotateY(180deg);
+      font-size: .75rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: rgba(255,255,255,.55);
+    }
+
+    /* Same CF, two templates row */
+    .two-templates-heading {
+      font-size: .7rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,.3);
+      margin-bottom: 1rem;
+    }
+    .two-templates-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+    }
+    .template-card {
+      border-radius: 12px; overflow: hidden; background: #07080d;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+    .template-card img { width: 100%; display: block; }
+    .template-card-label {
+      padding: .75rem 1rem; font-size: .75rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.45);
+      border-top: 1px solid rgba(255,255,255,.06);
     }
 
     /* ── Footer ─────────────────────────────────────────────────────── */
@@ -298,6 +388,8 @@
       .ab-cards { flex-direction: column; }
       .sweep-card, .reveal-card { height: 280px; }
       .locale-layout { grid-template-columns: 1fr; }
+      .flip-grid { grid-template-columns: 1fr; }
+      .two-templates-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -307,6 +399,9 @@
 <script>
 'use strict';
 const { useState, useEffect, useRef, useCallback, createElement: h } = React;
+
+/* ── AEM publish ─────────────────────────────────────────────────── */
+const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
 
 /* ── Month utilities ─────────────────────────────────────────────── */
 const MONTH_NAMES = {
@@ -325,7 +420,7 @@ function offerMonthForLocale(locale) {
 const OFFER_MONTH = offerMonthForLocale('en-US');
 const ENDDATE     = `${OFFER_MONTH} 15, 2026`;
 
-/* ── Locale data ─────────────────────────────────────────────────── */
+/* ── Locale data (DiscountOffer panel) ───────────────────────────── */
 const LOCALES = {
   'en-US': (m) => ({
     flag: '🇺🇸', label: 'English (US)',
@@ -353,22 +448,55 @@ const LOCALES = {
   }),
 };
 
-/* ── DM URL builder ──────────────────────────────────────────────── */
+/* ── DiscountOffer URL builder ───────────────────────────────────── */
 function dmUrl({ percent, image, category, hideBackground, enddate }, width) {
   const base = 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/DiscountOffer';
   const enc  = encodeURIComponent;
-  const ed   = enddate || ENDDATE;
   return (
     `${base}?$hidebackground=${hideBackground}` +
     `&$percent=${percent}` +
     `&$image=${image}` +
     `&$category=${enc(category)}` +
-    `&$enddate=${enc(ed)}` +
+    `&$enddate=${enc(enddate || ENDDATE)}` +
     `&wid=${width}&qlt=85&fmt=png-alpha`
   );
 }
 
-/* ── Slide / offer data ──────────────────────────────────────────── */
+/* ── InternationalOffer URL builder (from CF item) ───────────────── */
+const INTL_BASE = 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/InternationalOffer';
+function intlUrl(cfItem, width = 900) {
+  const enc   = encodeURIComponent;
+  const title = cfItem?.title   || 'Adobe Experience';
+  const brow  = cfItem?.eyebrow || 'feature';
+  return `${INTL_BASE}?$offer=${enc(title)}&$price=${enc(brow)}&$hideprice=0` +
+    `&$hidepurplecircle=1&$hideyellowcircle=0&$hidemiddlecircle=1` +
+    `&wid=${width}&qlt=85&fmt=jpeg`;
+}
+
+/* ── InternationalOffer — raw fixed URLs ─────────────────────────── */
+const INTL_EN_CLEAN = INTL_BASE +
+  '?$offer=Adventure%20Travel%20Deals&$price=As%20low%20as%20%24800' +
+  '&$hideprice=1&$hidepurplecircle=1&$hideyellowcircle=1&$hidemiddlecircle=1' +
+  '&wid=900&qlt=85&fmt=jpeg';
+
+const INTL_EN_FULL = INTL_BASE +
+  '?$offer=Adventure%20Travel%20Deals&$price=As%20low%20as%20%24800' +
+  '&$hideprice=0&$hidepurplecircle=1&$hideyellowcircle=1&$hidemiddlecircle=1' +
+  '&wid=900&qlt=85&fmt=jpeg';
+
+const INTL_DE = INTL_BASE +
+  '?$offer=Resort-Urlaube%20Verpflegung%20und%20Getr%C3%A4nke%20inklusive' +
+  '&$price=Ab%20%E2%82%AC1000&$hideprice=0' +
+  '&hidebluecircle=1&hidepurplecircle=1&hideyellowcircle=0' +
+  '&wid=900&qlt=90&fit=constrain&fmt=jpeg';
+
+const INTL_IT = INTL_BASE +
+  '?$offer=Villaggi%20turistici%20tutto%20compreso' +
+  '&$price=a%20partire%20da%20un%20milione%20settecentomila%20lire' +
+  '&$hideprice=0&$hidebluecircle=1&$hidepurplecircle=1&$hideyellowcircle=1' +
+  '&$hideredrectangle=0&wid=900&qlt=90&fit=constrain&fmt=jpeg';
+
+/* ── Hero slide / offer data ─────────────────────────────────────── */
 const SLIDES = [
   {
     id: 'games', percent: 75,
@@ -397,18 +525,28 @@ const SLIDES = [
 ];
 
 const COUCH_OFFER = {
-  percent: 50,
-  image: 'PeterStolmarNA001/approved-phone-app',
-  category: 'Couch Co-op',
-  enddate: `${OFFER_MONTH} 9, 2026`,
+  percent: 50, image: 'PeterStolmarNA001/approved-phone-app',
+  category: 'Couch Co-op', enddate: `${OFFER_MONTH} 9, 2026`,
+};
+const GAMES_OFFER = {
+  percent: 75, image: 'PeterStolmarNA001/approved-phone-app',
+  category: 'Digital Games', enddate: `${OFFER_MONTH} 15, 2026`,
 };
 
-const GAMES_OFFER = {
-  percent: 75,
-  image: 'PeterStolmarNA001/approved-phone-app',
-  category: 'Digital Games',
-  enddate: `${OFFER_MONTH} 15, 2026`,
-};
+/* ── CF fetch ────────────────────────────────────────────────────── */
+function fetchCFs() {
+  return fetch(
+    PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
+    { headers: { Accept: 'application/json' }, cache: 'no-store' }
+  ).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+   .then(d => {
+     const map = {};
+     (d?.data?.homeHeroList?.items || []).forEach(i => {
+       map[i._path.split('/').pop()] = i;
+     });
+     return map;
+   });
+}
 
 /* ── NavBar ──────────────────────────────────────────────────────── */
 function NavBar() {
@@ -436,8 +574,7 @@ function HeroSlide({ slide, isActive }) {
     ),
     h('div', { className: 'slide-right' },
       h('img', {
-        src: dmUrl(slide, 900),
-        alt: `${slide.category} offer`,
+        src: dmUrl(slide, 900), alt: `${slide.category} offer`,
         loading: isActive ? 'eager' : 'lazy',
       }),
     ),
@@ -483,10 +620,11 @@ function ThumbnailRow({ current, onChange }) {
   );
 }
 
-/* ── Sweep card — two full DM renders, wipe between them ────────── */
-function SweepCard({ offerA, offerB, badge = 'Variant A', color = '#1a6fd4' }) {
-  const cardRef  = useRef(null);
-  const [pct, setPct]         = useState(50);
+/* ── Sweep card ─────────────────────────────────────────────────── */
+/* Accepts either offer objects (urlA/urlB auto-built) or raw string URLs */
+function SweepCard({ offerA, offerB, urlA: rawA, urlB: rawB, badge = 'Variant A', color = '#1a6fd4', hint = '← sweep to compare →' }) {
+  const cardRef = useRef(null);
+  const [pct, setPct]           = useState(50);
   const [hovering, setHovering] = useState(false);
 
   const onMouseMove = useCallback((e) => {
@@ -495,19 +633,17 @@ function SweepCard({ offerA, offerB, badge = 'Variant A', color = '#1a6fd4' }) {
     setPct(Math.round(Math.max(2, Math.min(98, (e.clientX - rect.left) / rect.width * 100))));
   }, []);
 
-  const urlA = dmUrl({ ...offerA, hideBackground: 0 }, 900);
-  const urlB = dmUrl({ ...offerB, hideBackground: 0 }, 900);
+  const urlA = rawA || dmUrl({ ...offerA, hideBackground: 0 }, 900);
+  const urlB = rawB || dmUrl({ ...offerB, hideBackground: 0 }, 900);
 
   return h('div', {
     ref: cardRef, className: 'sweep-card',
     onMouseMove, onMouseEnter: () => setHovering(true),
     onMouseLeave: () => { setHovering(false); setPct(50); },
   },
-    /* offerA — base, always visible beneath */
-    h('img', { className: 'dm-img', src: urlA, alt: 'Offer A', style: { zIndex: 1 } }),
-    /* offerB — revealed from left as mouse moves right */
+    h('img', { className: 'dm-img', src: urlA, alt: 'A', style: { zIndex: 1 } }),
     h('img', {
-      className: 'dm-img', src: urlB, alt: 'Offer B',
+      className: 'dm-img', src: urlB, alt: 'B',
       style: {
         zIndex: 2,
         clipPath: `inset(0 ${100 - pct}% 0 0)`,
@@ -519,64 +655,72 @@ function SweepCard({ offerA, offerB, badge = 'Variant A', color = '#1a6fd4' }) {
     }, h('div', { className: 'sweep-handle' }, '↔')),
     h('div', { className: 'sweep-badge', style: { background: color, zIndex: 10 } }, badge),
     h('div', { className: 'sweep-variant-label', style: { zIndex: 10 } }, 'sweep to compare'),
-    h('div', { className: 'sweep-hint', style: { opacity: hovering ? 0 : 1, zIndex: 10 } },
-      '← sweep to change offer →'),
+    h('div', { className: 'sweep-hint', style: { opacity: hovering ? 0 : 1, zIndex: 10 } }, hint),
   );
 }
 
-/* ── Card B — hover fades in full template over clean image ─────── */
-function HoverRevealCard({ offer }) {
+/* ── Hover-reveal card ───────────────────────────────────────────── */
+/* Accepts either an offer object or raw clean/offer URLs */
+function HoverRevealCard({ offer, urlClean: rawClean, urlOffer: rawOffer, badge = 'Variant B', topLabel, bottomLabel }) {
   const [hovered, setHovered] = useState(false);
-  const cleanUrl = dmUrl({ ...offer, hideBackground: 1 }, 900);
-  const offerUrl = dmUrl({ ...offer, hideBackground: 0 }, 900);
+  const cleanUrl = rawClean || (offer && dmUrl({ ...offer, hideBackground: 1 }, 900));
+  const offerUrl = rawOffer || (offer && dmUrl({ ...offer, hideBackground: 0 }, 900));
+  const topText  = topLabel  || offer?.category || '';
+  const botText  = bottomLabel || (offer ? `${offer.percent}% off · ends ${offer.enddate}` : '');
 
   return h('div', {
     className: 'reveal-card',
     onMouseEnter: () => setHovered(true),
     onMouseLeave: () => setHovered(false),
   },
-    /* clean product image — always beneath */
-    h('img', { src: cleanUrl, alt: 'Product', style: { opacity: hovered ? 0 : 1 } }),
-    /* offer overlay — fades in on hover */
+    h('img', { src: cleanUrl, alt: 'Clean', style: { opacity: hovered ? 0 : 1 } }),
     h('img', { src: offerUrl, alt: 'Offer', style: { opacity: hovered ? 1 : 0 } }),
-    h('div', { className: 'reveal-badge' }, 'Variant B'),
-    h('div', { className: 'reveal-variant-label' }, '$hideBackground: hover toggle'),
-    /* always-visible category label */
-    h('div', { className: 'reveal-top-text', style: { opacity: hovered ? 0 : 1, transition: 'opacity .4s' } },
-      offer.category
-    ),
-    /* reveal-on-hover: offer details */
+    h('div', { className: 'reveal-badge' }, badge),
+    h('div', { className: 'reveal-variant-label' }, 'hover to reveal'),
+    topText && h('div', {
+      className: 'reveal-top-text', style: { opacity: hovered ? 0 : 1 },
+    }, topText),
     h('div', {
       className: 'reveal-bottom-text',
-      style: {
-        opacity: hovered ? 1 : 0,
-        transform: hovered ? 'translateY(0)' : 'translateY(10px)',
-      },
+      style: { opacity: hovered ? 1 : 0, transform: hovered ? 'translateY(0)' : 'translateY(10px)' },
     },
-      h('span', { className: 'big-pct' }, `${offer.percent}%`),
-      ` off · ends ${offer.enddate}`,
+      botText && h('span', { className: 'big-pct' }, botText.split(' ')[0]),
+      botText && (' ' + botText.split(' ').slice(1).join(' ')),
     ),
     h('div', { className: 'reveal-hint', style: { opacity: hovered ? 0 : 1 } },
       'hover to reveal offer →'),
   );
 }
 
+/* ── A/B section — two rows ─────────────────────────────────────── */
 function ABSection() {
   return h('section', { className: 'ab-section' },
     h('h2', { className: 'ab-heading' }, 'A/B — Dynamic Media interaction variants'),
     h('p', { className: 'ab-sub' },
-      'Left cards: sweep to wipe between two DM template renders with different offer text. ' +
-      'Right cards: hover to fade from clean product image → full offer overlay ($hideBackground toggle).',
+      'Two interaction patterns, two templates. ' +
+      'Sweep cards wipe between two full DM renders. Hover cards fade from clean image → offer overlay.',
     ),
-    h('p', { className: 'ab-row-label' }, 'Row 1 — DiscountOffer template'),
+
+    h('p', { className: 'ab-row-label' }, 'Row 1 — DiscountOffer · 75% Digital Games vs 50% Couch Co-op'),
     h('div', { className: 'ab-cards' },
-      h(SweepCard, { offerA: GAMES_OFFER, offerB: COUCH_OFFER, badge: 'Variant A', color: '#1a6fd4' }),
-      h(HoverRevealCard, { offer: COUCH_OFFER }),
+      h(SweepCard, { offerA: GAMES_OFFER, offerB: COUCH_OFFER, badge: 'Variant A', color: '#1a6fd4', hint: '← sweep to compare offers →' }),
+      h(HoverRevealCard, { offer: COUCH_OFFER, badge: 'Variant B' }),
     ),
-    h('p', { className: 'ab-row-label', style: { marginTop: '2rem' } }, 'Row 2 — placeholder (swap for new template)'),
+
+    h('p', { className: 'ab-row-label', style: { marginTop: '2rem' } },
+      'Row 2 — InternationalOffer · DE vs IT sweep (Copyfit drama) · EN hover reveal price'),
     h('div', { className: 'ab-cards' },
-      h(SweepCard, { offerA: GAMES_OFFER, offerB: COUCH_OFFER, badge: 'Variant C', color: '#0d9488' }),
-      h(HoverRevealCard, { offer: COUCH_OFFER }),
+      h(SweepCard, {
+        urlA: INTL_DE, urlB: INTL_IT,
+        badge: 'Variant C', color: '#0d9488',
+        hint: '← DE / IT — sweep to see Copyfit handle long text →',
+      }),
+      h(HoverRevealCard, {
+        urlClean: INTL_EN_CLEAN, urlOffer: INTL_EN_FULL,
+        badge: 'Variant D',
+        topLabel: 'Adventure Travel Deals',
+        bottomLabel: 'Price: As low as $800',
+      }),
     ),
   );
 }
@@ -588,18 +732,15 @@ function LocaleSection() {
   const data = LOCALES[locale](m);
 
   const imgUrl = dmUrl({
-    percent: 50,
-    image: 'PeterStolmarNA001/approved-phone-app',
-    category: data.category,
-    hideBackground: 0,
-    enddate: data.enddate,
+    percent: 50, image: 'PeterStolmarNA001/approved-phone-app',
+    category: data.category, hideBackground: 0, enddate: data.enddate,
   }, 900);
 
   return h('section', { className: 'locale-section' },
     h('h2', { className: 'ab-heading' }, '🌐 Localization + DM Copyfit'),
     h('p', { className: 'ab-sub' },
       'Switch locale — $category and $enddate update live. ' +
-      'Copyfit rules in the DiscountOffer template automatically resize text so longer strings (German, Spanish) never overflow the layout.',
+      'Copyfit rules in the DiscountOffer template automatically resize text so longer strings never overflow.',
     ),
     h('div', { className: 'locale-flags' },
       Object.entries(LOCALES).map(([id, fn]) => {
@@ -621,29 +762,131 @@ function LocaleSection() {
       h('div', { className: 'locale-params' },
         h('p', { className: 'params-heading' }, 'Params sent to Dynamic Media:'),
         h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, '$percent'),
-          h('span', { className: 'param-val' }, '50'),
+          h('span', { className: 'param-key' }, '$percent'), h('span', { className: 'param-val' }, '50'),
         ),
         h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, '$category'),
-          h('span', { className: 'param-val' }, `"${data.category}"`),
+          h('span', { className: 'param-key' }, '$category'), h('span', { className: 'param-val' }, `"${data.category}"`),
         ),
         h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, '$enddate'),
-          h('span', { className: 'param-val' }, `"${data.enddate}"`),
+          h('span', { className: 'param-key' }, '$enddate'), h('span', { className: 'param-val' }, `"${data.enddate}"`),
         ),
         h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, 'Currency'),
-          h('span', { className: 'param-val' }, `${data.currency} (${data.symbol})`),
+          h('span', { className: 'param-key' }, 'Currency'), h('span', { className: 'param-val' }, `${data.currency} (${data.symbol})`),
         ),
         h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, 'Headline'),
-          h('span', { className: 'param-val' }, `"${data.headline}"`),
+          h('span', { className: 'param-key' }, 'Headline'), h('span', { className: 'param-val' }, `"${data.headline}"`),
         ),
         h('p', { className: 'copyfit-note' },
-          'Copyfit automatically shrinks text that would overflow the template bounds — ' +
-          'no manual size adjustment needed for longer German or Spanish strings.',
+          'Copyfit automatically shrinks text that would overflow — no manual size adjustment needed for longer language strings.',
         ),
+      ),
+    ),
+  );
+}
+
+/* ── CF × DM flip cards ─────────────────────────────────────────── */
+const CF_IDS = ['feature-headless', 'feature-personalization', 'feature-experimentation'];
+
+function FlipCard({ cfItem, templateLabel, bgUrl, delay }) {
+  const cardRef = useRef(null);
+  const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setTimeout(() => setFlipped(true), delay || 0); obs.disconnect(); }
+    }, { threshold: 0.35 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [delay]);
+
+  const loading = !cfItem;
+  const title   = cfItem?.title || '';
+  const eyebrow = cfItem?.eyebrow || '';
+  const desc    = cfItem?.description?.plaintext || '';
+
+  return h('div', { ref: cardRef, className: 'flip-card' + (flipped ? ' flipped' : '') },
+    h('div', { className: 'flip-card-inner' },
+      /* Front — CF editorial view */
+      h('div', { className: 'flip-card-front' },
+        loading
+          ? h('div', { className: 'cf-loading-shimmer', style: { width: '60%' } })
+          : h('p', { className: 'cf-eyebrow' }, eyebrow),
+        h('div', { className: 'cf-field' },
+          h('span', { className: 'cf-field-key' }, 'title'),
+          loading
+            ? h('div', { className: 'cf-loading-shimmer', style: { width: '80%' } })
+            : h('span', { className: 'cf-field-val' }, title),
+        ),
+        h('div', { className: 'cf-field' },
+          h('span', { className: 'cf-field-key' }, 'description'),
+          loading
+            ? h('div', null,
+                h('div', { className: 'cf-loading-shimmer', style: { width: '100%', marginBottom: '.35rem' } }),
+                h('div', { className: 'cf-loading-shimmer', style: { width: '75%' } }),
+              )
+            : h('span', { className: 'cf-field-val', style: { fontSize: '.82rem', opacity: .75 } }, desc.slice(0, 90) + (desc.length > 90 ? '…' : '')),
+        ),
+        h('p', { className: 'cf-label' }, 'Content Fragment → Dynamic Media'),
+        h('p', { className: 'flip-arrow' }, '↩ flip to see DM render'),
+      ),
+      /* Back — DM template image */
+      h('div', { className: 'flip-card-back' },
+        bgUrl
+          ? h('img', { src: bgUrl, alt: title, loading: 'lazy' })
+          : h('div', { className: 'cf-loading-shimmer', style: { width: '100%', height: '100%' } }),
+        h('div', { className: 'flip-back-label' }, templateLabel),
+      ),
+    ),
+  );
+}
+
+function CFDMSection() {
+  const [cfs, setCfs]   = useState({});
+  const [err, setErr]   = useState(null);
+
+  useEffect(() => {
+    fetchCFs().then(setCfs).catch(e => setErr(e.message));
+  }, []);
+
+  const headless = cfs['feature-headless'];
+
+  return h('section', { className: 'cfdm-section' },
+    h('h2', { className: 'ab-heading' }, 'Content Fragments × Dynamic Media'),
+    h('p', { className: 'ab-sub' },
+      'CF title flows directly into $offer / $category params at request time — ' +
+      'no image editing. Scroll down to flip each card and see how CF text becomes a DM-rendered offer. ' +
+      err ? `(CF fetch error: ${err} — check CORS/publish)` : 'Live from AEM publish.',
+    ),
+
+    /* Three flip cards — one per CF, on InternationalOffer */
+    h('div', { className: 'flip-grid' },
+      CF_IDS.map((id, i) => h(FlipCard, {
+        key: id,
+        cfItem: cfs[id],
+        templateLabel: 'InternationalOffer',
+        bgUrl: intlUrl(cfs[id]),
+        delay: i * 180,
+      })),
+    ),
+
+    /* Same CF text on two different templates */
+    h('p', { className: 'two-templates-heading' },
+      'Same content fragment — two different Dynamic Media templates:',
+    ),
+    h('div', { className: 'two-templates-row' },
+      h('div', { className: 'template-card' },
+        headless
+          ? h('img', { src: dmUrl({ ...COUCH_OFFER, category: headless.title, hideBackground: 0 }, 900), alt: 'DiscountOffer + CF', loading: 'lazy' })
+          : h('div', { className: 'cf-loading-shimmer', style: { height: '240px' } }),
+        h('div', { className: 'template-card-label' }, 'DiscountOffer — CF title as $category'),
+      ),
+      h('div', { className: 'template-card' },
+        headless
+          ? h('img', { src: intlUrl(headless, 900), alt: 'InternationalOffer + CF', loading: 'lazy' })
+          : h('div', { className: 'cf-loading-shimmer', style: { height: '240px' } }),
+        h('div', { className: 'template-card-label' }, 'InternationalOffer — CF title as $offer'),
       ),
     ),
   );
@@ -674,6 +917,7 @@ function App() {
     h(ThumbnailRow,    { current, onChange: setCurrent }),
     h(ABSection),
     h(LocaleSection),
+    h(CFDMSection),
     h(Footer),
   );
 }
