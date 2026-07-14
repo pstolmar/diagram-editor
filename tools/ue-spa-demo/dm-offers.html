@@ -8,7 +8,7 @@
   <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,400;1,14..32,600&display=swap" rel="stylesheet"/>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <style>
@@ -34,308 +34,136 @@
     }
 
     /* ── Hero carousel ──────────────────────────────────────────────── */
-    .hero-carousel {
-      position: relative; width: 100%; height: 70vh;
-      min-height: 480px; overflow: hidden;
-    }
-    .hero-slide {
-      position: absolute; inset: 0; display: flex;
-      opacity: 0; transition: opacity .6s ease; pointer-events: none;
-    }
+    .hero-carousel { position: relative; width: 100%; height: 70vh; min-height: 480px; overflow: hidden; }
+    .hero-slide { position: absolute; inset: 0; display: flex; opacity: 0; transition: opacity .6s ease; pointer-events: none; }
     .hero-slide.active { opacity: 1; pointer-events: auto; }
-    .slide-left {
-      width: 45%; display: flex; flex-direction: column;
-      justify-content: center; padding: 3rem 2.5rem 3rem 4rem;
-    }
-    .slide-right {
-      width: 55%; position: relative;
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
-    }
-    .slide-right img {
-      max-width: 90%; max-height: 90%; object-fit: contain;
-      position: relative; z-index: 1;
-      filter: drop-shadow(0 24px 56px rgba(0,0,0,.55));
-    }
+    .slide-left { width: 45%; display: flex; flex-direction: column; justify-content: center; padding: 3rem 2.5rem 3rem 4rem; }
+    .slide-right { width: 55%; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .slide-right img { max-width: 90%; max-height: 90%; object-fit: contain; position: relative; z-index: 1; filter: drop-shadow(0 24px 56px rgba(0,0,0,.55)); }
     .hero-slide.active .slide-right img { animation: imgFloat 6s ease-in-out infinite; }
     @keyframes imgFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-    .eyebrow {
-      font-size: .75rem; font-weight: 700; letter-spacing: .18em;
-      text-transform: uppercase; opacity: .75; margin-bottom: .875rem;
-    }
+    .eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .75; margin-bottom: .875rem; }
     .ribbon-wrap { margin-bottom: .625rem; }
-    .ribbon {
-      display: inline-block; background: #fff; color: #20232a;
-      padding: .4rem 1.5rem; transform: skewX(-12deg);
-      font-size: .8125rem; font-weight: 800;
-      letter-spacing: .12em; text-transform: uppercase;
-    }
+    .ribbon { display: inline-block; background: #fff; color: #20232a; padding: .4rem 1.5rem; transform: skewX(-12deg); font-size: .8125rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
     .ribbon span { display: inline-block; transform: skewX(12deg); }
-    .percent-num {
-      font-size: clamp(5rem, 8.5vw, 9rem); font-weight: 900;
-      line-height: 1; letter-spacing: -.03em; margin-bottom: .375rem;
-    }
-    .slide-tagline {
-      font-size: 1.1875rem; font-weight: 400;
-      font-style: italic; opacity: .88; margin-bottom: .625rem;
-    }
-    .slide-subtext {
-      font-size: .9375rem; line-height: 1.55; opacity: .65;
-      max-width: 320px; margin-bottom: 2rem;
-    }
-    .cta-btn {
-      display: inline-block; align-self: flex-start;
-      background: #e1561a; color: #fff; border: none; border-radius: 4px;
-      padding: .875rem 2rem; font-family: inherit; font-size: 1rem;
-      font-weight: 700; letter-spacing: .03em; cursor: pointer;
-      transition: background .18s, transform .12s;
-    }
+    .percent-num { font-size: clamp(5rem, 8.5vw, 9rem); font-weight: 900; line-height: 1; letter-spacing: -.03em; margin-bottom: .375rem; }
+    .slide-tagline { font-size: 1.1875rem; font-weight: 400; font-style: italic; opacity: .88; margin-bottom: .625rem; }
+    .slide-subtext { font-size: .9375rem; line-height: 1.55; opacity: .65; max-width: 320px; margin-bottom: 2rem; }
+    .cta-btn { display: inline-block; align-self: flex-start; background: #e1561a; color: #fff; border: none; border-radius: 4px; padding: .875rem 2rem; font-family: inherit; font-size: 1rem; font-weight: 700; letter-spacing: .03em; cursor: pointer; transition: background .18s, transform .12s; }
     .cta-btn:hover  { background: #c94d18; transform: translateY(-2px); }
     .cta-btn:active { transform: translateY(0); }
 
     /* ── Indicators & thumbnails ────────────────────────────────────── */
     .indicators { display: flex; justify-content: center; gap: .5rem; padding: 1.25rem 0 .75rem; }
-    .dot {
-      height: 8px; border-radius: 4px; background: rgba(255,255,255,.25);
-      border: none; cursor: pointer; transition: all .3s; width: 8px;
-    }
+    .dot { height: 8px; border-radius: 4px; background: rgba(255,255,255,.25); border: none; cursor: pointer; transition: all .3s; width: 8px; }
     .dot.active { background: #fff; width: 24px; }
-    .thumb-row {
-      display: flex; gap: 1rem; padding: .5rem 2rem 2.5rem;
-      overflow-x: auto; justify-content: center;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
-    }
-    .thumb-card {
-      flex-shrink: 0; width: 200px; border-radius: 10px; overflow: hidden;
-      cursor: pointer; border: 3px solid transparent;
-      transition: border-color .25s, box-shadow .25s, transform .2s;
-    }
+    .thumb-row { display: flex; gap: 1rem; padding: .5rem 2rem 2.5rem; overflow-x: auto; justify-content: center; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+    .thumb-card { flex-shrink: 0; width: 200px; border-radius: 10px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: border-color .25s, box-shadow .25s, transform .2s; }
     .thumb-card:hover { transform: translateY(-2px); }
     .thumb-card img { width: 100%; height: 108px; object-fit: cover; display: block; }
-    .thumb-label {
-      font-size: .7375rem; font-weight: 700; letter-spacing: .07em;
-      text-transform: uppercase; padding: .5rem .75rem;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      color: rgba(255,255,255,.8);
-    }
+    .thumb-label { font-size: .7375rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: .5rem .75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(255,255,255,.8); }
 
     /* ── A/B section ────────────────────────────────────────────────── */
-    .ab-section {
-      padding: 4rem 2rem 2rem; max-width: 1100px; margin: 0 auto;
-    }
+    .ab-section { padding: 4rem 2rem 2rem; max-width: 1100px; margin: 0 auto; }
     .ab-heading { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
-    .ab-sub {
-      font-size: .9375rem; color: rgba(255,255,255,.55);
-      margin-bottom: 2rem; max-width: 680px; line-height: 1.55;
-    }
-    .ab-row-label {
-      font-size: .7rem; font-weight: 700; letter-spacing: .14em;
-      text-transform: uppercase; color: rgba(255,255,255,.3);
-      margin-bottom: .875rem;
-    }
+    .ab-sub { font-size: .9375rem; color: rgba(255,255,255,.55); margin-bottom: 2rem; max-width: 680px; line-height: 1.55; }
+    .ab-row-label { font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: .875rem; }
     .ab-cards { display: flex; gap: 1.5rem; }
 
     /* Sweep card */
-    .sweep-card {
-      flex: 1; height: 420px; border-radius: 12px; overflow: hidden;
-      cursor: ew-resize; position: relative;
-      user-select: none; box-shadow: 0 8px 32px rgba(0,0,0,.4);
-      background: #07080d;
-    }
-    .sweep-card img.dm-img {
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-    }
-    .sweep-badge {
-      position: absolute; top: 1rem; left: 1rem;
-      padding: .3rem .875rem; border-radius: 20px;
-      font-size: .8125rem; font-weight: 800; letter-spacing: .06em; z-index: 10;
-    }
-    .sweep-variant-label {
-      position: absolute; top: 1rem; right: 1rem;
-      font-size: .7rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: rgba(255,255,255,.45); z-index: 10;
-    }
-    .sweep-hint {
-      position: absolute; bottom: 1.375rem; left: 50%; transform: translateX(-50%);
-      font-size: .8rem; color: rgba(255,255,255,.45); white-space: nowrap;
-      z-index: 10; pointer-events: none; transition: opacity .3s;
-    }
-    .sweep-divider {
-      position: absolute; top: 0; bottom: 0; width: 2px;
-      background: rgba(255,255,255,.85); box-shadow: 0 0 10px rgba(255,255,255,.5);
-      z-index: 6; pointer-events: none;
-    }
-    .sweep-handle {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 32px; height: 32px; border-radius: 50%;
-      background: #fff; display: flex; align-items: center; justify-content: center;
-      font-size: .625rem; color: #20232a; font-weight: 900;
-      box-shadow: 0 2px 8px rgba(0,0,0,.5); margin-left: -15px;
-    }
+    .sweep-card { flex: 1; height: 420px; border-radius: 12px; overflow: hidden; cursor: ew-resize; position: relative; user-select: none; box-shadow: 0 8px 32px rgba(0,0,0,.4); background: #07080d; }
+    .sweep-card img.dm-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .sweep-badge { position: absolute; top: 1rem; left: 1rem; padding: .3rem .875rem; border-radius: 20px; font-size: .8125rem; font-weight: 800; letter-spacing: .06em; z-index: 10; }
+    .sweep-variant-label { position: absolute; top: 1rem; right: 1rem; font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); z-index: 10; }
+    .sweep-hint { position: absolute; bottom: 1.375rem; left: 50%; transform: translateX(-50%); font-size: .8rem; color: rgba(255,255,255,.45); white-space: nowrap; z-index: 10; pointer-events: none; transition: opacity .3s; }
+    .sweep-divider { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,.85); box-shadow: 0 0 10px rgba(255,255,255,.5); z-index: 6; pointer-events: none; }
+    .sweep-handle { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: .625rem; color: #20232a; font-weight: 900; box-shadow: 0 2px 8px rgba(0,0,0,.5); margin-left: -15px; }
 
     /* Hover-reveal card */
-    .reveal-card {
-      flex: 1; height: 420px; border-radius: 12px; overflow: hidden;
-      cursor: pointer; position: relative;
-      background: #07080d; box-shadow: 0 8px 32px rgba(0,0,0,.4);
-      user-select: none;
-    }
-    .reveal-card img {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; transition: opacity .4s ease;
-    }
-    .reveal-badge {
-      position: absolute; top: 1rem; left: 1rem;
-      padding: .3rem .875rem; border-radius: 20px;
-      font-size: .8125rem; font-weight: 800; letter-spacing: .06em;
-      background: #7c3aed; z-index: 10;
-    }
-    .reveal-variant-label {
-      position: absolute; top: 1rem; right: 1rem;
-      font-size: .7rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: rgba(255,255,255,.45); z-index: 10;
-    }
-    .reveal-top-text {
-      position: absolute; bottom: 4rem; left: 0; right: 0;
-      text-align: center; font-size: 1rem; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: rgba(255,255,255,.9); z-index: 10;
-      text-shadow: 0 2px 12px rgba(0,0,0,.8);
-      transition: opacity .4s;
-    }
-    .reveal-bottom-text {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 1.25rem 1.5rem;
-      background: linear-gradient(0deg, rgba(0,0,0,.85) 0%, transparent 100%);
-      z-index: 10; transition: opacity .4s ease, transform .4s ease;
-      font-size: .9375rem; color: #fff;
-    }
-    .reveal-bottom-text .big-pct {
-      font-size: 2rem; font-weight: 900; color: #e1561a; margin-right: .25rem;
-    }
-    .reveal-hint {
-      position: absolute; bottom: 1.375rem; left: 50%; transform: translateX(-50%);
-      font-size: .8rem; color: rgba(255,255,255,.45); white-space: nowrap;
-      z-index: 11; pointer-events: none; transition: opacity .3s;
-    }
+    .reveal-card { flex: 1; height: 420px; border-radius: 12px; overflow: hidden; cursor: pointer; position: relative; background: #07080d; box-shadow: 0 8px 32px rgba(0,0,0,.4); user-select: none; }
+    .reveal-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .4s ease; }
+    .reveal-badge { position: absolute; top: 1rem; left: 1rem; padding: .3rem .875rem; border-radius: 20px; font-size: .8125rem; font-weight: 800; letter-spacing: .06em; background: #7c3aed; z-index: 10; }
+    .reveal-variant-label { position: absolute; top: 1rem; right: 1rem; font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); z-index: 10; }
+    .reveal-top-text { position: absolute; bottom: 4rem; left: 0; right: 0; text-align: center; font-size: 1rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.9); z-index: 10; text-shadow: 0 2px 12px rgba(0,0,0,.8); transition: opacity .4s; }
+    .reveal-bottom-text { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.25rem 1.5rem; background: linear-gradient(0deg, rgba(0,0,0,.85) 0%, transparent 100%); z-index: 10; transition: opacity .4s ease, transform .4s ease; font-size: .9375rem; color: #fff; }
+    .reveal-bottom-text .big-pct { font-size: 2rem; font-weight: 900; color: #e1561a; margin-right: .25rem; }
+    .reveal-hint { position: absolute; bottom: 1.375rem; left: 50%; transform: translateX(-50%); font-size: .8rem; color: rgba(255,255,255,.45); white-space: nowrap; z-index: 11; pointer-events: none; transition: opacity .3s; }
 
     /* ── Locale section ─────────────────────────────────────────────── */
-    .locale-section {
-      padding: 3.5rem 2rem 4rem; max-width: 1100px; margin: 0 auto;
-      border-top: 1px solid rgba(255,255,255,.07);
-    }
-    .locale-flags {
-      display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2rem;
-    }
-    .locale-flag-btn {
-      display: flex; align-items: center; gap: .5rem;
-      padding: .5rem 1.125rem; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,.15);
-      background: rgba(255,255,255,.05); color: rgba(255,255,255,.7);
-      font-family: inherit; font-size: .875rem; font-weight: 600;
-      cursor: pointer; transition: border-color .2s, background .2s, color .2s;
-    }
+    .locale-section { padding: 3.5rem 2rem 4rem; max-width: 1100px; margin: 0 auto; border-top: 1px solid rgba(255,255,255,.07); }
+    .locale-flags { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .locale-flag-btn { display: flex; align-items: center; gap: .5rem; padding: .5rem 1.125rem; border-radius: 8px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: rgba(255,255,255,.7); font-family: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; transition: border-color .2s, background .2s, color .2s; }
     .locale-flag-btn:hover { border-color: rgba(255,255,255,.35); color: #fff; }
-    .locale-flag-btn.active {
-      border-color: #61DAFB; background: rgba(97,218,251,.12); color: #fff;
-      box-shadow: 0 0 0 1px rgba(97,218,251,.2);
-    }
+    .locale-flag-btn.active { border-color: #61DAFB; background: rgba(97,218,251,.12); color: #fff; box-shadow: 0 0 0 1px rgba(97,218,251,.2); }
     .locale-flag-btn .flag { font-size: 1.25rem; line-height: 1; }
-    .locale-layout {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;
-    }
-    .locale-preview {
-      background: #07080d; border-radius: 12px; overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,.4);
-    }
+    .locale-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+    .locale-preview { background: #07080d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
     .locale-preview img { width: 100%; display: block; }
-    .locale-params {
-      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
-      border-radius: 12px; padding: 1.75rem;
-    }
-    .params-heading {
-      font-size: .7rem; font-weight: 700; letter-spacing: .12em;
-      text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 1.25rem;
-    }
-    .param-row {
-      display: flex; gap: .75rem; align-items: baseline;
-      margin-bottom: .875rem; font-size: .9rem;
-    }
-    .param-key {
-      font-family: 'Courier New', monospace; color: #61DAFB;
-      font-size: .82rem; flex-shrink: 0; min-width: 100px;
-    }
+    .locale-params { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 1.75rem; }
+    .params-heading { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 1.25rem; }
+    .param-row { display: flex; gap: .75rem; align-items: baseline; margin-bottom: .875rem; font-size: .9rem; }
+    .param-key { font-family: 'Courier New', monospace; color: #61DAFB; font-size: .82rem; flex-shrink: 0; min-width: 100px; }
     .param-val { color: rgba(255,255,255,.8); word-break: break-word; }
-    .copyfit-note {
-      margin-top: 1.5rem; font-size: .82rem;
-      color: rgba(255,255,255,.4); line-height: 1.6;
-      border-top: 1px solid rgba(255,255,255,.07); padding-top: 1rem;
-    }
+    .copyfit-note { margin-top: 1.5rem; font-size: .82rem; color: rgba(255,255,255,.4); line-height: 1.6; border-top: 1px solid rgba(255,255,255,.07); padding-top: 1rem; }
 
     /* ── CF × DM section ────────────────────────────────────────────── */
-    .cfdm-section {
-      padding: 4rem 2rem 5rem; max-width: 1100px; margin: 0 auto;
-      border-top: 1px solid rgba(255,255,255,.07);
-    }
-    .cfdm-section .ab-heading::before {
-      content: ''; display: inline-block; width: 10px; height: 10px;
-      border-radius: 50%; background: #61DAFB;
-      margin-right: .625rem; vertical-align: middle;
-      animation: pulse 2s ease-in-out infinite;
-    }
+    .cfdm-section { padding: 4rem 2rem 5rem; max-width: 1100px; margin: 0 auto; border-top: 1px solid rgba(255,255,255,.07); }
+    .cfdm-section .ab-heading::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #61DAFB; margin-right: .625rem; vertical-align: middle; animation: pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 
-    .cfdm-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
-      margin-bottom: 3rem;
-    }
-    .fade-card {
-      border-radius: 12px; overflow: hidden;
-      background: #07080d; box-shadow: 0 8px 32px rgba(0,0,0,.4);
-      opacity: 0; transform: translateY(28px);
-      transition: opacity .7s ease, transform .7s ease;
-    }
+    /* Fade-in cards (InternationalOffer grid) */
+    .cfdm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 3rem; }
+    .fade-card { border-radius: 12px; overflow: hidden; background: #07080d; box-shadow: 0 8px 32px rgba(0,0,0,.4); opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
     .fade-card.visible { opacity: 1; transform: translateY(0); }
-    .fade-card img { width: 100%; display: block; }
-    .fade-card-label {
-      padding: .75rem 1.25rem; font-size: .75rem; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: rgba(255,255,255,.5); border-top: 1px solid rgba(255,255,255,.07);
-    }
-    .cf-loading-shimmer {
-      background: linear-gradient(90deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 100%);
-      background-size: 200% 100%; animation: shimmer 1.5s infinite;
-      border-radius: 4px; height: 1em;
-    }
+    .fade-card-img-wrap { position: relative; line-height: 0; }
+    .fade-card-img-wrap img { width: 100%; display: block; }
+    .fade-hover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .45s ease; }
+    .fade-card-label { padding: .75rem 1.25rem; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.5); border-top: 1px solid rgba(255,255,255,.07); }
+
+    /* Effect cards (drag-to-reorder DiscountOffer) */
+    .effect-cards-row { display: flex; gap: 1rem; margin-bottom: 2.5rem; }
+    .effect-card { flex: 1; border-radius: 12px; overflow: hidden; cursor: grab; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,.4); background: #07080d; border: 2px solid transparent; user-select: none; transition: transform .25s, box-shadow .25s, opacity .2s, border-color .2s; }
+    .effect-card.dragging  { opacity: .35; transform: scale(.96); cursor: grabbing; }
+    .effect-card.drag-over { border-color: var(--accent, #61DAFB); box-shadow: 0 0 0 2px var(--accent, #61DAFB), 0 8px 32px rgba(0,0,0,.4); }
+
+    /* Spotlight */
+    .effect-spotlight .img-stack { position: relative; line-height: 0; }
+    .effect-spotlight .img-layer-base { width: 100%; display: block; filter: saturate(.04) brightness(.72); }
+    .effect-spotlight .img-layer-color { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      mask-image: radial-gradient(circle 170px at var(--mx,-200px) var(--my,-200px), black 30%, transparent 100%);
+      -webkit-mask-image: radial-gradient(circle 170px at var(--mx,-200px) var(--my,-200px), black 30%, transparent 100%); }
+
+    /* Grayscale → color */
+    .effect-grayscale .effect-dm-img { width: 100%; display: block; filter: grayscale(1) contrast(1.05); transition: filter .55s ease; }
+    .effect-grayscale:hover .effect-dm-img { filter: grayscale(0) contrast(1); }
+
+    /* CRT scan lines */
+    .effect-scanlines::before { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,0,0,.14) 2px, rgba(0,0,0,.14) 4px);
+      transition: opacity .4s; }
+    .effect-scanlines:hover::before { opacity: 0; }
+    .effect-scanlines .effect-dm-img { width: 100%; display: block; filter: saturate(.6) hue-rotate(-8deg); transition: filter .4s; }
+    .effect-scanlines:hover .effect-dm-img { filter: saturate(1.2) hue-rotate(0deg); }
+
+    .effect-card-meta { padding: .625rem 1rem .875rem; display: flex; flex-direction: column; gap: .15rem; border-top: 1px solid rgba(255,255,255,.07); }
+    .effect-pct { font-size: 1.625rem; font-weight: 900; color: var(--accent, #fff); line-height: 1.1; }
+    .effect-cat { font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.7); }
+    .effect-date { font-size: .68rem; color: rgba(255,255,255,.32); }
+    .effect-drag-hint { position: absolute; top: .625rem; right: .75rem; font-size: .7rem; color: rgba(255,255,255,.35); letter-spacing: .04em; }
+
+    /* Two-templates / intl card */
+    .two-templates-heading { font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 1rem; }
+    .intl-cf-card { border-radius: 12px; overflow: hidden; background: #07080d; box-shadow: 0 8px 32px rgba(0,0,0,.4); max-width: 480px; }
+    .intl-cf-card img { width: 100%; display: block; }
+    .intl-cf-label { padding: .75rem 1rem; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.45); border-top: 1px solid rgba(255,255,255,.06); }
+
+    /* Loading shimmer */
+    .cf-loading-shimmer { background: linear-gradient(90deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    /* Same CF, two templates row */
-    .two-templates-heading {
-      font-size: .7rem; font-weight: 700; letter-spacing: .14em;
-      text-transform: uppercase; color: rgba(255,255,255,.3);
-      margin-bottom: 1rem;
-    }
-    .two-templates-row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
-    }
-    .template-card {
-      border-radius: 12px; overflow: hidden; background: #07080d;
-      box-shadow: 0 8px 32px rgba(0,0,0,.4);
-    }
-    .template-card img { width: 100%; display: block; }
-    .template-card-label {
-      padding: .75rem 1rem; font-size: .75rem; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: rgba(255,255,255,.45);
-      border-top: 1px solid rgba(255,255,255,.06);
-    }
-
     /* ── Footer ─────────────────────────────────────────────────────── */
-    .footer {
-      background: rgba(0,0,0,.35); border-top: 1px solid rgba(255,255,255,.07);
-      text-align: center; padding: 1.25rem 2rem;
-      font-size: .8125rem; color: rgba(255,255,255,.45); letter-spacing: .03em;
-    }
+    .footer { background: rgba(0,0,0,.35); border-top: 1px solid rgba(255,255,255,.07); text-align: center; padding: 1.25rem 2rem; font-size: .8125rem; color: rgba(255,255,255,.45); letter-spacing: .03em; }
 
     @media (max-width: 768px) {
       .hero-carousel { height: auto; min-height: unset; }
@@ -346,19 +174,16 @@
       .ab-cards { flex-direction: column; }
       .sweep-card, .reveal-card { height: 280px; }
       .locale-layout { grid-template-columns: 1fr; }
-      .cfdm-grid { grid-template-columns: 1fr; }
-      .two-templates-row { grid-template-columns: 1fr; }
+      .cfdm-grid, .effect-cards-row { flex-direction: column; grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 <div id="root"></div>
-
 <script>
 'use strict';
 const { useState, useEffect, useRef, useCallback, createElement: h } = React;
 
-/* ── AEM publish ─────────────────────────────────────────────────── */
 const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
 
 /* ── Month utilities ─────────────────────────────────────────────── */
@@ -368,496 +193,419 @@ const MONTH_NAMES = {
   'es-MX': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],
   'es-ES': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],
 };
-
 function offerMonthForLocale(locale) {
   const now = new Date();
-  const idx = (now.getMonth() + (now.getDate() > 20 ? 2 : 1)) % 12;
-  return MONTH_NAMES[locale][idx];
+  return MONTH_NAMES[locale][(now.getMonth() + (now.getDate() > 20 ? 2 : 1)) % 12];
 }
-
 const OFFER_MONTH = offerMonthForLocale('en-US');
 const ENDDATE     = `${OFFER_MONTH} 15, 2026`;
 
-/* ── Locale data (DiscountOffer panel) ───────────────────────────── */
+/* ── Locale data ─────────────────────────────────────────────────── */
 const LOCALES = {
-  'en-US': (m) => ({
-    flag: '🇺🇸', label: 'English (US)',
-    category: 'Couch Co-op', currency: 'USD', symbol: '$',
-    enddate: `${m} 15, 2026`,
-    headline: `${m} savings are here`,
-  }),
-  'de-DE': (m) => ({
-    flag: '🇩🇪', label: 'Deutsch (DE)',
-    category: 'Couch-Koop-Spiele', currency: 'EUR', symbol: '€',
-    enddate: `15. ${m} 2026`,
-    headline: `${m}-Angebote sind da`,
-  }),
-  'es-MX': (m) => ({
-    flag: '🇲🇽', label: 'Español (MX)',
-    category: 'Cooperativo en sofá', currency: 'MXN', symbol: 'MX$',
-    enddate: `15 de ${m} de 2026`,
-    headline: `Ahorros de ${m}`,
-  }),
-  'es-ES': (m) => ({
-    flag: '🇪🇸', label: 'Español (ES)',
-    category: 'Cooperativo en el sofá', currency: 'EUR', symbol: '€',
-    enddate: `15 de ${m} de 2026`,
-    headline: `Ofertas de ${m}`,
-  }),
+  'en-US': (m) => ({ flag:'🇺🇸', label:'English (US)', category:'Couch Co-op',          currency:'USD', symbol:'$',   enddate:`${m} 15, 2026`,       headline:`${m} savings are here` }),
+  'de-DE': (m) => ({ flag:'🇩🇪', label:'Deutsch (DE)', category:'Couch-Koop-Spiele',    currency:'EUR', symbol:'€',   enddate:`15. ${m} 2026`,        headline:`${m}-Angebote sind da` }),
+  'es-MX': (m) => ({ flag:'🇲🇽', label:'Español (MX)', category:'Cooperativo en sofá',  currency:'MXN', symbol:'MX$', enddate:`15 de ${m} de 2026`,   headline:`Ahorros de ${m}` }),
+  'es-ES': (m) => ({ flag:'🇪🇸', label:'Español (ES)', category:'Cooperativo en el sofá',currency:'EUR', symbol:'€',   enddate:`15 de ${m} de 2026`,   headline:`Ofertas de ${m}` }),
 };
 
 /* ── DiscountOffer URL builder ───────────────────────────────────── */
 function dmUrl({ percent, image, category, hideBackground, enddate }, width) {
-  const base = 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/DiscountOffer';
-  const enc  = encodeURIComponent;
-  return (
-    `${base}?$hidebackground=${hideBackground}` +
-    `&$percent=${percent}` +
-    `&$image=${image}` +
-    `&$category=${enc(category)}` +
-    `&$enddate=${enc(enddate || ENDDATE)}` +
-    `&wid=${width}&qlt=85&fmt=png-alpha`
-  );
+  const enc = encodeURIComponent;
+  return 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/DiscountOffer' +
+    `?$hidebackground=${hideBackground}&$percent=${percent}&$image=${image}` +
+    `&$category=${enc(category)}&$enddate=${enc(enddate || ENDDATE)}` +
+    `&wid=${width}&qlt=85&fmt=png-alpha`;
 }
 
-/* ── InternationalOffer URL builder (from CF item) ───────────────── */
+/* ── InternationalOffer URL builder ─────────────────────────────── */
 const INTL_BASE = 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/InternationalOffer';
-function intlUrl(cfItem, width = 900) {
+function intlUrl(cfItem, opts = {}, width = 900) {
   const enc   = encodeURIComponent;
   const title = cfItem?.title || 'Adobe Experience';
-  /* description goes into $offer — InternationalOffer has relaxed Copyfit (3 lines) */
   const desc  = cfItem?.description?.plaintext || title;
-  return `${INTL_BASE}?$offer=${enc(desc)}&$price=${enc(title)}&$hideprice=0` +
-    `&$hidepurplecircle=1&$hideyellowcircle=0&$hidemiddlecircle=1` +
+  const { circle = null, swapText = false } = opts;
+  /* swapText: put title in $offer (big), desc in $price — used for Personalization */
+  const offerText = swapText ? title : desc;
+  const priceText = swapText ? desc  : title;
+  const hideYel = circle === 'yellow' ? 0 : 1;
+  const hidePur = circle === 'purple' ? 0 : 1;
+  const hideMid = circle === 'middle' ? 0 : 1;
+  const hideBlu = circle === 'blue'   ? 0 : 1;
+  return `${INTL_BASE}?$offer=${enc(offerText)}&$price=${enc(priceText)}&$hideprice=0` +
+    `&$hidepurplecircle=${hidePur}&$hideyellowcircle=${hideYel}` +
+    `&$hidemiddlecircle=${hideMid}&$hidebluecircle=${hideBlu}` +
     `&wid=${width}&qlt=85&fmt=jpeg`;
 }
 
-/* ── InternationalOffer — raw fixed URLs ─────────────────────────── */
-const INTL_EN_CLEAN = INTL_BASE +
-  '?$offer=Adventure%20Travel%20Deals&$price=As%20low%20as%20%24800' +
-  '&$hideprice=1&$hidepurplecircle=1&$hideyellowcircle=1&$hidemiddlecircle=1' +
-  '&wid=900&qlt=85&fmt=jpeg';
-
+/* ── InternationalOffer fixed raw URLs ───────────────────────────── */
 const INTL_EN_FULL = INTL_BASE +
   '?$offer=Adventure%20Travel%20Deals&$price=As%20low%20as%20%24800' +
   '&$hideprice=0&$hidepurplecircle=1&$hideyellowcircle=1&$hidemiddlecircle=1' +
   '&wid=900&qlt=85&fmt=jpeg';
-
 const INTL_DE = INTL_BASE +
   '?$offer=Resort-Urlaube%20Verpflegung%20und%20Getr%C3%A4nke%20inklusive' +
   '&$price=Ab%20%E2%82%AC1000&$hideprice=0' +
   '&hidebluecircle=1&hidepurplecircle=1&hideyellowcircle=0' +
   '&wid=900&qlt=90&fit=constrain&fmt=jpeg';
-
 const INTL_IT = INTL_BASE +
   '?$offer=Villaggi%20turistici%20tutto%20compreso' +
   '&$price=a%20partire%20da%20un%20milione%20settecentomila%20lire' +
   '&$hideprice=0&$hidebluecircle=1&$hidepurplecircle=1&$hideyellowcircle=1' +
   '&$hideredrectangle=0&wid=900&qlt=90&fit=constrain&fmt=jpeg';
 
-/* ── Hero slide / offer data ─────────────────────────────────────── */
+/* ── Hero data ───────────────────────────────────────────────────── */
 const SLIDES = [
-  {
-    id: 'games', percent: 75,
-    image: 'PeterStolmarNA001/approved-phone-app',
-    category: 'Digital Games', hideBackground: 0,
-    gradient: 'linear-gradient(135deg, #1a6fd4 0%, #0a3d8f 100%)',
-    accentColor: '#1a6fd4', label: 'Digital Games',
-    subtext: 'Score massive deals on the hottest game titles this month.',
-  },
-  {
-    id: 'travel', percent: 40,
-    image: 'PeterStolmarNA001/AdobeStock_177645726-3:Large',
-    category: 'Travel Packages', hideBackground: 1,
-    gradient: 'linear-gradient(135deg, #0d9488 0%, #065f46 100%)',
-    accentColor: '#0d9488', label: 'Travel Packages',
-    subtext: 'Explore world-class destinations at unbeatable prices.',
-  },
-  {
-    id: 'phones', percent: 30,
-    image: 'PeterStolmarNA001/approved-phone-app',
-    category: 'Smartphones', hideBackground: 0,
-    gradient: 'linear-gradient(135deg, #7c3aed 0%, #2e1065 100%)',
-    accentColor: '#7c3aed', label: 'Smartphones',
-    subtext: 'Upgrade to the latest flagship smartphones at a fraction of the cost.',
-  },
+  { id:'games',  percent:75, image:'PeterStolmarNA001/approved-phone-app',           category:'Digital Games',  hideBackground:0, gradient:'linear-gradient(135deg,#1a6fd4,#0a3d8f)', accentColor:'#1a6fd4', label:'Digital Games',  subtext:'Score massive deals on the hottest game titles this month.' },
+  { id:'travel', percent:40, image:'PeterStolmarNA001/AdobeStock_177645726-3:Large', category:'Travel Packages',hideBackground:1, gradient:'linear-gradient(135deg,#0d9488,#065f46)', accentColor:'#0d9488', label:'Travel Packages', subtext:'Explore world-class destinations at unbeatable prices.' },
+  { id:'phones', percent:30, image:'PeterStolmarNA001/approved-phone-app',           category:'Smartphones',    hideBackground:0, gradient:'linear-gradient(135deg,#7c3aed,#2e1065)', accentColor:'#7c3aed', label:'Smartphones',    subtext:'Upgrade to the latest flagship smartphones at a fraction of the cost.' },
 ];
 
-const COUCH_OFFER = {
-  percent: 50, image: 'PeterStolmarNA001/approved-phone-app',
-  category: 'Couch Co-op', enddate: `${OFFER_MONTH} 9, 2026`,
-};
-const GAMES_OFFER = {
-  percent: 75, image: 'PeterStolmarNA001/approved-phone-app',
-  category: 'Digital Games', enddate: `${OFFER_MONTH} 15, 2026`,
-};
+const COUCH_OFFER = { percent:50, image:'PeterStolmarNA001/approved-phone-app', category:'Couch Co-op', enddate:`${OFFER_MONTH} 9, 2026` };
+const GAMES_OFFER = { percent:75, image:'PeterStolmarNA001/approved-phone-app', category:'Digital Games', enddate:`${OFFER_MONTH} 15, 2026` };
+
+/* Effect card configs for drag-to-reorder section */
+const EFFECT_CARDS = [
+  { cfId:'feature-headless',        percent:50, enddate:`${OFFER_MONTH} 9, 2026`,  effect:'spotlight', accentColor:'#61DAFB' },
+  { cfId:'feature-personalization', percent:35, enddate:`${OFFER_MONTH} 18, 2026`, effect:'grayscale', accentColor:'#f59e0b' },
+  { cfId:'feature-experimentation', percent:65, enddate:`${OFFER_MONTH} 5, 2026`,  effect:'scanlines', accentColor:'#a78bfa' },
+];
 
 /* ── CF fetch ────────────────────────────────────────────────────── */
 function fetchCFs() {
-  return fetch(
-    PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
-    { headers: { Accept: 'application/json' }, cache: 'no-store' }
-  ).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-   .then(d => {
-     const map = {};
-     (d?.data?.homeHeroList?.items || []).forEach(i => {
-       map[i._path.split('/').pop()] = i;
-     });
-     return map;
-   });
+  return fetch(PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
+    { headers:{ Accept:'application/json' }, cache:'no-store' })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(d => {
+      const map = {};
+      (d?.data?.homeHeroList?.items || []).forEach(i => { map[i._path.split('/').pop()] = i; });
+      return map;
+    });
 }
 
 /* ── NavBar ──────────────────────────────────────────────────────── */
 function NavBar() {
-  return h('nav', { className: 'navbar' },
-    h('div', { className: 'navbar-brand' }, '◈ Offers Demo'),
-    h('div', { className: 'navbar-badge' }, 'Powered by Adobe Dynamic Media'),
+  return h('nav', { className:'navbar' },
+    h('div', { className:'navbar-brand' }, '◈ Offers Demo'),
+    h('div', { className:'navbar-badge' }, 'Powered by Adobe Dynamic Media'),
   );
 }
 
-/* ── Hero components ─────────────────────────────────────────────── */
+/* ── Hero ────────────────────────────────────────────────────────── */
 function HeroSlide({ slide, isActive }) {
-  return h('div', {
-    className: 'hero-slide' + (isActive ? ' active' : ''),
-    style: { background: slide.gradient },
-  },
-    h('div', { className: 'slide-left' },
-      h('p', { className: 'eyebrow' }, slide.label),
-      h('div', { className: 'ribbon-wrap' },
-        h('div', { className: 'ribbon' }, h('span', null, 'Save Up To')),
-      ),
-      h('div', { className: 'percent-num' }, `${slide.percent}%`),
-      h('p', { className: 'slide-tagline' }, `${OFFER_MONTH} savings are here`),
-      h('p', { className: 'slide-subtext' }, slide.subtext),
-      h('button', { className: 'cta-btn' }, 'Shop now →'),
+  return h('div', { className:'hero-slide'+(isActive?' active':''), style:{ background:slide.gradient } },
+    h('div', { className:'slide-left' },
+      h('p', { className:'eyebrow' }, slide.label),
+      h('div', { className:'ribbon-wrap' }, h('div', { className:'ribbon' }, h('span', null, 'Save Up To'))),
+      h('div', { className:'percent-num' }, `${slide.percent}%`),
+      h('p', { className:'slide-tagline' }, `${OFFER_MONTH} savings are here`),
+      h('p', { className:'slide-subtext' }, slide.subtext),
+      h('button', { className:'cta-btn' }, 'Shop now →'),
     ),
-    h('div', { className: 'slide-right' },
-      h('img', {
-        src: dmUrl(slide, 900), alt: `${slide.category} offer`,
-        loading: isActive ? 'eager' : 'lazy',
-      }),
+    h('div', { className:'slide-right' },
+      h('img', { src:dmUrl(slide, 900), alt:slide.category, loading:isActive?'eager':'lazy' }),
     ),
   );
 }
-
 function HeroCarousel({ current, onHoverChange }) {
-  return h('div', {
-    className: 'hero-carousel',
-    onMouseEnter: () => onHoverChange(true),
-    onMouseLeave: () => onHoverChange(false),
-  }, ...SLIDES.map((s, i) => h(HeroSlide, { key: s.id, slide: s, isActive: i === current })));
+  return h('div', { className:'hero-carousel', onMouseEnter:()=>onHoverChange(true), onMouseLeave:()=>onHoverChange(false) },
+    ...SLIDES.map((s,i) => h(HeroSlide, { key:s.id, slide:s, isActive:i===current })));
 }
-
 function SlideIndicators({ current, onChange }) {
-  return h('div', { className: 'indicators' },
-    SLIDES.map((s, i) => h('button', {
-      key: s.id, className: 'dot' + (i === current ? ' active' : ''),
-      onClick: () => onChange(i), 'aria-label': `Slide ${i + 1}`,
-    }))
-  );
+  return h('div', { className:'indicators' },
+    SLIDES.map((s,i) => h('button', { key:s.id, className:'dot'+(i===current?' active':''), onClick:()=>onChange(i), 'aria-label':`Slide ${i+1}` })));
 }
-
 function ThumbnailRow({ current, onChange }) {
-  return h('div', { className: 'thumb-row' },
-    SLIDES.map((s, i) => {
-      const active = i === current;
-      return h('div', {
-        key: s.id, className: 'thumb-card',
-        style: {
-          background: s.gradient,
-          borderColor: active ? s.accentColor : 'transparent',
-          boxShadow: active
-            ? `0 0 0 1px ${s.accentColor}40, 0 8px 24px rgba(0,0,0,.4)`
-            : '0 4px 16px rgba(0,0,0,.3)',
-        },
-        onClick: () => onChange(i),
-      },
-        h('img', { src: dmUrl(s, 320), alt: s.label, loading: 'lazy' }),
-        h('div', { className: 'thumb-label' }, s.label),
+  return h('div', { className:'thumb-row' },
+    SLIDES.map((s,i) => {
+      const active = i===current;
+      return h('div', { key:s.id, className:'thumb-card',
+        style:{ background:s.gradient, borderColor:active?s.accentColor:'transparent', boxShadow:active?`0 0 0 1px ${s.accentColor}40,0 8px 24px rgba(0,0,0,.4)`:'0 4px 16px rgba(0,0,0,.3)' },
+        onClick:()=>onChange(i) },
+        h('img', { src:dmUrl(s,320), alt:s.label, loading:'lazy' }),
+        h('div', { className:'thumb-label' }, s.label),
       );
     })
   );
 }
 
-/* ── Sweep card ─────────────────────────────────────────────────── */
-/* Accepts either offer objects (urlA/urlB auto-built) or raw string URLs */
-function SweepCard({ offerA, offerB, urlA: rawA, urlB: rawB, badge = 'Variant A', color = '#1a6fd4', hint = '← sweep to compare →' }) {
+/* ── Sweep card ──────────────────────────────────────────────────── */
+function SweepCard({ offerA, offerB, urlA:rawA, urlB:rawB, badge='Variant A', color='#1a6fd4', hint='← sweep to compare →' }) {
   const cardRef = useRef(null);
   const [pct, setPct]           = useState(50);
   const [hovering, setHovering] = useState(false);
-
   const onMouseMove = useCallback((e) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    setPct(Math.round(Math.max(2, Math.min(98, (e.clientX - rect.left) / rect.width * 100))));
+    setPct(Math.round(Math.max(2, Math.min(98, (e.clientX-rect.left)/rect.width*100))));
   }, []);
-
-  const urlA = rawA || dmUrl({ ...offerA, hideBackground: 0 }, 900);
-  const urlB = rawB || dmUrl({ ...offerB, hideBackground: 0 }, 900);
-
-  return h('div', {
-    ref: cardRef, className: 'sweep-card',
-    onMouseMove, onMouseEnter: () => setHovering(true),
-    onMouseLeave: () => { setHovering(false); setPct(50); },
-  },
-    h('img', { className: 'dm-img', src: urlA, alt: 'A', style: { zIndex: 1 } }),
-    h('img', {
-      className: 'dm-img', src: urlB, alt: 'B',
-      style: {
-        zIndex: 2,
-        clipPath: `inset(0 ${100 - pct}% 0 0)`,
-        transition: hovering ? 'none' : 'clip-path .45s ease',
-      },
-    }),
-    hovering && h('div', {
-      className: 'sweep-divider', style: { left: `${pct}%`, zIndex: 3 },
-    }, h('div', { className: 'sweep-handle' }, '↔')),
-    h('div', { className: 'sweep-badge', style: { background: color, zIndex: 10 } }, badge),
-    h('div', { className: 'sweep-variant-label', style: { zIndex: 10 } }, 'sweep to compare'),
-    h('div', { className: 'sweep-hint', style: { opacity: hovering ? 0 : 1, zIndex: 10 } }, hint),
+  const urlA = rawA || dmUrl({ ...offerA, hideBackground:0 }, 900);
+  const urlB = rawB || dmUrl({ ...offerB, hideBackground:0 }, 900);
+  return h('div', { ref:cardRef, className:'sweep-card', onMouseMove, onMouseEnter:()=>setHovering(true), onMouseLeave:()=>{ setHovering(false); setPct(50); } },
+    h('img', { className:'dm-img', src:urlA, alt:'A', style:{ zIndex:1 } }),
+    h('img', { className:'dm-img', src:urlB, alt:'B', style:{ zIndex:2, clipPath:`inset(0 ${100-pct}% 0 0)`, transition:hovering?'none':'clip-path .45s ease' } }),
+    hovering && h('div', { className:'sweep-divider', style:{ left:`${pct}%`, zIndex:3 } }, h('div', { className:'sweep-handle' }, '↔')),
+    h('div', { className:'sweep-badge', style:{ background:color, zIndex:10 } }, badge),
+    h('div', { className:'sweep-variant-label', style:{ zIndex:10 } }, 'sweep to compare'),
+    h('div', { className:'sweep-hint', style:{ opacity:hovering?0:1, zIndex:10 } }, hint),
   );
 }
 
 /* ── Hover-reveal card ───────────────────────────────────────────── */
-/* Accepts either an offer object or raw clean/offer URLs */
-function HoverRevealCard({ offer, urlClean: rawClean, urlOffer: rawOffer, badge = 'Variant B', topLabel, bottomLabel }) {
+function HoverRevealCard({ offer, urlClean:rawClean, urlOffer:rawOffer, badge='Variant B', topLabel, bottomLabel }) {
   const [hovered, setHovered] = useState(false);
-  const cleanUrl = rawClean || (offer && dmUrl({ ...offer, hideBackground: 1 }, 900));
-  const offerUrl = rawOffer || (offer && dmUrl({ ...offer, hideBackground: 0 }, 900));
+  const cleanUrl = rawClean || (offer && dmUrl({ ...offer, hideBackground:1 }, 900));
+  const offerUrl = rawOffer || (offer && dmUrl({ ...offer, hideBackground:0 }, 900));
   const topText  = topLabel  || offer?.category || '';
-  const botText  = bottomLabel || (offer ? `${offer.percent}% off · ends ${offer.enddate}` : '');
-
-  return h('div', {
-    className: 'reveal-card',
-    onMouseEnter: () => setHovered(true),
-    onMouseLeave: () => setHovered(false),
-  },
-    h('img', { src: cleanUrl, alt: 'Clean', style: { opacity: hovered ? 0 : 1 } }),
-    h('img', { src: offerUrl, alt: 'Offer', style: { opacity: hovered ? 1 : 0 } }),
-    h('div', { className: 'reveal-badge' }, badge),
-    h('div', { className: 'reveal-variant-label' }, 'hover to reveal'),
-    topText && h('div', {
-      className: 'reveal-top-text', style: { opacity: hovered ? 0 : 1 },
-    }, topText),
-    h('div', {
-      className: 'reveal-bottom-text',
-      style: { opacity: hovered ? 1 : 0, transform: hovered ? 'translateY(0)' : 'translateY(10px)' },
-    },
-      botText && h('span', { className: 'big-pct' }, botText.split(' ')[0]),
-      botText && (' ' + botText.split(' ').slice(1).join(' ')),
+  const botText  = bottomLabel !== undefined ? bottomLabel : (offer ? `${offer.percent}% off · ends ${offer.enddate}` : '');
+  return h('div', { className:'reveal-card', onMouseEnter:()=>setHovered(true), onMouseLeave:()=>setHovered(false) },
+    h('img', { src:cleanUrl, alt:'Clean', style:{ opacity:hovered?0:1 } }),
+    h('img', { src:offerUrl, alt:'Offer', style:{ opacity:hovered?1:0 } }),
+    h('div', { className:'reveal-badge' }, badge),
+    h('div', { className:'reveal-variant-label' }, 'hover to reveal'),
+    topText && h('div', { className:'reveal-top-text', style:{ opacity:hovered?0:1 } }, topText),
+    h('div', { className:'reveal-bottom-text', style:{ opacity:hovered?1:0, transform:hovered?'translateY(0)':'translateY(10px)' } },
+      botText && h('span', { className:'big-pct' }, botText.split(' ')[0]),
+      botText && ' '+botText.split(' ').slice(1).join(' '),
     ),
-    h('div', { className: 'reveal-hint', style: { opacity: hovered ? 0 : 1 } },
-      'hover to reveal offer →'),
+    h('div', { className:'reveal-hint', style:{ opacity:hovered?0:1 } }, 'hover to reveal →'),
   );
 }
 
-/* ── A/B section — two rows ─────────────────────────────────────── */
+/* ── A/B section ─────────────────────────────────────────────────── */
 function ABSection() {
-  return h('section', { className: 'ab-section' },
-    h('h2', { className: 'ab-heading' }, 'A/B — Dynamic Media interaction variants'),
-    h('p', { className: 'ab-sub' },
-      'Two interaction patterns, two templates. ' +
-      'Sweep cards wipe between two full DM renders. Hover cards fade from clean image → offer overlay.',
+  return h('section', { className:'ab-section' },
+    h('h2', { className:'ab-heading' }, 'A/B — Dynamic Media interaction variants'),
+    h('p', { className:'ab-sub' }, 'Two interaction patterns, two templates. Sweep cards wipe between two full DM renders. Hover cards crossfade between template variants.'),
+
+    h('p', { className:'ab-row-label' }, 'Row 1 — DiscountOffer · 75% Digital Games vs 50% Couch Co-op'),
+    h('div', { className:'ab-cards' },
+      h(SweepCard, { offerA:GAMES_OFFER, offerB:COUCH_OFFER, badge:'Variant A', color:'#1a6fd4', hint:'← sweep to compare offers →' }),
+      h(HoverRevealCard, { offer:COUCH_OFFER, badge:'Variant B' }),
     ),
 
-    h('p', { className: 'ab-row-label' }, 'Row 1 — DiscountOffer · 75% Digital Games vs 50% Couch Co-op'),
-    h('div', { className: 'ab-cards' },
-      h(SweepCard, { offerA: GAMES_OFFER, offerB: COUCH_OFFER, badge: 'Variant A', color: '#1a6fd4', hint: '← sweep to compare offers →' }),
-      h(HoverRevealCard, { offer: COUCH_OFFER, badge: 'Variant B' }),
-    ),
-
-    h('p', { className: 'ab-row-label', style: { marginTop: '2rem' } },
-      'Row 2 — InternationalOffer · DE vs IT sweep · EN → IT hover (font-size drama)'),
-    h('div', { className: 'ab-cards', style: { justifyContent: 'center' } },
-      /* Variant C — shrunk so it doesn't dominate; sweep DE ↔ IT Copyfit */
-      h('div', { style: { flex: '0 0 420px', maxWidth: '420px' } },
-        h(SweepCard, {
-          urlA: INTL_DE, urlB: INTL_IT,
-          badge: 'Variant C', color: '#0d9488',
-          hint: '← DE / IT — watch Copyfit handle the Lira price →',
-        }),
+    h('p', { className:'ab-row-label', style:{ marginTop:'2rem' } }, 'Row 2 — InternationalOffer · DE vs IT sweep · EN→IT hover (Copyfit font-size drama)'),
+    h('div', { className:'ab-cards', style:{ justifyContent:'center' } },
+      h('div', { style:{ flex:'0 0 420px', maxWidth:'420px' } },
+        h(SweepCard, { urlA:INTL_DE, urlB:INTL_IT, badge:'Variant C', color:'#0d9488', hint:'← DE / IT — watch Copyfit handle the Lira price →' }),
       ),
-      /* Variant D — English default, hover shows Italian (dramatic Copyfit shrink) */
-      h(HoverRevealCard, {
-        urlClean: INTL_EN_FULL, urlOffer: INTL_IT,
-        badge: 'Variant D',
-        topLabel: 'Adventure Travel Deals',
-        bottomLabel: '',
-      }),
+      h('div', { style:{ flex:'0 0 420px', maxWidth:'420px' } },
+        h(HoverRevealCard, { urlClean:INTL_EN_FULL, urlOffer:INTL_IT, badge:'Variant D', topLabel:'Adventure Travel Deals', bottomLabel:'' }),
+      ),
     ),
   );
 }
 
-/* ── Locale + Copyfit section ────────────────────────────────────── */
+/* ── Locale section ──────────────────────────────────────────────── */
 function LocaleSection() {
   const [locale, setLocale] = useState('en-US');
   const m    = offerMonthForLocale(locale);
   const data = LOCALES[locale](m);
-
-  const imgUrl = dmUrl({
-    percent: 50, image: 'PeterStolmarNA001/approved-phone-app',
-    category: data.category, hideBackground: 0, enddate: data.enddate,
-  }, 900);
-
-  return h('section', { className: 'locale-section' },
-    h('h2', { className: 'ab-heading' }, '🌐 Localization + DM Copyfit'),
-    h('p', { className: 'ab-sub' },
-      'Switch locale — $category and $enddate update live. ' +
-      'Copyfit rules in the DiscountOffer template automatically resize text so longer strings never overflow.',
-    ),
-    h('div', { className: 'locale-flags' },
+  const imgUrl = dmUrl({ percent:50, image:'PeterStolmarNA001/approved-phone-app', category:data.category, hideBackground:0, enddate:data.enddate }, 900);
+  return h('section', { className:'locale-section' },
+    h('h2', { className:'ab-heading' }, '🌐 Localization + DM Copyfit'),
+    h('p', { className:'ab-sub' }, 'Switch locale — $category and $enddate update live. Copyfit rules automatically resize text so longer strings never overflow.'),
+    h('div', { className:'locale-flags' },
       Object.entries(LOCALES).map(([id, fn]) => {
         const d = fn(offerMonthForLocale(id));
-        return h('button', {
-          key: id,
-          className: 'locale-flag-btn' + (locale === id ? ' active' : ''),
-          onClick: () => setLocale(id),
-        },
-          h('span', { className: 'flag' }, d.flag),
-          h('span', null, d.label),
-        );
+        return h('button', { key:id, className:'locale-flag-btn'+(locale===id?' active':''), onClick:()=>setLocale(id) },
+          h('span', { className:'flag' }, d.flag), h('span', null, d.label));
       }),
     ),
-    h('div', { className: 'locale-layout' },
-      h('div', { className: 'locale-preview' },
-        h('img', { key: imgUrl, src: imgUrl, alt: `${locale} offer` }),
-      ),
-      h('div', { className: 'locale-params' },
-        h('p', { className: 'params-heading' }, 'Params sent to Dynamic Media:'),
-        h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, '$percent'), h('span', { className: 'param-val' }, '50'),
+    h('div', { className:'locale-layout' },
+      h('div', { className:'locale-preview' }, h('img', { key:imgUrl, src:imgUrl, alt:locale })),
+      h('div', { className:'locale-params' },
+        h('p', { className:'params-heading' }, 'Params sent to Dynamic Media:'),
+        ...[ ['$percent','50'], ['$category',`"${data.category}"`], ['$enddate',`"${data.enddate}"`], ['Currency',`${data.currency} (${data.symbol})`], ['Headline',`"${data.headline}"`] ].map(([k,v]) =>
+          h('div', { key:k, className:'param-row' }, h('span',{className:'param-key'},k), h('span',{className:'param-val'},v))
         ),
-        h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, '$category'), h('span', { className: 'param-val' }, `"${data.category}"`),
-        ),
-        h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, '$enddate'), h('span', { className: 'param-val' }, `"${data.enddate}"`),
-        ),
-        h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, 'Currency'), h('span', { className: 'param-val' }, `${data.currency} (${data.symbol})`),
-        ),
-        h('div', { className: 'param-row' },
-          h('span', { className: 'param-key' }, 'Headline'), h('span', { className: 'param-val' }, `"${data.headline}"`),
-        ),
-        h('p', { className: 'copyfit-note' },
-          'Copyfit automatically shrinks text that would overflow — no manual size adjustment needed for longer language strings.',
-        ),
+        h('p', { className:'copyfit-note' }, 'Copyfit automatically shrinks text that would overflow — no manual size adjustment needed for any language.'),
       ),
     ),
   );
 }
 
-/* ── CF × DM fade cards ─────────────────────────────────────────── */
-const CF_IDS = ['feature-headless', 'feature-personalization', 'feature-experimentation'];
-
-function FadeCard({ cfItem, templateLabel, bgUrl, delay }) {
+/* ── Fade card (InternationalOffer grid, hover for circles) ─────── */
+function FadeCard({ cfItem, templateLabel, bgUrl, hoverUrl, delay }) {
   const cardRef = useRef(null);
   const [visible, setVisible] = useState(false);
-
+  const [hovered, setHovered] = useState(false);
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setTimeout(() => setVisible(true), delay || 0); obs.disconnect(); }
-    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      if (entry.isIntersecting) { setTimeout(() => setVisible(true), delay||0); obs.disconnect(); }
+    }, { threshold:0.15, rootMargin:'0px 0px -40px 0px' });
     obs.observe(el);
     return () => obs.disconnect();
   }, [delay]);
-
   const loading = !cfItem;
-
-  return h('div', { ref: cardRef, className: 'fade-card' + (visible ? ' visible' : '') },
-    loading
-      ? h('div', { className: 'cf-loading-shimmer', style: { height: '260px' } })
-      : h('img', { src: bgUrl, alt: cfItem.title, loading: 'lazy' }),
-    h('div', { className: 'fade-card-label' }, templateLabel),
+  return h('div', { ref:cardRef, className:'fade-card'+(visible?' visible':''),
+    onMouseEnter:hoverUrl?()=>setHovered(true):undefined,
+    onMouseLeave:hoverUrl?()=>setHovered(false):undefined },
+    h('div', { className:'fade-card-img-wrap' },
+      loading
+        ? h('div', { className:'cf-loading-shimmer', style:{ height:'260px' } })
+        : h('img', { src:bgUrl, alt:cfItem.title, loading:'lazy' }),
+      !loading && hoverUrl && h('img', { src:hoverUrl, alt:'', className:'fade-hover-img', style:{ opacity:hovered?1:0 }, loading:'lazy' }),
+    ),
+    h('div', { className:'fade-card-label' }, templateLabel),
   );
 }
+
+/* ── Effect card + drag-to-reorder row ───────────────────────────── */
+function EffectCard({ card, cf, isDragging, isDragOver, onDragStart, onDragOver, onDrop, onDragEnd }) {
+  const cardRef = useRef(null);
+  const imgUrl = cf ? dmUrl({ percent:card.percent, image:'PeterStolmarNA001/approved-phone-app', category:cf.title, hideBackground:0, enddate:card.enddate }, 900) : null;
+
+  function handleMouseMove(e) {
+    if (card.effect !== 'spotlight') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+    e.currentTarget.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+  }
+  function handleMouseLeave() {
+    if (card.effect === 'spotlight') {
+      cardRef.current?.style.setProperty('--mx', '-200px');
+      cardRef.current?.style.setProperty('--my', '-200px');
+    }
+    onDragEnd?.();
+  }
+
+  let imgContent;
+  if (!imgUrl) {
+    imgContent = h('div', { className:'cf-loading-shimmer', style:{ height:'220px' } });
+  } else if (card.effect === 'spotlight') {
+    imgContent = h('div', { className:'img-stack' },
+      h('img', { className:'img-layer-base', src:imgUrl, alt:cf.title, loading:'lazy' }),
+      h('img', { className:'img-layer-color', src:imgUrl, alt:'', loading:'lazy' }),
+    );
+  } else {
+    imgContent = h('img', { className:'effect-dm-img', src:imgUrl, alt:cf?.title||'', loading:'lazy' });
+  }
+
+  return h('div', {
+    ref:cardRef,
+    className:`effect-card effect-${card.effect}`+(isDragging?' dragging':'')+(isDragOver?' drag-over':''),
+    style:{ '--accent':card.accentColor },
+    draggable:true,
+    onDragStart, onDragOver, onDrop, onDragEnd,
+    onMouseMove:handleMouseMove,
+    onMouseLeave:handleMouseLeave,
+  },
+    imgContent,
+    h('div', { className:'effect-card-meta' },
+      h('span', { className:'effect-pct' }, `${card.percent}% off`),
+      h('span', { className:'effect-cat' }, cf?.title || '…'),
+      h('span', { className:'effect-date' }, `ends ${card.enddate}`),
+    ),
+    h('span', { className:'effect-drag-hint' }, '⠿ drag to reorder'),
+  );
+}
+
+function EffectCardsRow({ cfs }) {
+  const [order,    setOrder]   = useState([0,1,2]);
+  const [dragging, setDragging]= useState(null);
+  const [dragOver, setDragOver]= useState(null);
+  const drop = (pos) => {
+    if (dragging !== null && dragging !== pos) {
+      const next = [...order];
+      [next[dragging], next[pos]] = [next[pos], next[dragging]];
+      setOrder(next);
+    }
+    setDragging(null); setDragOver(null);
+  };
+  const endDrag = () => { setDragging(null); setDragOver(null); };
+  return h('div', { className:'effect-cards-row' },
+    order.map((cardIdx, pos) => h(EffectCard, {
+      key:EFFECT_CARDS[cardIdx].cfId,
+      card:EFFECT_CARDS[cardIdx], cf:cfs[EFFECT_CARDS[cardIdx].cfId],
+      isDragging:dragging===pos, isDragOver:dragOver===pos,
+      onDragStart:()=>setDragging(pos),
+      onDragOver:(e)=>{ e.preventDefault(); setDragOver(pos); },
+      onDrop:()=>drop(pos),
+      onDragEnd:endDrag,
+    })),
+  );
+}
+
+/* ── CF × DM section ────────────────────────────────────────────── */
+const FADE_CONFIG = [
+  { id:'feature-headless',        circle:'yellow', swapText:false, label:'headless CF · hover for yellow circle' },
+  { id:'feature-personalization', circle:'purple', swapText:true,  label:'personalization CF · text swapped · hover for purple circle' },
+  { id:'feature-experimentation', circle:'blue',   swapText:false, label:'experimentation CF · hover for blue circle' },
+];
 
 function CFDMSection() {
   const [cfs, setCfs] = useState({});
   const [err, setErr] = useState(null);
+  useEffect(() => { fetchCFs().then(setCfs).catch(e=>setErr(e.message)); }, []);
+  const cfExp = cfs['feature-experimentation'];
 
-  useEffect(() => {
-    fetchCFs().then(setCfs).catch(e => setErr(e.message));
-  }, []);
-
-  /* feature-experimentation title/desc maps well to both offer contexts */
-  const cf2 = cfs['feature-experimentation'];
-
-  return h('section', { className: 'cfdm-section' },
-    h('h2', { className: 'ab-heading' }, 'Content Fragments × Dynamic Media'),
-    h('p', { className: 'ab-sub' },
-      'CF description and title flow directly into DM template params at request time — no image editing. ' +
-      'Cards fade in on scroll. ' + (err ? `(CF fetch error: ${err})` : 'Live from AEM publish.'),
+  return h('section', { className:'cfdm-section' },
+    h('h2', { className:'ab-heading' }, 'Content Fragments × Dynamic Media'),
+    h('p', { className:'ab-sub' },
+      'CF fields flow into DM template params at request time — no image editing needed. ' +
+      'Hover the InternationalOffer cards to reveal colored circles. ' +
+      'Drag the DiscountOffer cards to reorder. ' +
+      (err ? `(CF error: ${err})` : 'Live from AEM publish.'),
     ),
 
-    /* Three fade cards — one per CF, description → $offer on InternationalOffer */
-    h('div', { className: 'cfdm-grid' },
-      CF_IDS.map((id, i) => h(FadeCard, {
-        key: id,
-        cfItem: cfs[id],
-        templateLabel: `InternationalOffer · ${id.replace('feature-', '')} CF`,
-        bgUrl: intlUrl(cfs[id]),
-        delay: i * 160,
-      })),
+    /* Three InternationalOffer cards — hover reveals different circles */
+    h('div', { className:'cfdm-grid' },
+      FADE_CONFIG.map((cfg, i) => {
+        const cf = cfs[cfg.id];
+        return h(FadeCard, {
+          key:cfg.id, cfItem:cf,
+          templateLabel:cfg.label,
+          bgUrl:    cf ? intlUrl(cf, { swapText:cfg.swapText }) : null,
+          hoverUrl: cf ? intlUrl(cf, { circle:cfg.circle, swapText:cfg.swapText }) : null,
+          delay:i*160,
+        });
+      }),
     ),
 
-    /* Same CF, two different templates side-by-side */
-    h('p', { className: 'two-templates-heading' },
-      'Same content fragment — two different Dynamic Media templates:',
-    ),
-    h('div', { className: 'two-templates-row' },
-      h('div', { className: 'template-card' },
-        cf2
-          ? h('img', {
-              src: dmUrl({ ...COUCH_OFFER, category: cf2.title, hideBackground: 0 }, 900),
-              alt: 'DiscountOffer + CF', loading: 'lazy',
-            })
-          : h('div', { className: 'cf-loading-shimmer', style: { height: '240px' } }),
-        h('div', { className: 'template-card-label' }, 'DiscountOffer — CF title → $category'),
-      ),
-      h('div', { className: 'template-card' },
-        cf2
-          ? h('img', { src: intlUrl(cf2, 900), alt: 'InternationalOffer + CF', loading: 'lazy' })
-          : h('div', { className: 'cf-loading-shimmer', style: { height: '240px' } }),
-        h('div', { className: 'template-card-label' },
-          'InternationalOffer — CF description → $offer (3-line Copyfit) · title → $price'),
-      ),
+    /* Three DiscountOffer cards with effects — drag to reorder */
+    h('p', { className:'two-templates-heading' },
+      'Three CFs · three % off · three DM effects — drag to reorder:'),
+    h(EffectCardsRow, { cfs }),
+
+    /* feature-experimentation on InternationalOffer — description in $offer (3-line Copyfit) */
+    h('p', { className:'two-templates-heading' },
+      'Same fragment — description → $offer on InternationalOffer (3-line Copyfit):'),
+    h('div', { className:'intl-cf-card' },
+      cfExp
+        ? h('img', { src:intlUrl(cfExp, {}), alt:'IntlOffer+CF', loading:'lazy' })
+        : h('div', { className:'cf-loading-shimmer', style:{ height:'300px' } }),
+      h('div', { className:'intl-cf-label' }, 'feature-experimentation · description → $offer · title → $price'),
     ),
   );
 }
 
 /* ── Footer ──────────────────────────────────────────────────────── */
 function Footer() {
-  return h('footer', { className: 'footer' },
-    'Dynamic Media template params computed at request time — no image editing required.',
-  );
+  return h('footer', { className:'footer' }, 'Dynamic Media template params computed at request time — no image editing required.');
 }
 
 /* ── App ─────────────────────────────────────────────────────────── */
 function App() {
   const [current, setCurrent] = useState(0);
   const [paused,  setPaused]  = useState(false);
-
   useEffect(() => {
     if (paused) return undefined;
-    const id = setInterval(() => setCurrent(p => (p + 1) % SLIDES.length), 5000);
+    const id = setInterval(() => setCurrent(p=>(p+1)%SLIDES.length), 5000);
     return () => clearInterval(id);
   }, [paused]);
-
   return h('div', null,
     h(NavBar),
-    h(HeroCarousel, { current, onHoverChange: setPaused }),
-    h(SlideIndicators, { current, onChange: setCurrent }),
-    h(ThumbnailRow,    { current, onChange: setCurrent }),
+    h(HeroCarousel, { current, onHoverChange:setPaused }),
+    h(SlideIndicators, { current, onChange:setCurrent }),
+    h(ThumbnailRow,    { current, onChange:setCurrent }),
     h(ABSection),
     h(LocaleSection),
     h(CFDMSection),
     h(Footer),
   );
 }
-
 ReactDOM.createRoot(document.getElementById('root')).render(h(App));
 </script>
 </body>
