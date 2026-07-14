@@ -258,27 +258,20 @@
     );
   }
 
-  async function fetchFeatureCf(id) {
-    const path = '/content/dam/ue-demo/fragments/' + id;
-    const url = PUBLISH + '/graphql/execute.json/global/feature;path=' + path + '?_v=' + Date.now();
-    try {
-      const r = await fetch(url, { headers: { Accept: 'application/json' } });
-      if (!r.ok) return null;
-      const d = await r.json();
-      return d?.data?.homeHeroByPath?.item || null;
-    } catch {
-      return null;
-    }
-  }
-
   function FeatureSection() {
     const [cfs, setCfs] = useState({});
     useEffect(() => {
-      FEATURES.forEach(({ id }) => {
-        fetchFeatureCf(id).then(item => {
-          if (item) setCfs(prev => ({ ...prev, [id]: item }));
-        });
-      });
+      fetch(PUBLISH + '/graphql/execute.json/global/featurelist?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
+        .then(r => r.json())
+        .then(d => {
+          const map = {};
+          (d?.data?.homeHeroList?.items || []).forEach(item => {
+            const id = item._path.split('/').pop();
+            map[id] = item;
+          });
+          setCfs(map);
+        })
+        .catch(() => {});
     }, []);
     return h('section', { className: 'feature-section' },
       h('p', { className: 'feature-section-label' }, '⚛ <FeatureCard /> — three React components with local state'),
