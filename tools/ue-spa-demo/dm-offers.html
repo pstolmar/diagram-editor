@@ -13,229 +13,158 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #20232a;
-      color: #fff;
-      min-height: 100vh;
-      overflow-x: hidden;
+      background: #20232a; color: #fff; min-height: 100vh; overflow-x: hidden;
     }
 
-    /* ── Navbar ─────────────────────────────────────────────────── */
+    /* ── Navbar ─────────────────────────────────────────────────────── */
     .navbar {
       position: sticky; top: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 2rem; height: 56px;
-      background: rgba(14, 16, 20, 0.96);
-      backdrop-filter: blur(12px);
+      background: rgba(14,16,20,.96); backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
-    .navbar-brand {
-      font-size: 1rem; font-weight: 700; letter-spacing: .02em; color: #fff;
-    }
+    .navbar-brand { font-size: 1rem; font-weight: 700; }
     .navbar-badge {
       font-size: .75rem; font-weight: 500; letter-spacing: .06em;
-      color: rgba(255,255,255,.55);
-      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.55); background: rgba(255,255,255,.07);
       padding: .25rem .875rem; border-radius: 20px;
     }
 
-    /* ── Hero carousel ──────────────────────────────────────────── */
+    /* ── Hero carousel ──────────────────────────────────────────────── */
     .hero-carousel {
-      position: relative;
-      width: 100%;
-      height: 70vh;
-      min-height: 480px;
-      overflow: hidden;
+      position: relative; width: 100%; height: 70vh;
+      min-height: 480px; overflow: hidden;
     }
-
     .hero-slide {
-      position: absolute; inset: 0;
-      display: flex;
-      opacity: 0;
-      transition: opacity .6s ease;
-      pointer-events: none;
+      position: absolute; inset: 0; display: flex;
+      opacity: 0; transition: opacity .6s ease; pointer-events: none;
     }
-    .hero-slide.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
+    .hero-slide.active { opacity: 1; pointer-events: auto; }
     .slide-left {
-      width: 45%;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 3rem 2.5rem 3rem 4rem;
+      width: 45%; display: flex; flex-direction: column;
+      justify-content: center; padding: 3rem 2.5rem 3rem 4rem;
     }
-
     .slide-right {
-      width: 55%;
-      position: relative;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
+      width: 55%; position: relative;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
     }
     .slide-right img {
-      max-width: 90%; max-height: 90%;
-      object-fit: contain;
+      max-width: 90%; max-height: 90%; object-fit: contain;
       position: relative; z-index: 1;
       filter: drop-shadow(0 24px 56px rgba(0,0,0,.55));
-      transition: transform .5s ease;
     }
-    .hero-slide.active .slide-right img {
-      animation: imgFloat 6s ease-in-out infinite;
-    }
-    @keyframes imgFloat {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-10px); }
-    }
+    .hero-slide.active .slide-right img { animation: imgFloat 6s ease-in-out infinite; }
+    @keyframes imgFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
     .eyebrow {
-      font-size: .75rem; font-weight: 700;
-      letter-spacing: .18em; text-transform: uppercase;
-      opacity: .75; margin-bottom: .875rem;
+      font-size: .75rem; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; opacity: .75; margin-bottom: .875rem;
     }
-
     .ribbon-wrap { margin-bottom: .625rem; }
     .ribbon {
-      display: inline-block;
-      background: #fff; color: #20232a;
-      padding: .4rem 1.5rem;
-      transform: skewX(-12deg);
+      display: inline-block; background: #fff; color: #20232a;
+      padding: .4rem 1.5rem; transform: skewX(-12deg);
       font-size: .8125rem; font-weight: 800;
       letter-spacing: .12em; text-transform: uppercase;
     }
     .ribbon span { display: inline-block; transform: skewX(12deg); }
-
     .percent-num {
-      font-size: clamp(5rem, 8.5vw, 9rem);
-      font-weight: 900; line-height: 1;
-      letter-spacing: -.03em;
-      margin-bottom: .375rem;
+      font-size: clamp(5rem, 8.5vw, 9rem); font-weight: 900;
+      line-height: 1; letter-spacing: -.03em; margin-bottom: .375rem;
     }
-
     .slide-tagline {
       font-size: 1.1875rem; font-weight: 400;
-      font-style: italic; opacity: .88;
-      margin-bottom: .625rem;
+      font-style: italic; opacity: .88; margin-bottom: .625rem;
     }
-
     .slide-subtext {
-      font-size: .9375rem; line-height: 1.55;
-      opacity: .65; max-width: 320px;
-      margin-bottom: 2rem;
+      font-size: .9375rem; line-height: 1.55; opacity: .65;
+      max-width: 320px; margin-bottom: 2rem;
     }
-
     .cta-btn {
       display: inline-block; align-self: flex-start;
-      background: #e1561a; color: #fff;
-      border: none; border-radius: 4px;
-      padding: .875rem 2rem;
-      font-family: inherit; font-size: 1rem; font-weight: 700;
-      letter-spacing: .03em; cursor: pointer;
-      transition: background .18s ease, transform .12s ease;
+      background: #e1561a; color: #fff; border: none; border-radius: 4px;
+      padding: .875rem 2rem; font-family: inherit; font-size: 1rem;
+      font-weight: 700; letter-spacing: .03em; cursor: pointer;
+      transition: background .18s, transform .12s;
     }
     .cta-btn:hover  { background: #c94d18; transform: translateY(-2px); }
     .cta-btn:active { transform: translateY(0); }
 
-    /* ── Slide indicators ───────────────────────────────────────── */
-    .indicators {
-      display: flex; justify-content: center; gap: .5rem;
-      padding: 1.25rem 0 .75rem;
-    }
+    /* ── Indicators & thumbnails ────────────────────────────────────── */
+    .indicators { display: flex; justify-content: center; gap: .5rem; padding: 1.25rem 0 .75rem; }
     .dot {
-      height: 8px; border-radius: 4px;
-      background: rgba(255,255,255,.25);
-      border: none; cursor: pointer;
-      transition: all .3s ease;
-      width: 8px;
+      height: 8px; border-radius: 4px; background: rgba(255,255,255,.25);
+      border: none; cursor: pointer; transition: all .3s; width: 8px;
     }
     .dot.active { background: #fff; width: 24px; }
-
-    /* ── Thumbnail row ──────────────────────────────────────────── */
     .thumb-row {
-      display: flex; gap: 1rem;
-      padding: .5rem 2rem 2.5rem;
+      display: flex; gap: 1rem; padding: .5rem 2rem 2.5rem;
       overflow-x: auto; justify-content: center;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,.15) transparent;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
     }
     .thumb-card {
-      flex-shrink: 0; width: 200px;
-      border-radius: 10px; overflow: hidden;
-      cursor: pointer;
-      border: 3px solid transparent;
-      transition: border-color .25s ease, box-shadow .25s ease, transform .2s ease;
+      flex-shrink: 0; width: 200px; border-radius: 10px; overflow: hidden;
+      cursor: pointer; border: 3px solid transparent;
+      transition: border-color .25s, box-shadow .25s, transform .2s;
     }
     .thumb-card:hover { transform: translateY(-2px); }
-    .thumb-card img {
-      width: 100%; height: 108px;
-      object-fit: cover; display: block;
-    }
+    .thumb-card img { width: 100%; height: 108px; object-fit: cover; display: block; }
     .thumb-label {
-      font-size: .7375rem; font-weight: 700;
-      letter-spacing: .07em; text-transform: uppercase;
-      padding: .5rem .75rem;
+      font-size: .7375rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; padding: .5rem .75rem;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       color: rgba(255,255,255,.8);
     }
 
-    /* ── A/B sweep section ──────────────────────────────────────── */
+    /* ── A/B section ────────────────────────────────────────────────── */
     .ab-section {
-      padding: 4rem 2rem 5rem;
-      max-width: 1100px; margin: 0 auto;
+      padding: 4rem 2rem 2rem; max-width: 1100px; margin: 0 auto;
     }
-    .ab-heading {
-      font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem;
-    }
+    .ab-heading { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
     .ab-sub {
       font-size: .9375rem; color: rgba(255,255,255,.55);
-      margin-bottom: 2rem; max-width: 640px; line-height: 1.55;
+      margin-bottom: 2rem; max-width: 680px; line-height: 1.55;
     }
-    .ab-cards {
-      display: flex; gap: 1.5rem;
-    }
+    .ab-cards { display: flex; gap: 1.5rem; }
 
+    /* Card A — sweep */
     .sweep-card {
-      flex: 1; height: 420px;
-      border-radius: 12px; overflow: hidden;
+      flex: 1; height: 420px; border-radius: 12px; overflow: hidden;
       cursor: ew-resize; position: relative;
-      background: #07080d;
-      user-select: none;
-      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      user-select: none; box-shadow: 0 8px 32px rgba(0,0,0,.4);
     }
     .sweep-bg {
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 40% 60%, #131428 0%, #07080d 100%);
+      background:
+        radial-gradient(circle at 50% 55%, rgba(26,111,212,.28) 0%, transparent 65%),
+        repeating-linear-gradient(0deg,   rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 44px),
+        repeating-linear-gradient(90deg,  rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 44px),
+        #07080d;
     }
-    .sweep-card img {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
+    .sweep-card img.dm-img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
     }
     .sweep-badge {
       position: absolute; top: 1rem; left: 1rem;
       padding: .3rem .875rem; border-radius: 20px;
-      font-size: .8125rem; font-weight: 800;
-      letter-spacing: .06em; z-index: 10;
+      font-size: .8125rem; font-weight: 800; letter-spacing: .06em; z-index: 10;
     }
     .sweep-variant-label {
       position: absolute; top: 1rem; right: 1rem;
       font-size: .7rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: rgba(255,255,255,.45);
-      z-index: 10;
+      text-transform: uppercase; color: rgba(255,255,255,.45); z-index: 10;
     }
     .sweep-hint {
-      position: absolute; bottom: 1.375rem; left: 50%;
-      transform: translateX(-50%);
-      font-size: .8rem; color: rgba(255,255,255,.45);
-      white-space: nowrap; z-index: 10;
-      pointer-events: none;
-      transition: opacity .3s ease;
+      position: absolute; bottom: 1.375rem; left: 50%; transform: translateX(-50%);
+      font-size: .8rem; color: rgba(255,255,255,.45); white-space: nowrap;
+      z-index: 10; pointer-events: none; transition: opacity .3s;
     }
     .sweep-divider {
       position: absolute; top: 0; bottom: 0; width: 2px;
-      background: rgba(255,255,255,.85);
-      box-shadow: 0 0 10px rgba(255,255,255,.5);
+      background: rgba(255,255,255,.85); box-shadow: 0 0 10px rgba(255,255,255,.5);
       z-index: 6; pointer-events: none;
     }
     .sweep-handle {
@@ -243,30 +172,127 @@
       width: 32px; height: 32px; border-radius: 50%;
       background: #fff; display: flex; align-items: center; justify-content: center;
       font-size: .625rem; color: #20232a; font-weight: 900;
-      box-shadow: 0 2px 8px rgba(0,0,0,.5);
-      margin-left: -15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.5); margin-left: -15px;
     }
 
-    /* ── Footer strip ───────────────────────────────────────────── */
-    .footer {
-      background: rgba(0,0,0,.35);
+    /* Card B — hover reveal */
+    .reveal-card {
+      flex: 1; height: 420px; border-radius: 12px; overflow: hidden;
+      cursor: pointer; position: relative;
+      background: #07080d; box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      user-select: none;
+    }
+    .reveal-card img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; transition: opacity .4s ease;
+    }
+    .reveal-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      padding: .3rem .875rem; border-radius: 20px;
+      font-size: .8125rem; font-weight: 800; letter-spacing: .06em;
+      background: #7c3aed; z-index: 10;
+    }
+    .reveal-variant-label {
+      position: absolute; top: 1rem; right: 1rem;
+      font-size: .7rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.45); z-index: 10;
+    }
+    .reveal-top-text {
+      position: absolute; bottom: 4rem; left: 0; right: 0;
+      text-align: center; font-size: 1rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: rgba(255,255,255,.9); z-index: 10;
+      text-shadow: 0 2px 12px rgba(0,0,0,.8);
+    }
+    .reveal-bottom-text {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(0deg, rgba(0,0,0,.85) 0%, transparent 100%);
+      z-index: 10; transition: opacity .4s ease, transform .4s ease;
+      font-size: .9375rem; color: #fff;
+    }
+    .reveal-bottom-text .big-pct {
+      font-size: 2rem; font-weight: 900; color: #e1561a; margin-right: .25rem;
+    }
+    .reveal-hint {
+      position: absolute; bottom: 1.375rem; left: 50%; transform: translateX(-50%);
+      font-size: .8rem; color: rgba(255,255,255,.45); white-space: nowrap;
+      z-index: 11; pointer-events: none; transition: opacity .3s;
+    }
+
+    /* ── Locale section ─────────────────────────────────────────────── */
+    .locale-section {
+      padding: 3.5rem 2rem 5rem; max-width: 1100px; margin: 0 auto;
       border-top: 1px solid rgba(255,255,255,.07);
-      text-align: center; padding: 1.25rem 2rem;
-      font-size: .8125rem; color: rgba(255,255,255,.45);
-      letter-spacing: .03em;
+    }
+    .locale-flags {
+      display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2rem;
+    }
+    .locale-flag-btn {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem 1.125rem; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.05); color: rgba(255,255,255,.7);
+      font-family: inherit; font-size: .875rem; font-weight: 600;
+      cursor: pointer; transition: border-color .2s, background .2s, color .2s;
+    }
+    .locale-flag-btn:hover { border-color: rgba(255,255,255,.35); color: #fff; }
+    .locale-flag-btn.active {
+      border-color: #61DAFB; background: rgba(97,218,251,.12); color: #fff;
+      box-shadow: 0 0 0 1px rgba(97,218,251,.2);
+    }
+    .locale-flag-btn .flag { font-size: 1.25rem; line-height: 1; }
+    .locale-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;
+    }
+    .locale-preview {
+      background: #07080d; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+    .locale-preview img {
+      width: 100%; display: block; transition: opacity .3s;
+    }
+    .locale-params {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 1.75rem;
+    }
+    .params-heading {
+      font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 1.25rem;
+    }
+    .param-row {
+      display: flex; gap: .75rem; align-items: baseline;
+      margin-bottom: .875rem; font-size: .9rem;
+    }
+    .param-key {
+      font-family: 'Courier New', monospace; color: #61DAFB;
+      font-size: .82rem; flex-shrink: 0; min-width: 100px;
+    }
+    .param-val {
+      color: rgba(255,255,255,.8); word-break: break-word;
+    }
+    .copyfit-note {
+      margin-top: 1.5rem; font-size: .82rem;
+      color: rgba(255,255,255,.4); line-height: 1.6;
+      border-top: 1px solid rgba(255,255,255,.07); padding-top: 1rem;
     }
 
-    /* ── Responsive ─────────────────────────────────────────────── */
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    .footer {
+      background: rgba(0,0,0,.35); border-top: 1px solid rgba(255,255,255,.07);
+      text-align: center; padding: 1.25rem 2rem;
+      font-size: .8125rem; color: rgba(255,255,255,.45); letter-spacing: .03em;
+    }
+
     @media (max-width: 768px) {
       .hero-carousel { height: auto; min-height: unset; }
-      .hero-slide { position: relative; flex-direction: column; opacity: 0; }
-      .hero-slide.active { opacity: 1; }
-      .slide-left { width: 100%; padding: 2rem 1.5rem; }
+      .hero-slide { position: relative; flex-direction: column; }
+      .slide-left { width: 100%; padding: 2rem 1.5rem 2.5rem; }
       .slide-right { width: 100%; height: 240px; }
-      .ab-cards { flex-direction: column; }
-      .sweep-card { height: 280px; }
-      .slide-left { padding: 2rem 1.5rem 2.5rem; }
       .percent-num { font-size: clamp(4rem, 15vw, 6rem); }
+      .ab-cards { flex-direction: column; }
+      .sweep-card, .reveal-card { height: 280px; }
+      .locale-layout { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -275,80 +301,104 @@
 
 <script>
 'use strict';
+const { useState, useEffect, useRef, useCallback, createElement: h } = React;
 
-const {
-  useState, useEffect, useRef, useCallback, createElement: h,
-} = React;
+/* ── Month utilities ─────────────────────────────────────────────── */
+const MONTH_NAMES = {
+  'en-US': ['January','February','March','April','May','June','July','August','September','October','November','December'],
+  'de-DE': ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+  'es-MX': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],
+  'es-ES': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],
+};
 
-/* ── Month computation ──────────────────────────────────────────── */
-function getOfferMonth() {
-  const MONTHS = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December',
-  ];
-  const now   = new Date();
-  const day   = now.getDate();
-  const month = now.getMonth(); // 0-based
-  const offset = day > 20 ? 2 : 1;
-  return MONTHS[(month + offset) % 12];
+function offerMonthForLocale(locale) {
+  const now = new Date();
+  const idx = (now.getMonth() + (now.getDate() > 20 ? 2 : 1)) % 12;
+  return MONTH_NAMES[locale][idx];
 }
 
-const OFFER_MONTH = getOfferMonth();
+const OFFER_MONTH = offerMonthForLocale('en-US');
 const ENDDATE     = `${OFFER_MONTH} 15, 2026`;
 
-/* ── DM URL builder ─────────────────────────────────────────────── */
-/* $-prefixed param names must appear literally; image path must not encode / or : */
-function dmUrl({ percent, image, category, hideBackground }, width) {
+/* ── Locale data ─────────────────────────────────────────────────── */
+const LOCALES = {
+  'en-US': (m) => ({
+    flag: '🇺🇸', label: 'English (US)',
+    category: 'Couch Co-op', currency: 'USD', symbol: '$',
+    enddate: `${m} 15, 2026`,
+    headline: `${m} savings are here`,
+  }),
+  'de-DE': (m) => ({
+    flag: '🇩🇪', label: 'Deutsch (DE)',
+    category: 'Couch-Koop-Spiele', currency: 'EUR', symbol: '€',
+    enddate: `15. ${m} 2026`,
+    headline: `${m}-Angebote sind da`,
+  }),
+  'es-MX': (m) => ({
+    flag: '🇲🇽', label: 'Español (MX)',
+    category: 'Cooperativo en sofá', currency: 'MXN', symbol: 'MX$',
+    enddate: `15 de ${m} de 2026`,
+    headline: `Ahorros de ${m}`,
+  }),
+  'es-ES': (m) => ({
+    flag: '🇪🇸', label: 'Español (ES)',
+    category: 'Cooperativo en el sofá', currency: 'EUR', symbol: '€',
+    enddate: `15 de ${m} de 2026`,
+    headline: `Ofertas de ${m}`,
+  }),
+};
+
+/* ── DM URL builder ──────────────────────────────────────────────── */
+function dmUrl({ percent, image, category, hideBackground, enddate }, width) {
   const base = 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/DiscountOffer';
   const enc  = encodeURIComponent;
+  const ed   = enddate || ENDDATE;
   return (
     `${base}?$hidebackground=${hideBackground}` +
     `&$percent=${percent}` +
     `&$image=${image}` +
     `&$category=${enc(category)}` +
-    `&$enddate=${enc(ENDDATE)}` +
+    `&$enddate=${enc(ed)}` +
     `&wid=${width}&qlt=85&fmt=png-alpha`
   );
 }
 
-/* ── Slides data ────────────────────────────────────────────────── */
+/* ── Slide / offer data ──────────────────────────────────────────── */
 const SLIDES = [
   {
-    id: 'games',
-    percent: 75,
+    id: 'games', percent: 75,
     image: 'PeterStolmarNA001/approved-phone-app',
-    category: 'Digital Games',
-    hideBackground: 0,
+    category: 'Digital Games', hideBackground: 0,
     gradient: 'linear-gradient(135deg, #1a6fd4 0%, #0a3d8f 100%)',
-    accentColor: '#1a6fd4',
-    label: 'Digital Games',
+    accentColor: '#1a6fd4', label: 'Digital Games',
     subtext: 'Score massive deals on the hottest game titles this month.',
   },
   {
-    id: 'travel',
-    percent: 40,
+    id: 'travel', percent: 40,
     image: 'PeterStolmarNA001/AdobeStock_177645726-3:Large',
-    category: 'Travel Packages',
-    hideBackground: 1,
+    category: 'Travel Packages', hideBackground: 1,
     gradient: 'linear-gradient(135deg, #0d9488 0%, #065f46 100%)',
-    accentColor: '#0d9488',
-    label: 'Travel Packages',
+    accentColor: '#0d9488', label: 'Travel Packages',
     subtext: 'Explore world-class destinations at unbeatable prices.',
   },
   {
-    id: 'phones',
-    percent: 30,
+    id: 'phones', percent: 30,
     image: 'PeterStolmarNA001/approved-phone-app',
-    category: 'Smartphones',
-    hideBackground: 0,
+    category: 'Smartphones', hideBackground: 0,
     gradient: 'linear-gradient(135deg, #7c3aed 0%, #2e1065 100%)',
-    accentColor: '#7c3aed',
-    label: 'Smartphones',
+    accentColor: '#7c3aed', label: 'Smartphones',
     subtext: 'Upgrade to the latest flagship smartphones at a fraction of the cost.',
   },
 ];
 
-/* ── NavBar ─────────────────────────────────────────────────────── */
+const COUCH_OFFER = {
+  percent: 50,
+  image: 'PeterStolmarNA001/approved-phone-app',
+  category: 'Couch Co-op',
+  enddate: `${OFFER_MONTH} 9, 2026`,
+};
+
+/* ── NavBar ──────────────────────────────────────────────────────── */
 function NavBar() {
   return h('nav', { className: 'navbar' },
     h('div', { className: 'navbar-brand' }, '◈ Offers Demo'),
@@ -356,7 +406,7 @@ function NavBar() {
   );
 }
 
-/* ── HeroSlide ──────────────────────────────────────────────────── */
+/* ── Hero components ─────────────────────────────────────────────── */
 function HeroSlide({ slide, isActive }) {
   return h('div', {
     className: 'hero-slide' + (isActive ? ' active' : ''),
@@ -365,9 +415,7 @@ function HeroSlide({ slide, isActive }) {
     h('div', { className: 'slide-left' },
       h('p', { className: 'eyebrow' }, slide.label),
       h('div', { className: 'ribbon-wrap' },
-        h('div', { className: 'ribbon' },
-          h('span', null, 'Save Up To'),
-        ),
+        h('div', { className: 'ribbon' }, h('span', null, 'Save Up To')),
       ),
       h('div', { className: 'percent-num' }, `${slide.percent}%`),
       h('p', { className: 'slide-tagline' }, `${OFFER_MONTH} savings are here`),
@@ -384,173 +432,218 @@ function HeroSlide({ slide, isActive }) {
   );
 }
 
-/* ── HeroCarousel ───────────────────────────────────────────────── */
 function HeroCarousel({ current, onHoverChange }) {
   return h('div', {
     className: 'hero-carousel',
     onMouseEnter: () => onHoverChange(true),
     onMouseLeave: () => onHoverChange(false),
-  },
-    ...SLIDES.map((slide, i) =>
-      h(HeroSlide, { key: slide.id, slide, isActive: i === current }),
-    ),
-  );
+  }, ...SLIDES.map((s, i) => h(HeroSlide, { key: s.id, slide: s, isActive: i === current })));
 }
 
-/* ── SlideIndicators ────────────────────────────────────────────── */
 function SlideIndicators({ current, onChange }) {
   return h('div', { className: 'indicators' },
-    SLIDES.map((slide, i) =>
-      h('button', {
-        key: slide.id,
-        className: 'dot' + (i === current ? ' active' : ''),
-        onClick: () => onChange(i),
-        'aria-label': `Slide ${i + 1}: ${slide.label}`,
-      }),
-    ),
+    SLIDES.map((s, i) => h('button', {
+      key: s.id, className: 'dot' + (i === current ? ' active' : ''),
+      onClick: () => onChange(i), 'aria-label': `Slide ${i + 1}`,
+    }))
   );
 }
 
-/* ── ThumbnailRow ───────────────────────────────────────────────── */
 function ThumbnailRow({ current, onChange }) {
   return h('div', { className: 'thumb-row' },
-    SLIDES.map((slide, i) => {
-      const isActive = i === current;
+    SLIDES.map((s, i) => {
+      const active = i === current;
       return h('div', {
-        key: slide.id,
-        className: 'thumb-card',
+        key: s.id, className: 'thumb-card',
         style: {
-          background: slide.gradient,
-          borderColor: isActive ? slide.accentColor : 'transparent',
-          boxShadow: isActive
-            ? `0 0 0 1px ${slide.accentColor}40, 0 8px 24px rgba(0,0,0,.4)`
+          background: s.gradient,
+          borderColor: active ? s.accentColor : 'transparent',
+          boxShadow: active
+            ? `0 0 0 1px ${s.accentColor}40, 0 8px 24px rgba(0,0,0,.4)`
             : '0 4px 16px rgba(0,0,0,.3)',
         },
         onClick: () => onChange(i),
       },
-        h('img', {
-          src: dmUrl(slide, 320),
-          alt: slide.label,
-          loading: 'lazy',
-        }),
-        h('div', { className: 'thumb-label' }, slide.label),
+        h('img', { src: dmUrl(s, 320), alt: s.label, loading: 'lazy' }),
+        h('div', { className: 'thumb-label' }, s.label),
       );
-    }),
+    })
   );
 }
 
-/* ── SweepCard ──────────────────────────────────────────────────── */
-function SweepCard({ slide, variant, badgeColor, variantDesc }) {
-  const cardRef   = useRef(null);
-  const [clipRight, setClipRight] = useState(50);
-  const [hovering, setHovering]   = useState(false);
+/* ── Card A — sweep with grid-bg effect ─────────────────────────── */
+function SweepCard({ offer }) {
+  const cardRef = useRef(null);
+  const [clip, setClip]       = useState(50);
+  const [hovering, setHovering] = useState(false);
 
   const onMouseMove = useCallback((e) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const x    = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-    const pct  = (x / rect.width) * 100;
-    setClipRight(Math.round(100 - pct));
+    const pct = ((e.clientX - rect.left) / rect.width) * 100;
+    setClip(Math.round(100 - Math.max(0, Math.min(100, pct))));
   }, []);
-
-  const onMouseEnter = useCallback(() => setHovering(true), []);
-  const onMouseLeave = useCallback(() => {
-    setHovering(false);
-    setClipRight(50);
-  }, []);
-
-  const imgUrl   = dmUrl(slide, 900);
-  const divRight = `${clipRight}%`;
 
   return h('div', {
-    ref: cardRef,
-    className: 'sweep-card',
-    onMouseMove,
-    onMouseEnter,
-    onMouseLeave,
+    ref: cardRef, className: 'sweep-card',
+    onMouseMove, onMouseEnter: () => setHovering(true),
+    onMouseLeave: () => { setHovering(false); setClip(50); },
   },
-    /* dark background */
     h('div', { className: 'sweep-bg' }),
-    /* DM image with clip-path wipe */
     h('img', {
-      src: imgUrl,
-      alt: `Variant ${variant}`,
+      className: 'dm-img',
+      src: dmUrl({ ...offer, hideBackground: 0 }, 900),
+      alt: 'Variant A',
       style: {
-        clipPath: `inset(0 ${clipRight}% 0 0)`,
+        clipPath: `inset(0 ${clip}% 0 0)`,
         transition: hovering ? 'none' : 'clip-path .45s ease',
       },
     }),
-    /* divider line + handle (only while hovering) */
     hovering && h('div', {
-      className: 'sweep-divider',
-      style: { right: divRight },
-    },
-      h('div', { className: 'sweep-handle' }, '↔'),
-    ),
-    /* variant badge */
-    h('div', {
-      className: 'sweep-badge',
-      style: { background: badgeColor },
-    }, `Variant ${variant}`),
-    /* descriptor tag top-right */
-    h('div', { className: 'sweep-variant-label' }, variantDesc),
-    /* hover hint */
-    h('div', {
-      className: 'sweep-hint',
-      style: { opacity: hovering ? 0 : 1 },
-    }, '← hover to sweep →'),
+      className: 'sweep-divider', style: { right: `${clip}%` },
+    }, h('div', { className: 'sweep-handle' }, '↔')),
+    h('div', { className: 'sweep-badge', style: { background: '#1a6fd4' } }, 'Variant A'),
+    h('div', { className: 'sweep-variant-label' }, '50% Couch Co-op · grid bg effect'),
+    h('div', { className: 'sweep-hint', style: { opacity: hovering ? 0 : 1 } },
+      '← sweep to reveal DM template →'),
   );
 }
 
-/* ── ABSweepSection ─────────────────────────────────────────────── */
-function ABSweepSection() {
-  const base    = SLIDES[0]; // "games" slide
-  const slideA  = { ...base, hideBackground: 0 };
-  const slideB  = { ...base, hideBackground: 1 };
+/* ── Card B — hover fades in full template over clean image ─────── */
+function HoverRevealCard({ offer }) {
+  const [hovered, setHovered] = useState(false);
+  const cleanUrl = dmUrl({ ...offer, hideBackground: 1 }, 900);
+  const offerUrl = dmUrl({ ...offer, hideBackground: 0 }, 900);
 
-  return h('section', { className: 'ab-section' },
-    h('h2', { className: 'ab-heading' },
-      'A/B — Same offer, two Dynamic Media variants',
+  return h('div', {
+    className: 'reveal-card',
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
+  },
+    /* clean product image — always beneath */
+    h('img', { src: cleanUrl, alt: 'Product', style: { opacity: hovered ? 0 : 1 } }),
+    /* offer overlay — fades in on hover */
+    h('img', { src: offerUrl, alt: 'Offer', style: { opacity: hovered ? 1 : 0 } }),
+    h('div', { className: 'reveal-badge' }, 'Variant B'),
+    h('div', { className: 'reveal-variant-label' }, '$hideBackground: hover toggle'),
+    /* always-visible category label */
+    h('div', { className: 'reveal-top-text', style: { opacity: hovered ? 0 : 1, transition: 'opacity .4s' } },
+      offer.category
     ),
+    /* reveal-on-hover: offer details */
+    h('div', {
+      className: 'reveal-bottom-text',
+      style: {
+        opacity: hovered ? 1 : 0,
+        transform: hovered ? 'translateY(0)' : 'translateY(10px)',
+      },
+    },
+      h('span', { className: 'big-pct' }, `${offer.percent}%`),
+      ` off · ends ${offer.enddate}`,
+    ),
+    h('div', { className: 'reveal-hint', style: { opacity: hovered ? 0 : 1 } },
+      'hover to reveal offer →'),
+  );
+}
+
+function ABSection() {
+  return h('section', { className: 'ab-section' },
+    h('h2', { className: 'ab-heading' }, 'A/B — Two Dynamic Media interactions'),
     h('p', { className: 'ab-sub' },
-      'Hover to sweep between Variant A (with template background) and Variant B (image only). ' +
-      'Both URLs point to the same DiscountOffer template — only $hidebackground differs.',
+      'Both cards use the same DiscountOffer template for "50% Couch Co-op". ' +
+      'Left: sweep your mouse to wipe in the DM template over a styled background. ' +
+      'Right: hover to fade from clean product image → full offer overlay ($hideBackground toggle).',
     ),
     h('div', { className: 'ab-cards' },
-      h(SweepCard, {
-        slide: slideA,
-        variant: 'A',
-        badgeColor: '#1a6fd4',
-        variantDesc: '$hidebackground=0',
-      }),
-      h(SweepCard, {
-        slide: slideB,
-        variant: 'B',
-        badgeColor: '#7c3aed',
-        variantDesc: '$hidebackground=1',
-      }),
+      h(SweepCard, { offer: COUCH_OFFER }),
+      h(HoverRevealCard, { offer: COUCH_OFFER }),
     ),
   );
 }
 
-/* ── Footer ─────────────────────────────────────────────────────── */
-function Footer() {
-  return h('footer', { className: 'footer' },
-    'Dynamic Media template params are computed at request time — no image editing required.',
+/* ── Locale + Copyfit section ────────────────────────────────────── */
+function LocaleSection() {
+  const [locale, setLocale] = useState('en-US');
+  const m    = offerMonthForLocale(locale);
+  const data = LOCALES[locale](m);
+
+  const imgUrl = dmUrl({
+    percent: 50,
+    image: 'PeterStolmarNA001/approved-phone-app',
+    category: data.category,
+    hideBackground: 0,
+    enddate: data.enddate,
+  }, 900);
+
+  return h('section', { className: 'locale-section' },
+    h('h2', { className: 'ab-heading' }, '🌐 Localization + DM Copyfit'),
+    h('p', { className: 'ab-sub' },
+      'Switch locale — $category and $enddate update live. ' +
+      'Copyfit rules in the DiscountOffer template automatically resize text so longer strings (German, Spanish) never overflow the layout.',
+    ),
+    h('div', { className: 'locale-flags' },
+      Object.entries(LOCALES).map(([id, fn]) => {
+        const d = fn(offerMonthForLocale(id));
+        return h('button', {
+          key: id,
+          className: 'locale-flag-btn' + (locale === id ? ' active' : ''),
+          onClick: () => setLocale(id),
+        },
+          h('span', { className: 'flag' }, d.flag),
+          h('span', null, d.label),
+        );
+      }),
+    ),
+    h('div', { className: 'locale-layout' },
+      h('div', { className: 'locale-preview' },
+        h('img', { key: imgUrl, src: imgUrl, alt: `${locale} offer` }),
+      ),
+      h('div', { className: 'locale-params' },
+        h('p', { className: 'params-heading' }, 'Params sent to Dynamic Media:'),
+        h('div', { className: 'param-row' },
+          h('span', { className: 'param-key' }, '$percent'),
+          h('span', { className: 'param-val' }, '50'),
+        ),
+        h('div', { className: 'param-row' },
+          h('span', { className: 'param-key' }, '$category'),
+          h('span', { className: 'param-val' }, `"${data.category}"`),
+        ),
+        h('div', { className: 'param-row' },
+          h('span', { className: 'param-key' }, '$enddate'),
+          h('span', { className: 'param-val' }, `"${data.enddate}"`),
+        ),
+        h('div', { className: 'param-row' },
+          h('span', { className: 'param-key' }, 'Currency'),
+          h('span', { className: 'param-val' }, `${data.currency} (${data.symbol})`),
+        ),
+        h('div', { className: 'param-row' },
+          h('span', { className: 'param-key' }, 'Headline'),
+          h('span', { className: 'param-val' }, `"${data.headline}"`),
+        ),
+        h('p', { className: 'copyfit-note' },
+          'Copyfit automatically shrinks text that would overflow the template bounds — ' +
+          'no manual size adjustment needed for longer German or Spanish strings.',
+        ),
+      ),
+    ),
   );
 }
 
-/* ── App ────────────────────────────────────────────────────────── */
+/* ── Footer ──────────────────────────────────────────────────────── */
+function Footer() {
+  return h('footer', { className: 'footer' },
+    'Dynamic Media template params computed at request time — no image editing required.',
+  );
+}
+
+/* ── App ─────────────────────────────────────────────────────────── */
 function App() {
   const [current, setCurrent] = useState(0);
   const [paused,  setPaused]  = useState(false);
 
   useEffect(() => {
     if (paused) return undefined;
-    const id = setInterval(
-      () => setCurrent(prev => (prev + 1) % SLIDES.length),
-      5000,
-    );
+    const id = setInterval(() => setCurrent(p => (p + 1) % SLIDES.length), 5000);
     return () => clearInterval(id);
   }, [paused]);
 
@@ -559,12 +652,12 @@ function App() {
     h(HeroCarousel, { current, onHoverChange: setPaused }),
     h(SlideIndicators, { current, onChange: setCurrent }),
     h(ThumbnailRow,    { current, onChange: setCurrent }),
-    h(ABSweepSection),
+    h(ABSection),
+    h(LocaleSection),
     h(Footer),
   );
 }
 
-/* ── Mount ──────────────────────────────────────────────────────── */
 ReactDOM.createRoot(document.getElementById('root')).render(h(App));
 </script>
 </body>
