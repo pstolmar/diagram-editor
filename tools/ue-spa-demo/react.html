@@ -251,18 +251,36 @@
     );
   }
 
+  async function fetchFeatureCf(id) {
+    const path = '/content/dam/ue-demo/fragments/' + id;
+    const query = `{ homeHeroByPath(path:"${path}") { item { eyebrow title description { plaintext html } } } }`;
+    const endpoints = [
+      PUBLISH + '/content/_cq_graphql/global/endpoint.json',
+      PUBLISH + '/graphql/endpoint.json',
+    ];
+    for (const url of endpoints) {
+      try {
+        const r = await fetch(url + '?_v=' + Date.now(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+        if (!r.ok) continue;
+        const d = await r.json();
+        const item = d?.data?.homeHeroByPath?.item;
+        if (item) return item;
+      } catch { /* try next */ }
+    }
+    return null;
+  }
+
   function FeatureSection() {
     const [cfs, setCfs] = useState({});
     useEffect(() => {
       FEATURES.forEach(({ id }) => {
-        const path = '/content/dam/ue-demo/fragments/' + id;
-        fetch(GRAPHQL + ';path=' + path + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
-          .then(r => r.json())
-          .then(d => {
-            const item = d?.data?.homeHeroByPath?.item;
-            if (item) setCfs(prev => ({ ...prev, [id]: item }));
-          })
-          .catch(() => {});
+        fetchFeatureCf(id).then(item => {
+          if (item) setCfs(prev => ({ ...prev, [id]: item }));
+        });
       });
     }, []);
     return h('section', { className: 'feature-section' },
