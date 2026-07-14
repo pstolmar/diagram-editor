@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>Dynamic Media Offers — Demo</title>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #20232a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Navbar ─────────────────────────────────────────────────── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+      background: rgba(14, 16, 20, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .navbar-brand {
+      font-size: 1rem; font-weight: 700; letter-spacing: .02em; color: #fff;
+    }
+    .navbar-badge {
+      font-size: .75rem; font-weight: 500; letter-spacing: .06em;
+      color: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.07);
+      padding: .25rem .875rem; border-radius: 20px;
+    }
+
+    /* ── Hero carousel ──────────────────────────────────────────── */
+    .hero-carousel {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      min-height: 480px;
+      overflow: hidden;
+    }
+
+    .hero-slide {
+      position: absolute; inset: 0;
+      display: flex;
+      opacity: 0;
+      transition: opacity .6s ease;
+      pointer-events: none;
+    }
+    .hero-slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .slide-left {
+      width: 45%;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 3rem 2.5rem 3rem 4rem;
+    }
+
+    .slide-right {
+      width: 55%;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .slide-right img {
+      max-width: 90%; max-height: 90%;
+      object-fit: contain;
+      position: relative; z-index: 1;
+      filter: drop-shadow(0 24px 56px rgba(0,0,0,.55));
+      transition: transform .5s ease;
+    }
+    .hero-slide.active .slide-right img {
+      animation: imgFloat 6s ease-in-out infinite;
+    }
+    @keyframes imgFloat {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    .eyebrow {
+      font-size: .75rem; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase;
+      opacity: .75; margin-bottom: .875rem;
+    }
+
+    .ribbon-wrap { margin-bottom: .625rem; }
+    .ribbon {
+      display: inline-block;
+      background: #fff; color: #20232a;
+      padding: .4rem 1.5rem;
+      transform: skewX(-12deg);
+      font-size: .8125rem; font-weight: 800;
+      letter-spacing: .12em; text-transform: uppercase;
+    }
+    .ribbon span { display: inline-block; transform: skewX(12deg); }
+
+    .percent-num {
+      font-size: clamp(5rem, 8.5vw, 9rem);
+      font-weight: 900; line-height: 1;
+      letter-spacing: -.03em;
+      margin-bottom: .375rem;
+    }
+
+    .slide-tagline {
+      font-size: 1.1875rem; font-weight: 400;
+      font-style: italic; opacity: .88;
+      margin-bottom: .625rem;
+    }
+
+    .slide-subtext {
+      font-size: .9375rem; line-height: 1.55;
+      opacity: .65; max-width: 320px;
+      margin-bottom: 2rem;
+    }
+
+    .cta-btn {
+      display: inline-block; align-self: flex-start;
+      background: #e1561a; color: #fff;
+      border: none; border-radius: 4px;
+      padding: .875rem 2rem;
+      font-family: inherit; font-size: 1rem; font-weight: 700;
+      letter-spacing: .03em; cursor: pointer;
+      transition: background .18s ease, transform .12s ease;
+    }
+    .cta-btn:hover  { background: #c94d18; transform: translateY(-2px); }
+    .cta-btn:active { transform: translateY(0); }
+
+    /* ── Slide indicators ───────────────────────────────────────── */
+    .indicators {
+      display: flex; justify-content: center; gap: .5rem;
+      padding: 1.25rem 0 .75rem;
+    }
+    .dot {
+      height: 8px; border-radius: 4px;
+      background: rgba(255,255,255,.25);
+      border: none; cursor: pointer;
+      transition: all .3s ease;
+      width: 8px;
+    }
+    .dot.active { background: #fff; width: 24px; }
+
+    /* ── Thumbnail row ──────────────────────────────────────────── */
+    .thumb-row {
+      display: flex; gap: 1rem;
+      padding: .5rem 2rem 2.5rem;
+      overflow-x: auto; justify-content: center;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.15) transparent;
+    }
+    .thumb-card {
+      flex-shrink: 0; width: 200px;
+      border-radius: 10px; overflow: hidden;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: border-color .25s ease, box-shadow .25s ease, transform .2s ease;
+    }
+    .thumb-card:hover { transform: translateY(-2px); }
+    .thumb-card img {
+      width: 100%; height: 108px;
+      object-fit: cover; display: block;
+    }
+    .thumb-label {
+      font-size: .7375rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      padding: .5rem .75rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: rgba(255,255,255,.8);
+    }
+
+    /* ── A/B sweep section ──────────────────────────────────────── */
+    .ab-section {
+      padding: 4rem 2rem 5rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .ab-heading {
+      font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem;
+    }
+    .ab-sub {
+      font-size: .9375rem; color: rgba(255,255,255,.55);
+      margin-bottom: 2rem; max-width: 640px; line-height: 1.55;
+    }
+    .ab-cards {
+      display: flex; gap: 1.5rem;
+    }
+
+    .sweep-card {
+      flex: 1; height: 420px;
+      border-radius: 12px; overflow: hidden;
+      cursor: ew-resize; position: relative;
+      background: #07080d;
+      user-select: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+    .sweep-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 40% 60%, #131428 0%, #07080d 100%);
+    }
+    .sweep-card img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .sweep-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      padding: .3rem .875rem; border-radius: 20px;
+      font-size: .8125rem; font-weight: 800;
+      letter-spacing: .06em; z-index: 10;
+    }
+    .sweep-variant-label {
+      position: absolute; top: 1rem; right: 1rem;
+      font-size: .7rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.45);
+      z-index: 10;
+    }
+    .sweep-hint {
+      position: absolute; bottom: 1.375rem; left: 50%;
+      transform: translateX(-50%);
+      font-size: .8rem; color: rgba(255,255,255,.45);
+      white-space: nowrap; z-index: 10;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .sweep-divider {
+      position: absolute; top: 0; bottom: 0; width: 2px;
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 0 10px rgba(255,255,255,.5);
+      z-index: 6; pointer-events: none;
+    }
+    .sweep-handle {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: .625rem; color: #20232a; font-weight: 900;
+      box-shadow: 0 2px 8px rgba(0,0,0,.5);
+      margin-left: -15px;
+    }
+
+    /* ── Footer strip ───────────────────────────────────────────── */
+    .footer {
+      background: rgba(0,0,0,.35);
+      border-top: 1px solid rgba(255,255,255,.07);
+      text-align: center; padding: 1.25rem 2rem;
+      font-size: .8125rem; color: rgba(255,255,255,.45);
+      letter-spacing: .03em;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .hero-carousel { height: auto; min-height: unset; }
+      .hero-slide { position: relative; flex-direction: column; opacity: 0; }
+      .hero-slide.active { opacity: 1; }
+      .slide-left { width: 100%; padding: 2rem 1.5rem; }
+      .slide-right { width: 100%; height: 240px; }
+      .ab-cards { flex-direction: column; }
+      .sweep-card { height: 280px; }
+      .slide-left { padding: 2rem 1.5rem 2.5rem; }
+      .percent-num { font-size: clamp(4rem, 15vw, 6rem); }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+'use strict';
+
+const {
+  useState, useEffect, useRef, useCallback, createElement: h,
+} = React;
+
+/* ── Month computation ──────────────────────────────────────────── */
+function getOfferMonth() {
+  const MONTHS = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December',
+  ];
+  const now   = new Date();
+  const day   = now.getDate();
+  const month = now.getMonth(); // 0-based
+  const offset = day > 20 ? 2 : 1;
+  return MONTHS[(month + offset) % 12];
+}
+
+const OFFER_MONTH = getOfferMonth();
+const ENDDATE     = `${OFFER_MONTH} 15, 2026`;
+
+/* ── DM URL builder ─────────────────────────────────────────────── */
+/* $-prefixed param names must appear literally; image path must not encode / or : */
+function dmUrl({ percent, image, category, hideBackground }, width) {
+  const base = 'https://s7d1.scene7.com/is/image/PeterStolmarNA001/DiscountOffer';
+  const enc  = encodeURIComponent;
+  return (
+    `${base}?$hidebackground=${hideBackground}` +
+    `&$percent=${percent}` +
+    `&$image=${image}` +
+    `&$category=${enc(category)}` +
+    `&$enddate=${enc(ENDDATE)}` +
+    `&wid=${width}&qlt=85&fmt=png-alpha`
+  );
+}
+
+/* ── Slides data ────────────────────────────────────────────────── */
+const SLIDES = [
+  {
+    id: 'games',
+    percent: 75,
+    image: 'PeterStolmarNA001/approved-phone-app',
+    category: 'Digital Games',
+    hideBackground: 0,
+    gradient: 'linear-gradient(135deg, #1a6fd4 0%, #0a3d8f 100%)',
+    accentColor: '#1a6fd4',
+    label: 'Digital Games',
+    subtext: 'Score massive deals on the hottest game titles this month.',
+  },
+  {
+    id: 'travel',
+    percent: 40,
+    image: 'PeterStolmarNA001/AdobeStock_177645726-3:Large',
+    category: 'Travel Packages',
+    hideBackground: 1,
+    gradient: 'linear-gradient(135deg, #0d9488 0%, #065f46 100%)',
+    accentColor: '#0d9488',
+    label: 'Travel Packages',
+    subtext: 'Explore world-class destinations at unbeatable prices.',
+  },
+  {
+    id: 'phones',
+    percent: 30,
+    image: 'PeterStolmarNA001/approved-phone-app',
+    category: 'Smartphones',
+    hideBackground: 0,
+    gradient: 'linear-gradient(135deg, #7c3aed 0%, #2e1065 100%)',
+    accentColor: '#7c3aed',
+    label: 'Smartphones',
+    subtext: 'Upgrade to the latest flagship smartphones at a fraction of the cost.',
+  },
+];
+
+/* ── NavBar ─────────────────────────────────────────────────────── */
+function NavBar() {
+  return h('nav', { className: 'navbar' },
+    h('div', { className: 'navbar-brand' }, '◈ Offers Demo'),
+    h('div', { className: 'navbar-badge' }, 'Powered by Adobe Dynamic Media'),
+  );
+}
+
+/* ── HeroSlide ──────────────────────────────────────────────────── */
+function HeroSlide({ slide, isActive }) {
+  return h('div', {
+    className: 'hero-slide' + (isActive ? ' active' : ''),
+    style: { background: slide.gradient },
+  },
+    h('div', { className: 'slide-left' },
+      h('p', { className: 'eyebrow' }, slide.label),
+      h('div', { className: 'ribbon-wrap' },
+        h('div', { className: 'ribbon' },
+          h('span', null, 'Save Up To'),
+        ),
+      ),
+      h('div', { className: 'percent-num' }, `${slide.percent}%`),
+      h('p', { className: 'slide-tagline' }, `${OFFER_MONTH} savings are here`),
+      h('p', { className: 'slide-subtext' }, slide.subtext),
+      h('button', { className: 'cta-btn' }, 'Shop now →'),
+    ),
+    h('div', { className: 'slide-right' },
+      h('img', {
+        src: dmUrl(slide, 900),
+        alt: `${slide.category} offer`,
+        loading: isActive ? 'eager' : 'lazy',
+      }),
+    ),
+  );
+}
+
+/* ── HeroCarousel ───────────────────────────────────────────────── */
+function HeroCarousel({ current, onHoverChange }) {
+  return h('div', {
+    className: 'hero-carousel',
+    onMouseEnter: () => onHoverChange(true),
+    onMouseLeave: () => onHoverChange(false),
+  },
+    ...SLIDES.map((slide, i) =>
+      h(HeroSlide, { key: slide.id, slide, isActive: i === current }),
+    ),
+  );
+}
+
+/* ── SlideIndicators ────────────────────────────────────────────── */
+function SlideIndicators({ current, onChange }) {
+  return h('div', { className: 'indicators' },
+    SLIDES.map((slide, i) =>
+      h('button', {
+        key: slide.id,
+        className: 'dot' + (i === current ? ' active' : ''),
+        onClick: () => onChange(i),
+        'aria-label': `Slide ${i + 1}: ${slide.label}`,
+      }),
+    ),
+  );
+}
+
+/* ── ThumbnailRow ───────────────────────────────────────────────── */
+function ThumbnailRow({ current, onChange }) {
+  return h('div', { className: 'thumb-row' },
+    SLIDES.map((slide, i) => {
+      const isActive = i === current;
+      return h('div', {
+        key: slide.id,
+        className: 'thumb-card',
+        style: {
+          background: slide.gradient,
+          borderColor: isActive ? slide.accentColor : 'transparent',
+          boxShadow: isActive
+            ? `0 0 0 1px ${slide.accentColor}40, 0 8px 24px rgba(0,0,0,.4)`
+            : '0 4px 16px rgba(0,0,0,.3)',
+        },
+        onClick: () => onChange(i),
+      },
+        h('img', {
+          src: dmUrl(slide, 320),
+          alt: slide.label,
+          loading: 'lazy',
+        }),
+        h('div', { className: 'thumb-label' }, slide.label),
+      );
+    }),
+  );
+}
+
+/* ── SweepCard ──────────────────────────────────────────────────── */
+function SweepCard({ slide, variant, badgeColor, variantDesc }) {
+  const cardRef   = useRef(null);
+  const [clipRight, setClipRight] = useState(50);
+  const [hovering, setHovering]   = useState(false);
+
+  const onMouseMove = useCallback((e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x    = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const pct  = (x / rect.width) * 100;
+    setClipRight(Math.round(100 - pct));
+  }, []);
+
+  const onMouseEnter = useCallback(() => setHovering(true), []);
+  const onMouseLeave = useCallback(() => {
+    setHovering(false);
+    setClipRight(50);
+  }, []);
+
+  const imgUrl   = dmUrl(slide, 900);
+  const divRight = `${clipRight}%`;
+
+  return h('div', {
+    ref: cardRef,
+    className: 'sweep-card',
+    onMouseMove,
+    onMouseEnter,
+    onMouseLeave,
+  },
+    /* dark background */
+    h('div', { className: 'sweep-bg' }),
+    /* DM image with clip-path wipe */
+    h('img', {
+      src: imgUrl,
+      alt: `Variant ${variant}`,
+      style: {
+        clipPath: `inset(0 ${clipRight}% 0 0)`,
+        transition: hovering ? 'none' : 'clip-path .45s ease',
+      },
+    }),
+    /* divider line + handle (only while hovering) */
+    hovering && h('div', {
+      className: 'sweep-divider',
+      style: { right: divRight },
+    },
+      h('div', { className: 'sweep-handle' }, '↔'),
+    ),
+    /* variant badge */
+    h('div', {
+      className: 'sweep-badge',
+      style: { background: badgeColor },
+    }, `Variant ${variant}`),
+    /* descriptor tag top-right */
+    h('div', { className: 'sweep-variant-label' }, variantDesc),
+    /* hover hint */
+    h('div', {
+      className: 'sweep-hint',
+      style: { opacity: hovering ? 0 : 1 },
+    }, '← hover to sweep →'),
+  );
+}
+
+/* ── ABSweepSection ─────────────────────────────────────────────── */
+function ABSweepSection() {
+  const base    = SLIDES[0]; // "games" slide
+  const slideA  = { ...base, hideBackground: 0 };
+  const slideB  = { ...base, hideBackground: 1 };
+
+  return h('section', { className: 'ab-section' },
+    h('h2', { className: 'ab-heading' },
+      'A/B — Same offer, two Dynamic Media variants',
+    ),
+    h('p', { className: 'ab-sub' },
+      'Hover to sweep between Variant A (with template background) and Variant B (image only). ' +
+      'Both URLs point to the same DiscountOffer template — only $hidebackground differs.',
+    ),
+    h('div', { className: 'ab-cards' },
+      h(SweepCard, {
+        slide: slideA,
+        variant: 'A',
+        badgeColor: '#1a6fd4',
+        variantDesc: '$hidebackground=0',
+      }),
+      h(SweepCard, {
+        slide: slideB,
+        variant: 'B',
+        badgeColor: '#7c3aed',
+        variantDesc: '$hidebackground=1',
+      }),
+    ),
+  );
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+function Footer() {
+  return h('footer', { className: 'footer' },
+    'Dynamic Media template params are computed at request time — no image editing required.',
+  );
+}
+
+/* ── App ────────────────────────────────────────────────────────── */
+function App() {
+  const [current, setCurrent] = useState(0);
+  const [paused,  setPaused]  = useState(false);
+
+  useEffect(() => {
+    if (paused) return undefined;
+    const id = setInterval(
+      () => setCurrent(prev => (prev + 1) % SLIDES.length),
+      5000,
+    );
+    return () => clearInterval(id);
+  }, [paused]);
+
+  return h('div', null,
+    h(NavBar),
+    h(HeroCarousel, { current, onHoverChange: setPaused }),
+    h(SlideIndicators, { current, onChange: setCurrent }),
+    h(ThumbnailRow,    { current, onChange: setCurrent }),
+    h(ABSweepSection),
+    h(Footer),
+  );
+}
+
+/* ── Mount ──────────────────────────────────────────────────────── */
+ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>
+</body>
+</html>
