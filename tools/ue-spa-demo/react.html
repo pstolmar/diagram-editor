@@ -210,7 +210,7 @@
     { id: 'feature-experimentation', eyebrow: 'feature', icon: '🧪', title: 'Experimentation',     body: 'A/B test any content variation without touching code. Toggle challengers directly from the author UI.' },
   ];
 
-  const IN_UE = window.self !== window.top;
+  const IN_UE = (() => { try { return window.self !== window.top; } catch { return true; } })();
 
   function FeatureCard({ feat, cf }) {
     const [open, setOpen] = useState(false);
