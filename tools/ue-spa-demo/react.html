@@ -211,12 +211,21 @@
 
   function FeatureCard({ feat }) {
     const [open, setOpen] = useState(false);
+    const res = 'urn:aem:/content/dam/ue-demo/fragments/' + feat.id + '/jcr:content/data/master';
+    // No data-aue-type="component" on the card — onClick+max-height toggle conflicts with UE's overlay and causes the growth loop.
     return h('div', {
         className: 'feature-card' + (open ? ' open' : ''),
         onClick: () => setOpen(o => !o),
       },
       h('div', { className: 'feature-icon' }, feat.icon),
-      h('div', { className: 'feature-title' }, feat.title),
+      h('div', {
+        className: 'feature-title',
+        'data-aue-resource': res,
+        'data-aue-prop': 'title',
+        'data-aue-type': 'text',
+        'data-aue-label': feat.title,
+        'data-aue-model': 'hero',
+      }, feat.title),
       h('div', { className: 'feature-body', style: { maxHeight: open ? '160px' : '44px' } }, feat.body),
       h('span', { className: 'feature-chevron' }, '▾')
     );
