@@ -260,9 +260,10 @@
 
   function FeatureSection() {
     const [cfs, setCfs] = useState({});
+    const [fetchErr, setFetchErr] = useState(null);
     useEffect(() => {
       fetch(PUBLISH + '/graphql/execute.json/global/featurelist?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
-        .then(r => r.json())
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(d => {
           const map = {};
           (d?.data?.homeHeroList?.items || []).forEach(item => {
@@ -271,10 +272,10 @@
           });
           setCfs(map);
         })
-        .catch(() => {});
+        .catch(e => { console.error('[featurelist]', e); setFetchErr(e.message); });
     }, []);
     return h('section', { className: 'feature-section' },
-      h('p', { className: 'feature-section-label' }, '⚛ <FeatureCard /> — three React components with local state'),
+      h('p', { className: 'feature-section-label' }, '⚛ <FeatureCard /> — three React components with local state' + (fetchErr ? ' ✗ ' + fetchErr : '')),
       h('div', { className: 'feature-grid' },
         ...FEATURES.map(f => h(FeatureCard, { key: f.id, feat: f, cf: cfs[f.id] }))
       )
