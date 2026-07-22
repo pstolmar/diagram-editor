@@ -124,6 +124,40 @@
     }
     .hero-cta:hover  { background: var(--ps-blue2); transform: translateY(-1px); }
     .hero-cta:active { transform: translateY(0); }
+
+    /* ── Console Section ─────────────────────────────────────────────── */
+    .console-section { background: var(--ps-dark); }
+    .console-row {
+      display: grid; grid-template-columns: 55% 45%; min-height: 480px;
+      border-bottom: 1px solid var(--ps-border);
+    }
+    .console-row.flip { grid-template-columns: 45% 55%; }
+    .console-img-wrap { overflow: hidden; background: #0d0d0d; display: flex; align-items: center; }
+    .console-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+    .console-img-wrap img:hover { transform: scale(1.03); }
+    .console-row.flip .console-img-wrap { order: 2; }
+    .console-row.flip .console-copy     { order: 1; }
+    .console-copy { display: flex; flex-direction: column; justify-content: center; padding: 3.5rem 4rem; }
+    .console-badge {
+      display: inline-block; background: var(--ps-red); color: var(--ps-white);
+      font-size: .6875rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+      padding: .3rem .875rem; border-radius: 2px; margin-bottom: 1.25rem; align-self: flex-start;
+    }
+    .console-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .75rem; }
+    .console-title { font-size: clamp(1.5rem,2.5vw,2.25rem); font-weight: 900; line-height: 1.15; margin-bottom: .875rem; }
+    .console-body  { font-size: .9375rem; line-height: 1.65; color: var(--ps-muted); max-width: 420px; margin-bottom: 1.75rem; }
+    .console-price-row { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .console-price { font-size: 2rem; font-weight: 900; }
+    .console-price-orig { font-size: 1rem; color: var(--ps-muted); text-decoration: line-through; }
+    .console-savings { font-size: .8rem; font-weight: 700; color: var(--ps-cyan); background: rgba(0,212,255,.1); padding: .2rem .6rem; border-radius: 3px; }
+    .console-cta {
+      display: inline-block; align-self: flex-start;
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 4px;
+      padding: .875rem 2rem; font-family: inherit; font-size: .9375rem; font-weight: 700;
+      transition: background .15s, transform .12s;
+    }
+    .console-cta:hover  { background: var(--ps-blue2); transform: translateY(-1px); }
+    .console-cta:active { transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -348,6 +382,46 @@
       );
     }
 
+    /* ── ConsoleSection ──────────────────────────────────────────────── */
+    function ConsoleSection() {
+      function imgErr(e) { e.currentTarget.style.opacity = '0'; }
+      return h('div', { className: 'console-section' },
+        h('div', { className: 'console-row' },
+          h('div', { className: 'console-img-wrap' },
+            h('img', { src: PS5_SLIM_URL, alt: 'PS5 Slim Disc Console', loading: 'lazy', onError: imgErr }),
+          ),
+          h('div', { className: 'console-copy' },
+            h('span', { className: 'console-badge' }, 'New'),
+            h('p',    { className: 'console-eyebrow' }, 'PlayStation 5'),
+            h('h2',   { className: 'console-title' }, 'PS5 Console (Slim)'),
+            h('p',    { className: 'console-body' }, 'The PS5 console unleashes new gaming possibilities that were previously impossible. Experience lightning-fast loading with an ultra-high speed SSD, deeper immersion with haptic feedback, and a new generation of incredible PlayStation games.'),
+            h('div', { className: 'console-price-row' },
+              h('span', { className: 'console-price' }, '$449.99'),
+              h('span', { className: 'console-savings' }, '+ Free 3-Month PS Plus Trial'),
+            ),
+            h('button', { className: 'console-cta' }, 'Shop PS5'),
+          ),
+        ),
+        h('div', { className: 'console-row flip' },
+          h('div', { className: 'console-img-wrap' },
+            h('img', { src: PS5_REFURB_URL, alt: 'Certified Refurbished PS5', loading: 'lazy', onError: imgErr }),
+          ),
+          h('div', { className: 'console-copy' },
+            h('span', { className: 'console-badge' }, 'Sale'),
+            h('p',    { className: 'console-eyebrow' }, 'PlayStation 5'),
+            h('h2',   { className: 'console-title' }, 'PS5 Certified Refurbished'),
+            h('p',    { className: 'console-body' }, 'PlayStation Certified Refurbished PS5 consoles are inspected, tested, and cleaned by Sony Interactive Entertainment engineers. Backed by a 1-year limited warranty with same hardware as new.'),
+            h('div', { className: 'console-price-row' },
+              h('span', { className: 'console-price' }, '$399.99'),
+              h('span', { className: 'console-price-orig' }, '$449.99'),
+              h('span', { className: 'console-savings' }, 'Save $50'),
+            ),
+            h('button', { className: 'console-cta' }, 'Shop Refurbished'),
+          ),
+        ),
+      );
+    }
+
     /* ── App (loading state only — sections added in later tasks) ────── */
     function App() {
       var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
@@ -382,6 +456,7 @@
       return h('div', { className: 'ps-page' },
         h(NavBar),
         h(Hero, { data: heroData }),
+        h(ConsoleSection),
       );
     }
 
