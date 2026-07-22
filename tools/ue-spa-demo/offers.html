@@ -371,6 +371,7 @@
         eyebrow: 'PS Plus Deal',
         description: 'Swing through an expanded New York as both Peter Parker and Miles Morales in a brand-new story.',
         ctaLabel: 'From $39.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=640&q=80' },
       },
       'ps-god-of-war': {
         _path: '/content/dam/ue-demo/fragments/ps-god-of-war',
@@ -378,6 +379,7 @@
         eyebrow: 'Flash Sale',
         description: 'Kratos and Atreus journey through all Nine Realms to prevent the end of everything.',
         ctaLabel: 'From $29.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=640&q=80' },
       },
       'ps-horizon': {
         _path: '/content/dam/ue-demo/fragments/ps-horizon',
@@ -385,6 +387,7 @@
         eyebrow: 'Deal of the Week',
         description: 'Aloy explores a lush but dangerous frontier, fighting massive machines threatening the world.',
         ctaLabel: 'From $19.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=640&q=80' },
       },
     };
 
@@ -395,6 +398,7 @@
         eyebrow: "Editor's Pick",
         description: 'Forge your own path as samurai Jin Sakai, protecting Tsushima in an epic open-world action adventure. Includes Iki Island expansion.',
         ctaLabel: 'From $49.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
       punchy: {
         _path: '/content/dam/ue-demo/fragments/ps-ghost',
@@ -402,6 +406,7 @@
         eyebrow: "Editor's Pick",
         description: 'One samurai. One island. An unforgettable fight for honor. Iki Island expansion included.',
         ctaLabel: 'From $49.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
       seo: {
         _path: '/content/dam/ue-demo/fragments/ps-ghost',
@@ -409,6 +414,7 @@
         eyebrow: "Editor's Pick",
         description: 'Acclaimed open-world samurai epic with Iki Island expansion and Legends multiplayer — complete edition on PS5.',
         ctaLabel: 'From $49.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
     };
 
@@ -525,7 +531,15 @@
 
     /* ── ConsoleSection ──────────────────────────────────────────────── */
     function ConsoleSection() {
-      function imgErr(e) { e.currentTarget.style.opacity = '0'; }
+      function imgErr(e) {
+        var el = e.currentTarget;
+        el.style.display = 'none';
+        var wrap = el.parentElement;
+        if (wrap) {
+          wrap.style.background = 'linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 100%)';
+          wrap.style.minHeight = '400px';
+        }
+      }
       return h('div', { className: 'console-section' },
         h('div', { className: 'console-row' },
           h('div', { className: 'console-img-wrap' },
@@ -575,7 +589,7 @@
 
       return h('section', { className: 'gv-section' },
         h('div', { className: 'gv-header' },
-          h('div', { className: 'gv-badge' }, '✶ Generate Variations'),
+          h('div', { className: 'gv-badge' }, '✦ Generate Variations'),
           h('h2', { className: 'gv-title' }, 'Same offer, three AI-generated copy variants'),
           h('p',  { className: 'gv-sub' },
             'Generate Variations in AEM created three versions of this offer. Each is a named variation on one Content Fragment — click any card in Universal Editor to open that exact variation.'),
