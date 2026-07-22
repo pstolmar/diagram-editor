@@ -29,7 +29,7 @@
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--ps-black); color: var(--ps-white);
-      min-height: 100vh; overflow-x: hidden;
+      overflow-x: hidden;
     }
     img { display: block; }
     button { cursor: pointer; }
@@ -37,7 +37,7 @@
 
     .ps-loading {
       display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; font-size: 1rem; color: var(--ps-muted); gap: .75rem;
+      min-height: 600px; font-size: 1rem; color: var(--ps-muted); gap: .75rem;
     }
     .ps-loading::before {
       content: ''; width: 20px; height: 20px; border-radius: 50%;
@@ -68,7 +68,7 @@
 
     /* ── Hero ────────────────────────────────────────────────────────── */
     .ps-hero {
-      position: relative; width: 100%; height: 82vh; min-height: 520px;
+      position: relative; width: 100%; height: 560px; min-height: 520px;
       overflow: hidden; background: #060b1a;
     }
     .hero-bg {
@@ -85,10 +85,13 @@
       height: 100%; width: auto; object-fit: contain; z-index: 1;
     }
     .hero-overlay {
-      position: absolute; inset: 0 55% 0 0;
+      position: absolute; inset: 0;
       padding: 3.5rem 3rem;
       display: flex; flex-direction: column; justify-content: center; z-index: 3;
-      background: linear-gradient(90deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.6) 70%,transparent 100%);
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.97) 0%, rgba(0,0,0,.90) 38%, rgba(0,0,0,.60) 58%, transparent 72%),
+        linear-gradient(0deg,  rgba(0,0,0,.85) 0%, transparent 28%);
+      max-width: 52%;
     }
     .hero-eyebrow {
       display: inline-flex; align-items: center; gap: .5rem;
@@ -440,18 +443,13 @@
     }
 
     /* ── Data fetching ───────────────────────────────────────────────── */
-    function fetchFeaturelist() {
-      return fetch(
-        PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
-        { headers: { Accept: 'application/json' }, cache: 'no-store' }
-      )
-        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(function (d) {
-          var map = {};
-          (d && d.data && d.data.homeHeroList && d.data.homeHeroList.items || [])
-            .forEach(function (i) { map[i._path.split('/').pop()] = i; });
-          return map;
-        });
+    var OFFER_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'];
+    function fetchAllOffers() {
+      return Promise.all(OFFER_SLUGS.map(fetchHero)).then(function (results) {
+        var map = {};
+        results.forEach(function (item, i) { if (item) map[OFFER_SLUGS[i]] = item; });
+        return map;
+      });
     }
 
     function fetchHero(slug) {
@@ -759,7 +757,7 @@
           fetchHero('offers-home-hero')
             .then(function (d) { setHeroData(d || FALLBACK_HERO); })
             .catch(function () { setHeroData(FALLBACK_HERO); }),
-          fetchFeaturelist()
+          fetchAllOffers()
             .then(function (d) { setOffers(Object.keys(d).length ? d : FALLBACK_OFFERS); })
             .catch(function () { setOffers(FALLBACK_OFFERS); }),
           Promise.allSettled([
