@@ -45,6 +45,85 @@
       animation: spin .8s linear infinite; flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── NavBar ──────────────────────────────────────────────────────── */
+    .ps-nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+      background: rgba(0,0,0,.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--ps-border);
+    }
+    .ps-nav-left  { display: flex; align-items: center; gap: 2.5rem; }
+    .ps-wordmark  { font-size: 1.0625rem; font-weight: 800; letter-spacing: -.01em; }
+    .ps-nav-links { display: flex; gap: 1.75rem; }
+    .ps-nav-links a { font-size: .875rem; font-weight: 500; color: var(--ps-muted); transition: color .15s; }
+    .ps-nav-links a:hover { color: var(--ps-white); }
+    .ps-nav-signin {
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 4px;
+      padding: .5rem 1.375rem; font-family: inherit; font-size: .875rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .ps-nav-signin:hover { background: var(--ps-blue2); }
+
+    /* ── Hero ────────────────────────────────────────────────────────── */
+    .ps-hero {
+      position: relative; width: 100%; height: 82vh; min-height: 520px;
+      overflow: hidden; background: #060b1a;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center top; z-index: 0;
+    }
+    .hero-img-left {
+      position: absolute; bottom: 0; left: 3%;
+      height: 92%; width: auto; object-fit: contain; z-index: 2;
+      filter: drop-shadow(0 16px 40px rgba(0,0,0,.55));
+    }
+    .hero-img-right {
+      position: absolute; bottom: 0; right: 0;
+      height: 100%; width: auto; object-fit: contain; z-index: 1;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0 55% 0 0;
+      padding: 3.5rem 3rem;
+      display: flex; flex-direction: column; justify-content: center; z-index: 3;
+      background: linear-gradient(90deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.6) 70%,transparent 100%);
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--ps-cyan); margin-bottom: 1rem;
+    }
+    .hero-eyebrow::before { content:''; width:20px; height:2px; background:var(--ps-cyan); }
+    .hero-title {
+      font-size: clamp(2rem,4vw,3.75rem); font-weight: 900; line-height: 1.08;
+      letter-spacing: -.02em; margin-bottom: 1rem;
+      text-shadow: 0 2px 16px rgba(0,0,0,.6);
+    }
+    .hero-desc {
+      font-size: 1rem; line-height: 1.6; color: var(--ps-muted);
+      max-width: 380px; margin-bottom: 1.75rem;
+    }
+    .countdown { display: flex; gap: .75rem; margin-bottom: 1.75rem; align-items: flex-end; }
+    .countdown-block {
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 6px; padding: .5rem .875rem; min-width: 52px;
+    }
+    .countdown-num {
+      font-size: 1.625rem; font-weight: 900; line-height: 1;
+      font-variant-numeric: tabular-nums; color: var(--ps-cyan);
+    }
+    .countdown-label { font-size: .6rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ps-muted); margin-top: .25rem; }
+    .hero-cta {
+      display: inline-block; align-self: flex-start;
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 4px;
+      padding: .9rem 2.25rem; font-family: inherit; font-size: 1rem; font-weight: 700;
+      letter-spacing: .03em; transition: background .15s, transform .12s;
+    }
+    .hero-cta:hover  { background: var(--ps-blue2); transform: translateY(-1px); }
+    .hero-cta:active { transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -221,6 +300,54 @@
         });
     }
 
+    /* ── NavBar ──────────────────────────────────────────────────────── */
+    function NavBar() {
+      return h('nav', { className: 'ps-nav' },
+        h('div', { className: 'ps-nav-left' },
+          h('span', { className: 'ps-wordmark' }, 'PlayStation'),
+          h('nav', { className: 'ps-nav-links' },
+            h('a', { href: '#' }, 'Store'),
+            h('a', { href: '#' }, 'PS Plus'),
+            h('a', { href: '#' }, 'PS5'),
+            h('a', { href: '#' }, 'Deals'),
+          ),
+        ),
+        h('button', { className: 'ps-nav-signin' }, 'Sign In'),
+      );
+    }
+
+    /* ── CountdownTimer ──────────────────────────────────────────────── */
+    function CountdownTimer(props) {
+      var parts = useCountdown(props.expiryISO);
+      return h('div', { className: 'countdown' },
+        ['d','h','m','s'].map(function (u) {
+          return h('div', { key: u, className: 'countdown-block' },
+            h('span', { className: 'countdown-num' }, String(parts[u]).padStart(2, '0')),
+            h('span', { className: 'countdown-label' }, u),
+          );
+        }),
+      );
+    }
+
+    /* ── Hero ────────────────────────────────────────────────────────── */
+    function Hero(props) {
+      var d = props.data || FALLBACK_HERO;
+      var fp = FRAG('offers-home-hero');
+      var desc = (d.description && (d.description.plaintext || d.description)) || '';
+      return h('section', Object.assign({ className: 'ps-hero' }, aueRes(fp, 'Hero')),
+        h('img', { className: 'hero-bg',        src: PS_HERO_BG,    alt: '', fetchPriority: 'high' }),
+        h('img', { className: 'hero-img-left',  src: PS_HERO_LEFT,  alt: '' }),
+        h('img', { className: 'hero-img-right', src: PS_HERO_RIGHT, alt: '' }),
+        h('div', { className: 'hero-overlay' },
+          h('p',      Object.assign({ className: 'hero-eyebrow' }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     d.eyebrow  || ''),
+          h('h1',     Object.assign({ className: 'hero-title'   }, aueField(fp, 'title',       'text',     'Headline')),    d.title    || ''),
+          h('p',      Object.assign({ className: 'hero-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+          h(CountdownTimer, { expiryISO: HERO_EXPIRY }),
+          h('button', Object.assign({ className: 'hero-cta'     }, aueField(fp, 'ctaLabel',    'text',     'CTA')),         d.ctaLabel || ''),
+        ),
+      );
+    }
+
     /* ── App (loading state only — sections added in later tasks) ────── */
     function App() {
       var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
@@ -253,7 +380,8 @@
       if (loading) return h('div', { className: 'ps-loading' }, 'Loading PS Store…');
 
       return h('div', { className: 'ps-page' },
-        h('p', { style: { padding: '2rem', color: 'rgba(255,255,255,.4)' } }, 'Scaffold OK — sections coming in next tasks')
+        h(NavBar),
+        h(Hero, { data: heroData }),
       );
     }
 
