@@ -256,6 +256,51 @@
       transition: background .15s;
     }
     .og-cart:hover { background: var(--ps-blue2); }
+
+    /* ── Personalization Rail ────────────────────────────────────────── */
+    .pr-section { background: var(--ps-black); padding: 5rem 2rem 6rem; }
+    .pr-header  { max-width: 1100px; margin: 0 auto 2rem; }
+    .pr-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .75rem; }
+    .pr-title   { font-size: 1.625rem; font-weight: 900; margin-bottom: .5rem; }
+    .pr-sub     { font-size: .9375rem; color: var(--ps-muted); max-width: 560px; line-height: 1.6; margin-bottom: 1.75rem; }
+    .pr-tiers   { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .pr-tier {
+      padding: .45rem 1.25rem; border-radius: 20px; font-family: inherit;
+      font-size: .8125rem; font-weight: 600;
+      border: 1px solid rgba(255,255,255,.15); background: transparent; color: var(--ps-muted);
+      transition: all .2s;
+    }
+    .pr-tier.active { background: var(--ps-blue); border-color: var(--ps-blue); color: var(--ps-white); }
+    .pr-tier:hover:not(.active) { border-color: rgba(255,255,255,.35); color: var(--ps-white); }
+    .pr-cards {
+      display: flex; gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+      overflow-x: auto; padding-bottom: 1rem;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
+    }
+    .pr-card {
+      flex-shrink: 0; width: 320px; background: var(--ps-card); border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--ps-border); transition: border-color .2s, transform .2s;
+    }
+    .pr-card:hover { border-color: rgba(255,255,255,.2); transform: translateY(-3px); }
+    .pr-cover { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: linear-gradient(135deg,var(--ps-blue),var(--ps-blue2)); }
+    .pr-body  { padding: 1.125rem; }
+    .pr-badge { display: inline-block; font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: var(--ps-blue); color: var(--ps-white); padding: .2rem .625rem; border-radius: 2px; margin-bottom: .5rem; }
+    .pr-title-f { font-size: .9375rem; font-weight: 700; margin-bottom: .375rem; }
+    .pr-price   { font-size: .9rem; font-weight: 900; color: var(--ps-cyan); margin-bottom: .875rem; }
+    .pr-cta {
+      display: block; width: 100%; text-align: center;
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 3px;
+      padding: .6rem; font-family: inherit; font-size: .8125rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .pr-cta:hover { background: var(--ps-blue2); }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    .ps-footer {
+      background: #0a0a0a; border-top: 1px solid var(--ps-border);
+      padding: 2.5rem 2rem; text-align: center;
+      font-size: .8125rem; color: rgba(255,255,255,.28);
+    }
   </style>
 </head>
 <body>
@@ -616,6 +661,80 @@
       );
     }
 
+    /* ── PersonalizationRail ─────────────────────────────────────────── */
+    function PersonalizationRail(props) {
+      var offers   = props.offers;
+      var ghostVars = props.ghostVars;
+      var TIERS = [
+        { key: 'guest',     label: 'Guest' },
+        { key: 'essential', label: 'PS Plus Essential' },
+        { key: 'extra',     label: 'PS Plus Extra' },
+        { key: 'premium',   label: 'PS Plus Premium' },
+      ];
+      var _t = useState('guest'); var tier = _t[0]; var setTier = _t[1];
+
+      var sm  = (offers && offers['ps-spiderman'])  || FALLBACK_OFFERS['ps-spiderman'];
+      var gow = (offers && offers['ps-god-of-war']) || FALLBACK_OFFERS['ps-god-of-war'];
+      var hz  = (offers && offers['ps-horizon'])    || FALLBACK_OFFERS['ps-horizon'];
+      var gM  = (ghostVars && ghostVars.master)     || FALLBACK_GHOST.master;
+      var gP  = (ghostVars && ghostVars.punchy)     || FALLBACK_GHOST.punchy;
+      var gS  = (ghostVars && ghostVars.seo)        || FALLBACK_GHOST.seo;
+
+      /* Each tier: array of { item, slug, variation } */
+      var TIER_DATA = {
+        guest:     [{ item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: hz,  slug: 'ps-horizon',    v: 'master' }],
+        essential: [{ item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: hz,  slug: 'ps-horizon',    v: 'master' }, { item: gM,  slug: 'ps-ghost',      v: 'master' }],
+        extra:     [{ item: hz,  slug: 'ps-horizon',    v: 'master' }, { item: gP,  slug: 'ps-ghost',      v: 'punchy' }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }],
+        premium:   [{ item: gS,  slug: 'ps-ghost',      v: 'seo'    }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }],
+      };
+
+      function RailCard(rc) {
+        var item = rc.item; var slug = rc.slug; var variation = rc.v;
+        var fp    = FRAG(slug, variation);
+        var cover = item.image && item.image._publishUrl;
+        return h('div', Object.assign({ className: 'pr-card' }, aueRes(fp, item.title || slug)),
+          cover
+            ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+            : h('div', { className: 'pr-cover' }),
+          h('div', { className: 'pr-body' },
+            h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
+            h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
+            h('p',    Object.assign({ className: 'pr-price'   }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('button', { className: 'pr-cta' }, 'Add to Cart'),
+          ),
+        );
+      }
+
+      return h('section', { className: 'pr-section' },
+        h('div', { className: 'pr-header' },
+          h('p',  { className: 'pr-eyebrow' }, 'Personalization'),
+          h('h2', { className: 'pr-title' }, 'Offers For You'),
+          h('p',  { className: 'pr-sub' }, 'Switching audience tier shows how the same page surfaces different offers — managed entirely through Content Fragments and CF variations, no code change required.'),
+          h('div', { className: 'pr-tiers' },
+            TIERS.map(function (t) {
+              return h('button', {
+                key: t.key,
+                className: 'pr-tier' + (tier === t.key ? ' active' : ''),
+                onClick: function () { setTier(t.key); },
+              }, t.label);
+            }),
+          ),
+        ),
+        h('div', { className: 'pr-cards' },
+          TIER_DATA[tier].map(function (rc, i) {
+            return h(RailCard, { key: rc.slug + '-' + rc.v + '-' + i, item: rc.item, slug: rc.slug, v: rc.v });
+          }),
+        ),
+      );
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    function Footer() {
+      return h('footer', { className: 'ps-footer' },
+        'PlayStation and PS5 are trademarks of Sony Interactive Entertainment Inc. — Demo only, powered by Adobe AEM Edge Delivery Services + Universal Editor.'
+      );
+    }
+
     /* ── App (loading state only — sections added in later tasks) ────── */
     function App() {
       var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
@@ -653,6 +772,8 @@
         h(ConsoleSection),
         h(GenVarsPanel, { ghostVars: ghostVars }),
         h(OfferGrid, { offers: offers }),
+        h(PersonalizationRail, { offers: offers, ghostVars: ghostVars }),
+        h(Footer),
       );
     }
 
