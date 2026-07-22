@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>PS Store — Summer Sale</title>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ps-black:  #000;
+      --ps-dark:   #0a0a0a;
+      --ps-card:   #1a1a2e;
+      --ps-blue:   #003791;
+      --ps-blue2:  #00439c;
+      --ps-cyan:   #00d4ff;
+      --ps-red:    #e31837;
+      --ps-white:  #fff;
+      --ps-muted:  rgba(255,255,255,.65);
+      --ps-border: rgba(255,255,255,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--ps-black); color: var(--ps-white);
+      min-height: 100vh; overflow-x: hidden;
+    }
+    img { display: block; }
+    button { cursor: pointer; }
+    a { text-decoration: none; color: inherit; }
+
+    .ps-loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; font-size: 1rem; color: var(--ps-muted); gap: .75rem;
+    }
+    .ps-loading::before {
+      content: ''; width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--ps-blue2); border-top-color: var(--ps-cyan);
+      animation: spin .8s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+  (function () {
+    'use strict';
+    var _React = React;
+    var useState    = _React.useState;
+    var useEffect   = _React.useEffect;
+    var useRef      = _React.useRef;
+    var useCallback = _React.useCallback;
+    var h = _React.createElement;
+
+    /* ── AEM endpoints ───────────────────────────────────────────────── */
+    var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
+    var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+
+    /* ── PS image URLs ───────────────────────────────────────────────── */
+    var PS_HERO_BG    = 'https://image.api.playstation.com/pr/bam-art/230/937/6caf31c8-b873-43cc-9c91-82d8e9cc0909.jpg?w=1920&thumb=false';
+    var PS_HERO_LEFT  = 'https://image.api.playstation.com/pr/bam-art/231/906/6246f891-7458-4717-92f4-a82b30f02b13.png?w=620&thumb=false';
+    var PS_HERO_RIGHT = 'https://image.api.playstation.com/pr/bam-art/231/985/e1d0d6ac-d5df-4e60-8fbb-d6aba71ecb6e.png?w=940&thumb=false';
+    var PS5_SLIM_URL  = 'https://gmedia.playstation.com/is/image/SIEPDC/ps5-slim-disc-console-featured-hardware-image-block-02-en-15nov23?$1600px$';
+    var PS5_REFURB_URL= 'https://gmedia.playstation.com/is/image/SIEPDC/certified-refurbished-xf-image-desktop-01-en-17feb26$en?$1200px--t$';
+
+    /* ── CF path helper ──────────────────────────────────────────────── */
+    function FRAG(slug, variation) {
+      return '/content/dam/ue-demo/fragments/' + slug + '/jcr:content/data/' + (variation || 'master');
+    }
+
+    /* ── UE annotation helpers ───────────────────────────────────────── */
+    /* Spread onto a container element (the CF component boundary) */
+    function aueRes(fragPath, label) {
+      return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
+        'data-aue-type': 'component',
+        'data-aue-label': label || 'Content',
+      };
+    }
+    /* Spread onto a rendered text/image node (an editable field) */
+    function aueField(fragPath, prop, type, label) {
+      return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
+        'data-aue-prop': prop,
+        'data-aue-type': type || 'text',
+        'data-aue-label': label || prop,
+      };
+    }
+
+    /* ── Expiry dates ────────────────────────────────────────────────── */
+    var HERO_EXPIRY = '2026-08-15T23:59:00Z';
+    var GRID_EXPIRIES = {
+      'ps-spiderman': '2026-08-03T23:59:00Z',
+      'ps-god-of-war': '2026-08-10T23:59:00Z',
+      'ps-horizon':    '2026-08-15T23:59:00Z',
+    };
+
+    /* ── Fallback content ────────────────────────────────────────────── */
+    var FALLBACK_HERO = {
+      eyebrow: 'Summer Sale',
+      title: 'Up to 40% Off PS Store',
+      description: 'Score massive savings on PS5 games, add-ons, and subscriptions. Offer ends August 15.',
+      ctaLabel: 'Shop the Sale',
+    };
+
+    var FALLBACK_OFFERS = {
+      'ps-spiderman': {
+        _path: '/content/dam/ue-demo/fragments/ps-spiderman',
+        title: "Marvel's Spider-Man 2",
+        eyebrow: 'PS Plus Deal',
+        description: 'Swing through an expanded New York as both Peter Parker and Miles Morales in a brand-new story.',
+        ctaLabel: 'From $39.99',
+      },
+      'ps-god-of-war': {
+        _path: '/content/dam/ue-demo/fragments/ps-god-of-war',
+        title: 'God of War Ragnarök',
+        eyebrow: 'Flash Sale',
+        description: 'Kratos and Atreus journey through all Nine Realms to prevent the end of everything.',
+        ctaLabel: 'From $29.99',
+      },
+      'ps-horizon': {
+        _path: '/content/dam/ue-demo/fragments/ps-horizon',
+        title: 'Horizon Forbidden West',
+        eyebrow: 'Deal of the Week',
+        description: 'Aloy explores a lush but dangerous frontier, fighting massive machines threatening the world.',
+        ctaLabel: 'From $19.99',
+      },
+    };
+
+    var FALLBACK_GHOST = {
+      master: {
+        _path: '/content/dam/ue-demo/fragments/ps-ghost',
+        title: "Ghost of Tsushima Director's Cut",
+        eyebrow: "Editor's Pick",
+        description: 'Forge your own path as samurai Jin Sakai, protecting Tsushima in an epic open-world action adventure. Includes Iki Island expansion.',
+        ctaLabel: 'From $49.99',
+      },
+      punchy: {
+        _path: '/content/dam/ue-demo/fragments/ps-ghost',
+        title: "Ghost of Tsushima Director's Cut",
+        eyebrow: "Editor's Pick",
+        description: 'One samurai. One island. An unforgettable fight for honor. Iki Island expansion included.',
+        ctaLabel: 'From $49.99',
+      },
+      seo: {
+        _path: '/content/dam/ue-demo/fragments/ps-ghost',
+        title: "Ghost of Tsushima Director's Cut",
+        eyebrow: "Editor's Pick",
+        description: 'Acclaimed open-world samurai epic with Iki Island expansion and Legends multiplayer — complete edition on PS5.',
+        ctaLabel: 'From $49.99',
+      },
+    };
+
+    /* ── useCountdown hook ───────────────────────────────────────────── */
+    function useCountdown(expiryISO) {
+      var _s = useState({ d: 0, h: 0, m: 0, s: 0 });
+      var parts = _s[0]; var setParts = _s[1];
+      useEffect(function () {
+        function tick() {
+          var diff = Math.max(0, new Date(expiryISO) - Date.now());
+          setParts({
+            d: Math.floor(diff / 86400000),
+            h: Math.floor(diff / 3600000) % 24,
+            m: Math.floor(diff / 60000) % 60,
+            s: Math.floor(diff / 1000) % 60,
+          });
+        }
+        tick();
+        var id = setInterval(tick, 1000);
+        return function () { clearInterval(id); };
+      }, [expiryISO]);
+      return parts;
+    }
+
+    /* ── Data fetching ───────────────────────────────────────────────── */
+    function fetchFeaturelist() {
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          var map = {};
+          (d && d.data && d.data.homeHeroList && d.data.homeHeroList.items || [])
+            .forEach(function (i) { map[i._path.split('/').pop()] = i; });
+          return map;
+        });
+    }
+
+    function fetchHero(slug) {
+      var path = '/content/dam/ue-demo/fragments/' + slug;
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/heroByPath?_path=' + encodeURIComponent(path) + '&_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          return (d && d.data && (d.data.homeHeroByPath || d.data.heroByPath) &&
+            ((d.data.homeHeroByPath || d.data.heroByPath).item)) || null;
+        });
+    }
+
+    function fetchVariation(slug, variation) {
+      var path = '/content/dam/ue-demo/fragments/' + slug;
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/heroByPath?_path=' + encodeURIComponent(path) +
+          '&_variation=' + encodeURIComponent(variation) + '&_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          return (d && d.data && (d.data.homeHeroByPath || d.data.heroByPath) &&
+            ((d.data.homeHeroByPath || d.data.heroByPath).item)) || null;
+        });
+    }
+
+    /* ── App (loading state only — sections added in later tasks) ────── */
+    function App() {
+      var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
+      var _o = useState(null);  var offers   = _o[0]; var setOffers   = _o[1];
+      var _g = useState(null);  var ghostVars = _g[0]; var setGhostVars = _g[1];
+      var _l = useState(true);  var loading  = _l[0]; var setLoading  = _l[1];
+
+      useEffect(function () {
+        Promise.allSettled([
+          fetchHero('offers-home-hero')
+            .then(function (d) { setHeroData(d || FALLBACK_HERO); })
+            .catch(function () { setHeroData(FALLBACK_HERO); }),
+          fetchFeaturelist()
+            .then(function (d) { setOffers(Object.keys(d).length ? d : FALLBACK_OFFERS); })
+            .catch(function () { setOffers(FALLBACK_OFFERS); }),
+          Promise.allSettled([
+            fetchVariation('ps-ghost', 'master'),
+            fetchVariation('ps-ghost', 'punchy'),
+            fetchVariation('ps-ghost', 'seo'),
+          ]).then(function (res) {
+            setGhostVars({
+              master: res[0].value || FALLBACK_GHOST.master,
+              punchy: res[1].value || FALLBACK_GHOST.punchy,
+              seo:    res[2].value || FALLBACK_GHOST.seo,
+            });
+          }),
+        ]).then(function () { setLoading(false); });
+      }, []);
+
+      if (loading) return h('div', { className: 'ps-loading' }, 'Loading PS Store…');
+
+      return h('div', { className: 'ps-page' },
+        h('p', { style: { padding: '2rem', color: 'rgba(255,255,255,.4)' } }, 'Scaffold OK — sections coming in next tasks')
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+  })();
+  </script>
+</body>
+</html>
