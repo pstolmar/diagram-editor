@@ -1,0 +1,1121 @@
+# PS Offers Page Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build `tools/ue-spa-demo/offers.html` — a PlayStation-style offers page with AEM Content Fragment editing via Universal Editor, featuring a 3-layer hero, PS5 console offers, a Generate Variations panel, a timed offer grid, and a personalization rail.
+
+**Architecture:** Single self-contained HTML file. Inline React 18 (CDN, no JSX), all CSS in one `<style>` block, all JS in one `<script>` block. Fetches content from AEM GraphQL with inline JS fallbacks for every fetch. UE annotations (`data-aue-*`) on all CF-backed text fields.
+
+**Tech Stack:** React 18 via unpkg CDN, vanilla CSS, AEM GraphQL persisted queries (`global/featurelist`, `global/heroByPath`), Universal Editor CORS lib (`universal-editor-service.adobe.io/cors.js`), Inter via Google Fonts.
+
+## Global Constraints
+
+- React 18 via `https://unpkg.com/react@18/umd/react.production.min.js` — no JSX, `createElement` aliased as `h`
+- No Dynamic Media parameterized image templates anywhere in the file
+- AUTHOR = `https://author-p138879-e1741192.adobeaemcloud.com`
+- PUBLISH = `https://publish-p138879-e1741192.adobeaemcloud.com`
+- UE meta: `<meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>`
+- CORS lib: `<script src="https://universal-editor-service.adobe.io/cors.js" async></script>`
+- CF base: `/content/dam/ue-demo/fragments/`
+- UE resource URN: `urn:aem:/content/dam/ue-demo/fragments/<slug>/jcr:content/data/<variation>`
+- GraphQL namespace: `global` — queries are `featurelist` and `heroByPath`
+- Every fetch falls back to inline JS constants on any error — page must always render
+- No Playwright tests — visual browser verification against `http://localhost:3000`
+- Inter font from Google Fonts
+- Expiry date constants: hero `2026-08-15T23:59:00Z`, spiderman `2026-08-03T23:59:00Z`, god-of-war `2026-08-10T23:59:00Z`, horizon `2026-08-15T23:59:00Z`
+
+---
+
+## File Structure
+
+- **Create:** `tools/ue-spa-demo/offers.html` — entire page; built incrementally across tasks
+
+---
+
+### Task 1: Scaffold — HTML skeleton, CSS foundation, constants, data layer, loading App
+
+**Files:**
+- Create: `tools/ue-spa-demo/offers.html`
+
+**Interfaces:**
+- Produces: `FRAG(slug, variation?)`, `aueRes(fragPath, label)`, `aueField(fragPath, prop, type, label)`, `useCountdown(expiryISO)`, `fetchFeaturelist()`, `fetchHero(slug)`, `fetchVariation(slug, variation)`, all `FALLBACK_*` constants, loading `App` component
+
+---
+
+- [ ] **Step 1: Create `tools/ue-spa-demo/offers.html` with the full scaffold**
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>PS Store — Summer Sale</title>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ps-black:  #000;
+      --ps-dark:   #0a0a0a;
+      --ps-card:   #1a1a2e;
+      --ps-blue:   #003791;
+      --ps-blue2:  #00439c;
+      --ps-cyan:   #00d4ff;
+      --ps-red:    #e31837;
+      --ps-white:  #fff;
+      --ps-muted:  rgba(255,255,255,.65);
+      --ps-border: rgba(255,255,255,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--ps-black); color: var(--ps-white);
+      min-height: 100vh; overflow-x: hidden;
+    }
+    img { display: block; }
+    button { cursor: pointer; }
+    a { text-decoration: none; color: inherit; }
+
+    .ps-loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; font-size: 1rem; color: var(--ps-muted); gap: .75rem;
+    }
+    .ps-loading::before {
+      content: ''; width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--ps-blue2); border-top-color: var(--ps-cyan);
+      animation: spin .8s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+  (function () {
+    'use strict';
+    var _React = React;
+    var useState    = _React.useState;
+    var useEffect   = _React.useEffect;
+    var useRef      = _React.useRef;
+    var useCallback = _React.useCallback;
+    var h = _React.createElement;
+
+    /* ── AEM endpoints ───────────────────────────────────────────────── */
+    var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
+    var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+
+    /* ── PS image URLs ───────────────────────────────────────────────── */
+    var PS_HERO_BG    = 'https://image.api.playstation.com/pr/bam-art/230/937/6caf31c8-b873-43cc-9c91-82d8e9cc0909.jpg?w=1920&thumb=false';
+    var PS_HERO_LEFT  = 'https://image.api.playstation.com/pr/bam-art/231/906/6246f891-7458-4717-92f4-a82b30f02b13.png?w=620&thumb=false';
+    var PS_HERO_RIGHT = 'https://image.api.playstation.com/pr/bam-art/231/985/e1d0d6ac-d5df-4e60-8fbb-d6aba71ecb6e.png?w=940&thumb=false';
+    var PS5_SLIM_URL  = 'https://gmedia.playstation.com/is/image/SIEPDC/ps5-slim-disc-console-featured-hardware-image-block-02-en-15nov23?$1600px$';
+    var PS5_REFURB_URL= 'https://gmedia.playstation.com/is/image/SIEPDC/certified-refurbished-xf-image-desktop-01-en-17feb26$en?$1200px--t$';
+
+    /* ── CF path helper ──────────────────────────────────────────────── */
+    function FRAG(slug, variation) {
+      return '/content/dam/ue-demo/fragments/' + slug + '/jcr:content/data/' + (variation || 'master');
+    }
+
+    /* ── UE annotation helpers ───────────────────────────────────────── */
+    /* Spread onto a container element (the CF component boundary) */
+    function aueRes(fragPath, label) {
+      return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
+        'data-aue-type': 'component',
+        'data-aue-label': label || 'Content',
+      };
+    }
+    /* Spread onto a rendered text/image node (an editable field) */
+    function aueField(fragPath, prop, type, label) {
+      return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
+        'data-aue-prop': prop,
+        'data-aue-type': type || 'text',
+        'data-aue-label': label || prop,
+      };
+    }
+
+    /* ── Expiry dates ────────────────────────────────────────────────── */
+    var HERO_EXPIRY = '2026-08-15T23:59:00Z';
+    var GRID_EXPIRIES = {
+      'ps-spiderman': '2026-08-03T23:59:00Z',
+      'ps-god-of-war': '2026-08-10T23:59:00Z',
+      'ps-horizon':    '2026-08-15T23:59:00Z',
+    };
+
+    /* ── Fallback content ────────────────────────────────────────────── */
+    var FALLBACK_HERO = {
+      eyebrow: 'Summer Sale',
+      title: 'Up to 40% Off PS Store',
+      description: 'Score massive savings on PS5 games, add-ons, and subscriptions. Offer ends August 15.',
+      ctaLabel: 'Shop the Sale',
+    };
+
+    var FALLBACK_OFFERS = {
+      'ps-spiderman': {
+        _path: '/content/dam/ue-demo/fragments/ps-spiderman',
+        title: "Marvel's Spider-Man 2",
+        eyebrow: 'PS Plus Deal',
+        description: 'Swing through an expanded New York as both Peter Parker and Miles Morales in a brand-new story.',
+        ctaLabel: 'From $39.99',
+      },
+      'ps-god-of-war': {
+        _path: '/content/dam/ue-demo/fragments/ps-god-of-war',
+        title: 'God of War Ragnarök',
+        eyebrow: 'Flash Sale',
+        description: 'Kratos and Atreus journey through all Nine Realms to prevent the end of everything.',
+        ctaLabel: 'From $29.99',
+      },
+      'ps-horizon': {
+        _path: '/content/dam/ue-demo/fragments/ps-horizon',
+        title: 'Horizon Forbidden West',
+        eyebrow: 'Deal of the Week',
+        description: 'Aloy explores a lush but dangerous frontier, fighting massive machines threatening the world.',
+        ctaLabel: 'From $19.99',
+      },
+    };
+
+    var FALLBACK_GHOST = {
+      master: {
+        _path: '/content/dam/ue-demo/fragments/ps-ghost',
+        title: "Ghost of Tsushima Director's Cut",
+        eyebrow: "Editor's Pick",
+        description: 'Forge your own path as samurai Jin Sakai, protecting Tsushima in an epic open-world action adventure. Includes Iki Island expansion.',
+        ctaLabel: 'From $49.99',
+      },
+      punchy: {
+        _path: '/content/dam/ue-demo/fragments/ps-ghost',
+        title: "Ghost of Tsushima Director's Cut",
+        eyebrow: "Editor's Pick",
+        description: 'One samurai. One island. An unforgettable fight for honor. Iki Island expansion included.',
+        ctaLabel: 'From $49.99',
+      },
+      seo: {
+        _path: '/content/dam/ue-demo/fragments/ps-ghost',
+        title: "Ghost of Tsushima Director's Cut",
+        eyebrow: "Editor's Pick",
+        description: 'Acclaimed open-world samurai epic with Iki Island expansion and Legends multiplayer — complete edition on PS5.',
+        ctaLabel: 'From $49.99',
+      },
+    };
+
+    /* ── useCountdown hook ───────────────────────────────────────────── */
+    function useCountdown(expiryISO) {
+      var _s = useState({ d: 0, h: 0, m: 0, s: 0 });
+      var parts = _s[0]; var setParts = _s[1];
+      useEffect(function () {
+        function tick() {
+          var diff = Math.max(0, new Date(expiryISO) - Date.now());
+          setParts({
+            d: Math.floor(diff / 86400000),
+            h: Math.floor(diff / 3600000) % 24,
+            m: Math.floor(diff / 60000) % 60,
+            s: Math.floor(diff / 1000) % 60,
+          });
+        }
+        tick();
+        var id = setInterval(tick, 1000);
+        return function () { clearInterval(id); };
+      }, [expiryISO]);
+      return parts;
+    }
+
+    /* ── Data fetching ───────────────────────────────────────────────── */
+    function fetchFeaturelist() {
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          var map = {};
+          (d && d.data && d.data.homeHeroList && d.data.homeHeroList.items || [])
+            .forEach(function (i) { map[i._path.split('/').pop()] = i; });
+          return map;
+        });
+    }
+
+    function fetchHero(slug) {
+      var path = '/content/dam/ue-demo/fragments/' + slug;
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/heroByPath?_path=' + encodeURIComponent(path) + '&_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          return (d && d.data && (d.data.homeHeroByPath || d.data.heroByPath) &&
+            ((d.data.homeHeroByPath || d.data.heroByPath).item)) || null;
+        });
+    }
+
+    function fetchVariation(slug, variation) {
+      var path = '/content/dam/ue-demo/fragments/' + slug;
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/heroByPath?_path=' + encodeURIComponent(path) +
+          '&_variation=' + encodeURIComponent(variation) + '&_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          return (d && d.data && (d.data.homeHeroByPath || d.data.heroByPath) &&
+            ((d.data.homeHeroByPath || d.data.heroByPath).item)) || null;
+        });
+    }
+
+    /* ── App (loading state only — sections added in later tasks) ────── */
+    function App() {
+      var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
+      var _o = useState(null);  var offers   = _o[0]; var setOffers   = _o[1];
+      var _g = useState(null);  var ghostVars = _g[0]; var setGhostVars = _g[1];
+      var _l = useState(true);  var loading  = _l[0]; var setLoading  = _l[1];
+
+      useEffect(function () {
+        Promise.allSettled([
+          fetchHero('offers-home-hero')
+            .then(function (d) { setHeroData(d || FALLBACK_HERO); })
+            .catch(function () { setHeroData(FALLBACK_HERO); }),
+          fetchFeaturelist()
+            .then(function (d) { setOffers(Object.keys(d).length ? d : FALLBACK_OFFERS); })
+            .catch(function () { setOffers(FALLBACK_OFFERS); }),
+          Promise.allSettled([
+            fetchVariation('ps-ghost', 'master'),
+            fetchVariation('ps-ghost', 'punchy'),
+            fetchVariation('ps-ghost', 'seo'),
+          ]).then(function (res) {
+            setGhostVars({
+              master: res[0].value || FALLBACK_GHOST.master,
+              punchy: res[1].value || FALLBACK_GHOST.punchy,
+              seo:    res[2].value || FALLBACK_GHOST.seo,
+            });
+          }),
+        ]).then(function () { setLoading(false); });
+      }, []);
+
+      if (loading) return h('div', { className: 'ps-loading' }, 'Loading PS Store…');
+
+      return h('div', { className: 'ps-page' },
+        h('p', { style: { padding: '2rem', color: 'rgba(255,255,255,.4)' } }, 'Scaffold OK — sections coming in next tasks')
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+  })();
+  </script>
+</body>
+</html>
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Run `aem up` (or `python3 -m http.server 8080` from repo root, then open `http://localhost:8080`).
+Open: `http://localhost:3000/tools/ue-spa-demo/offers.html`
+Expected: spinner briefly, then "Scaffold OK — sections coming in next tasks". No console errors. Network tab shows three fetch calls to `publish-p138879-e1741192.adobeaemcloud.com`.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add tools/ue-spa-demo/offers.html
+git commit -m "feat(offers): scaffold HTML, data layer, fallbacks, loading App"
+```
+
+---
+
+### Task 2: PS Navbar + layered Hero section
+
+**Files:**
+- Modify: `tools/ue-spa-demo/offers.html`
+
+**Interfaces:**
+- Consumes: `h`, `useState`, `useEffect`, `aueRes`, `aueField`, `FRAG`, `useCountdown`, `HERO_EXPIRY`, `FALLBACK_HERO`, `PS_HERO_BG`, `PS_HERO_LEFT`, `PS_HERO_RIGHT`
+- Produces: `NavBar()`, `CountdownTimer({ expiryISO })`, `Hero({ data })`; `App` renders both
+
+---
+
+- [ ] **Step 1: Add Navbar + Hero CSS — insert after the `@keyframes spin` rule inside `<style>`**
+
+```css
+    /* ── NavBar ──────────────────────────────────────────────────────── */
+    .ps-nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+      background: rgba(0,0,0,.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--ps-border);
+    }
+    .ps-nav-left  { display: flex; align-items: center; gap: 2.5rem; }
+    .ps-wordmark  { font-size: 1.0625rem; font-weight: 800; letter-spacing: -.01em; }
+    .ps-nav-links { display: flex; gap: 1.75rem; }
+    .ps-nav-links a { font-size: .875rem; font-weight: 500; color: var(--ps-muted); transition: color .15s; }
+    .ps-nav-links a:hover { color: var(--ps-white); }
+    .ps-nav-signin {
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 4px;
+      padding: .5rem 1.375rem; font-family: inherit; font-size: .875rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .ps-nav-signin:hover { background: var(--ps-blue2); }
+
+    /* ── Hero ────────────────────────────────────────────────────────── */
+    .ps-hero {
+      position: relative; width: 100%; height: 82vh; min-height: 520px;
+      overflow: hidden; background: #060b1a;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center top; z-index: 0;
+    }
+    .hero-img-left {
+      position: absolute; bottom: 0; left: 3%;
+      height: 92%; width: auto; object-fit: contain; z-index: 2;
+      filter: drop-shadow(0 16px 40px rgba(0,0,0,.55));
+    }
+    .hero-img-right {
+      position: absolute; bottom: 0; right: 0;
+      height: 100%; width: auto; object-fit: contain; z-index: 1;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0 55% 0 0;
+      padding: 3.5rem 3rem;
+      display: flex; flex-direction: column; justify-content: center; z-index: 3;
+      background: linear-gradient(90deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.6) 70%,transparent 100%);
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--ps-cyan); margin-bottom: 1rem;
+    }
+    .hero-eyebrow::before { content:''; width:20px; height:2px; background:var(--ps-cyan); }
+    .hero-title {
+      font-size: clamp(2rem,4vw,3.75rem); font-weight: 900; line-height: 1.08;
+      letter-spacing: -.02em; margin-bottom: 1rem;
+      text-shadow: 0 2px 16px rgba(0,0,0,.6);
+    }
+    .hero-desc {
+      font-size: 1rem; line-height: 1.6; color: var(--ps-muted);
+      max-width: 380px; margin-bottom: 1.75rem;
+    }
+    .countdown { display: flex; gap: .75rem; margin-bottom: 1.75rem; align-items: flex-end; }
+    .countdown-block {
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 6px; padding: .5rem .875rem; min-width: 52px;
+    }
+    .countdown-num {
+      font-size: 1.625rem; font-weight: 900; line-height: 1;
+      font-variant-numeric: tabular-nums; color: var(--ps-cyan);
+    }
+    .countdown-label { font-size: .6rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ps-muted); margin-top: .25rem; }
+    .hero-cta {
+      display: inline-block; align-self: flex-start;
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 4px;
+      padding: .9rem 2.25rem; font-family: inherit; font-size: 1rem; font-weight: 700;
+      letter-spacing: .03em; transition: background .15s, transform .12s;
+    }
+    .hero-cta:hover  { background: var(--ps-blue2); transform: translateY(-1px); }
+    .hero-cta:active { transform: translateY(0); }
+```
+
+- [ ] **Step 2: Add `NavBar`, `CountdownTimer`, and `Hero` components — insert after the `fetchVariation` function in `<script>`**
+
+```javascript
+    /* ── NavBar ──────────────────────────────────────────────────────── */
+    function NavBar() {
+      return h('nav', { className: 'ps-nav' },
+        h('div', { className: 'ps-nav-left' },
+          h('span', { className: 'ps-wordmark' }, 'PlayStation'),
+          h('nav', { className: 'ps-nav-links' },
+            h('a', { href: '#' }, 'Store'),
+            h('a', { href: '#' }, 'PS Plus'),
+            h('a', { href: '#' }, 'PS5'),
+            h('a', { href: '#' }, 'Deals'),
+          ),
+        ),
+        h('button', { className: 'ps-nav-signin' }, 'Sign In'),
+      );
+    }
+
+    /* ── CountdownTimer ──────────────────────────────────────────────── */
+    function CountdownTimer(props) {
+      var parts = useCountdown(props.expiryISO);
+      return h('div', { className: 'countdown' },
+        ['d','h','m','s'].map(function (u) {
+          return h('div', { key: u, className: 'countdown-block' },
+            h('span', { className: 'countdown-num' }, String(parts[u]).padStart(2, '0')),
+            h('span', { className: 'countdown-label' }, u),
+          );
+        }),
+      );
+    }
+
+    /* ── Hero ────────────────────────────────────────────────────────── */
+    function Hero(props) {
+      var d = props.data || FALLBACK_HERO;
+      var fp = FRAG('offers-home-hero');
+      var desc = (d.description && (d.description.plaintext || d.description)) || '';
+      return h('section', Object.assign({ className: 'ps-hero' }, aueRes(fp, 'Hero')),
+        h('img', { className: 'hero-bg',        src: PS_HERO_BG,    alt: '', fetchPriority: 'high' }),
+        h('img', { className: 'hero-img-left',  src: PS_HERO_LEFT,  alt: '' }),
+        h('img', { className: 'hero-img-right', src: PS_HERO_RIGHT, alt: '' }),
+        h('div', { className: 'hero-overlay' },
+          h('p',      Object.assign({ className: 'hero-eyebrow' }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     d.eyebrow  || ''),
+          h('h1',     Object.assign({ className: 'hero-title'   }, aueField(fp, 'title',       'text',     'Headline')),    d.title    || ''),
+          h('p',      Object.assign({ className: 'hero-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+          h(CountdownTimer, { expiryISO: HERO_EXPIRY }),
+          h('button', Object.assign({ className: 'hero-cta'     }, aueField(fp, 'ctaLabel',    'text',     'CTA')),         d.ctaLabel || ''),
+        ),
+      );
+    }
+```
+
+- [ ] **Step 3: Replace the `App` return to render `NavBar` and `Hero`**
+
+```javascript
+      return h('div', { className: 'ps-page' },
+        h(NavBar),
+        h(Hero, { data: heroData }),
+      );
+```
+
+- [ ] **Step 4: Verify in browser**
+
+Open `http://localhost:3000/tools/ue-spa-demo/offers.html`.
+Expected:
+- Sticky dark navbar: "PlayStation" wordmark, Store/PS Plus/PS5/Deals links, blue "Sign In" button
+- Full-height hero: PS background JPEG, left PNG character overlay, right PNG character overlay
+- Text left-overlay: cyan eyebrow with line, large headline, description, countdown ticking (d/h/m/s), blue CTA button
+- No console errors; confirm `data-aue-resource` on `<section.ps-hero>` in DevTools
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tools/ue-spa-demo/offers.html
+git commit -m "feat(offers): NavBar and layered 3-image Hero with UE annotations"
+```
+
+---
+
+### Task 3: PS5 Console Offer section
+
+**Files:**
+- Modify: `tools/ue-spa-demo/offers.html`
+
+**Interfaces:**
+- Consumes: `h`, `PS5_SLIM_URL`, `PS5_REFURB_URL`
+- Produces: `ConsoleSection()`; `App` renders it below `Hero`
+
+---
+
+- [ ] **Step 1: Add Console CSS — insert after `.hero-cta:active` in `<style>`**
+
+```css
+    /* ── Console Section ─────────────────────────────────────────────── */
+    .console-section { background: var(--ps-dark); }
+    .console-row {
+      display: grid; grid-template-columns: 55% 45%; min-height: 480px;
+      border-bottom: 1px solid var(--ps-border);
+    }
+    .console-row.flip { grid-template-columns: 45% 55%; }
+    .console-img-wrap { overflow: hidden; background: #0d0d0d; display: flex; align-items: center; }
+    .console-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+    .console-img-wrap img:hover { transform: scale(1.03); }
+    .console-row.flip .console-img-wrap { order: 2; }
+    .console-row.flip .console-copy     { order: 1; }
+    .console-copy { display: flex; flex-direction: column; justify-content: center; padding: 3.5rem 4rem; }
+    .console-badge {
+      display: inline-block; background: var(--ps-red); color: var(--ps-white);
+      font-size: .6875rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+      padding: .3rem .875rem; border-radius: 2px; margin-bottom: 1.25rem; align-self: flex-start;
+    }
+    .console-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .75rem; }
+    .console-title { font-size: clamp(1.5rem,2.5vw,2.25rem); font-weight: 900; line-height: 1.15; margin-bottom: .875rem; }
+    .console-body  { font-size: .9375rem; line-height: 1.65; color: var(--ps-muted); max-width: 420px; margin-bottom: 1.75rem; }
+    .console-price-row { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .console-price { font-size: 2rem; font-weight: 900; }
+    .console-price-orig { font-size: 1rem; color: var(--ps-muted); text-decoration: line-through; }
+    .console-savings { font-size: .8rem; font-weight: 700; color: var(--ps-cyan); background: rgba(0,212,255,.1); padding: .2rem .6rem; border-radius: 3px; }
+    .console-cta {
+      display: inline-block; align-self: flex-start;
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 4px;
+      padding: .875rem 2rem; font-family: inherit; font-size: .9375rem; font-weight: 700;
+      transition: background .15s, transform .12s;
+    }
+    .console-cta:hover  { background: var(--ps-blue2); transform: translateY(-1px); }
+    .console-cta:active { transform: translateY(0); }
+```
+
+- [ ] **Step 2: Add `ConsoleSection` component — insert after the `Hero` function**
+
+```javascript
+    /* ── ConsoleSection ──────────────────────────────────────────────── */
+    function ConsoleSection() {
+      function imgErr(e) { e.currentTarget.style.opacity = '0'; }
+      return h('div', { className: 'console-section' },
+        h('div', { className: 'console-row' },
+          h('div', { className: 'console-img-wrap' },
+            h('img', { src: PS5_SLIM_URL, alt: 'PS5 Slim Disc Console', loading: 'lazy', onError: imgErr }),
+          ),
+          h('div', { className: 'console-copy' },
+            h('span', { className: 'console-badge' }, 'New'),
+            h('p',    { className: 'console-eyebrow' }, 'PlayStation 5'),
+            h('h2',   { className: 'console-title' }, 'PS5 Console (Slim)'),
+            h('p',    { className: 'console-body' }, 'The PS5 console unleashes new gaming possibilities that were previously impossible. Experience lightning-fast loading with an ultra-high speed SSD, deeper immersion with haptic feedback, and a new generation of incredible PlayStation games.'),
+            h('div', { className: 'console-price-row' },
+              h('span', { className: 'console-price' }, '$449.99'),
+              h('span', { className: 'console-savings' }, '+ Free 3-Month PS Plus Trial'),
+            ),
+            h('button', { className: 'console-cta' }, 'Shop PS5'),
+          ),
+        ),
+        h('div', { className: 'console-row flip' },
+          h('div', { className: 'console-img-wrap' },
+            h('img', { src: PS5_REFURB_URL, alt: 'Certified Refurbished PS5', loading: 'lazy', onError: imgErr }),
+          ),
+          h('div', { className: 'console-copy' },
+            h('span', { className: 'console-badge' }, 'Sale'),
+            h('p',    { className: 'console-eyebrow' }, 'PlayStation 5'),
+            h('h2',   { className: 'console-title' }, 'PS5 Certified Refurbished'),
+            h('p',    { className: 'console-body' }, 'PlayStation Certified Refurbished PS5 consoles are inspected, tested, and cleaned by Sony Interactive Entertainment engineers. Backed by a 1-year limited warranty with same hardware as new.'),
+            h('div', { className: 'console-price-row' },
+              h('span', { className: 'console-price' }, '$399.99'),
+              h('span', { className: 'console-price-orig' }, '$449.99'),
+              h('span', { className: 'console-savings' }, 'Save $50'),
+            ),
+            h('button', { className: 'console-cta' }, 'Shop Refurbished'),
+          ),
+        ),
+      );
+    }
+```
+
+- [ ] **Step 3: Update `App` return to include `ConsoleSection`**
+
+```javascript
+      return h('div', { className: 'ps-page' },
+        h(NavBar),
+        h(Hero, { data: heroData }),
+        h(ConsoleSection),
+      );
+```
+
+- [ ] **Step 4: Verify in browser**
+
+Expected:
+- Two full-bleed rows below the hero
+- Row A: PS5 slim image left (55%), copy right — "New" badge, headline, price + PS Plus note, "Shop PS5" button
+- Row B: copy left, certified refurbished image right (55%) — "Sale" badge, original price struck through, "Save $50" cyan badge
+- If gmedia images fail to load (CORS), the `<img>` disappears cleanly (opacity 0) and the dark background shows
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tools/ue-spa-demo/offers.html
+git commit -m "feat(offers): PS5 console offer section with slim + refurbished rows"
+```
+
+---
+
+### Task 4: Generate Variations panel
+
+**Files:**
+- Modify: `tools/ue-spa-demo/offers.html`
+
+**Interfaces:**
+- Consumes: `h`, `useState`, `aueRes`, `aueField`, `FRAG`, `FALLBACK_GHOST`; `ghostVars` prop has shape `{ master: item, punchy: item, seo: item }` where `item` has `{ _path, title, eyebrow, description, ctaLabel }`
+- Produces: `GenVarsPanel({ ghostVars })`; `App` renders it below `ConsoleSection`
+
+---
+
+- [ ] **Step 1: Add Gen Vars CSS — insert after `.console-cta:active` in `<style>`**
+
+```css
+    /* ── Generate Variations Panel ───────────────────────────────────── */
+    .gv-section { background: #050510; padding: 5rem 2rem; }
+    .gv-header  { max-width: 1100px; margin: 0 auto 2.5rem; }
+    .gv-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: #c084fc; background: rgba(192,132,252,.1); border: 1px solid rgba(192,132,252,.25);
+      padding: .3rem .875rem; border-radius: 20px; margin-bottom: 1rem;
+    }
+    .gv-title { font-size: 1.625rem; font-weight: 900; margin-bottom: .5rem; }
+    .gv-sub   { font-size: .9375rem; color: var(--ps-muted); max-width: 580px; line-height: 1.6; margin-bottom: 1.75rem; }
+    .gv-tabs  { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .gv-tab {
+      padding: .45rem 1.25rem; border-radius: 20px; font-family: inherit;
+      font-size: .8125rem; font-weight: 600; letter-spacing: .04em;
+      border: 1px solid rgba(255,255,255,.15); background: transparent; color: var(--ps-muted);
+      transition: all .2s;
+    }
+    .gv-tab.active { background: rgba(192,132,252,.15); border-color: #c084fc; color: #c084fc; }
+    .gv-tab:hover:not(.active) { border-color: rgba(255,255,255,.35); color: var(--ps-white); }
+    .gv-cards { display: flex; gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .gv-card {
+      flex: 1; background: var(--ps-card); border-radius: 12px;
+      border: 1.5px solid var(--ps-border); padding: 1.75rem;
+      position: relative; transition: border-color .25s, box-shadow .25s;
+    }
+    .gv-card.focused {
+      border-color: #c084fc;
+      box-shadow: 0 0 0 1px rgba(192,132,252,.25), 0 8px 32px rgba(192,132,252,.08);
+    }
+    .gv-var-label {
+      position: absolute; top: -11px; left: 1.125rem;
+      font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+      color: #c084fc; background: var(--ps-card); padding: .1rem .5rem;
+    }
+    .gv-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .625rem; }
+    .gv-card-title { font-size: 1rem; font-weight: 800; margin-bottom: .75rem; line-height: 1.3; }
+    .gv-desc {
+      font-size: .9rem; line-height: 1.6; color: var(--ps-muted); margin-bottom: 1.25rem; min-height: 4.8em;
+      border-left: 2px solid rgba(192,132,252,.4); padding-left: .875rem;
+    }
+    .gv-price { font-size: 1.125rem; font-weight: 900; margin-bottom: 1rem; }
+    .gv-cta {
+      display: block; width: 100%; text-align: center;
+      background: rgba(255,255,255,.05); color: var(--ps-white);
+      border: 1px solid rgba(255,255,255,.15); border-radius: 4px;
+      padding: .75rem; font-family: inherit; font-size: .875rem; font-weight: 600;
+      transition: background .15s, border-color .15s;
+    }
+    .gv-card.focused .gv-cta { background: var(--ps-blue); border-color: var(--ps-blue); }
+    .gv-cta:hover { background: var(--ps-blue); border-color: var(--ps-blue); }
+```
+
+- [ ] **Step 2: Add `GenVarsPanel` component — insert after `ConsoleSection`**
+
+```javascript
+    /* ── GenVarsPanel ────────────────────────────────────────────────── */
+    function GenVarsPanel(props) {
+      var ghostVars = props.ghostVars || FALLBACK_GHOST;
+      var TABS = [
+        { key: 'master', label: 'Original' },
+        { key: 'punchy', label: 'Punchy' },
+        { key: 'seo',    label: 'SEO' },
+      ];
+      var _f = useState('master'); var focused = _f[0]; var setFocused = _f[1];
+
+      return h('section', { className: 'gv-section' },
+        h('div', { className: 'gv-header' },
+          h('div', { className: 'gv-badge' }, '✶ Generate Variations'),
+          h('h2', { className: 'gv-title' }, 'Same offer, three AI-generated copy variants'),
+          h('p',  { className: 'gv-sub' },
+            'Generate Variations in AEM created three versions of this offer. Each is a named variation on one Content Fragment — click any card in Universal Editor to open that exact variation.'),
+          h('div', { className: 'gv-tabs' },
+            TABS.map(function (t) {
+              return h('button', {
+                key: t.key,
+                className: 'gv-tab' + (focused === t.key ? ' active' : ''),
+                onClick: function () { setFocused(t.key); },
+              }, t.label);
+            }),
+          ),
+        ),
+        h('div', { className: 'gv-cards' },
+          TABS.map(function (t) {
+            var v = ghostVars[t.key] || FALLBACK_GHOST[t.key];
+            var fp = FRAG('ps-ghost', t.key);
+            var desc = (v.description && (v.description.plaintext || v.description)) || '';
+            return h('div',
+              Object.assign({ key: t.key, className: 'gv-card' + (focused === t.key ? ' focused' : '') }, aueRes(fp, 'Ghost — ' + t.label)),
+              h('span', { className: 'gv-var-label' }, t.label),
+              h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
+              h('h3',  Object.assign({ className: 'gv-card-title' }, aueField(fp, 'title',       'text',     'Title')),       v.title    || ''),
+              h('p',   Object.assign({ className: 'gv-desc'       }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+              h('p',   { className: 'gv-price' }, v.ctaLabel || ''),
+              h('button', { className: 'gv-cta' }, 'Add to Cart'),
+            );
+          }),
+        ),
+      );
+    }
+```
+
+- [ ] **Step 3: Update `App` return**
+
+```javascript
+      return h('div', { className: 'ps-page' },
+        h(NavBar),
+        h(Hero, { data: heroData }),
+        h(ConsoleSection),
+        h(GenVarsPanel, { ghostVars: ghostVars }),
+      );
+```
+
+- [ ] **Step 4: Verify in browser**
+
+Expected:
+- Dark section with purple "✦ Generate Variations" badge
+- Three side-by-side cards. All three show the same title. Descriptions differ between Original/Punchy/SEO
+- Clicking Original/Punchy/SEO pills highlights the corresponding card with a purple border
+- DevTools: each card's `data-aue-resource` ends in `/ps-ghost/jcr:content/data/master`, `/…/punchy`, `/…/seo` respectively
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tools/ue-spa-demo/offers.html
+git commit -m "feat(offers): Generate Variations panel with three ps-ghost CF variations"
+```
+
+---
+
+### Task 5: Timed Offer Grid
+
+**Files:**
+- Modify: `tools/ue-spa-demo/offers.html`
+
+**Interfaces:**
+- Consumes: `h`, `useCountdown`, `aueRes`, `aueField`, `FRAG`, `GRID_EXPIRIES`, `FALLBACK_OFFERS`; `offers` prop is the featurelist map keyed by slug
+- Produces: `OfferCard({ item, slug })`, `OfferGrid({ offers })`; `App` renders below `GenVarsPanel`
+
+---
+
+- [ ] **Step 1: Add Offer Grid CSS — insert after `.gv-cta:hover` in `<style>`**
+
+```css
+    /* ── Offer Grid ──────────────────────────────────────────────────── */
+    .og-section { background: var(--ps-dark); padding: 5rem 2rem; }
+    .og-header  { max-width: 1100px; margin: 0 auto 2.5rem; }
+    .og-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .75rem; }
+    .og-title   { font-size: 1.625rem; font-weight: 900; margin-bottom: .375rem; }
+    .og-sub     { font-size: .9375rem; color: var(--ps-muted); }
+    .og-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+    }
+    .og-card {
+      background: var(--ps-card); border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--ps-border); transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .og-card:hover { border-color: rgba(255,255,255,.2); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.5); }
+    .og-cover {
+      width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block;
+      background: linear-gradient(135deg,var(--ps-blue) 0%,var(--ps-blue2) 100%);
+    }
+    .og-body  { padding: 1.25rem; }
+    .og-badge {
+      display: inline-block; font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      background: var(--ps-blue); color: var(--ps-white); padding: .2rem .625rem; border-radius: 2px; margin-bottom: .625rem;
+    }
+    .og-title-f { font-size: .9375rem; font-weight: 700; margin-bottom: .5rem; line-height: 1.35; }
+    .og-desc    {
+      font-size: .8125rem; color: var(--ps-muted); line-height: 1.55; margin-bottom: .875rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .og-timer   { display: flex; align-items: center; gap: .375rem; margin-bottom: .875rem; }
+    .og-timer-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--ps-muted); margin-right: .25rem; }
+    .og-mini {
+      display: inline-flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,.05); border-radius: 3px; padding: .2rem .4rem; min-width: 32px;
+    }
+    .og-mini-n { font-size: .8rem; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--ps-cyan); line-height: 1; }
+    .og-mini-l { font-size: .55rem; font-weight: 600; text-transform: uppercase; color: var(--ps-muted); }
+    .og-footer  { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .og-price   { font-size: 1rem; font-weight: 900; }
+    .og-cart {
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 3px;
+      padding: .45rem 1rem; font-family: inherit; font-size: .8125rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .og-cart:hover { background: var(--ps-blue2); }
+```
+
+- [ ] **Step 2: Add `OfferCard` and `OfferGrid` components — insert after `GenVarsPanel`**
+
+```javascript
+    /* ── OfferCard ───────────────────────────────────────────────────── */
+    function OfferCard(props) {
+      var item = props.item; var slug = props.slug;
+      var parts   = useCountdown(GRID_EXPIRIES[slug] || '2026-08-15T23:59:00Z');
+      var fp      = FRAG(slug);
+      var desc    = (item.description && (item.description.plaintext || item.description)) || '';
+      var cover   = item.image && item.image._publishUrl;
+      return h('div', Object.assign({ className: 'og-card' }, aueRes(fp, item.title || slug)),
+        cover
+          ? h('img', { className: 'og-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+          : h('div', { className: 'og-cover' }),
+        h('div', { className: 'og-body' },
+          h('span', Object.assign({ className: 'og-badge'   }, aueField(fp, 'eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
+          h('p',    Object.assign({ className: 'og-title-f' }, aueField(fp, 'title',       'text',     'Title')),       item.title    || ''),
+          h('p',    Object.assign({ className: 'og-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+          h('div', { className: 'og-timer' },
+            h('span', { className: 'og-timer-label' }, 'Ends in'),
+            ['d','h','m','s'].map(function (u) {
+              return h('div', { key: u, className: 'og-mini' },
+                h('span', { className: 'og-mini-n' }, String(parts[u]).padStart(2,'0')),
+                h('span', { className: 'og-mini-l' }, u),
+              );
+            }),
+          ),
+          h('div', { className: 'og-footer' },
+            h('span',   Object.assign({ className: 'og-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('button', { className: 'og-cart' }, 'Add to Cart'),
+          ),
+        ),
+      );
+    }
+
+    /* ── OfferGrid ───────────────────────────────────────────────────── */
+    var GRID_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'];
+    function OfferGrid(props) {
+      var offers = props.offers;
+      return h('section', { className: 'og-section' },
+        h('div', { className: 'og-header' },
+          h('p',  { className: 'og-eyebrow' }, 'Limited Time Offers'),
+          h('h2', { className: 'og-title' }, "This Week’s Top Deals"),
+          h('p',  { className: 'og-sub' }, 'Sale ends soon — add to cart before the countdown hits zero.'),
+        ),
+        h('div', { className: 'og-grid' },
+          GRID_SLUGS.map(function (slug) {
+            var item = (offers && offers[slug]) || FALLBACK_OFFERS[slug];
+            return h(OfferCard, { key: slug, item: item, slug: slug });
+          }),
+        ),
+      );
+    }
+```
+
+- [ ] **Step 3: Update `App` return**
+
+```javascript
+      return h('div', { className: 'ps-page' },
+        h(NavBar),
+        h(Hero, { data: heroData }),
+        h(ConsoleSection),
+        h(GenVarsPanel, { ghostVars: ghostVars }),
+        h(OfferGrid, { offers: offers }),
+      );
+```
+
+- [ ] **Step 4: Verify in browser**
+
+Expected:
+- "Limited Time Offers / This Week's Top Deals" heading
+- Three game cards in a row: Spider-Man 2, God of War Ragnarök, Horizon Forbidden West
+- Each card: badge pill (e.g. "PS Plus Deal"), title, 2-line clamped description, countdown timer ticking with d/h/m/s segments, price (e.g. "From $39.99"), "Add to Cart" button
+- If CF image is set on AEM, cover shows; otherwise shows dark blue gradient placeholder
+- DevTools: each `data-aue-resource` matches the slug's CF path
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tools/ue-spa-demo/offers.html
+git commit -m "feat(offers): timed offer grid with live countdowns and UE annotations"
+```
+
+---
+
+### Task 6: Personalization Rail
+
+**Files:**
+- Modify: `tools/ue-spa-demo/offers.html`
+
+**Interfaces:**
+- Consumes: `h`, `useState`, `aueRes`, `aueField`, `FRAG`, `FALLBACK_OFFERS`, `FALLBACK_GHOST`; `offers` and `ghostVars` props same shape as Tasks 5 and 4
+- Produces: `PersonalizationRail({ offers, ghostVars })`; `App` renders it below `OfferGrid`
+
+---
+
+- [ ] **Step 1: Add Personalization Rail CSS — insert after `.og-cart:hover` in `<style>`**
+
+```css
+    /* ── Personalization Rail ────────────────────────────────────────── */
+    .pr-section { background: var(--ps-black); padding: 5rem 2rem 6rem; }
+    .pr-header  { max-width: 1100px; margin: 0 auto 2rem; }
+    .pr-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .75rem; }
+    .pr-title   { font-size: 1.625rem; font-weight: 900; margin-bottom: .5rem; }
+    .pr-sub     { font-size: .9375rem; color: var(--ps-muted); max-width: 560px; line-height: 1.6; margin-bottom: 1.75rem; }
+    .pr-tiers   { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .pr-tier {
+      padding: .45rem 1.25rem; border-radius: 20px; font-family: inherit;
+      font-size: .8125rem; font-weight: 600;
+      border: 1px solid rgba(255,255,255,.15); background: transparent; color: var(--ps-muted);
+      transition: all .2s;
+    }
+    .pr-tier.active { background: var(--ps-blue); border-color: var(--ps-blue); color: var(--ps-white); }
+    .pr-tier:hover:not(.active) { border-color: rgba(255,255,255,.35); color: var(--ps-white); }
+    .pr-cards {
+      display: flex; gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+      overflow-x: auto; padding-bottom: 1rem;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
+    }
+    .pr-card {
+      flex-shrink: 0; width: 320px; background: var(--ps-card); border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--ps-border); transition: border-color .2s, transform .2s;
+    }
+    .pr-card:hover { border-color: rgba(255,255,255,.2); transform: translateY(-3px); }
+    .pr-cover { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: linear-gradient(135deg,var(--ps-blue),var(--ps-blue2)); }
+    .pr-body  { padding: 1.125rem; }
+    .pr-badge { display: inline-block; font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: var(--ps-blue); color: var(--ps-white); padding: .2rem .625rem; border-radius: 2px; margin-bottom: .5rem; }
+    .pr-title-f { font-size: .9375rem; font-weight: 700; margin-bottom: .375rem; }
+    .pr-price   { font-size: .9rem; font-weight: 900; color: var(--ps-cyan); margin-bottom: .875rem; }
+    .pr-cta {
+      display: block; width: 100%; text-align: center;
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 3px;
+      padding: .6rem; font-family: inherit; font-size: .8125rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .pr-cta:hover { background: var(--ps-blue2); }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    .ps-footer {
+      background: #0a0a0a; border-top: 1px solid var(--ps-border);
+      padding: 2.5rem 2rem; text-align: center;
+      font-size: .8125rem; color: rgba(255,255,255,.28);
+    }
+```
+
+- [ ] **Step 2: Add `PersonalizationRail` and `Footer` components — insert after `OfferGrid`**
+
+```javascript
+    /* ── PersonalizationRail ─────────────────────────────────────────── */
+    function PersonalizationRail(props) {
+      var offers   = props.offers;
+      var ghostVars = props.ghostVars;
+      var TIERS = [
+        { key: 'guest',     label: 'Guest' },
+        { key: 'essential', label: 'PS Plus Essential' },
+        { key: 'extra',     label: 'PS Plus Extra' },
+        { key: 'premium',   label: 'PS Plus Premium' },
+      ];
+      var _t = useState('guest'); var tier = _t[0]; var setTier = _t[1];
+
+      var sm  = (offers && offers['ps-spiderman'])  || FALLBACK_OFFERS['ps-spiderman'];
+      var gow = (offers && offers['ps-god-of-war']) || FALLBACK_OFFERS['ps-god-of-war'];
+      var hz  = (offers && offers['ps-horizon'])    || FALLBACK_OFFERS['ps-horizon'];
+      var gM  = (ghostVars && ghostVars.master)     || FALLBACK_GHOST.master;
+      var gP  = (ghostVars && ghostVars.punchy)     || FALLBACK_GHOST.punchy;
+      var gS  = (ghostVars && ghostVars.seo)        || FALLBACK_GHOST.seo;
+
+      /* Each tier: array of { item, slug, variation } */
+      var TIER_DATA = {
+        guest:     [{ item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: hz,  slug: 'ps-horizon',    v: 'master' }],
+        essential: [{ item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: hz,  slug: 'ps-horizon',    v: 'master' }, { item: gM,  slug: 'ps-ghost',      v: 'master' }],
+        extra:     [{ item: hz,  slug: 'ps-horizon',    v: 'master' }, { item: gP,  slug: 'ps-ghost',      v: 'punchy' }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }],
+        premium:   [{ item: gS,  slug: 'ps-ghost',      v: 'seo'    }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }],
+      };
+
+      function RailCard(rc) {
+        var item = rc.item; var slug = rc.slug; var variation = rc.v;
+        var fp    = FRAG(slug, variation);
+        var cover = item.image && item.image._publishUrl;
+        return h('div', Object.assign({ className: 'pr-card' }, aueRes(fp, item.title || slug)),
+          cover
+            ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+            : h('div', { className: 'pr-cover' }),
+          h('div', { className: 'pr-body' },
+            h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
+            h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
+            h('p',    Object.assign({ className: 'pr-price'   }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('button', { className: 'pr-cta' }, 'Add to Cart'),
+          ),
+        );
+      }
+
+      return h('section', { className: 'pr-section' },
+        h('div', { className: 'pr-header' },
+          h('p',  { className: 'pr-eyebrow' }, 'Personalization'),
+          h('h2', { className: 'pr-title' }, 'Offers For You'),
+          h('p',  { className: 'pr-sub' }, 'Switching audience tier shows how the same page surfaces different offers — managed entirely through Content Fragments and CF variations, no code change required.'),
+          h('div', { className: 'pr-tiers' },
+            TIERS.map(function (t) {
+              return h('button', {
+                key: t.key,
+                className: 'pr-tier' + (tier === t.key ? ' active' : ''),
+                onClick: function () { setTier(t.key); },
+              }, t.label);
+            }),
+          ),
+        ),
+        h('div', { className: 'pr-cards' },
+          TIER_DATA[tier].map(function (rc, i) {
+            return h(RailCard, { key: rc.slug + '-' + rc.v + '-' + i, item: rc.item, slug: rc.slug, v: rc.v });
+          }),
+        ),
+      );
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    function Footer() {
+      return h('footer', { className: 'ps-footer' },
+        'PlayStation and PS5 are trademarks of Sony Interactive Entertainment Inc. — Demo only, powered by Adobe AEM Edge Delivery Services + Universal Editor.'
+      );
+    }
+```
+
+- [ ] **Step 3: Update `App` return with all sections**
+
+```javascript
+      return h('div', { className: 'ps-page' },
+        h(NavBar),
+        h(Hero, { data: heroData }),
+        h(ConsoleSection),
+        h(GenVarsPanel, { ghostVars: ghostVars }),
+        h(OfferGrid, { offers: offers }),
+        h(PersonalizationRail, { offers: offers, ghostVars: ghostVars }),
+        h(Footer),
+      );
+```
+
+- [ ] **Step 4: Verify in browser**
+
+Expected:
+- "Offers For You" section with four audience tier pills (Guest / PS Plus Essential / Extra / Premium)
+- Guest shows Spider-Man 2, God of War, Horizon
+- PS Plus Essential swaps in Ghost (master) for Spider-Man
+- PS Plus Extra shows Ghost with the punchy variation description
+- PS Plus Premium shows Ghost with the SEO variation description first
+- DevTools on a ghost card in Premium tier: `data-aue-resource` ends in `/ps-ghost/jcr:content/data/seo`
+- Footer: legal disclaimer line
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tools/ue-spa-demo/offers.html
+git commit -m "feat(offers): personalization rail with 4 audience tiers + footer"
+```
+
+---
+
+### Task 7: Final review + push
+
+**Files:**
+- Modify: `tools/ue-spa-demo/offers.html` (minor fixes only if found)
+
+---
+
+- [ ] **Step 1: Full visual walk-through checklist**
+
+Open `http://localhost:3000/tools/ue-spa-demo/offers.html` and check each item:
+
+- [ ] Sticky navbar on scroll — stays pinned, `backdrop-filter` blur visible
+- [ ] Hero: all three PS images layered correctly; countdown ticking; UE overlay visible if UE sidekick installed
+- [ ] PS5 rows: both images load (if `gmedia` CORS fails the slot is dark — acceptable)
+- [ ] Gen Vars: pill tabs cycle focus; all three `data-aue-resource` values differ by variation
+- [ ] Offer Grid: all three countdowns tick independently; clamped descriptions
+- [ ] Personalization: all four tier switches work; premium tier ghost card carries `seo` variation resource
+- [ ] Footer present
+
+- [ ] **Step 2: Open in Universal Editor**
+
+Load `https://offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/offers.html` in Universal Editor.
+Expected:
+- UE sidekick shows AEM connection
+- Clicking hero headline highlights it with the CF editing rail on the right (`offers-home-hero` / `title`)
+- Clicking a ghost card in Gen Vars panel shows the correct variation path in the UE rail
+- Clicking an offer grid card shows the correct CF slug
+
+- [ ] **Step 3: Push**
+
+```bash
+git push origin offers
+```
+
+- [ ] **Step 4: Verify live URL**
+
+Open: `https://offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/offers.html`
+Expected: page live, all sections render, content loads from AEM publish, countdowns tick.
