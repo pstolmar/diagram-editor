@@ -158,6 +158,58 @@
     }
     .console-cta:hover  { background: var(--ps-blue2); transform: translateY(-1px); }
     .console-cta:active { transform: translateY(0); }
+
+    /* ── Generate Variations Panel ───────────────────────────────────── */
+    .gv-section { background: #050510; padding: 5rem 2rem; }
+    .gv-header  { max-width: 1100px; margin: 0 auto 2.5rem; }
+    .gv-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: #c084fc; background: rgba(192,132,252,.1); border: 1px solid rgba(192,132,252,.25);
+      padding: .3rem .875rem; border-radius: 20px; margin-bottom: 1rem;
+    }
+    .gv-title { font-size: 1.625rem; font-weight: 900; margin-bottom: .5rem; }
+    .gv-sub   { font-size: .9375rem; color: var(--ps-muted); max-width: 580px; line-height: 1.6; margin-bottom: 1.75rem; }
+    .gv-tabs  { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .gv-tab {
+      padding: .45rem 1.25rem; border-radius: 20px; font-family: inherit;
+      font-size: .8125rem; font-weight: 600; letter-spacing: .04em;
+      border: 1px solid rgba(255,255,255,.15); background: transparent; color: var(--ps-muted);
+      transition: all .2s;
+    }
+    .gv-tab.active { background: rgba(192,132,252,.15); border-color: #c084fc; color: #c084fc; }
+    .gv-tab:hover:not(.active) { border-color: rgba(255,255,255,.35); color: var(--ps-white); }
+    .gv-cards { display: flex; gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .gv-card {
+      flex: 1; background: var(--ps-card); border-radius: 12px;
+      border: 1.5px solid var(--ps-border); padding: 1.75rem;
+      position: relative; transition: border-color .25s, box-shadow .25s;
+    }
+    .gv-card.focused {
+      border-color: #c084fc;
+      box-shadow: 0 0 0 1px rgba(192,132,252,.25), 0 8px 32px rgba(192,132,252,.08);
+    }
+    .gv-var-label {
+      position: absolute; top: -11px; left: 1.125rem;
+      font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+      color: #c084fc; background: var(--ps-card); padding: .1rem .5rem;
+    }
+    .gv-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .625rem; }
+    .gv-card-title { font-size: 1rem; font-weight: 800; margin-bottom: .75rem; line-height: 1.3; }
+    .gv-desc {
+      font-size: .9rem; line-height: 1.6; color: var(--ps-muted); margin-bottom: 1.25rem; min-height: 4.8em;
+      border-left: 2px solid rgba(192,132,252,.4); padding-left: .875rem;
+    }
+    .gv-price { font-size: 1.125rem; font-weight: 900; margin-bottom: 1rem; }
+    .gv-cta {
+      display: block; width: 100%; text-align: center;
+      background: rgba(255,255,255,.05); color: var(--ps-white);
+      border: 1px solid rgba(255,255,255,.15); border-radius: 4px;
+      padding: .75rem; font-family: inherit; font-size: .875rem; font-weight: 600;
+      transition: background .15s, border-color .15s;
+    }
+    .gv-card.focused .gv-cta { background: var(--ps-blue); border-color: var(--ps-blue); }
+    .gv-cta:hover { background: var(--ps-blue); border-color: var(--ps-blue); }
   </style>
 </head>
 <body>
@@ -422,6 +474,51 @@
       );
     }
 
+    /* ── GenVarsPanel ────────────────────────────────────────────────── */
+    function GenVarsPanel(props) {
+      var ghostVars = props.ghostVars || FALLBACK_GHOST;
+      var TABS = [
+        { key: 'master', label: 'Original' },
+        { key: 'punchy', label: 'Punchy' },
+        { key: 'seo',    label: 'SEO' },
+      ];
+      var _f = useState('master'); var focused = _f[0]; var setFocused = _f[1];
+
+      return h('section', { className: 'gv-section' },
+        h('div', { className: 'gv-header' },
+          h('div', { className: 'gv-badge' }, '✶ Generate Variations'),
+          h('h2', { className: 'gv-title' }, 'Same offer, three AI-generated copy variants'),
+          h('p',  { className: 'gv-sub' },
+            'Generate Variations in AEM created three versions of this offer. Each is a named variation on one Content Fragment — click any card in Universal Editor to open that exact variation.'),
+          h('div', { className: 'gv-tabs' },
+            TABS.map(function (t) {
+              return h('button', {
+                key: t.key,
+                className: 'gv-tab' + (focused === t.key ? ' active' : ''),
+                onClick: function () { setFocused(t.key); },
+              }, t.label);
+            }),
+          ),
+        ),
+        h('div', { className: 'gv-cards' },
+          TABS.map(function (t) {
+            var v = ghostVars[t.key] || FALLBACK_GHOST[t.key];
+            var fp = FRAG('ps-ghost', t.key);
+            var desc = (v.description && (v.description.plaintext || v.description)) || '';
+            return h('div',
+              Object.assign({ key: t.key, className: 'gv-card' + (focused === t.key ? ' focused' : '') }, aueRes(fp, 'Ghost — ' + t.label)),
+              h('span', { className: 'gv-var-label' }, t.label),
+              h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
+              h('h3',  Object.assign({ className: 'gv-card-title' }, aueField(fp, 'title',       'text',     'Title')),       v.title    || ''),
+              h('p',   Object.assign({ className: 'gv-desc'       }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+              h('p',   { className: 'gv-price' }, v.ctaLabel || ''),
+              h('button', { className: 'gv-cta' }, 'Add to Cart'),
+            );
+          }),
+        ),
+      );
+    }
+
     /* ── App (loading state only — sections added in later tasks) ────── */
     function App() {
       var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
@@ -457,6 +554,7 @@
         h(NavBar),
         h(Hero, { data: heroData }),
         h(ConsoleSection),
+        h(GenVarsPanel, { ghostVars: ghostVars }),
       );
     }
 
