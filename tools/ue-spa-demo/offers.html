@@ -210,6 +210,52 @@
     }
     .gv-card.focused .gv-cta { background: var(--ps-blue); border-color: var(--ps-blue); }
     .gv-cta:hover { background: var(--ps-blue); border-color: var(--ps-blue); }
+
+    /* ── Offer Grid ──────────────────────────────────────────────────── */
+    .og-section { background: var(--ps-dark); padding: 5rem 2rem; }
+    .og-header  { max-width: 1100px; margin: 0 auto 2.5rem; }
+    .og-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .75rem; }
+    .og-title   { font-size: 1.625rem; font-weight: 900; margin-bottom: .375rem; }
+    .og-sub     { font-size: .9375rem; color: var(--ps-muted); }
+    .og-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+    }
+    .og-card {
+      background: var(--ps-card); border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--ps-border); transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .og-card:hover { border-color: rgba(255,255,255,.2); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.5); }
+    .og-cover {
+      width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block;
+      background: linear-gradient(135deg,var(--ps-blue) 0%,var(--ps-blue2) 100%);
+    }
+    .og-body  { padding: 1.25rem; }
+    .og-badge {
+      display: inline-block; font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      background: var(--ps-blue); color: var(--ps-white); padding: .2rem .625rem; border-radius: 2px; margin-bottom: .625rem;
+    }
+    .og-title-f { font-size: .9375rem; font-weight: 700; margin-bottom: .5rem; line-height: 1.35; }
+    .og-desc    {
+      font-size: .8125rem; color: var(--ps-muted); line-height: 1.55; margin-bottom: .875rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .og-timer   { display: flex; align-items: center; gap: .375rem; margin-bottom: .875rem; }
+    .og-timer-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--ps-muted); margin-right: .25rem; }
+    .og-mini {
+      display: inline-flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,.05); border-radius: 3px; padding: .2rem .4rem; min-width: 32px;
+    }
+    .og-mini-n { font-size: .8rem; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--ps-cyan); line-height: 1; }
+    .og-mini-l { font-size: .55rem; font-weight: 600; text-transform: uppercase; color: var(--ps-muted); }
+    .og-footer  { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .og-price   { font-size: 1rem; font-weight: 900; }
+    .og-cart {
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 3px;
+      padding: .45rem 1rem; font-family: inherit; font-size: .8125rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .og-cart:hover { background: var(--ps-blue2); }
   </style>
 </head>
 <body>
@@ -519,6 +565,57 @@
       );
     }
 
+    /* ── Offer Grid ──────────────────────────────────────────────────── */
+    var GRID_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'];
+    function OfferCard(props) {
+      var item = props.item; var slug = props.slug;
+      var parts   = useCountdown(GRID_EXPIRIES[slug] || '2026-08-15T23:59:00Z');
+      var fp      = FRAG(slug);
+      var desc    = (item.description && (item.description.plaintext || item.description)) || '';
+      var cover   = item.image && item.image._publishUrl;
+      return h('div', Object.assign({ className: 'og-card' }, aueRes(fp, item.title || slug)),
+        cover
+          ? h('img', { className: 'og-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+          : h('div', { className: 'og-cover' }),
+        h('div', { className: 'og-body' },
+          h('span', Object.assign({ className: 'og-badge'   }, aueField(fp, 'eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
+          h('p',    Object.assign({ className: 'og-title-f' }, aueField(fp, 'title',       'text',     'Title')),       item.title    || ''),
+          h('p',    Object.assign({ className: 'og-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+          h('div', { className: 'og-timer' },
+            h('span', { className: 'og-timer-label' }, 'Ends in'),
+            ['d','h','m','s'].map(function (u) {
+              return h('div', { key: u, className: 'og-mini' },
+                h('span', { className: 'og-mini-n' }, String(parts[u]).padStart(2,'0')),
+                h('span', { className: 'og-mini-l' }, u),
+              );
+            }),
+          ),
+          h('div', { className: 'og-footer' },
+            h('span',   Object.assign({ className: 'og-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('button', { className: 'og-cart' }, 'Add to Cart'),
+          ),
+        ),
+      );
+    }
+
+    /* ── OfferGrid ───────────────────────────────────────────────────── */
+    function OfferGrid(props) {
+      var offers = props.offers;
+      return h('section', { className: 'og-section' },
+        h('div', { className: 'og-header' },
+          h('p',  { className: 'og-eyebrow' }, 'Limited Time Offers'),
+          h('h2', { className: 'og-title' }, "This Week's Top Deals"),
+          h('p',  { className: 'og-sub' }, 'Sale ends soon — add to cart before the countdown hits zero.'),
+        ),
+        h('div', { className: 'og-grid' },
+          GRID_SLUGS.map(function (slug) {
+            var item = (offers && offers[slug]) || FALLBACK_OFFERS[slug];
+            return h(OfferCard, { key: slug, item: item, slug: slug });
+          }),
+        ),
+      );
+    }
+
     /* ── App (loading state only — sections added in later tasks) ────── */
     function App() {
       var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
@@ -555,6 +652,7 @@
         h(Hero, { data: heroData }),
         h(ConsoleSection),
         h(GenVarsPanel, { ghostVars: ghostVars }),
+        h(OfferGrid, { offers: offers }),
       );
     }
 
