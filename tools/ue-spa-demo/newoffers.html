@@ -354,6 +354,8 @@
     /* ── AEM endpoints ───────────────────────────────────────────────── */
     var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
     var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+    /* In UE the page runs in an iframe — fetch from author so edits reflect immediately */
+    var DATA_HOST = (window.self !== window.top) ? AUTHOR : PUBLISH;
 
     /* ── PS image URLs ───────────────────────────────────────────────── */
     var PS_HERO_BG    = 'https://image.api.playstation.com/pr/bam-art/230/937/6caf31c8-b873-43cc-9c91-82d8e9cc0909.jpg?w=1920&thumb=false';
@@ -498,7 +500,7 @@
     }
     function fetchFeaturelist() {
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
+        DATA_HOST + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -513,7 +515,7 @@
     function fetchHero(slug) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master;_t=' + Date.now(),
+        DATA_HOST + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master;_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -526,7 +528,7 @@
       var path = '/content/dam/ue-demo/fragments/' + slug;
       var varSeg = ';variation=' + (variation || 'master');
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg + ';_t=' + Date.now(),
+        DATA_HOST + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg + ';_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -987,9 +989,22 @@
 
         fetchGhostVars();
 
-        /* Re-fetch ghost variants whenever UE saves a CF */
+        /* Re-fetch all CF data whenever UE saves */
         function onUeMsg(e) {
           if (e.data && (e.data.type === 'aue:content-patch' || e.data.type === 'aue:content-update')) {
+            fetchHero('offers-home-hero').then(function (d) { if (d) setHeroData(d); }).catch(function () {});
+            Promise.allSettled([fetchHero('ps-spiderman'), fetchHero('ps-god-of-war')]).then(function (res) {
+              var slugs = ['ps-spiderman', 'ps-god-of-war'];
+              var map = Object.assign({}, FALLBACK_OFFERS);
+              slugs.forEach(function (s, i) {
+                var fetched = res[i].value;
+                if (fetched) {
+                  if (!(fetched.image && fetched.image._publishUrl)) fetched = Object.assign({}, fetched, { image: FALLBACK_OFFERS[s].image });
+                  map[s] = fetched;
+                }
+              });
+              setOffers(map);
+            }).catch(function () {});
             fetchGhostVars();
           }
         }
