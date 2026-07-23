@@ -226,9 +226,27 @@ function useCountdown(expiryISO, simNow) {
     </div>
   </section>
 
-  <!-- ── SECTION 8: CHECKLIST ── -->
+  <!-- ── SECTION 8: DO NOT DO THIS ── -->
   <section>
-    <h2>8 — Pre-demo UE checklist</h2>
+    <h2>8 — Things that look helpful but break everything</h2>
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">CRITICAL</span> Do NOT switch data fetches to AUTHOR inside UE</div>
+      <p>It seems logical: UE saves to author, so fetch from author to see edits live. <strong>Do not do this.</strong> The SPA origin (<code>offers--diagram-editor--pstolmar.aem.live</code>) is not in the AUTHOR CORS allowlist, so every fetch silently fails and React falls back to hardcoded placeholder data. The page looks broken. The CF data was never gone — the fetch just failed.</p>
+      <p>The correct flow: fetch always from <code>PUBLISH</code>. Edit in UE sidebar. UE previews the change on canvas as you type. When done, click <strong>Publish</strong> in UE — this publishes the CF variant and the live page reflects it immediately.</p>
+    </div>
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">CRITICAL</span> Do NOT re-fetch hero/offers on aue:content-patch</div>
+      <p>Adding re-fetches of hero and offer CFs after every UE save causes the same CORS failure → placeholder data problem. The ghost variants re-fetch (already in the original code) is fine because it targets the same PUBLISH endpoint with no auth issues. Only re-fetch ghost variants on <code>aue:content-patch</code>.</p>
+    </div>
+    <div class="card gotcha">
+      <div class="card-title"><span class="tag tag-gotcha">GOTCHA</span> UE canvas "live preview" is not a re-fetch</div>
+      <p>When you type in the UE sidebar, the canvas updates immediately. This is UE's own DOM patching — it is NOT a re-fetch from the CF. Do not confuse this as proof that author fetches are working. The real test is: publish the CF, reload the page, confirm the value shows.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 9: CHECKLIST ── -->
+  <section>
+    <h2>9 — Pre-demo UE checklist</h2>
     <ul>
       <li>✅ Every editable container has <code>data-aue-resource</code>, <code>data-aue-type="component"</code>, <strong><code>data-aue-model</code></strong>, and <code>data-aue-label</code></li>
       <li>✅ Every model ID used in <code>data-aue-model</code> exists in <code>component-models.json</code></li>
@@ -236,22 +254,25 @@ function useCountdown(expiryISO, simNow) {
       <li>✅ <code>&lt;meta name="urn:adobe:aue:config:host"&gt;</code> points to correct author host</li>
       <li>✅ UE URL hash has no <code>https://</code> before the page host</li>
       <li>✅ Waited 60 seconds after last <code>git push</code> before testing</li>
-      <li>✅ Opened in incognito OR hard-refreshed UE after push</li>
+      <li>✅ Hard-refreshed UE after push</li>
       <li>✅ Logged in to <code>experience.adobe.com</code> with correct org (Workfront Customer Success)</li>
+      <li>✅ Data fetches use <code>PUBLISH</code> endpoint — never AUTHOR</li>
+      <li>✅ Working baseline tagged: <code>git checkout ue-working-baseline</code> restores this state</li>
     </ul>
   </section>
 
-  <!-- ── SECTION 9: WHAT "WORKING" LOOKS LIKE ── -->
+  <!-- ── SECTION 10: WHAT "WORKING" LOOKS LIKE ── -->
   <section>
-    <h2>9 — What working looks like</h2>
+    <h2>10 — What confirmed-working looks like</h2>
     <ul>
-      <li>Content Tree (left sidebar) shows named components: <strong>Hero</strong>, <strong>PS Plus Essential</strong>, etc.</li>
-      <li>Clicking a component on canvas highlights it and loads CF fields in right sidebar</li>
-      <li>Right sidebar shows model fields (Eyebrow, Title, Description, CTA Label) with live values from the CF</li>
-      <li>Editing a field and clicking out triggers a live update on the canvas</li>
-      <li>Countdown ticks in real time (seconds change every second)</li>
-      <li><code>?date=20260801</code> shows the hero as it would appear on Aug 1 2026 with a ticking countdown</li>
+      <li>Content Tree shows named components: <strong>Hero</strong>, ghost variants, offer cards</li>
+      <li>Clicking a component loads CF fields in right sidebar with real values</li>
+      <li>Editing a field updates the canvas as you type (UE live preview)</li>
+      <li>Clicking <strong>Publish</strong> in UE publishes the CF variant</li>
+      <li>Reloading the live page shows the published change</li>
+      <li>Countdown ticks in real time; <code>?date=20260801</code> simulates Aug 1 2026</li>
     </ul>
+    <p style="margin-top:1rem;color:#4ec94e;font-weight:600;">This flow was confirmed working on 2026-07-23. Git tag: <code>ue-working-baseline</code></p>
   </section>
 
 </main>
