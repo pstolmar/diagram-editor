@@ -368,12 +368,11 @@
     }
 
     /* ── UE annotation helpers ───────────────────────────────────────── */
-    function aueRes(fragPath, label, model) {
+    function aueRes(fragPath, label) {
       return {
         'data-aue-resource': 'urn:aem:' + fragPath,
         'data-aue-type': 'component',
         'data-aue-label': label || 'Content',
-        'data-aue-model': model || 'hero',
       };
     }
     function aueField(fragPath, prop, type, label) {
@@ -652,38 +651,36 @@
         { key: 'punchy', label: 'Punchy' },
         { key: 'seo',    label: 'SEO' },
       ];
-      var v  = ghostVars[focused] || FALLBACK_GHOST[focused];
-      var fp = FRAG('ps-ghost', focused);
-      var desc = (v.description && (v.description.plaintext || v.description)) || '';
 
       return h('section', { className: 'gv-section' },
         h('div', { className: 'gv-header' },
           h('div', { className: 'gv-badge' }, '✦ Generate Variations'),
           h('h2', { className: 'gv-title' }, 'Same offer, three AI-generated copy variants'),
           h('p',  { className: 'gv-sub' },
-            'Generate Variations in AEM created three versions of this offer. Pick a variant — the card below and the Tsushima card in This Week\'s Deals both update live from the same Content Fragment.'),
-          h('div', { className: 'gv-tabs' },
-            TABS.map(function (t) {
-              return h('button', {
+            'Generate Variations in AEM created three versions of this offer. Click a card to select it — the Tsushima card in This Week\'s Deals updates live from the same Content Fragment. Click any card in Universal Editor to edit that variant.'),
+        ),
+        h('div', { className: 'gv-cards' },
+          TABS.map(function (t) {
+            var v   = ghostVars[t.key] || FALLBACK_GHOST[t.key];
+            var fp  = FRAG('ps-ghost', t.key);
+            var desc = (v.description && (v.description.plaintext || v.description)) || '';
+            return h('div',
+              Object.assign({
                 key: t.key,
-                className: 'gv-tab' + (focused === t.key ? ' active' : ''),
+                className: 'gv-card' + (focused === t.key ? ' focused' : ''),
                 onClick: function () { setFocused(t.key); },
-              }, t.label);
-            }),
-          ),
+                style: { cursor: 'pointer' },
+              }, aueRes(fp, 'Ghost of Tsushima — ' + t.label)),
+              h('span', { className: 'gv-var-label' }, t.label),
+              h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
+              h('h3',  Object.assign({ className: 'gv-card-title' }, aueField(fp, 'title',       'text',     'Title')),       v.title    || ''),
+              h('p',   Object.assign({ className: 'gv-desc'       }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+              h('p',   { className: 'gv-price' }, v.ctaLabel || ''),
+              h('button', { className: 'gv-cta' }, focused === t.key ? '✓ Selected' : 'Select'),
+            );
+          }),
         ),
-        h('div', { className: 'gv-cards gv-single' },
-          h('div',
-            Object.assign({ className: 'gv-card focused' }, aueRes(fp, 'Ghost — ' + focused)),
-            h('span', { className: 'gv-var-label' }, TABS.find(function(t){return t.key===focused;}).label),
-            h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
-            h('h3',  Object.assign({ className: 'gv-card-title' }, aueField(fp, 'title',       'text',     'Title')),       v.title    || ''),
-            h('p',   Object.assign({ className: 'gv-desc'       }, aueField(fp, 'description', 'richtext', 'Description')), desc),
-            h('p',   { className: 'gv-price' }, v.ctaLabel || ''),
-            h('button', { className: 'gv-cta' }, 'Add to Cart'),
-          ),
-        ),
-        h('p', { className: 'gv-variant-note' }, '↑ Scroll up — same variant is reflected in This Week\'s Top Deals'),
+        h('p', { className: 'gv-variant-note' }, '↑ Scroll up — selected variant is reflected in This Week\'s Top Deals'),
       );
     }
 
@@ -948,7 +945,7 @@
       var _o = useState(FALLBACK_OFFERS); var offers       = _o[0]; var setOffers       = _o[1];
       var _g = useState(FALLBACK_GHOST);  var ghostVars    = _g[0]; var setGhostVars    = _g[1];
       var _f = useState('master');        var ghostFocused = _f[0]; var setGhostFocused = _f[1];
-      var _a = useState(true);            var astroOn      = _a[0]; var setAstroOn      = _a[1];
+      var _a = useState(window.self === window.top); var astroOn = _a[0]; var setAstroOn = _a[1];
 
       function fetchGhostVars() {
         return Promise.allSettled([
