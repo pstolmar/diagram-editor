@@ -354,10 +354,8 @@
     /* ── AEM endpoints ───────────────────────────────────────────────── */
     var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
     var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
-    /* In UE the page runs in an iframe — fetch from author so edits reflect immediately */
-    var IS_UE = window.self !== window.top;
-    var DATA_HOST = IS_UE ? AUTHOR : PUBLISH;
-    var FETCH_OPTS = IS_UE ? { headers: { Accept: 'application/json' }, cache: 'no-store', credentials: 'include' } : { headers: { Accept: 'application/json' }, cache: 'no-store' };
+    var FETCH_OPTS = { headers: { Accept: 'application/json' }, cache: 'no-store' };
+    var DATA_HOST = PUBLISH;
 
     /* ── PS image URLs ───────────────────────────────────────────────── */
     var PS_HERO_BG    = 'https://image.api.playstation.com/pr/bam-art/230/937/6caf31c8-b873-43cc-9c91-82d8e9cc0909.jpg?w=1920&thumb=false';
@@ -991,22 +989,9 @@
 
         fetchGhostVars();
 
-        /* Re-fetch all CF data whenever UE saves */
+        /* Re-fetch ghost variants whenever UE saves a CF */
         function onUeMsg(e) {
           if (e.data && (e.data.type === 'aue:content-patch' || e.data.type === 'aue:content-update')) {
-            fetchHero('offers-home-hero').then(function (d) { if (d) setHeroData(d); }).catch(function () {});
-            Promise.allSettled([fetchHero('ps-spiderman'), fetchHero('ps-god-of-war')]).then(function (res) {
-              var slugs = ['ps-spiderman', 'ps-god-of-war'];
-              var map = Object.assign({}, FALLBACK_OFFERS);
-              slugs.forEach(function (s, i) {
-                var fetched = res[i].value;
-                if (fetched) {
-                  if (!(fetched.image && fetched.image._publishUrl)) fetched = Object.assign({}, fetched, { image: FALLBACK_OFFERS[s].image });
-                  map[s] = fetched;
-                }
-              });
-              setOffers(map);
-            }).catch(function () {});
             fetchGhostVars();
           }
         }
