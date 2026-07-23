@@ -355,7 +355,9 @@
     var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
     var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
     /* In UE the page runs in an iframe — fetch from author so edits reflect immediately */
-    var DATA_HOST = (window.self !== window.top) ? AUTHOR : PUBLISH;
+    var IS_UE = window.self !== window.top;
+    var DATA_HOST = IS_UE ? AUTHOR : PUBLISH;
+    var FETCH_OPTS = IS_UE ? { headers: { Accept: 'application/json' }, cache: 'no-store', credentials: 'include' } : { headers: { Accept: 'application/json' }, cache: 'no-store' };
 
     /* ── PS image URLs ───────────────────────────────────────────────── */
     var PS_HERO_BG    = 'https://image.api.playstation.com/pr/bam-art/230/937/6caf31c8-b873-43cc-9c91-82d8e9cc0909.jpg?w=1920&thumb=false';
@@ -501,7 +503,7 @@
     function fetchFeaturelist() {
       return fetch(
         DATA_HOST + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
-        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+        FETCH_OPTS
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
@@ -516,7 +518,7 @@
       var path = '/content/dam/ue-demo/fragments/' + slug;
       return fetch(
         DATA_HOST + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master;_t=' + Date.now(),
-        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+        FETCH_OPTS
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
@@ -529,7 +531,7 @@
       var varSeg = ';variation=' + (variation || 'master');
       return fetch(
         DATA_HOST + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg + ';_t=' + Date.now(),
-        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+        FETCH_OPTS
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
