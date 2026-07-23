@@ -73,25 +73,23 @@
     }
     .hero-bg {
       position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; object-position: center top; z-index: 0;
+      object-fit: cover; object-position: right center; z-index: 0;
     }
     .hero-img-left {
-      position: absolute; bottom: 0; left: 3%;
-      height: 92%; width: auto; object-fit: contain; z-index: 2;
-      filter: drop-shadow(0 16px 40px rgba(0,0,0,.55));
+      position: absolute; bottom: 0; left: 46%;
+      height: 96%; width: auto; object-fit: contain; z-index: 2;
+      filter: drop-shadow(-20px 0 48px rgba(0,0,0,.85));
     }
     .hero-img-right {
-      position: absolute; bottom: 0; right: 0;
+      position: absolute; top: 0; right: 0;
       height: 100%; width: auto; object-fit: contain; z-index: 1;
     }
+    /* Solid black left panel — zero bleed-through of baked-in image text */
     .hero-overlay {
-      position: absolute; inset: 0;
+      position: absolute; top: 0; bottom: 0; left: 0; width: 50%;
       padding: 3.5rem 3rem;
-      display: flex; flex-direction: column; justify-content: center; z-index: 3;
-      background:
-        linear-gradient(90deg, rgba(0,0,0,.97) 0%, rgba(0,0,0,.90) 38%, rgba(0,0,0,.60) 58%, transparent 72%),
-        linear-gradient(0deg,  rgba(0,0,0,.85) 0%, transparent 28%);
-      max-width: 52%;
+      display: flex; flex-direction: column; justify-content: center; z-index: 4;
+      background: linear-gradient(90deg, #000 0%, #000 88%, transparent 100%);
     }
     .hero-eyebrow {
       display: inline-flex; align-items: center; gap: .5rem;
@@ -362,7 +360,7 @@
     /* ── Fallback content ────────────────────────────────────────────── */
     var FALLBACK_HERO = {
       eyebrow: 'Summer Sale',
-      title: 'Up to 40% Off PS Store',
+      title: 'Save Up to 75% on PS Store',
       description: 'Score massive savings on PS5 games, add-ons, and subscriptions. Offer ends August 15.',
       ctaLabel: 'Shop the Sale',
     };
@@ -415,7 +413,7 @@
         _path: '/content/dam/ue-demo/fragments/ps-ghost',
         title: "Ghost of Tsushima Director's Cut",
         eyebrow: "Editor's Pick",
-        description: 'Acclaimed open-world samurai epic with Iki Island expansion and Legends multiplayer — complete edition on PS5.',
+        description: 'Fight back the Mongol invasion as samurai Jin Sakai — award-winning open-world epic with Iki Island expansion and Legends multiplayer on PS5.',
         ctaLabel: 'From $49.99',
         image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
@@ -443,13 +441,23 @@
     }
 
     /* ── Data fetching ───────────────────────────────────────────────── */
-    var OFFER_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'];
-    function fetchAllOffers() {
-      return Promise.all(OFFER_SLUGS.map(fetchHero)).then(function (results) {
-        var map = {};
-        results.forEach(function (item, i) { if (item) map[OFFER_SLUGS[i]] = item; });
-        return map;
-      });
+    function slugFromPath(path) {
+      var parts = path ? path.split('/') : [];
+      var fi = parts.indexOf('fragments');
+      return fi >= 0 ? parts[fi + 1] : parts[parts.length - 1];
+    }
+    function fetchFeaturelist() {
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) {
+          var map = {};
+          (d && d.data && d.data.homeHeroList && d.data.homeHeroList.items || [])
+            .forEach(function (i) { var s = slugFromPath(i._path); if (s) map[s] = i; });
+          return map;
+        });
     }
 
     function fetchHero(slug) {
@@ -757,7 +765,7 @@
           fetchHero('offers-home-hero')
             .then(function (d) { setHeroData(d || FALLBACK_HERO); })
             .catch(function () { setHeroData(FALLBACK_HERO); }),
-          fetchAllOffers()
+          fetchFeaturelist()
             .then(function (d) { setOffers(Object.keys(d).length ? d : FALLBACK_OFFERS); })
             .catch(function () { setOffers(FALLBACK_OFFERS); }),
           Promise.allSettled([
