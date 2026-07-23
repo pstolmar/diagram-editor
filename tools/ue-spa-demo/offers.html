@@ -463,7 +463,7 @@
     function fetchHero(slug) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master',
+        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master;_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -476,7 +476,7 @@
       var path = '/content/dam/ue-demo/fragments/' + slug;
       var varSeg = ';variation=' + (variation || 'master');
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg,
+        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg + ';_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -764,9 +764,17 @@
           fetchHero('offers-home-hero')
             .then(function (d) { setHeroData(d || FALLBACK_HERO); })
             .catch(function () { setHeroData(FALLBACK_HERO); }),
-          fetchFeaturelist()
-            .then(function (d) { setOffers(Object.keys(d).length ? d : FALLBACK_OFFERS); })
-            .catch(function () { setOffers(FALLBACK_OFFERS); }),
+          Promise.allSettled([
+            fetchHero('ps-spiderman'),
+            fetchHero('ps-god-of-war'),
+            fetchHero('ps-horizon'),
+          ]).then(function (res) {
+            var map = {};
+            ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'].forEach(function (s, i) {
+              map[s] = res[i].value || FALLBACK_OFFERS[s];
+            });
+            setOffers(map);
+          }).catch(function () { setOffers(FALLBACK_OFFERS); }),
           Promise.allSettled([
             fetchVariation('ps-ghost', 'master'),
             fetchVariation('ps-ghost', 'punchy'),
