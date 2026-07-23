@@ -263,6 +263,7 @@
       position: fixed; inset: 0; z-index: 500;
       background: rgba(0,0,0,.82); backdrop-filter: blur(6px);
       display: flex; align-items: center; justify-content: center;
+      perspective: 1200px;
       animation: bdIn .25s ease forwards;
     }
     .og-expand-backdrop.closing { animation: bdOut .52s ease forwards; pointer-events: none; }
@@ -274,17 +275,19 @@
       background: var(--ps-card); border-radius: 14px;
       border: 1px solid rgba(255,255,255,.18); overflow: hidden;
       box-shadow: 0 24px 64px rgba(0,0,0,.75);
-      animation: spinZoomIn .65s cubic-bezier(.22,1,.36,1) forwards;
+      transform-style: preserve-3d;
+      animation: flipZoomIn .7s cubic-bezier(.22,1,.36,1) forwards;
     }
     .og-expand-card.closing { animation: settleDown .52s cubic-bezier(.4,0,1,1) forwards; }
-    @keyframes spinZoomIn {
-      0%   { transform: scale(0.25) rotate(720deg); opacity: 0; }
-      100% { transform: scale(1)    rotate(0deg);   opacity: 1; }
+    @keyframes flipZoomIn {
+      0%   { transform: scale(0.28) rotateY(720deg); opacity: 0; }
+      60%  { transform: scale(0.9)  rotateY(80deg);  opacity: 1; }
+      100% { transform: scale(1)    rotateY(0deg);   opacity: 1; }
     }
     @keyframes settleDown {
-      0%   { transform: translateY(0)    scale(1);    opacity: 1; }
-      55%  { transform: translateY(38px) scale(.91);  opacity: .85; }
-      100% { transform: translateY(110px) scale(.68); opacity: 0; }
+      0%   { transform: translateY(0)     scale(1);    opacity: 1; }
+      55%  { transform: translateY(38px)  scale(.91);  opacity: .85; }
+      100% { transform: translateY(110px) scale(.68);  opacity: 0; }
     }
 
     .og-expand-cover {
@@ -891,7 +894,7 @@
             h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
             h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
             h('p',    Object.assign({ className: 'pr-price'   }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
-            h('button', { className: 'pr-cta' }, 'Add to Cart'),
+            h('button', { className: 'pr-cta' }, 'Details'),
           ),
         );
       }

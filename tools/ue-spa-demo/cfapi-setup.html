@@ -422,7 +422,10 @@ http://localhost:4503/graphql/execute.json/global/heroByPath3;path=...</code></p
     </div>
 
     <h3>DA Live structured data — a future path worth watching</h3>
-    <p>DA Live (Document Authoring Live) is developing structured data capabilities that are early access as of 2025. In theory this could eventually provide a structured content API without AEM CS — but as of now, even with the CF → HTML overlay feature, the data is published as EDS pages queryable via EDS query index (client-side JSON filtering), not a GraphQL API. For customers who need GraphQL-style structured content queries, AEM CS with a Publish tier remains the current answer.</p>
+    <p>DA Live (Document Authoring Live) has a structured data capability in early-access / co-innovation (not GA as of early 2026). The model is: a JSON schema lives in your code repo, authors fill fields in a schema-driven form UI inside DA, and published content becomes available as JSON via a Cloudflare Worker endpoint:</p>
+    <pre><code>https://mhast-html-to-json.adobeaem.workers.dev/live/&lt;org&gt;/&lt;site&gt;/&lt;path&gt;</code></pre>
+    <p>This is a plain REST GET — one URL, one JSON object, no GraphQL, no filtering parameters, no pagination. It is not a query API. The worker converts DA's internal document AST to JSON according to your schema at request time. The endpoint URL is explicitly documented as subject to change. It is designed for EDS blocks consuming lightweight configuration data, not for complex content graphs or filtered queries across many items.</p>
+    <p>For customers who need GraphQL-style structured content queries, AEM CS with a Publish tier remains the current answer. The CF Delivery with OpenAPI (GA as of AEM CS 2025.5) is the recommended path for fully-hydrated multi-fragment content with CDN caching and active invalidation.</p>
 
     <div class="note good">
       <div class="note-title">The internally recommended architecture for React SPA + structured content</div>

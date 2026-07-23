@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>Hybrid Demo — EDS Fragment + AEM CF</title>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ps-black:  #000;
+      --ps-dark:   #0a0a0a;
+      --ps-card:   #1a1a2e;
+      --ps-blue:   #003791;
+      --ps-blue2:  #00439c;
+      --ps-cyan:   #00d4ff;
+      --ps-red:    #e31837;
+      --ps-white:  #fff;
+      --ps-muted:  rgba(255,255,255,.65);
+      --ps-border: rgba(255,255,255,.08);
+      --eds-green: #22d3a5;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--ps-black); color: var(--ps-white);
+      overflow-x: hidden;
+    }
+    img { display: block; }
+    button { cursor: pointer; }
+    a { text-decoration: none; color: inherit; }
+
+    .ps-loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 200px; font-size: .9rem; color: var(--ps-muted); gap: .75rem;
+    }
+    .ps-loading::before {
+      content: ''; width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid var(--ps-blue2); border-top-color: var(--ps-cyan);
+      animation: spin .8s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── NavBar ──────────────────────────────────────────────────────── */
+    .ps-nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+      background: rgba(0,0,0,.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--ps-border);
+    }
+    .ps-nav-left  { display: flex; align-items: center; gap: 2.5rem; }
+    .ps-wordmark  { font-size: 1.0625rem; font-weight: 800; letter-spacing: -.01em; }
+    .ps-nav-links { display: flex; gap: 1.75rem; }
+    .ps-nav-links a { font-size: .875rem; font-weight: 500; color: var(--ps-muted); transition: color .15s; }
+    .ps-nav-links a:hover { color: var(--ps-white); }
+    .ps-nav-right { display: flex; align-items: center; gap: .625rem; }
+    .ps-nav-signin {
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 4px;
+      padding: .5rem 1.375rem; font-family: inherit; font-size: .875rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .ps-nav-signin:hover { background: var(--ps-blue2); }
+    .btn-ue {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: #c084fc; color: #fff; border: none; border-radius: 4px;
+      padding: .45rem 1rem; font-family: inherit; font-size: .8rem; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-ue:hover { background: #a855f7; }
+    .btn-da {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: var(--eds-green); color: #000; border: none; border-radius: 4px;
+      padding: .45rem 1rem; font-family: inherit; font-size: .8rem; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-da:hover { background: #16b992; }
+
+    /* ── Architecture explainer ──────────────────────────────────────── */
+    .arch-section {
+      background: #050510; padding: 3rem 2rem; border-bottom: 1px solid var(--ps-border);
+    }
+    .arch-inner { max-width: 1100px; margin: 0 auto; }
+    .arch-headline {
+      font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--ps-muted); margin-bottom: .5rem;
+    }
+    .arch-title { font-size: 1.375rem; font-weight: 900; margin-bottom: .375rem; }
+    .arch-sub   { font-size: .9rem; color: var(--ps-muted); margin-bottom: 2rem; max-width: 680px; line-height: 1.6; }
+    .arch-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .arch-card {
+      border-radius: 10px; padding: 1.5rem;
+      border: 1.5px solid; position: relative; overflow: hidden;
+    }
+    .arch-card.eds {
+      background: rgba(34,211,165,.04);
+      border-color: rgba(34,211,165,.25);
+    }
+    .arch-card.aem {
+      background: rgba(0,55,145,.06);
+      border-color: rgba(0,212,255,.2);
+    }
+    .arch-card-label {
+      font-size: .65rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    .arch-card.eds .arch-card-label { color: var(--eds-green); }
+    .arch-card.aem .arch-card-label { color: var(--ps-cyan); }
+    .arch-card-name { font-size: 1rem; font-weight: 800; margin-bottom: .625rem; }
+    .arch-rows { list-style: none; }
+    .arch-rows li {
+      font-size: .8125rem; color: var(--ps-muted); line-height: 1.55;
+      padding: .3rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
+      display: flex; gap: .5rem;
+    }
+    .arch-rows li::before { content: '→'; flex-shrink: 0; }
+    .arch-card-edit { margin-top: 1.25rem; }
+
+    /* ── Source ribbon shared style ─────────────────────────────────── */
+    .src-ribbon {
+      display: flex; align-items: center; gap: .625rem;
+      padding: .5rem 2rem;
+      font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+    }
+    .src-ribbon.eds-ribbon {
+      background: rgba(34,211,165,.08); border-bottom: 1px solid rgba(34,211,165,.2);
+      color: var(--eds-green);
+    }
+    .src-ribbon.aem-ribbon {
+      background: rgba(0,212,255,.06); border-bottom: 1px solid rgba(0,212,255,.15);
+      color: var(--ps-cyan);
+    }
+    .src-ribbon-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .src-ribbon.eds-ribbon .src-ribbon-dot { background: var(--eds-green); box-shadow: 0 0 6px var(--eds-green); }
+    .src-ribbon.aem-ribbon .src-ribbon-dot { background: var(--ps-cyan); box-shadow: 0 0 6px var(--ps-cyan); }
+    .src-ribbon-spacer { flex: 1; }
+    .src-ribbon-link {
+      font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: none;
+      opacity: .75; transition: opacity .15s;
+    }
+    .src-ribbon-link:hover { opacity: 1; }
+
+    /* ── EDS Fragment section ────────────────────────────────────────── */
+    .eds-section { background: var(--ps-dark); }
+    .eds-frag-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 2.5rem; }
+
+    /* Normalise the EDS hero block so it looks reasonable in our dark theme */
+    .eds-frag-wrap .hero {
+      display: grid; grid-template-rows: auto; border-radius: 10px; overflow: hidden;
+      border: 1px solid rgba(34,211,165,.15);
+    }
+    .eds-frag-wrap .hero > div:first-child {
+      position: relative; min-height: 280px; overflow: hidden;
+    }
+    .eds-frag-wrap .hero picture { display: block; height: 100%; }
+    .eds-frag-wrap .hero picture img {
+      width: 100%; height: 280px; object-fit: cover; object-position: center 35%;
+      display: block;
+    }
+    .eds-frag-wrap .hero > div:last-child {
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, rgba(34,211,165,.08), rgba(0,0,0,.6));
+      border-top: 1px solid rgba(34,211,165,.12);
+    }
+    .eds-frag-wrap .hero a {
+      display: inline-flex; align-items: center; gap: .4rem;
+      color: var(--eds-green); font-weight: 700; font-size: .9375rem;
+      transition: opacity .15s;
+    }
+    .eds-frag-wrap .hero a:hover { opacity: .8; }
+    .eds-frag-wrap .hero a em, .eds-frag-wrap .hero a strong { font-style: normal; font-weight: inherit; }
+
+    /* ── Offer Grid ──────────────────────────────────────────────────── */
+    .og-section { background: #050510; padding: 2.5rem 2rem 5rem; }
+    .og-header  { max-width: 1100px; margin: 0 auto 2rem; }
+    .og-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ps-cyan); margin-bottom: .75rem; }
+    .og-title   { font-size: 1.5rem; font-weight: 900; margin-bottom: .375rem; }
+    .og-sub     { font-size: .9375rem; color: var(--ps-muted); line-height: 1.6; }
+    .og-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+    }
+    .og-card {
+      background: var(--ps-card); border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--ps-border); transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .og-card:hover { border-color: rgba(255,255,255,.2); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.5); }
+    .og-cover {
+      width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block;
+      background: linear-gradient(135deg,var(--ps-blue) 0%,var(--ps-blue2) 100%);
+    }
+    .og-body  { padding: 1.25rem; }
+    .og-badge {
+      display: inline-block; font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      background: var(--ps-blue); color: var(--ps-white); padding: .2rem .625rem; border-radius: 2px; margin-bottom: .625rem;
+    }
+    .og-title-f { font-size: .9375rem; font-weight: 700; margin-bottom: .5rem; line-height: 1.35; }
+    .og-desc    {
+      font-size: .8125rem; color: var(--ps-muted); line-height: 1.55; margin-bottom: .875rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .og-footer  { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .og-price   { font-size: 1rem; font-weight: 900; }
+    .og-cart {
+      background: var(--ps-blue); color: var(--ps-white); border: none; border-radius: 3px;
+      padding: .45rem 1rem; font-family: inherit; font-size: .8125rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .og-cart:hover { background: var(--ps-blue2); }
+
+    /* ── Card Expand Overlay ─────────────────────────────────────────── */
+    .og-expand-backdrop {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.82); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      perspective: 1200px;
+      animation: bdIn .25s ease forwards;
+    }
+    .og-expand-backdrop.closing { animation: bdOut .52s ease forwards; pointer-events: none; }
+    @keyframes bdIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes bdOut { from { opacity: 1; } to { opacity: 0; } }
+    .og-expand-card {
+      position: relative; width: min(480px, 92vw);
+      background: var(--ps-card); border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18); overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.75);
+      transform-style: preserve-3d;
+      animation: flipZoomIn .7s cubic-bezier(.22,1,.36,1) forwards;
+    }
+    .og-expand-card.closing { animation: settleDown .52s cubic-bezier(.4,0,1,1) forwards; }
+    @keyframes flipZoomIn {
+      0%   { transform: scale(0.28) rotateY(720deg); opacity: 0; }
+      60%  { transform: scale(0.9)  rotateY(80deg);  opacity: 1; }
+      100% { transform: scale(1)    rotateY(0deg);   opacity: 1; }
+    }
+    @keyframes settleDown {
+      0%   { transform: translateY(0)     scale(1);    opacity: 1; }
+      55%  { transform: translateY(38px)  scale(.91);  opacity: .85; }
+      100% { transform: translateY(110px) scale(.68);  opacity: 0; }
+    }
+    .og-expand-cover {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;
+      background: linear-gradient(135deg,var(--ps-blue),var(--ps-blue2));
+    }
+    .og-expand-body  { padding: 1.5rem 1.5rem 0; }
+    .og-expand-footer { padding: 1.25rem 1.5rem 1.5rem; }
+    .og-expand-badge {
+      display: inline-block; font-size: .65rem; font-weight: 800;
+      letter-spacing: .1em; text-transform: uppercase;
+      background: var(--ps-blue); color: var(--ps-white);
+      padding: .2rem .625rem; border-radius: 2px; margin-bottom: .625rem;
+    }
+    .og-expand-title { font-size: 1.25rem; font-weight: 800; margin-bottom: .75rem; line-height: 1.3; }
+    .og-expand-desc  { font-size: .9rem; color: var(--ps-muted); line-height: 1.7; margin-bottom: 1.1rem; }
+    .og-expand-price { font-size: 1.125rem; font-weight: 900; margin-bottom: 1.25rem; }
+    .og-expand-close {
+      display: block; width: 100%; text-align: center;
+      background: rgba(255,255,255,.08); color: var(--ps-white);
+      border: 1px solid rgba(255,255,255,.18); border-radius: 4px;
+      padding: .75rem; font-family: inherit; font-size: .9rem; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+    }
+    .og-expand-close:hover { background: rgba(255,255,255,.14); }
+    .og-expand-x {
+      position: absolute; top: .75rem; right: .75rem;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2);
+      color: var(--ps-white); font-size: .9rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .15s; z-index: 2;
+    }
+    .og-expand-x:hover { background: rgba(255,255,255,.15); }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    .ps-footer {
+      background: #0a0a0a; border-top: 1px solid var(--ps-border);
+      padding: 2.5rem 2rem; text-align: center;
+      font-size: .8125rem; color: rgba(255,255,255,.28);
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+  (function () {
+    'use strict';
+    var _React = React;
+    var useState  = _React.useState;
+    var useEffect = _React.useEffect;
+    var useRef    = _React.useRef;
+    var h = _React.createElement;
+
+    var TSUSHIMA_IMG = 'https://image.api.playstation.com/vulcan/ap/rnd/202106/2322/ZSrFeb6XkqKiq2PZKWg20yfe.jpg?w=440&thumb=false';
+
+    /* ── AEM endpoints ───────────────────────────────────────────────── */
+    var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+
+    /* ── UE / DA edit links ──────────────────────────────────────────── */
+    var UE_EDIT_URL = 'https://experience.adobe.com/#/aem/editor/canvas/offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/react-fragments.html';
+    var DA_EDIT_URL = 'https://da.live/edit#/pstolmar/demo/fragments/promos/main/default';
+
+    /* ── EDS fragment ────────────────────────────────────────────────── */
+    var EDS_FRAG_URL  = 'https://main--demo--pstolmar.aem.live/fragments/promos/main/default.plain.html';
+    var EDS_FRAG_BASE = 'https://main--demo--pstolmar.aem.live/fragments/promos/main/';
+
+    function rebaseHtml(html, base) {
+      return html
+        .replace(/src="(\.\/[^"]+)"/g,  function (_, p) { return 'src="'  + base + p.slice(2) + '"'; })
+        .replace(/srcset="([^"]+)"/g,    function (_, v) { return 'srcset="' + v.replace(/\.\//g, base) + '"'; });
+    }
+
+    function fetchEdsFragment() {
+      return fetch(EDS_FRAG_URL, { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+        .then(function (html) { return rebaseHtml(html, EDS_FRAG_BASE); });
+    }
+
+    /* ── AEM data helpers ────────────────────────────────────────────── */
+    function FRAG(slug) {
+      return '/content/dam/ue-demo/fragments/' + slug + '/jcr:content/data/master';
+    }
+    function aueRes(fragPath, label) {
+      return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
+        'data-aue-type': 'component',
+        'data-aue-label': label || 'Content',
+        'data-aue-model': 'hero',
+      };
+    }
+    function aueField(fragPath, prop, type, label) {
+      return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
+        'data-aue-prop': prop,
+        'data-aue-type': type || 'text',
+        'data-aue-label': label || prop,
+      };
+    }
+
+    var FALLBACK_OFFERS = {
+      'ps-spiderman': {
+        title: "Marvel's Spider-Man 2",
+        eyebrow: 'PS Plus Deal',
+        description: 'Swing through an expanded New York as both Peter Parker and Miles Morales in a brand-new story.',
+        ctaLabel: 'From $39.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=640&q=80' },
+      },
+      'ps-god-of-war': {
+        title: 'God of War Ragnarök',
+        eyebrow: 'Flash Sale',
+        description: 'Kratos and Atreus journey through all Nine Realms to prevent the end of everything.',
+        ctaLabel: 'From $29.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=640&q=80' },
+      },
+      'ps-ghost': {
+        title: "Ghost of Tsushima Director's Cut",
+        eyebrow: 'Deal of the Week',
+        description: 'Forge your own path as samurai Jin Sakai, protecting Tsushima in an epic open-world adventure.',
+        ctaLabel: 'From $49.99',
+        image: { _publishUrl: TSUSHIMA_IMG },
+      },
+    };
+
+    function slugFromPath(path) {
+      var parts = path ? path.split('/') : [];
+      var fi = parts.indexOf('fragments');
+      return fi >= 0 ? parts[fi + 1] : parts[parts.length - 1];
+    }
+
+    function fetchHero(slug) {
+      var path = '/content/dam/ue-demo/fragments/' + slug;
+      return fetch(
+        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master;_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
+      )
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) { return (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null; });
+    }
+
+    /* ── NavBar ──────────────────────────────────────────────────────── */
+    function NavBar() {
+      return h('nav', { className: 'ps-nav' },
+        h('div', { className: 'ps-nav-left' },
+          h('span', { className: 'ps-wordmark' }, 'PlayStation'),
+          h('nav', { className: 'ps-nav-links' },
+            h('a', { href: '#' }, 'Store'),
+            h('a', { href: '#' }, 'PS Plus'),
+            h('a', { href: '#' }, 'Deals'),
+          ),
+        ),
+        h('div', { className: 'ps-nav-right' },
+          h('a', { href: DA_EDIT_URL, target: '_blank', rel: 'noreferrer' },
+            h('button', { className: 'btn-da' }, '✎ Edit Fragment in DA'),
+          ),
+          h('a', { href: UE_EDIT_URL, target: '_blank', rel: 'noreferrer' },
+            h('button', { className: 'btn-ue' }, '✎ Edit Offers in UE'),
+          ),
+          h('button', { className: 'ps-nav-signin' }, 'Sign In'),
+        ),
+      );
+    }
+
+    /* ── Architecture explainer ──────────────────────────────────────── */
+    function ArchExplainer() {
+      return h('section', { className: 'arch-section' },
+        h('div', { className: 'arch-inner' },
+          h('p',  { className: 'arch-headline' }, 'Content Architecture'),
+          h('h2', { className: 'arch-title' }, 'Two sources. One React SPA.'),
+          h('p',  { className: 'arch-sub' },
+            'This page intentionally pulls content from two different Adobe systems — ' +
+            'showing how a React SPA can stitch them together. Each source has its own editing experience.'),
+          h('div', { className: 'arch-cards' },
+            h('div', { className: 'arch-card eds' },
+              h('p',  { className: 'arch-card-label' }, '⬡ EDS / Document Authoring'),
+              h('p',  { className: 'arch-card-name' }, 'Promo Fragment (below)'),
+              h('ul', { className: 'arch-rows' },
+                h('li', null, 'Authored in DA Live — form-based field editor, no HTML needed'),
+                h('li', null, 'Published to Edge CDN as plain HTML (.plain.html)'),
+                h('li', null, 'SPA fetches with a plain GET — no GraphQL, no schema, no auth'),
+                h('li', null, 'Relative image URLs rebased to EDS origin before inject'),
+              ),
+              h('div', { className: 'arch-card-edit' },
+                h('a', { href: DA_EDIT_URL, target: '_blank', rel: 'noreferrer', className: 'btn-da', style: { display: 'inline-flex' } },
+                  '✎ Open in DA Live'),
+              ),
+            ),
+            h('div', { className: 'arch-card aem' },
+              h('p',  { className: 'arch-card-label' }, '◈ AEM Content Fragments + Universal Editor'),
+              h('p',  { className: 'arch-card-name' }, 'Offer Cards (below)'),
+              h('ul', { className: 'arch-rows' },
+                h('li', null, 'Authored as Content Fragments in AEM Cloud Service'),
+                h('li', null, 'Delivered via persisted GraphQL queries from AEM Publish'),
+                h('li', null, 'Query returns typed JSON — images, rich text, price, badge'),
+                h('li', null, 'In-context editing in this page via Universal Editor'),
+              ),
+              h('div', { className: 'arch-card-edit' },
+                h('a', { href: UE_EDIT_URL, target: '_blank', rel: 'noreferrer', className: 'btn-ue', style: { display: 'inline-flex' } },
+                  '✎ Open in Universal Editor'),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    /* ── EDS Fragment Section ────────────────────────────────────────── */
+    function EdsFragmentSection(props) {
+      return h('section', { className: 'eds-section' },
+        h('div', { className: 'src-ribbon eds-ribbon' },
+          h('span', { className: 'src-ribbon-dot' }),
+          'EDS Fragment — fetched from main--demo--pstolmar.aem.live · plain HTML GET · no GraphQL',
+          h('span', { className: 'src-ribbon-spacer' }),
+          h('a', { href: DA_EDIT_URL, target: '_blank', rel: 'noreferrer', className: 'src-ribbon-link' },
+            'Edit this fragment in DA Live →'),
+        ),
+        h('div', { className: 'eds-frag-wrap' },
+          props.html === null
+            ? h('div', { className: 'ps-loading' }, 'Loading EDS fragment…')
+            : props.html === ''
+              ? h('div', { className: 'ps-loading' }, 'Fragment unavailable')
+              : h('div', { dangerouslySetInnerHTML: { __html: props.html } }),
+        ),
+      );
+    }
+
+    /* ── OfferCard ───────────────────────────────────────────────────── */
+    function OfferCard(props) {
+      var item = props.item; var slug = props.slug;
+      var fp   = FRAG(slug);
+      var desc = (item.description && (item.description.plaintext || item.description)) || '';
+      var cover = item.image && item.image._publishUrl;
+
+      var _ex = useState(false); var expanded = _ex[0]; var setExpanded = _ex[1];
+      var _cl = useState(false); var closing  = _cl[0]; var setClosing  = _cl[1];
+      var timerRef = useRef(null);
+
+      function openCard()  { setExpanded(true);  setClosing(false); }
+      function closeCard() {
+        setClosing(true);
+        timerRef.current = setTimeout(function () { setExpanded(false); setClosing(false); }, 520);
+      }
+      useEffect(function () { return function () { clearTimeout(timerRef.current); }; }, []);
+
+      var modal = expanded ? ReactDOM.createPortal(
+        h('div', { className: 'og-expand-backdrop' + (closing ? ' closing' : ''), onClick: closeCard },
+          h('div', { className: 'og-expand-card' + (closing ? ' closing' : ''), onClick: function (e) { e.stopPropagation(); } },
+            h('button', { className: 'og-expand-x', onClick: closeCard, 'aria-label': 'Close' }, '✕'),
+            cover
+              ? h('img', { className: 'og-expand-cover', src: cover, alt: item.title || '' })
+              : h('div', { className: 'og-expand-cover' }),
+            h('div', { className: 'og-expand-body' },
+              h('span', { className: 'og-expand-badge' }, item.eyebrow || ''),
+              h('p',    { className: 'og-expand-title' }, item.title   || ''),
+              h('p',    { className: 'og-expand-desc'  }, desc),
+              h('p',    { className: 'og-expand-price' }, item.ctaLabel || ''),
+            ),
+            h('div', { className: 'og-expand-footer' },
+              h('button', { className: 'og-expand-close', onClick: closeCard }, 'Close'),
+            ),
+          ),
+        ),
+        document.body,
+      ) : null;
+
+      return h(_React.Fragment, null,
+        h('div', Object.assign({ className: 'og-card' }, aueRes(fp, item.title || slug)),
+          cover
+            ? h('img', { className: 'og-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+            : h('div', { className: 'og-cover' }),
+          h('div', { className: 'og-body' },
+            h('span', Object.assign({ className: 'og-badge'   }, aueField(fp, 'eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
+            h('p',    Object.assign({ className: 'og-title-f' }, aueField(fp, 'title',       'text',     'Title')),       item.title    || ''),
+            h('p',    Object.assign({ className: 'og-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+            h('div', { className: 'og-footer' },
+              h('span',   Object.assign({ className: 'og-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+              h('button', { className: 'og-cart', onClick: openCard }, 'Details'),
+            ),
+          ),
+        ),
+        modal,
+      );
+    }
+
+    /* ── Offer Grid Section ──────────────────────────────────────────── */
+    var GRID_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-ghost'];
+    function OfferGrid(props) {
+      var offers = props.offers;
+      return h('section', { className: 'og-section' },
+        h('div', { className: 'src-ribbon aem-ribbon' },
+          h('span', { className: 'src-ribbon-dot' }),
+          'AEM Content Fragments — persisted GraphQL query from AEM Publish · in-context editing via Universal Editor',
+          h('span', { className: 'src-ribbon-spacer' }),
+          h('a', { href: UE_EDIT_URL, target: '_blank', rel: 'noreferrer', className: 'src-ribbon-link' },
+            'Edit these offers in Universal Editor →'),
+        ),
+        h('div', { className: 'og-header' },
+          h('p',  { className: 'og-eyebrow' }, 'Limited Time Offers'),
+          h('h2', { className: 'og-title' }, "This Week's Top Deals"),
+          h('p',  { className: 'og-sub' }, 'Content served from AEM Content Fragments via persisted GraphQL. Click Details to see the full description.'),
+        ),
+        h('div', { className: 'og-grid' },
+          GRID_SLUGS.map(function (slug) {
+            var item = (offers && offers[slug]) || FALLBACK_OFFERS[slug];
+            return h(OfferCard, { key: slug, item: item, slug: slug });
+          }),
+        ),
+      );
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    function Footer() {
+      return h('footer', { className: 'ps-footer' },
+        'EDS fragment authored in DA Live · Offers authored in AEM as Content Fragments · React SPA fetches both at runtime · Demo only.'
+      );
+    }
+
+    /* ── App ─────────────────────────────────────────────────────────── */
+    function App() {
+      var _edsHtml = useState(null);          var edsHtml  = _edsHtml[0];  var setEdsHtml  = _edsHtml[1];
+      var _offers  = useState(FALLBACK_OFFERS); var offers   = _offers[0];   var setOffers   = _offers[1];
+
+      useEffect(function () {
+        fetchEdsFragment()
+          .then(function (html) { setEdsHtml(html); })
+          .catch(function () { setEdsHtml(''); });
+
+        Promise.allSettled([
+          fetchHero('ps-spiderman'),
+          fetchHero('ps-god-of-war'),
+          fetchHero('ps-ghost'),
+        ]).then(function (res) {
+          var slugs = ['ps-spiderman', 'ps-god-of-war', 'ps-ghost'];
+          var map = Object.assign({}, FALLBACK_OFFERS);
+          slugs.forEach(function (s, i) {
+            var v = res[i].value;
+            if (v) {
+              if (!(v.image && v.image._publishUrl)) {
+                v = Object.assign({}, v, { image: FALLBACK_OFFERS[s].image });
+              }
+              map[s] = v;
+            }
+          });
+          setOffers(map);
+        }).catch(function () {});
+      }, []);
+
+      return h('div', null,
+        h(NavBar),
+        h(ArchExplainer),
+        h(EdsFragmentSection, { html: edsHtml }),
+        h(OfferGrid, { offers: offers }),
+        h(Footer),
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+  })();
+  </script>
+</body>
+</html>
