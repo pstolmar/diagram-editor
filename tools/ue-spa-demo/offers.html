@@ -463,37 +463,29 @@
     function fetchHero(slug) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath?_path=' + encodeURIComponent(path) + '&_t=' + Date.now(),
+        PUBLISH + '/graphql/execute.json/global/heroByPath?path=' + encodeURIComponent(path) + '&_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
-          return (d && d.data && (d.data.homeHeroByPath || d.data.heroByPath) &&
-            ((d.data.homeHeroByPath || d.data.heroByPath).item)) || null;
+          return (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
         });
     }
 
     function fetchVariation(slug, variation) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
       var varParam = (variation && variation !== 'master')
-        ? '&_variation=' + encodeURIComponent(variation) : '';
+        ? '&variation=' + encodeURIComponent(variation) : '';
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath?_path=' + encodeURIComponent(path) +
+        PUBLISH + '/graphql/execute.json/global/heroByPath?path=' + encodeURIComponent(path) +
           varParam + '&_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
-          return (d && d.data && (d.data.homeHeroByPath || d.data.heroByPath) &&
-            ((d.data.homeHeroByPath || d.data.heroByPath).item)) || null;
+          return (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
         })
-        .catch(function () { return null; })
-        .then(function (item) {
-          if (item) return item;
-          if (!variation || variation === 'master') return null;
-          /* _variation not supported — try separate fragment slug */
-          return fetchHero(slug + '-' + variation);
-        });
+        .catch(function () { return null; });
     }
 
     /* ── NavBar ──────────────────────────────────────────────────────── */
