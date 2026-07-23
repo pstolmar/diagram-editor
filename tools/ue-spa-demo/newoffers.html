@@ -368,12 +368,11 @@
     }
 
     /* ── UE annotation helpers ───────────────────────────────────────── */
-    function aueRes(fragPath, label, model) {
+    function aueRes(fragPath, label) {
       return {
         'data-aue-resource': 'urn:aem:' + fragPath,
         'data-aue-type': 'component',
         'data-aue-label': label || 'Content',
-        'data-aue-model': model || 'hero',
       };
     }
     function aueField(fragPath, prop, type, label) {
