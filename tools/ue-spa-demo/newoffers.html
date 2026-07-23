@@ -394,7 +394,6 @@
       if (!d || d.length !== 8) return null;
       return new Date(d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8) + 'T00:00:00Z');
     })();
-    var SIM_REAL_START = Date.now(); /* real time at page load — used to keep sim ticking */
     var HIDE_HERO = SIM_DATE !== null && SIM_DATE >= HERO_CUTOFF;
 
     var GRID_EXPIRIES = {
@@ -466,10 +465,10 @@
     };
 
     /* ── useCountdown hook ───────────────────────────────────────────── */
-    /* simNow: if set, offsets "now" so the clock starts from that date but keeps ticking */
+    /* simNow: if set, uses that Date as "now" (static snapshot, no tick) */
     function useCountdown(expiryISO, simNow) {
       function compute() {
-        var now = simNow ? simNow.getTime() + (Date.now() - SIM_REAL_START) : Date.now();
+        var now = simNow ? simNow.getTime() : Date.now();
         var diff = Math.max(0, new Date(expiryISO).getTime() - now);
         return {
           d: Math.floor(diff / 86400000),
@@ -481,6 +480,7 @@
       var _s = useState(compute);
       var parts = _s[0]; var setParts = _s[1];
       useEffect(function () {
+        if (simNow) return; /* frozen — no interval */
         function tick() { setParts(compute()); }
         tick();
         var id = setInterval(tick, 1000);
