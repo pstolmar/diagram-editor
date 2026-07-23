@@ -360,6 +360,14 @@
       transition: background .15s;
     }
     .pr-cta:hover { background: var(--ps-blue2); }
+    .pr-price-wrap { margin-bottom: .875rem; }
+    .pr-price-wrap .pr-price { margin-bottom: 0; }
+    .pr-price-orig { font-size: .75rem; color: var(--ps-muted); text-decoration: line-through; display: block; }
+    .pr-save { font-size: .65rem; font-weight: 800; color: var(--ps-cyan); letter-spacing: .1em; text-transform: uppercase; display: block; margin-top: .2rem; margin-bottom: .25rem; }
+    .og-expand-price-wrap { margin-bottom: 1.25rem; }
+    .og-expand-price-wrap .og-expand-price { margin-bottom: 0; }
+    .og-expand-price-orig { font-size: .875rem; color: var(--ps-muted); text-decoration: line-through; display: block; }
+    .og-expand-save { font-size: .7rem; font-weight: 800; color: var(--ps-cyan); letter-spacing: .1em; text-transform: uppercase; display: block; margin-top: .2rem; margin-bottom: .25rem; }
 
     /* ── Nav extras ─────────────────────────────────────────────────── */
     .ps-nav-right { display: flex; align-items: center; gap: .625rem; }
@@ -531,6 +539,15 @@
       },
     };
 
+    /* ── discountedPrice helper ─────────────────────────────────────── */
+    function discountedPrice(label, pct) {
+      var m = label && label.match(/\$(\d+\.\d{2})/);
+      if (!m) return { orig: label || '', disc: label || '' };
+      var orig = parseFloat(m[1]);
+      var disc = '$' + (orig * (1 - pct)).toFixed(2);
+      return { orig: label, disc: label.replace('$' + m[1], disc) };
+    }
+
     /* ── useCountdown hook ───────────────────────────────────────────── */
     /* simNow: if set, offsets "now" so the clock starts from that date but keeps ticking */
     function useCountdown(expiryISO, simNow) {
@@ -654,7 +671,7 @@
           h('h1',     Object.assign({ className: 'hero-title'   }, aueField(fp, 'title',       'text',     'Headline')),    d.title    || ''),
           h('p',      Object.assign({ className: 'hero-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
           h(CountdownTimer, { expiryISO: HERO_EXPIRY, simNow: SIM_DATE }),
-          h('button', Object.assign({ className: 'hero-cta'     }, aueField(fp, 'ctaLabel',    'text',     'CTA')),         d.ctaLabel || ''),
+          h('button', Object.assign({ className: 'hero-cta', onClick: function () { var el = document.getElementById('deals-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, aueField(fp, 'ctaLabel', 'text', 'CTA')), d.ctaLabel || ''),
         ),
       );
     }
@@ -833,7 +850,7 @@
       var offers    = props.offers;
       var ghostVars = props.ghostVars;
       var focused   = props.focused || 'master';
-      return h('section', { className: 'og-section' },
+      return h('section', { className: 'og-section', id: 'deals-section' },
         h('div', { className: 'og-header' },
           h('p',  { className: 'og-eyebrow' }, 'Limited Time Offers'),
           h('h2', { className: 'og-title' }, "This Week's Top Deals"),
@@ -879,23 +896,73 @@
         guest:     [{ item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: gM,  slug: 'ps-ghost',      v: 'master' }],
         essential: [{ item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: gM,  slug: 'ps-ghost',      v: 'master' }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }],
         extra:     [{ item: gP,  slug: 'ps-ghost',      v: 'punchy' }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }],
-        premium:   [{ item: gS,  slug: 'ps-ghost',      v: 'seo'    }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }],
+        premium:   [{ item: gS, slug: 'ps-ghost', v: 'seo', premium: true }, { item: sm, slug: 'ps-spiderman', v: 'master', premium: true }, { item: gow, slug: 'ps-god-of-war', v: 'master', premium: true }],
       };
 
       function RailCard(rc) {
-        var item = rc.item; var slug = rc.slug; var variation = rc.v;
+        var item = rc.item; var slug = rc.slug; var variation = rc.v; var isPremium = rc.premium;
         var fp    = FRAG(slug, variation);
         var cover = item.image && item.image._publishUrl;
-        return h('div', Object.assign({ className: 'pr-card' }, aueRes(fp, item.title || slug)),
-          cover
-            ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
-            : h('div', { className: 'pr-cover' }),
-          h('div', { className: 'pr-body' },
-            h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
-            h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
-            h('p',    Object.assign({ className: 'pr-price'   }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
-            h('button', { className: 'pr-cta' }, 'Details'),
+        var desc  = (item.description && (item.description.plaintext || item.description)) || '';
+        var dp    = isPremium ? discountedPrice(item.ctaLabel || '', 0.1) : null;
+
+        var _ex = useState(false); var expanded = _ex[0]; var setExpanded = _ex[1];
+        var _cl = useState(false); var closing  = _cl[0]; var setClosing  = _cl[1];
+        var timerRef = useRef(null);
+
+        function openCard()  { setExpanded(true); setClosing(false); }
+        function closeCard() {
+          setClosing(true);
+          timerRef.current = setTimeout(function () { setExpanded(false); setClosing(false); }, 520);
+        }
+        useEffect(function () { return function () { clearTimeout(timerRef.current); }; }, []);
+
+        var modal = expanded ? ReactDOM.createPortal(
+          h('div', { className: 'og-expand-backdrop' + (closing ? ' closing' : ''), onClick: closeCard },
+            h('div', { className: 'og-expand-card' + (closing ? ' closing' : ''), onClick: function (e) { e.stopPropagation(); } },
+              h('button', { className: 'og-expand-x', onClick: closeCard, 'aria-label': 'Close' }, '✕'),
+              cover
+                ? h('img', { className: 'og-expand-cover', src: cover, alt: item.title || '' })
+                : h('div', { className: 'og-expand-cover' }),
+              h('div', { className: 'og-expand-body' },
+                h('span', { className: 'og-expand-badge' }, item.eyebrow || ''),
+                h('p',    { className: 'og-expand-title' }, item.title   || ''),
+                h('p',    { className: 'og-expand-desc'  }, desc),
+                dp
+                  ? h('div', { className: 'og-expand-price-wrap' },
+                      h('span', { className: 'og-expand-price-orig' }, dp.orig),
+                      h('span', { className: 'og-expand-save' }, 'Save 10%'),
+                      h('p',    { className: 'og-expand-price' }, dp.disc),
+                    )
+                  : h('p', { className: 'og-expand-price' }, item.ctaLabel || ''),
+              ),
+              h('div', { className: 'og-expand-footer' },
+                h('button', { className: 'og-expand-close', onClick: closeCard }, 'Close'),
+              ),
+            ),
           ),
+          document.body,
+        ) : null;
+
+        return h(_React.Fragment, null,
+          h('div', Object.assign({ className: 'pr-card' }, aueRes(fp, item.title || slug)),
+            cover
+              ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+              : h('div', { className: 'pr-cover' }),
+            h('div', { className: 'pr-body' },
+              h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
+              h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
+              dp
+                ? h('div', { className: 'pr-price-wrap' },
+                    h('span', { className: 'pr-price-orig' }, dp.orig),
+                    h('span', { className: 'pr-save' }, 'Save 10%'),
+                    h('p',    Object.assign({ className: 'pr-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), dp.disc),
+                  )
+                : h('p', Object.assign({ className: 'pr-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+              h('button', { className: 'pr-cta', onClick: openCard }, 'Details'),
+            ),
+          ),
+          modal,
         );
       }
 

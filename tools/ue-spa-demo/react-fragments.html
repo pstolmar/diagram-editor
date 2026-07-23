@@ -195,10 +195,12 @@
     /* React-injected countdown + CTA layer — sits on top of the fragment */
     .frag-inject-layer {
       position: absolute;
-      bottom: 3.5rem; left: 3rem;
-      display: flex; flex-direction: column; gap: 1.75rem;
+      bottom: 2.5rem; left: 3rem;
+      display: flex; flex-direction: column; align-items: flex-start; gap: .625rem;
       z-index: 20;
     }
+    .frag-inject-row { display: flex; align-items: center; gap: 1.25rem; }
+
     /* Countdown widget (reuses countdown block styles from offers) */
     .countdown { display: flex; gap: .75rem; align-items: flex-end; }
     .countdown-block {
@@ -211,11 +213,13 @@
       font-variant-numeric: tabular-nums; color: var(--ps-cyan);
     }
     .countdown-label { font-size: .6rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ps-muted); margin-top: .25rem; }
-    /* Inject-layer label */
+    /* Inject-layer label — hidden by default, fades in on hero hover */
     .frag-inject-label {
       font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
-      color: var(--eds-green); margin-bottom: -.75rem;
+      color: var(--eds-green);
+      opacity: 0; transition: opacity .25s; pointer-events: none;
     }
+    .frag-hero-wrapper:hover .frag-inject-label { opacity: 1; }
     /* CTA button from React */
     .pfh-cta {
       display: inline-block; align-self: flex-start;
@@ -315,7 +319,7 @@
     var TSUSHIMA_IMG = 'https://image.api.playstation.com/vulcan/ap/rnd/202106/2322/ZSrFeb6XkqKiq2PZKWg20yfe.jpg?w=440&thumb=false';
     var PUBLISH      = 'https://publish-p138879-e1741192.adobeaemcloud.com';
     var UE_EDIT_URL  = 'https://experience.adobe.com/#/aem/editor/canvas/offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/react-fragments.html';
-    var DA_EDIT_URL  = 'https://da.live/edit#/pstolmar/demo/fragments/promos/main/default';
+    var DA_EDIT_URL  = 'https://da.live/edit#/pstolmar/diagram-editor/tools/ue-spa-demo/fragments/summer-sale-hero';
     var HERO_EXPIRY  = '2026-08-15T23:59:00Z';
 
     /* ── EDS fragment (same-origin, no CORS) ─────────────────────────── */
@@ -448,15 +452,20 @@
               h('div', { dangerouslySetInnerHTML: { __html: props.html } }),
               h('div', { className: 'frag-inject-layer' },
                 h('span', { className: 'frag-inject-label' }, '⬡ React SPA — countdown + CTA'),
-                h('div', { className: 'countdown' },
-                  ['d','h','m','s'].map(function (u) {
-                    return h('div', { key: u, className: 'countdown-block' },
-                      h('span', { className: 'countdown-num' }, String(parts[u]).padStart(2, '0')),
-                      h('span', { className: 'countdown-label' }, u),
-                    );
-                  }),
+                h('div', { className: 'frag-inject-row' },
+                  h('div', { className: 'countdown' },
+                    ['d','h','m','s'].map(function (u) {
+                      return h('div', { key: u, className: 'countdown-block' },
+                        h('span', { className: 'countdown-num' }, String(parts[u]).padStart(2, '0')),
+                        h('span', { className: 'countdown-label' }, u),
+                      );
+                    }),
+                  ),
+                  h('button', {
+                    className: 'pfh-cta',
+                    onClick: function () { var el = document.getElementById('frag-offers'); if (el) el.scrollIntoView({ behavior: 'smooth' }); },
+                  }, 'Shop the Sale'),
                 ),
-                h('button', { className: 'pfh-cta' }, 'Shop the Sale'),
               ),
             ),
       );
@@ -518,7 +527,7 @@
     /* ── Offer Grid ──────────────────────────────────────────────────── */
     var GRID_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-ghost'];
     function OfferGrid(props) {
-      return h('section', { className: 'og-section' },
+      return h('section', { className: 'og-section', id: 'frag-offers' },
         h('div', { className: 'src-ribbon aem-ribbon' },
           h('span', { className: 'src-ribbon-dot' }),
           'AEM Content Fragments · persisted GraphQL from AEM Publish · in-context editing via Universal Editor',
