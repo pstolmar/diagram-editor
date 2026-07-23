@@ -363,13 +363,11 @@
     var PS5_REFURB_URL= 'https://gmedia.playstation.com/is/image/SIEPDC/certified-refurbished-xf-image-desktop-01-en-17feb26$en?$1200px--t$';
 
     /* ── CF path helper ──────────────────────────────────────────────── */
-    /* UE expects the DAM asset path — no /jcr:content/data suffix */
-    function FRAG(slug) {
-      return '/content/dam/ue-demo/fragments/' + slug;
+    function FRAG(slug, variation) {
+      return '/content/dam/ue-demo/fragments/' + slug + '/jcr:content/data/' + (variation || 'master');
     }
 
     /* ── UE annotation helpers ───────────────────────────────────────── */
-    /* Container: marks the CF boundary; UE resolves this to the CF editor */
     function aueRes(fragPath, label) {
       return {
         'data-aue-resource': 'urn:aem:' + fragPath,
@@ -377,9 +375,9 @@
         'data-aue-label': label || 'Content',
       };
     }
-    /* Field: no resource — inherits from nearest ancestor with data-aue-resource */
-    function aueField(prop, type, label) {
+    function aueField(fragPath, prop, type, label) {
       return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
         'data-aue-prop': prop,
         'data-aue-type': type || 'text',
         'data-aue-label': label || prop,
@@ -388,6 +386,16 @@
 
     /* ── Expiry dates ────────────────────────────────────────────────── */
     var HERO_EXPIRY = '2026-08-15T23:59:00Z';
+    var HERO_CUTOFF = new Date('2026-08-12T23:59:59Z');
+
+    /* ── Date simulation via ?date=YYYYMMDD ──────────────────────────── */
+    var SIM_DATE = (function () {
+      var d = new URLSearchParams(window.location.search).get('date');
+      if (!d || d.length !== 8) return null;
+      return new Date(d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8) + 'T00:00:00Z');
+    })();
+    var HIDE_HERO = SIM_DATE !== null && SIM_DATE > HERO_CUTOFF;
+
     var GRID_EXPIRIES = {
       'ps-spiderman': '2026-08-03T23:59:00Z',
       'ps-god-of-war': '2026-08-10T23:59:00Z',
@@ -457,19 +465,23 @@
     };
 
     /* ── useCountdown hook ───────────────────────────────────────────── */
-    function useCountdown(expiryISO) {
-      var _s = useState({ d: 0, h: 0, m: 0, s: 0 });
+    /* simNow: if set, uses that Date as "now" (static snapshot, no tick) */
+    function useCountdown(expiryISO, simNow) {
+      function compute() {
+        var now = simNow ? simNow.getTime() : Date.now();
+        var diff = Math.max(0, new Date(expiryISO).getTime() - now);
+        return {
+          d: Math.floor(diff / 86400000),
+          h: Math.floor(diff / 3600000) % 24,
+          m: Math.floor(diff / 60000) % 60,
+          s: Math.floor(diff / 1000) % 60,
+        };
+      }
+      var _s = useState(compute);
       var parts = _s[0]; var setParts = _s[1];
       useEffect(function () {
-        function tick() {
-          var diff = Math.max(0, new Date(expiryISO) - Date.now());
-          setParts({
-            d: Math.floor(diff / 86400000),
-            h: Math.floor(diff / 3600000) % 24,
-            m: Math.floor(diff / 60000) % 60,
-            s: Math.floor(diff / 1000) % 60,
-          });
-        }
+        if (simNow) return; /* frozen — no interval */
+        function tick() { setParts(compute()); }
         tick();
         var id = setInterval(tick, 1000);
         return function () { clearInterval(id); };
@@ -550,7 +562,7 @@
 
     /* ── CountdownTimer ──────────────────────────────────────────────── */
     function CountdownTimer(props) {
-      var parts = useCountdown(props.expiryISO);
+      var parts = useCountdown(props.expiryISO, props.simNow || null);
       return h('div', { className: 'countdown' },
         ['d','h','m','s'].map(function (u) {
           return h('div', { key: u, className: 'countdown-block' },
@@ -563,6 +575,7 @@
 
     /* ── Hero ────────────────────────────────────────────────────────── */
     function Hero(props) {
+      if (HIDE_HERO) return null;
       var d = props.data || FALLBACK_HERO;
       var fp = FRAG('offers-home-hero');
       var desc = (d.description && (d.description.plaintext || d.description)) || '';
@@ -571,11 +584,11 @@
         h('img', { className: 'hero-img-left',  src: PS_HERO_LEFT,  alt: '' }),
         h('img', { className: 'hero-img-right', src: PS_HERO_RIGHT, alt: '' }),
         h('div', { className: 'hero-overlay' },
-          h('p',      Object.assign({ className: 'hero-eyebrow' }, aueField('eyebrow',     'text',     'Eyebrow')),     d.eyebrow  || ''),
-          h('h1',     Object.assign({ className: 'hero-title'   }, aueField('title',       'text',     'Headline')),    d.title    || ''),
-          h('p',      Object.assign({ className: 'hero-desc'    }, aueField('description', 'richtext', 'Description')), desc),
-          h(CountdownTimer, { expiryISO: HERO_EXPIRY }),
-          h('button', Object.assign({ className: 'hero-cta'     }, aueField('ctaLabel',    'text',     'CTA')),         d.ctaLabel || ''),
+          h('p',      Object.assign({ className: 'hero-eyebrow' }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     d.eyebrow  || ''),
+          h('h1',     Object.assign({ className: 'hero-title'   }, aueField(fp, 'title',       'text',     'Headline')),    d.title    || ''),
+          h('p',      Object.assign({ className: 'hero-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+          h(CountdownTimer, { expiryISO: HERO_EXPIRY, simNow: SIM_DATE }),
+          h('button', Object.assign({ className: 'hero-cta'     }, aueField(fp, 'ctaLabel',    'text',     'CTA')),         d.ctaLabel || ''),
         ),
       );
     }
@@ -639,7 +652,7 @@
         { key: 'seo',    label: 'SEO' },
       ];
       var v  = ghostVars[focused] || FALLBACK_GHOST[focused];
-      var fp = FRAG('ps-ghost');
+      var fp = FRAG('ps-ghost', focused);
       var desc = (v.description && (v.description.plaintext || v.description)) || '';
 
       return h('section', { className: 'gv-section' },
@@ -662,9 +675,9 @@
           h('div',
             Object.assign({ className: 'gv-card focused' }, aueRes(fp, 'Ghost — ' + focused)),
             h('span', { className: 'gv-var-label' }, TABS.find(function(t){return t.key===focused;}).label),
-            h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField('eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
-            h('h3',  Object.assign({ className: 'gv-card-title' }, aueField('title',       'text',     'Title')),       v.title    || ''),
-            h('p',   Object.assign({ className: 'gv-desc'       }, aueField('description', 'richtext', 'Description')), desc),
+            h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
+            h('h3',  Object.assign({ className: 'gv-card-title' }, aueField(fp, 'title',       'text',     'Title')),       v.title    || ''),
+            h('p',   Object.assign({ className: 'gv-desc'       }, aueField(fp, 'description', 'richtext', 'Description')), desc),
             h('p',   { className: 'gv-price' }, v.ctaLabel || ''),
             h('button', { className: 'gv-cta' }, 'Add to Cart'),
           ),
@@ -686,9 +699,9 @@
           ? h('img', { className: 'og-cover', src: cover, alt: item.title || '', loading: 'lazy' })
           : h('div', { className: 'og-cover' }),
         h('div', { className: 'og-body' },
-          h('span', Object.assign({ className: 'og-badge'   }, aueField('eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
-          h('p',    Object.assign({ className: 'og-title-f' }, aueField('title',       'text',     'Title')),       item.title    || ''),
-          h('p',    Object.assign({ className: 'og-desc'    }, aueField('description', 'richtext', 'Description')), desc),
+          h('span', Object.assign({ className: 'og-badge'   }, aueField(fp, 'eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
+          h('p',    Object.assign({ className: 'og-title-f' }, aueField(fp, 'title',       'text',     'Title')),       item.title    || ''),
+          h('p',    Object.assign({ className: 'og-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
           h('div', { className: 'og-timer' },
             h('span', { className: 'og-timer-label' }, 'Ends in'),
             ['d','h','m','s'].map(function (u) {
@@ -699,7 +712,7 @@
             }),
           ),
           h('div', { className: 'og-footer' },
-            h('span',   Object.assign({ className: 'og-price' }, aueField('ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('span',   Object.assign({ className: 'og-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
             h('button', { className: 'og-cart' }, 'Add to Cart'),
           ),
         ),
@@ -762,16 +775,16 @@
 
       function RailCard(rc) {
         var item = rc.item; var slug = rc.slug; var variation = rc.v;
-        var fp    = FRAG(slug);
+        var fp    = FRAG(slug, variation);
         var cover = item.image && item.image._publishUrl;
         return h('div', Object.assign({ className: 'pr-card' }, aueRes(fp, item.title || slug)),
           cover
             ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
             : h('div', { className: 'pr-cover' }),
           h('div', { className: 'pr-body' },
-            h('span', Object.assign({ className: 'pr-badge'   }, aueField('eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
-            h('p',    Object.assign({ className: 'pr-title-f' }, aueField('title',    'text', 'Title')), item.title    || ''),
-            h('p',    Object.assign({ className: 'pr-price'   }, aueField('ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
+            h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
+            h('p',    Object.assign({ className: 'pr-price'   }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
             h('button', { className: 'pr-cta' }, 'Add to Cart'),
           ),
         );
