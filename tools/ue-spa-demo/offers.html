@@ -771,7 +771,11 @@
           ]).then(function (res) {
             var map = {};
             ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'].forEach(function (s, i) {
-              map[s] = res[i].value || FALLBACK_OFFERS[s];
+              var fetched = res[i].value;
+              if (fetched && !(fetched.image && fetched.image._publishUrl)) {
+                fetched = Object.assign({}, fetched, { image: FALLBACK_OFFERS[s].image });
+              }
+              map[s] = fetched || FALLBACK_OFFERS[s];
             });
             setOffers(map);
           }).catch(function () { setOffers(FALLBACK_OFFERS); }),
