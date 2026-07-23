@@ -93,6 +93,8 @@
     <a href="#cfapi">CF OpenAPI</a>
     <a href="#author-only">Author-only / no Publish</a>
     <a href="#no-aem">Delivery without AEM infrastructure</a>
+    <a href="#authoring-options">DA Live / SharePoint / React SPA — what's possible</a>
+    <a href="#editing-spa">Editing a React SPA: what actually works</a>
   </div>
 
   <!-- ── 1. WHICH APPROACH ── -->
@@ -374,6 +376,114 @@ http://localhost:4503/graphql/execute.json/global/heroByPath3;path=...</code></p
         <td>Demos without live AEM, offline dev</td>
       </tr>
     </table>
+  </section>
+
+  <!-- ── 6. DA LIVE / SHAREPOINT / EDS WITHOUT PUBLISH ── -->
+  <section id="authoring-options">
+    <h2>6 — DA Live, SharePoint, Google Docs — can a React SPA consume those?</h2>
+    <p>Short answer: <strong>no, not the same way you'd consume Content Fragments.</strong> These are two entirely different delivery models, and they don't intersect at a GraphQL endpoint.</p>
+
+    <h3>What document-based authoring (SharePoint / Google Drive / DA Live) actually is</h3>
+    <p>In this model, authors write content in Word/Sheets or DA Live's editor. AEM's Edge Delivery Services pipeline converts those documents into semantic HTML blocks served at the edge. There are no Content Fragments, no DAM paths, no GraphQL persisted queries, and no <code>/graphql/execute.json/...</code> endpoint.</p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>Document-based EDS model</h4>
+        <ul>
+          <li>Content lives in SharePoint / Google Drive / DA Live</li>
+          <li>AEM converts documents → semantic HTML blocks</li>
+          <li>Delivered at the edge — no Publish tier needed</li>
+          <li>Query/filter is EDS query index (client-side JSON)</li>
+          <li>No Content Fragments, no GraphQL API</li>
+          <li>Works great for: marketing pages, blogs, EDS block sites</li>
+          <li>Does NOT work for: React SPA consuming a structured CF API</li>
+        </ul>
+      </div>
+      <div class="compare-card active">
+        <h4>CF + GraphQL model (what this demo is)</h4>
+        <ul>
+          <li>Content lives in AEM DAM as Content Fragments</li>
+          <li>Authors edit in UE or CF Editor</li>
+          <li>React SPA fetches from Publish GraphQL endpoint</li>
+          <li>Publish tier <strong>required</strong> — GraphQL runs against Publish</li>
+          <li>No document authoring, no SharePoint/Google Docs</li>
+          <li>Works great for: structured content, multi-channel SPAs</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>What the "no Publish tier needed" EDS option actually means</h3>
+    <p>Cloud Manager docs say: <em>"With AEM Authoring + Edge Delivery, a publish tier is not required when Edge Delivery handles content delivery."</em></p>
+    <p>This refers specifically to the <strong>AEM Authoring → EDS block delivery</strong> path — where UE authors EDS pages and publishing goes directly to the EDS CDN via the admin API. The Publish tier is bypassed entirely because EDS handles delivery.</p>
+
+    <div class="note warn">
+      <div class="note-title">This does NOT help a React SPA fetching CF data via GraphQL</div>
+      <p>GraphQL persisted queries run against the AEM <strong>Publish</strong> tier. There is no EDS equivalent of a GraphQL endpoint. If your React SPA fetches <code>/graphql/execute.json/...</code>, you need a Publish tier, full stop. The "no Publish needed" benefit applies only when EDS is doing the HTML delivery, not when a React SPA is querying AEM's GraphQL API.</p>
+    </div>
+
+    <h3>DA Live structured data — a future path worth watching</h3>
+    <p>DA Live (Document Authoring Live) is developing structured data capabilities that are early access as of 2025. In theory this could eventually provide a structured content API without AEM CS — but as of now, even with the CF → HTML overlay feature, the data is published as EDS pages queryable via EDS query index (client-side JSON filtering), not a GraphQL API. For customers who need GraphQL-style structured content queries, AEM CS with a Publish tier remains the current answer.</p>
+
+    <div class="note good">
+      <div class="note-title">The internally recommended architecture for React SPA + structured content</div>
+      <p>Per Adobe engineering guidance (confirmed by the EDS/Sites team): use Universal Editor for authoring, and use the CF OpenAPI (from a server-side proxy) or GraphQL persisted queries (from the Publish tier) to deliver content to the React SPA. There is no shortcut that removes the need for AEM CS infrastructure when you want GraphQL-backed structured content in a React app.</p>
+    </div>
+  </section>
+
+  <!-- ── 7. EDITING A REACT SPA ── -->
+  <section id="editing-spa">
+    <h2>7 — Editing a React SPA: what actually works</h2>
+    <p>A few terms get thrown around that cause confusion. Here's what each one actually is.</p>
+
+    <table>
+      <tr>
+        <th>Term</th>
+        <th>What it actually is</th>
+        <th>Works for React SPA?</th>
+      </tr>
+      <tr>
+        <td><strong>Universal Editor (UE)</strong></td>
+        <td>Adobe's current in-context WYSIWYG editor at experience.adobe.com. Loads any page in an iframe. Requires <code>data-aue-*</code> instrumentation attributes on your components. This is what the PS Store demo uses.</td>
+        <td style="color:#4ec94e;font-weight:700;">Yes — this is the answer</td>
+      </tr>
+      <tr>
+        <td><strong>SPA Editor</strong></td>
+        <td>Older AEM editor that required mapping React components to AEM Sling components via a JSON model contract. Heavy AEM dependency. <strong>Officially deprecated for new projects</strong> as of 2024/2025.</td>
+        <td style="color:#f8c555;">Existing projects only — do not use for new work</td>
+      </tr>
+      <tr>
+        <td><strong>Experience Workspace / Quick Edit</strong></td>
+        <td>Not distinct products for editing React SPAs. "Quick Edit" appears in Cloud Manager as a shortcut to the UE authoring environment. "Experience Workspace" was an older internal name. Both routes go through Universal Editor.</td>
+        <td style="color:#aaa;">Leads to UE — not a separate tool</td>
+      </tr>
+      <tr>
+        <td><strong>EDS native fragments</strong></td>
+        <td>New capability (feature flag <code>FT_SITES-29742</code>) to publish AEM Content Fragments directly as semantic HTML pages in EDS. Designed for LLM ingestion and omnichannel delivery — not for feeding a React SPA's data layer. CFs become EDS pages queryable via client-side EDS query index.</td>
+        <td style="color:#ff7b7b;">Not applicable — different use case</td>
+      </tr>
+      <tr>
+        <td><strong>SPA-blocks</strong></td>
+        <td>Not an official Adobe product or pattern. Not found in any documentation. If someone mentions "SPA-blocks," ask them to clarify what they mean.</td>
+        <td style="color:#ff7b7b;">Not a real thing</td>
+      </tr>
+    </table>
+
+    <h3>The correct setup for in-context editing of a React SPA</h3>
+    <p>Universal Editor is the only supported path. You saw it working in this demo. The requirements:</p>
+    <ol>
+      <li>Your SPA must be publicly reachable (or tunneled via a public URL) so UE can load it in an iframe</li>
+      <li>Add <code>&lt;meta name="urn:adobe:aue:system:aemconnection" content="aem:author-hostname"&gt;</code> to your <code>&lt;head&gt;</code></li>
+      <li>Load <code>https://universal-editor-service.adobe.io/corslib/LATEST</code> in your page</li>
+      <li>Add <code>data-aue-resource</code>, <code>data-aue-type</code>, <code>data-aue-model</code>, <code>data-aue-label</code>, <code>data-aue-prop</code> attributes to your React component output</li>
+      <li>Define component models in <code>component-models.json</code> and register them in AEM</li>
+      <li>Open <code>https://experience.adobe.com/#/aem/editor/&lt;your-page-url&gt;</code></li>
+    </ol>
+    <p>All of this is covered in detail in <a href="ue-setup.html">Part 2: Universal Editor</a>. The setup works — we proved it with this demo.</p>
+
+    <div class="note">
+      <div class="note-title">Content Fragment Editor as an alternative</div>
+      <p>If you don't need in-context visual editing — just structured form-based authoring — the CF Editor in AEM Author is simpler to set up and fully supported. Authors open the CF in AEM Author, edit fields, save, and publish. The React SPA picks up the changes on next fetch. No iframe, no instrumentation attributes required. This is the lower-complexity option.</p>
+    </div>
   </section>
 
   <!-- ── NAV FOOTER ── -->
