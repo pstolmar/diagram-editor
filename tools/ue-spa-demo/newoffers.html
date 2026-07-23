@@ -354,8 +354,6 @@
     /* ── AEM endpoints ───────────────────────────────────────────────── */
     var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
     var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
-    var FETCH_OPTS = { headers: { Accept: 'application/json' }, cache: 'no-store' };
-    var DATA_HOST = PUBLISH;
 
     /* ── PS image URLs ───────────────────────────────────────────────── */
     var PS_HERO_BG    = 'https://image.api.playstation.com/pr/bam-art/230/937/6caf31c8-b873-43cc-9c91-82d8e9cc0909.jpg?w=1920&thumb=false';
@@ -500,8 +498,8 @@
     }
     function fetchFeaturelist() {
       return fetch(
-        DATA_HOST + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
-        FETCH_OPTS
+        PUBLISH + '/graphql/execute.json/global/featurelist?_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
@@ -515,8 +513,8 @@
     function fetchHero(slug) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
       return fetch(
-        DATA_HOST + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master;_t=' + Date.now(),
-        FETCH_OPTS
+        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + ';variation=master;_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
@@ -528,8 +526,8 @@
       var path = '/content/dam/ue-demo/fragments/' + slug;
       var varSeg = ';variation=' + (variation || 'master');
       return fetch(
-        DATA_HOST + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg + ';_t=' + Date.now(),
-        FETCH_OPTS
+        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg + ';_t=' + Date.now(),
+        { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
