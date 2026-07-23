@@ -468,7 +468,9 @@
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
-          return (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
+          var item = (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
+          if (item && item._path && item._path !== path) return null;
+          return item;
         });
     }
 
@@ -483,7 +485,9 @@
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
-          return (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
+          var item = (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
+          if (item && item._path && item._path !== path) return null;
+          return item;
         })
         .catch(function () { return null; });
     }
