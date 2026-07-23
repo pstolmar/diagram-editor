@@ -413,7 +413,7 @@
         _path: '/content/dam/ue-demo/fragments/ps-ghost',
         title: "Ghost of Tsushima Director's Cut",
         eyebrow: "Editor's Pick",
-        description: 'Fight back the Mongol invasion as samurai Jin Sakai — award-winning open-world epic with Iki Island expansion and Legends multiplayer on PS5.',
+        description: 'Acclaimed open-world samurai epic with Iki Island expansion and Legends multiplayer — complete edition on PS5.',
         ctaLabel: 'From $49.99',
         image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
@@ -475,15 +475,24 @@
 
     function fetchVariation(slug, variation) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
+      var varParam = (variation && variation !== 'master')
+        ? '&_variation=' + encodeURIComponent(variation) : '';
       return fetch(
         PUBLISH + '/graphql/execute.json/global/heroByPath?_path=' + encodeURIComponent(path) +
-          '&_variation=' + encodeURIComponent(variation) + '&_t=' + Date.now(),
+          varParam + '&_t=' + Date.now(),
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
           return (d && d.data && (d.data.homeHeroByPath || d.data.heroByPath) &&
             ((d.data.homeHeroByPath || d.data.heroByPath).item)) || null;
+        })
+        .catch(function () { return null; })
+        .then(function (item) {
+          if (item) return item;
+          if (!variation || variation === 'master') return null;
+          /* _variation not supported — try separate fragment slug */
+          return fetchHero(slug + '-' + variation);
         });
     }
 
