@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React + AEM Content Fragments — Setup Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; line-height: 1.65; }
+    header { background: #0d1b2e; border-bottom: 2px solid #0066cc; padding: 2.5rem 2rem; }
+    header h1 { font-size: 2rem; color: #fff; font-weight: 700; }
+    header .subtitle { color: #7ec8e3; margin-top: 0.4rem; font-size: 1rem; }
+    header .intro { color: #bbb; margin-top: 1rem; font-size: 0.93rem; max-width: 680px; line-height: 1.7; }
+    .breadcrumb { font-size: 0.82rem; color: #666; margin-bottom: 0.8rem; }
+    .breadcrumb a { color: #7ec8e3; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    main { max-width: 940px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.25rem; color: #7ec8e3; margin-bottom: 1.1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #1e3a5a; }
+    h3 { font-size: 1rem; color: #e0e0e0; font-weight: 600; margin: 1.4rem 0 0.5rem; }
+    p { font-size: 0.92rem; color: #ccc; margin-bottom: 0.75rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    li { font-size: 0.92rem; color: #ccc; margin-bottom: 0.4rem; }
+    a { color: #7ec8e3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: 'Fira Mono', 'Consolas', monospace; font-size: 0.83rem; background: #1a2a3a; color: #f8c555; padding: 0.15em 0.45em; border-radius: 3px; }
+    pre { background: #0d1f2d; border: 1px solid #1e3a5a; border-radius: 8px; padding: 1.4rem; overflow-x: auto; margin: 1rem 0; }
+    pre code { background: none; padding: 0; color: #e0e0e0; font-size: 0.83rem; line-height: 1.6; }
+    .comment { color: #5a8a6a; }
+    .kw { color: #c792ea; }
+    .str { color: #c3e88d; }
+    .fn { color: #82aaff; }
+    .num { color: #f78c6c; }
+
+    .note { background: #0d1f2d; border: 1px solid #1e3a5a; border-left: 3px solid #0066cc; border-radius: 6px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note.warn { border-left-color: #f8c555; }
+    .note.good { border-left-color: #4ec94e; }
+    .note-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.35rem; }
+    .note.warn .note-title { color: #f8c555; }
+    .note.good .note-title { color: #4ec94e; }
+    .note .note-title { color: #7ec8e3; }
+    .note p { margin: 0; font-size: 0.88rem; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 1rem 0; }
+    th { background: #0d1f2d; color: #7ec8e3; text-align: left; padding: 0.6rem 0.9rem; border: 1px solid #1e3a5a; }
+    td { padding: 0.6rem 0.9rem; border: 1px solid #1a2a3a; vertical-align: top; color: #ccc; }
+    td:first-child { color: #f8c555; font-family: monospace; font-size: 0.82rem; white-space: nowrap; }
+    td code { font-size: 0.8rem; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1rem 0; }
+    @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+    .col-card { background: #0d1f2d; border: 1px solid #1e3a5a; border-radius: 8px; padding: 1.2rem; }
+    .col-card h4 { font-size: 0.9rem; color: #7ec8e3; margin-bottom: 0.6rem; }
+    .col-card p, .col-card li { font-size: 0.85rem; }
+
+    .next-page { background: linear-gradient(135deg, #0d1f2d, #0a2a1a); border: 1px solid #1e5a3a; border-radius: 10px; padding: 1.8rem 2rem; margin-top: 3rem; text-align: center; }
+    .next-page h3 { color: #4ec94e; font-size: 1.1rem; margin-bottom: 0.6rem; }
+    .next-page p { color: #aaa; font-size: 0.9rem; margin-bottom: 1.2rem; }
+    .next-page a { display: inline-block; background: #4ec94e; color: #000; font-weight: 700; padding: 0.7rem 2rem; border-radius: 6px; font-size: 0.95rem; text-decoration: none; }
+    .next-page a:hover { background: #6adf6a; }
+    .step-num { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; background: #0066cc; color: #fff; border-radius: 50%; font-size: 0.75rem; font-weight: 700; margin-right: 0.5rem; flex-shrink: 0; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="breadcrumb">Part 1 of 2 &nbsp;·&nbsp; <a href="ue-setup.html">Part 2: Making it editable in Universal Editor →</a></div>
+  <h1>React + AEM Content Fragments</h1>
+  <div class="subtitle">A practical guide to building content-driven React SPAs on AEM Cloud Service</div>
+  <p class="intro">This guide covers everything you need to go from zero to a working React single-page application that reads live content from AEM Content Fragments. No framework magic, no hand-waving — just the actual endpoints, query syntax, code patterns, and infrastructure pieces that matter.</p>
+</header>
+
+<main>
+
+  <!-- ── 1. THE BIG PICTURE ── -->
+  <section>
+    <h2>1 — How the pieces fit together</h2>
+    <p>AEM Cloud Service gives you three distinct tiers, each with a specific job:</p>
+    <div class="two-col">
+      <div class="col-card">
+        <h4>Author</h4>
+        <p>Where content editors work. Every change — a headline edit, a new image, a CF variation — lives here first as a draft. Nothing on Author is visible to the public until it's published.</p>
+        <p>URL pattern: <code>author-p{prog}-e{env}.adobeaemcloud.com</code></p>
+      </div>
+      <div class="col-card">
+        <h4>Publish</h4>
+        <p>The public-facing content API. When an editor hits Publish in AEM or Universal Editor, content replicates here in seconds. Your React app always reads from Publish — never Author.</p>
+        <p>URL pattern: <code>publish-p{prog}-e{env}.adobeaemcloud.com</code></p>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="col-card">
+        <h4>CDN / Edge Delivery</h4>
+        <p>Publish sits behind a global CDN. Responses are cached at the edge, so your GraphQL requests return in milliseconds worldwide. Cache is invalidated automatically on publish.</p>
+      </div>
+      <div class="col-card">
+        <h4>Cloud Manager</h4>
+        <p>The deployment control plane — not a content system. You use it to provision environments, run CI/CD pipelines, and deploy OSGi config bundles (like CORS settings). Think of it as the ops layer above AEM.</p>
+      </div>
+    </div>
+    <p>Your React app only ever talks to the <strong>Publish</strong> tier. Author is for editors; Cloud Manager is for operators.</p>
+  </section>
+
+  <!-- ── 2. CLOUD MANAGER ── -->
+  <section>
+    <h2>2 — Cloud Manager: what you actually need to know</h2>
+    <p>Cloud Manager (<a href="https://experience.adobe.com/#/cloud-manager" target="_blank" rel="noreferrer">experience.adobe.com → Cloud Manager</a>) organizes everything into <strong>Programs</strong> and <strong>Environments</strong>.</p>
+
+    <h3>Programs and environments</h3>
+    <p>A Program maps to a project or product line. Each Program contains one or more Environments. Each environment has a numeric ID baked into its hostname:</p>
+    <pre><code><span class="comment"># This demo's identifiers</span>
+Program:     p138879
+Environment: e1741192
+
+Author:   https://author-p138879-e1741192.adobeaemcloud.com
+Publish:  https://publish-p138879-e1741192.adobeaemcloud.com</code></pre>
+
+    <h3>Environment types</h3>
+    <table>
+      <tr><th>Type</th><th>What it's for</th><th>Notes</th></tr>
+      <tr><td>Production</td><td>Live traffic</td><td>Deployed via full pipeline only; no shortcuts</td></tr>
+      <tr><td>Stage</td><td>Pre-production QA</td><td>Same pipeline as Prod; mirrors Prod config</td></tr>
+      <tr><td>Dev</td><td>Feature development</td><td>Can deploy individual packages</td></tr>
+      <tr><td>RDE</td><td>Rapid Development Environment — inner-loop testing</td><td>Deploy in seconds without a pipeline; use <code>aio aem:rde:install</code></td></tr>
+    </table>
+
+    <h3>Deploying config changes (e.g., CORS)</h3>
+    <p>AEM server-side configuration lives in OSGi config bundles deployed as content packages. To update CORS settings so your Publish instance allows cross-origin requests from your SPA's domain:</p>
+    <pre><code><span class="comment"># Install via Adobe I/O CLI to the RDE</span>
+aio aem:rde:install your-config.ui.config-1.0.zip -t content-package
+
+<span class="comment"># For Stage/Prod: commit the config to your Cloud Manager git repo,</span>
+<span class="comment"># then trigger a pipeline deploy through the Cloud Manager UI.</span></code></pre>
+
+    <div class="note warn">
+      <div class="note-title">CORS is the first thing that will break you</div>
+      <p>Browsers block cross-origin requests unless the server explicitly allows your origin. Your Publish instance must return <code>Access-Control-Allow-Origin: https://your-site.com</code> for every GraphQL response. Set this up before writing a single line of React.</p>
+    </div>
+
+    <h3>Pipelines</h3>
+    <p>A pipeline connects your git repo to an AEM environment. The full-stack pipeline builds your project (Maven), runs tests, and deploys code + content. For most SPA setups, the only pipeline work you need is deploying OSGi configs (CORS, GraphQL settings). Your React app itself deploys independently — AEM doesn't build or host it.</p>
+  </section>
+
+  <!-- ── 3. CONTENT FRAGMENTS ── -->
+  <section>
+    <h2>3 — Content Fragments: structured content for developers</h2>
+    <p>A Content Fragment (CF) is a structured piece of content defined by a model — essentially a schema. The model defines fields (text, rich text, references, numbers), and editors fill in values for each fragment instance. Fragments live in the DAM at <code>/content/dam/…</code>.</p>
+
+    <h3>Variations</h3>
+    <p>Every CF has a <strong>master</strong> variation (the default) plus any number of named variations an editor creates. This is how you get AI-generated copy variants, locale-specific content, or audience-targeted messaging — all stored in one fragment, accessed with a simple parameter change at query time.</p>
+    <pre><code><span class="comment"># Same fragment, three different variations</span>
+/content/dam/ue-demo/fragments/ps-ghost/jcr:content/data/master
+/content/dam/ue-demo/fragments/ps-ghost/jcr:content/data/punchy
+/content/dam/ue-demo/fragments/ps-ghost/jcr:content/data/seo</code></pre>
+
+    <h3>Content Fragment Models</h3>
+    <p>Before you can create fragments, an admin defines the model in AEM's Tools → Assets → Content Fragment Models. The field names in that model are what you reference everywhere — in GraphQL queries, in Universal Editor instrumentation attributes, and in your React rendering code. Keep them consistent.</p>
+    <p>Fields used in this demo's hero model:</p>
+    <table>
+      <tr><th>Field name</th><th>Type</th><th>Purpose</th></tr>
+      <tr><td>eyebrow</td><td>Single-line text</td><td>Small label above the headline ("Summer Sale")</td></tr>
+      <tr><td>title</td><td>Single-line text</td><td>Main headline</td></tr>
+      <tr><td>description</td><td>Rich text</td><td>Body copy — returns HTML string from GraphQL</td></tr>
+      <tr><td>ctaLabel</td><td>Single-line text</td><td>Button label ("Shop the Sale")</td></tr>
+      <tr><td>image</td><td>Content reference</td><td>DAM asset; GraphQL returns <code>_publishUrl</code></td></tr>
+    </table>
+  </section>
+
+  <!-- ── 4. GRAPHQL ── -->
+  <section>
+    <h2>4 — GraphQL: reading content from your React app</h2>
+    <p>AEM exposes Content Fragments via a GraphQL API. Rather than ad-hoc queries, AEM uses <strong>persisted queries</strong> — queries saved on the server and executed by URL. This keeps your frontend code simple and lets AEM cache responses at the CDN level.</p>
+
+    <h3>The endpoint pattern</h3>
+    <pre><code>https://publish-p{prog}-e{env}.adobeaemcloud.com
+  /graphql/execute.json
+  /{project-name}
+  /{query-name}
+  ;{param1}={value1}
+  ;{param2}={value2}</code></pre>
+
+    <p>Parameters are semicolon-separated path segments, not query string params. This is deliberate — it makes the full URL cacheable by CDN (query strings often bypass caches).</p>
+
+    <h3>The queries used in this demo</h3>
+
+    <h4 style="color:#f8c555;font-size:0.9rem;margin:1rem 0 0.4rem;">Fetch a single fragment by path (master variation)</h4>
+    <pre><code><span class="comment">// Fetch the hero CF at its DAM path</span>
+<span class="kw">const</span> path = <span class="str">'/content/dam/ue-demo/fragments/offers-home-hero'</span>;
+
+fetch(
+  <span class="str">`https://publish-p138879-e1741192.adobeaemcloud.com`</span>
+  + <span class="str">`/graphql/execute.json/global/heroByPath3`</span>
+  + <span class="str">';path='</span> + path
+  + <span class="str">';variation=master'</span>
+  + <span class="str">';_t='</span> + Date.now(),        <span class="comment">// cache-bust during development</span>
+  { headers: { Accept: <span class="str">'application/json'</span> }, cache: <span class="str">'no-store'</span> }
+)
+.then(r => r.json())
+.then(d => d?.data?.homeHeroByPath?.item ?? null);</code></pre>
+
+    <h4 style="color:#f8c555;font-size:0.9rem;margin:1.4rem 0 0.4rem;">Fetch a specific CF variation</h4>
+    <pre><code><span class="comment">// The only change: swap the variation parameter</span>
+<span class="kw">const</span> <span class="fn">fetchVariation</span> = (slug, variation) => {
+  <span class="kw">const</span> path = <span class="str">`/content/dam/ue-demo/fragments/`</span> + slug;
+  <span class="kw">return</span> fetch(
+    <span class="str">`https://publish-p138879-e1741192.adobeaemcloud.com`</span>
+    + <span class="str">`/graphql/execute.json/global/heroByPath3`</span>
+    + <span class="str">';path='</span>      + path
+    + <span class="str">';variation='</span> + (variation || <span class="str">'master'</span>)
+    + <span class="str">';_t='</span>        + Date.now(),
+    { headers: { Accept: <span class="str">'application/json'</span> }, cache: <span class="str">'no-store'</span> }
+  )
+  .then(r => r.json())
+  .then(d => d?.data?.homeHeroByPath?.item ?? null)
+  .catch(() => null);
+};
+
+<span class="comment">// Fetch all three variants in parallel</span>
+<span class="kw">const</span> [master, punchy, seo] = await Promise.all([
+  fetchVariation(<span class="str">'ps-ghost'</span>, <span class="str">'master'</span>),
+  fetchVariation(<span class="str">'ps-ghost'</span>, <span class="str">'punchy'</span>),
+  fetchVariation(<span class="str">'ps-ghost'</span>, <span class="str">'seo'</span>),
+]);</code></pre>
+
+    <h4 style="color:#f8c555;font-size:0.9rem;margin:1.4rem 0 0.4rem;">What the response looks like</h4>
+    <pre><code>{
+  "data": {
+    "homeHeroByPath": {
+      "item": {
+        "_path": "/content/dam/ue-demo/fragments/ps-ghost",
+        "eyebrow": "Editor's Pick",
+        "title": "Ghost of Tsushima Director's Cut",
+        "description": {
+          "html": "&lt;p&gt;Forge your own path as samurai Jin Sakai...&lt;/p&gt;"
+        },
+        "ctaLabel": "From $49.99",
+        "image": {
+          "_publishUrl": "https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/..."
+        }
+      }
+    }
+  }
+}</code></pre>
+
+    <div class="note">
+      <div class="note-title">Rich text fields</div>
+      <p>Rich text returns an object with an <code>html</code> property, not a plain string. Render it with <code>dangerouslySetInnerHTML</code> in React — or use a sanitizer like DOMPurify if the content comes from untrusted sources.</p>
+    </div>
+
+    <div class="note warn">
+      <div class="note-title">Remove cache-busting in production</div>
+      <p>The <code>;_t=Date.now()</p></code> suffix forces a fresh response on every load — useful during development when you're iterating on CF content, but it defeats CDN caching in production. Remove it before going live.</p>
+    </div>
+
+    <h3>Creating and managing persisted queries</h3>
+    <p>Persisted queries are created and managed in AEM's GraphiQL Explorer (Author → Tools → GraphQL). Each query is saved under a project namespace (e.g., <code>global</code>) and given a name. The query definition lives in AEM — you only call it by URL from your frontend. To modify a query, update it in GraphiQL and republish it; no frontend deploy required.</p>
+  </section>
+
+  <!-- ── 5. REACT APP SETUP ── -->
+  <section>
+    <h2>5 — Setting up your React app</h2>
+    <p>AEM doesn't build, host, or care about your React app. It's a static site or SPA deployed wherever you want — Adobe Edge Delivery Services, Vercel, S3, wherever. AEM is purely the content API.</p>
+
+    <h3>Recommended project structure</h3>
+    <pre><code>my-app/
+├── index.html          ← entry point
+├── src/
+│   ├── main.jsx        ← ReactDOM.createRoot(...)
+│   ├── App.jsx
+│   ├── components/
+│   └── lib/
+│       └── aem.js      ← all AEM fetch functions in one place
+└── vite.config.js</code></pre>
+
+    <h3>Isolate all AEM calls in one file</h3>
+    <p>Keep every GraphQL fetch in a single module. This makes it easy to swap the endpoint for different environments and easy to mock in tests.</p>
+    <pre><code><span class="comment">// src/lib/aem.js</span>
+<span class="kw">const</span> PUBLISH = <span class="str">'https://publish-p138879-e1741192.adobeaemcloud.com'</span>;
+<span class="kw">const</span> OPTS    = { headers: { Accept: <span class="str">'application/json'</span> } };
+
+<span class="kw">const</span> gql = (query, params = {}) => {
+  <span class="kw">const</span> seg = Object.entries(params).map(([k,v]) => <span class="str">`;</span>${k}<span class="str">=</span>${v}<span class="str">`</span>).join(<span class="str">''</span>);
+  <span class="kw">return</span> fetch(<span class="str">`</span>${PUBLISH}<span class="str">/graphql/execute.json/global/</span>${query}${seg}<span class="str">`</span>, OPTS)
+    .then(r => { <span class="kw">if</span> (!r.ok) <span class="kw">throw</span> <span class="kw">new</span> Error(r.status); <span class="kw">return</span> r.json(); });
+};
+
+<span class="kw">export const</span> <span class="fn">fetchHero</span> = (slug, variation = <span class="str">'master'</span>) =>
+  gql(<span class="str">'heroByPath3'</span>, {
+    path: <span class="str">`/content/dam/ue-demo/fragments/`</span> + slug,
+    variation,
+  })
+  .then(d => d?.data?.homeHeroByPath?.item ?? null)
+  .catch(() => null);
+
+<span class="kw">export const</span> <span class="fn">fetchAllVariations</span> = (slug) =>
+  Promise.all([<span class="str">'master'</span>, <span class="str">'punchy'</span>, <span class="str">'seo'</span>].map(v => fetchHero(slug, v)));</code></pre>
+
+    <h3>Always define fallback data</h3>
+    <p>GraphQL fetches can fail — network error, CDN cold start, unpublished content. Define hardcoded fallback values so your page always renders something meaningful instead of crashing or showing empty fields.</p>
+    <pre><code><span class="comment">// Shown if the CF fetch fails or returns nothing</span>
+<span class="kw">const</span> FALLBACK_HERO = {
+  eyebrow:     <span class="str">'Summer Sale'</span>,
+  title:       <span class="str">'Save Up to 40% on PS Store'</span>,
+  description: <span class="str">'Score massive savings on PS5 games and subscriptions.'</span>,
+  ctaLabel:    <span class="str">'Shop the Sale'</span>,
+};
+
+<span class="kw">function</span> <span class="fn">Hero</span>({ data = FALLBACK_HERO }) {
+  <span class="kw">return</span> (
+    &lt;section&gt;
+      &lt;p&gt;{data.eyebrow}&lt;/p&gt;
+      &lt;h1&gt;{data.title}&lt;/h1&gt;
+      &lt;button&gt;{data.ctaLabel}&lt;/button&gt;
+    &lt;/section&gt;
+  );
+}</code></pre>
+
+    <h3>Loading pattern in your top-level component</h3>
+    <pre><code><span class="kw">import</span> { useState, useEffect } from <span class="str">'react'</span>;
+<span class="kw">import</span> { fetchHero, fetchAllVariations } from <span class="str">'./lib/aem.js'</span>;
+
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [hero,     setHero]     = useState(FALLBACK_HERO);
+  <span class="kw">const</span> [variants, setVariants] = useState(FALLBACK_VARIANTS);
+
+  useEffect(() => {
+    fetchHero(<span class="str">'offers-home-hero'</span>)
+      .then(d => { <span class="kw">if</span> (d) setHero(d); });
+
+    fetchAllVariations(<span class="str">'ps-ghost'</span>)
+      .then(([master, punchy, seo]) => {
+        setVariants({ master: master ?? FALLBACK_VARIANTS.master,
+                      punchy: punchy ?? FALLBACK_VARIANTS.punchy,
+                      seo:    seo    ?? FALLBACK_VARIANTS.seo });
+      });
+  }, []);
+
+  <span class="kw">return</span> &lt;Hero data={hero} /&gt;;
+}</code></pre>
+
+    <div class="note good">
+      <div class="note-title">Start with the fallback, render immediately</div>
+      <p>Initialize state with the fallback data so the page renders on first paint, before the fetch resolves. This avoids a blank screen and is especially important for the Universal Editor, which needs to see DOM nodes immediately to populate the Content Tree.</p>
+    </div>
+  </section>
+
+  <!-- ── 6. SIMULATED DATE ── -->
+  <section>
+    <h2>6 — Simulating a future date for demo purposes</h2>
+    <p>If your page has time-sensitive content (countdown timers, sale windows, content that changes on a specific date), you can add a <code>?date=YYYYMMDD</code> parameter to preview it as it will appear on any future date — without freezing the clock.</p>
+    <pre><code><span class="comment">// Capture the real wall-clock time at page load</span>
+<span class="kw">const</span> SIM_REAL_START = Date.now();
+
+<span class="comment">// Parse ?date=20260801 from the URL</span>
+<span class="kw">const</span> SIM_DATE = (() => {
+  <span class="kw">const</span> m = location.search.match(<span class="str">/[?&]date=(\d{8})/</span>);
+  <span class="kw">if</span> (!m) <span class="kw">return null</span>;
+  <span class="kw">const</span> s = m[<span class="num">1</span>];
+  <span class="kw">return new</span> Date(<span class="str">`</span>${s.slice(0,4)}<span class="str">-</span>${s.slice(4,6)}<span class="str">-</span>${s.slice(6,8)}<span class="str">T00:00:00Z`</span>);
+})();
+
+<span class="comment">// In any countdown or date-relative logic:</span>
+<span class="comment">// Offset the simulated start by however much real time has elapsed</span>
+<span class="kw">const</span> now = SIM_DATE
+  ? SIM_DATE.getTime() + (Date.now() - SIM_REAL_START)
+  : Date.now();</code></pre>
+    <p>Opening <code>newoffers.html?date=20260801</code> simulates the page as of midnight UTC August 1, 2026, with every countdown ticking forward in real time from that point.</p>
+  </section>
+
+  <!-- ── 7. CHECKLIST ── -->
+  <section>
+    <h2>7 — Before you write your first component</h2>
+    <ol>
+      <li><span class="step-num">1</span> Confirm your AEM environment IDs (<code>p…</code> and <code>e…</code>) from Cloud Manager</li>
+      <li><span class="step-num">2</span> Verify your Content Fragment models exist in Author → Tools → Assets → Content Fragment Models</li>
+      <li><span class="step-num">3</span> Confirm at least one CF is published (not just saved on Author) and visible via a direct GraphQL fetch to Publish</li>
+      <li><span class="step-num">4</span> Deploy CORS config to your AEM environment allowing your app's origin (<code>https://your-site.com</code>)</li>
+      <li><span class="step-num">5</span> Test the raw GraphQL URL in your browser before touching React — if it doesn't work there, it won't work in your app</li>
+      <li><span class="step-num">6</span> Define fallback data before writing any fetch code — initialize React state with it on mount</li>
+      <li><span class="step-num">7</span> Keep all AEM fetch functions in one isolated module (<code>src/lib/aem.js</code>)</li>
+    </ol>
+  </section>
+
+  <!-- ── NEXT PAGE ── -->
+  <div class="next-page">
+    <h3>Ready to make it editable?</h3>
+    <p>Part 2 covers everything you need to wire up Universal Editor — the exact data attributes, model configuration, URL format, and every gotcha that will otherwise cost you hours.</p>
+    <a href="ue-setup.html">Part 2: Universal Editor Setup →</a>
+  </div>
+
+</main>
+</body>
+</html>
