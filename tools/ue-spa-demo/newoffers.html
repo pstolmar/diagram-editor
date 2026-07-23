@@ -368,11 +368,12 @@
     }
 
     /* ── UE annotation helpers ───────────────────────────────────────── */
-    function aueRes(fragPath, label) {
+    function aueRes(fragPath, label, model) {
       return {
         'data-aue-resource': 'urn:aem:' + fragPath,
         'data-aue-type': 'component',
         'data-aue-label': label || 'Content',
+        'data-aue-model': model || 'hero',
       };
     }
     function aueField(fragPath, prop, type, label) {
@@ -385,8 +386,8 @@
     }
 
     /* ── Expiry dates ────────────────────────────────────────────────── */
-    var HERO_EXPIRY = '2026-08-15T23:59:00Z';
-    var HERO_CUTOFF = new Date('2026-08-12T23:59:59Z');
+    var HERO_EXPIRY = '2026-08-12T23:59:00Z';
+    var HERO_CUTOFF = new Date('2026-08-13T00:00:00Z');
 
     /* ── Date simulation via ?date=YYYYMMDD ──────────────────────────── */
     var SIM_DATE = (function () {
@@ -394,7 +395,7 @@
       if (!d || d.length !== 8) return null;
       return new Date(d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8) + 'T00:00:00Z');
     })();
-    var HIDE_HERO = SIM_DATE !== null && SIM_DATE > HERO_CUTOFF;
+    var HIDE_HERO = SIM_DATE !== null && SIM_DATE >= HERO_CUTOFF;
 
     var GRID_EXPIRIES = {
       'ps-spiderman': '2026-08-03T23:59:00Z',
