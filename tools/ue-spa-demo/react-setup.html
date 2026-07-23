@@ -133,8 +133,8 @@ aio aem:rde:install your-config.ui.config-1.0.zip -t content-package
 <span class="comment"># then trigger a pipeline deploy through the Cloud Manager UI.</span></code></pre>
 
     <div class="note warn">
-      <div class="note-title">CORS is the first thing that will break you</div>
-      <p>Browsers block cross-origin requests unless the server explicitly allows your origin. Your Publish instance must return <code>Access-Control-Allow-Origin: https://your-site.com</code> for every GraphQL response. Set this up before writing a single line of React.</p>
+      <div class="note-title">CORS is the first thing that will break things</div>
+      <p>Browsers block cross-origin requests unless the server explicitly allows your origin. Your Publish instance must return <code>Access-Control-Allow-Origin: https://your-site.com</code> for every GraphQL response. Set this up before writing a single line of React — it will break things silently otherwise.</p>
     </div>
 
     <h3>Pipelines</h3>

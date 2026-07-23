@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CF OpenAPI & Headless Delivery — AEM Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; line-height: 1.65; }
+    header { background: #1a0d2e; border-bottom: 2px solid #7c3aed; padding: 2.5rem 2rem; }
+    header h1 { font-size: 2rem; color: #fff; font-weight: 700; }
+    header .subtitle { color: #c4b5fd; margin-top: 0.4rem; font-size: 1rem; }
+    header .intro { color: #bbb; margin-top: 1rem; font-size: 0.93rem; max-width: 680px; line-height: 1.7; }
+    .breadcrumb { font-size: 0.82rem; color: #666; margin-bottom: 0.8rem; }
+    .breadcrumb a { color: #c4b5fd; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    main { max-width: 940px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.25rem; color: #c4b5fd; margin-bottom: 1.1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #2d1a4e; }
+    h3 { font-size: 1rem; color: #e0e0e0; font-weight: 600; margin: 1.4rem 0 0.5rem; }
+    h4 { font-size: 0.9rem; color: #f8c555; margin: 1.2rem 0 0.4rem; }
+    p { font-size: 0.92rem; color: #ccc; margin-bottom: 0.75rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    li { font-size: 0.92rem; color: #ccc; margin-bottom: 0.4rem; }
+    a { color: #c4b5fd; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: 'Fira Mono', 'Consolas', monospace; font-size: 0.83rem; background: #1e1229; color: #f8c555; padding: 0.15em 0.45em; border-radius: 3px; }
+    pre { background: #130d1f; border: 1px solid #2d1a4e; border-radius: 8px; padding: 1.4rem; overflow-x: auto; margin: 1rem 0; }
+    pre code { background: none; padding: 0; color: #e0e0e0; font-size: 0.83rem; line-height: 1.6; }
+    .comment { color: #6a5a8a; }
+    .kw { color: #c792ea; }
+    .str { color: #c3e88d; }
+    .fn { color: #82aaff; }
+    .num { color: #f78c6c; }
+
+    .note { background: #130d1f; border: 1px solid #2d1a4e; border-left: 3px solid #7c3aed; border-radius: 6px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note.warn  { border-left-color: #f8c555; }
+    .note.good  { border-left-color: #4ec94e; }
+    .note.stop  { border-left-color: #e44d26; }
+    .note-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.35rem; color: #c4b5fd; }
+    .note.warn  .note-title { color: #f8c555; }
+    .note.good  .note-title { color: #4ec94e; }
+    .note.stop  .note-title { color: #e44d26; }
+    .note p { margin: 0; font-size: 0.88rem; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 1rem 0; }
+    th { background: #130d1f; color: #c4b5fd; text-align: left; padding: 0.6rem 0.9rem; border: 1px solid #2d1a4e; }
+    td { padding: 0.6rem 0.9rem; border: 1px solid #1e1229; vertical-align: top; color: #ccc; }
+    td:first-child { white-space: nowrap; }
+    td code { font-size: 0.8rem; }
+
+    .pill { display: inline-block; padding: 0.2em 0.7em; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-right: 0.3rem; }
+    .pill-gql  { background: #1a3a1a; color: #4ec94e; border: 1px solid #2a5a2a; }
+    .pill-api  { background: #1a1a4e; color: #82aaff; border: 1px solid #2a2a7e; }
+    .pill-req  { background: #3a1a00; color: #f8c555; border: 1px solid #6a3a00; }
+    .pill-no   { background: #3a0a0a; color: #ff7b7b; border: 1px solid #6a1a1a; }
+
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1rem 0; }
+    @media (max-width: 680px) { .compare-grid { grid-template-columns: 1fr; } }
+    .compare-card { background: #130d1f; border: 1px solid #2d1a4e; border-radius: 8px; padding: 1.2rem; }
+    .compare-card h4 { margin-top: 0; color: #c4b5fd; font-size: 0.95rem; margin-bottom: 0.8rem; }
+    .compare-card.active { border-color: #4ec94e; }
+    .compare-card.active h4 { color: #4ec94e; }
+    .compare-card ul { padding-left: 1.2rem; }
+    .compare-card li { font-size: 0.85rem; margin-bottom: 0.35rem; }
+
+    .nav-strip { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #2d1a4e; }
+    .nav-strip a { font-size: 0.85rem; color: #c4b5fd; padding: 0.3rem 0.8rem; border: 1px solid #2d1a4e; border-radius: 4px; }
+    .nav-strip a:hover { border-color: #7c3aed; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="breadcrumb">
+    <a href="react-setup.html">← Part 1: React + AEM setup</a>
+    &nbsp;·&nbsp;
+    <a href="ue-setup.html">Part 2: Universal Editor</a>
+    &nbsp;·&nbsp;
+    Appendix: CF OpenAPI &amp; alternative delivery
+  </div>
+  <h1>CF OpenAPI &amp; Headless Delivery</h1>
+  <div class="subtitle">When you don't have a Publish instance — or don't want one</div>
+  <p class="intro">The two-page guide covers the standard setup: GraphQL persisted queries against a Publish endpoint. This page covers the differences when you're using the newer Content Fragments OpenAPI, when you're working Author-only, or when you want to query fragments without a traditional Publish/replication pipeline.</p>
+</header>
+
+<main>
+
+  <div class="nav-strip">
+    <a href="react-setup.html">Part 1 — React + AEM CF setup</a>
+    <a href="ue-setup.html">Part 2 — Universal Editor</a>
+    <a href="#when-to-use">When to use which approach</a>
+    <a href="#cfapi">CF OpenAPI</a>
+    <a href="#author-only">Author-only / no Publish</a>
+    <a href="#no-aem">Delivery without AEM infrastructure</a>
+  </div>
+
+  <!-- ── 1. WHICH APPROACH ── -->
+  <section id="when-to-use">
+    <h2>1 — Which approach is right for your situation</h2>
+    <p>AEM offers several ways to deliver Content Fragment data to a frontend. The right one depends on whether you have a Publish instance, who your users are, and whether they need to authenticate.</p>
+
+    <div class="compare-grid">
+      <div class="compare-card active">
+        <h4>GraphQL Persisted Queries <span class="pill pill-gql">Part 1 of this guide</span></h4>
+        <ul>
+          <li>Read-only, public-facing delivery</li>
+          <li>No authentication required from the browser</li>
+          <li>Responses cached at CDN — fast globally</li>
+          <li>Requires a Publish instance with content replicated to it</li>
+          <li>Queries defined and managed in AEM's GraphiQL</li>
+          <li>Best for: public SPAs, marketing sites, storefronts</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h4>CF OpenAPI (REST) <span class="pill pill-api">this page</span></h4>
+        <ul>
+          <li>Read and write — can create, update, delete fragments</li>
+          <li>Requires an OAuth access token on every request</li>
+          <li>Can target Author directly — no Publish replication needed</li>
+          <li>Not safe for public-facing SPAs (token would be exposed)</li>
+          <li>No pre-defined query layer — filter by model, path, or tag</li>
+          <li>Best for: backend services, preview tools, editorial automation, server-side rendering</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>AEM Assets HTTP API</h4>
+        <ul>
+          <li>Older REST API; returns CF data as <code>jcr:content</code> JSON</li>
+          <li>Still works, but CF OpenAPI is the recommended replacement</li>
+          <li>Useful if you're on an AEM version that predates CF OpenAPI</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h4>Edge Delivery / Document-based</h4>
+        <ul>
+          <li>Content lives in SharePoint or Google Drive instead of AEM DAM</li>
+          <li>No Content Fragments, no GraphQL — completely different model</li>
+          <li>Not relevant if you're building CF-driven experiences</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>The short version: <strong>if your app is public-facing and you have a Publish instance, use GraphQL</strong>. If you need server-side access, preview without publishing, or write access, use CF OpenAPI.</p>
+  </section>
+
+  <!-- ── 2. CF OPENAPI ── -->
+  <section id="cfapi">
+    <h2>2 — Content Fragments OpenAPI</h2>
+    <p>The CF OpenAPI was introduced in AEM Cloud Service as a modern, standards-based alternative to the GraphQL layer. It exposes fragments as REST resources with a Swagger/OpenAPI spec you can import directly into Postman or any API client.</p>
+
+    <h3>Base URL</h3>
+    <pre><code><span class="comment"># Can target Author (for preview/draft) or Publish (for live content)</span>
+https://author-p{prog}-e{env}.adobeaemcloud.com/adobe/sites/cf/fragments
+https://publish-p{prog}-e{env}.adobeaemcloud.com/adobe/sites/cf/fragments</code></pre>
+
+    <h3>Authentication</h3>
+    <p>Every CF OpenAPI request requires a bearer token issued by Adobe IMS. There are two token types depending on where your code runs:</p>
+
+    <table>
+      <tr><th>Token type</th><th>Where to use it</th><th>How to get it</th></tr>
+      <tr>
+        <td>Service credentials (JWT → access token)</td>
+        <td>Server-side only — Node.js, Cloud Functions, CI scripts</td>
+        <td>AEM → Tools → Security → Adobe IMS Configurations → create integration, download JSON</td>
+      </tr>
+      <tr>
+        <td>User access token</td>
+        <td>When the caller is an authenticated Adobe user</td>
+        <td>IMS OAuth flow; token from <code>aio auth token</code> or Adobe IMS APIs</td>
+      </tr>
+    </table>
+
+    <div class="note stop">
+      <div class="note-title">Never expose credentials in a public-facing SPA</div>
+      <p>CF OpenAPI tokens grant write access to your content. If you put a service credential or client secret in client-side JavaScript, anyone can read your source and modify or delete your Content Fragments. CF OpenAPI belongs behind a server-side proxy, not in browser code.</p>
+    </div>
+
+    <h3>Common operations</h3>
+
+    <h4>List all fragments of a given model</h4>
+    <pre><code>GET /adobe/sites/cf/fragments
+  ?modelId=/conf/ue-demo/settings/dam/cfm/models/hero
+  &limit=20
+  &offset=0
+
+Authorization: Bearer {access_token}
+X-Adobe-Accept-Unsupported-API: 1</code></pre>
+
+    <h4>Get a single fragment by its UUID</h4>
+    <pre><code><span class="comment"># Fragment UUIDs are visible in the CF editor URL or in list responses</span>
+GET /adobe/sites/cf/fragments/{fragment-uuid}
+
+Authorization: Bearer {access_token}</code></pre>
+
+    <h4>Get a fragment by its DAM path</h4>
+    <pre><code><span class="comment"># Path-based lookup — useful when you know the DAM structure</span>
+GET /adobe/sites/cf/fragments
+  ?path=/content/dam/ue-demo/fragments/offers-home-hero
+
+Authorization: Bearer {access_token}</code></pre>
+
+    <h4>What the response looks like</h4>
+    <pre><code>{
+  "id": "3f8a2c1d-...",
+  "path": "/content/dam/ue-demo/fragments/offers-home-hero",
+  "title": "Offers Home Hero",
+  "model": { "id": "/conf/ue-demo/settings/dam/cfm/models/hero" },
+  "fields": [
+    { "name": "eyebrow",     "type": "text",      "values": ["Summer Sale"] },
+    { "name": "title",       "type": "text",      "values": ["Up to 40% off PS Store"] },
+    { "name": "description", "type": "richtext",  "values": ["&lt;p&gt;Score massive savings...&lt;/p&gt;"] },
+    { "name": "ctaLabel",    "type": "text",      "values": ["Shop the Sale"] }
+  ]
+}</code></pre>
+
+    <div class="note warn">
+      <div class="note-title">Response shape differs from GraphQL</div>
+      <p>CF OpenAPI returns fields as a flat array of <code>{ name, type, values }</code> objects, not the nested model-shaped object you get from GraphQL. You'll need a small adapter function to reshape it for your React components.</p>
+    </div>
+
+    <h4>Adapter to normalize CF OpenAPI response to GraphQL shape</h4>
+    <pre><code><span class="comment">// Converts CF OpenAPI field array → the shape your components expect</span>
+<span class="kw">function</span> <span class="fn">normalizeCFApiFragment</span>(fragment) {
+  <span class="kw">const</span> out = { _path: fragment.path };
+  (fragment.fields || []).forEach(f => {
+    out[f.name] = f.values?.length === <span class="num">1</span> ? f.values[<span class="num">0</span>] : f.values;
+  });
+  <span class="kw">return</span> out;
+}
+
+<span class="comment">// Result has the same shape as a GraphQL response item:</span>
+<span class="comment">// { _path, eyebrow, title, description, ctaLabel, image }</span></code></pre>
+
+    <h3>Node.js server-side example</h3>
+    <pre><code><span class="comment">// server/aem-cf.js — runs on your server, never in the browser</span>
+<span class="kw">import</span> { getAccessToken } from <span class="str">'./ims-auth.js'</span>; <span class="comment">// your IMS token helper</span>
+
+<span class="kw">const</span> AEM_HOST = <span class="str">'https://author-p138879-e1741192.adobeaemcloud.com'</span>;
+
+<span class="kw">export async function</span> <span class="fn">getFragment</span>(path) {
+  <span class="kw">const</span> token = await getAccessToken();
+  <span class="kw">const</span> url = <span class="str">`</span>${AEM_HOST}<span class="str">/adobe/sites/cf/fragments?path=</span>${encodeURIComponent(path)}<span class="str">`</span>;
+  <span class="kw">const</span> res = await fetch(url, {
+    headers: {
+      Authorization: <span class="str">`Bearer </span>${token}<span class="str">`</span>,
+      <span class="str">'X-Adobe-Accept-Unsupported-API'</span>: <span class="str">'1'</span>,
+    },
+  });
+  <span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> Error(<span class="str">`CF API </span>${res.status}<span class="str">`</span>);
+  <span class="kw">const</span> data = await res.json();
+  <span class="kw">return</span> normalizeCFApiFragment(data.items?.[<span class="num">0</span>]);
+}</code></pre>
+  </section>
+
+  <!-- ── 3. AUTHOR-ONLY / NO PUBLISH ── -->
+  <section id="author-only">
+    <h2>3 — Author-only access: preview without publishing</h2>
+    <p>A common scenario for internal tooling, staging previews, or content QA: you want to read draft CF content from Author before it's published, without standing up or waiting for Publish replication.</p>
+
+    <h3>Option A: CF OpenAPI targeting Author</h3>
+    <p>Point your CF OpenAPI calls at the Author hostname instead of Publish. Draft content is immediately readable — no replication step. Because this requires a token, it's only suitable for server-side code or authenticated internal tools.</p>
+    <pre><code><span class="comment"># Reads draft content directly — no publish step needed</span>
+GET https://author-p138879-e1741192.adobeaemcloud.com/adobe/sites/cf/fragments?path=...
+Authorization: Bearer {token}</code></pre>
+
+    <h3>Option B: GraphQL targeting Author</h3>
+    <p>AEM's GraphQL endpoint exists on Author too, at the same path as Publish. With a valid session cookie or token, you can run persisted queries against Author to read unpublished drafts.</p>
+    <pre><code><span class="comment"># Same query URL, different host</span>
+https://author-p138879-e1741192.adobeaemcloud.com
+  /graphql/execute.json/global/heroByPath3
+  ;path=/content/dam/ue-demo/fragments/offers-home-hero
+  ;variation=master</code></pre>
+
+    <div class="note stop">
+      <div class="note-title">CORS will block this from a public SPA — by design</div>
+      <p>Author is not configured to accept cross-origin requests from arbitrary frontend origins, and it shouldn't be. If you try to fetch from Author in a browser-based React app, CORS will block it and the app will fall back to placeholder data. This is not a bug to work around — it's the correct security boundary. Use CF OpenAPI from a server-side proxy instead.</p>
+    </div>
+
+    <h3>Option C: Local Development Environment (local SDK)</h3>
+    <p>If you're developing locally against the AEM SDK (not Cloud Service), your Author runs on <code>localhost:4502</code> and Publish on <code>localhost:4503</code>. CORS is more permissive by default, and you can configure it freely. GraphQL persisted queries work on both. This is the one case where pointing your app at Author from a browser is practical — it's all local.</p>
+    <pre><code><span class="comment"># Local SDK</span>
+Author:  http://localhost:4502
+Publish: http://localhost:4503
+
+<span class="comment"># Query against local Author during development</span>
+http://localhost:4503/graphql/execute.json/global/heroByPath3;path=...</code></pre>
+  </section>
+
+  <!-- ── 4. NO AEM INFRASTRUCTURE ── -->
+  <section id="no-aem">
+    <h2>4 — What if there's no AEM instance at all?</h2>
+    <p>Sometimes a demo environment has no live AEM instance, or the Publish endpoint is temporarily unavailable. Your React app should handle this gracefully.</p>
+
+    <h3>The fallback data pattern (already in Part 1)</h3>
+    <p>If every GraphQL fetch returns null or throws, the app renders from hardcoded fallback values. This is not a degraded state — for a demo, fallback data can be the intended content. Structure your fallbacks to match exactly what the live CF would return:</p>
+    <pre><code><span class="kw">const</span> FALLBACK_HERO = {
+  eyebrow:     <span class="str">'Summer Sale'</span>,
+  title:       <span class="str">'Up to 40% off PS Store'</span>,
+  description: <span class="str">'Score massive savings on PS5 games, add-ons, and subscriptions.'</span>,
+  ctaLabel:    <span class="str">'Shop the Sale'</span>,
+  image:       { _publishUrl: <span class="str">'https://your-cdn.com/hero-bg.jpg'</span> },
+};</code></pre>
+
+    <h3>Static JSON file as a content proxy</h3>
+    <p>If you want content to be editable without any AEM instance, export your CF data to a static JSON file co-deployed with your app. Your fetch function falls back to this file if the AEM endpoint is unreachable:</p>
+    <pre><code><span class="kw">async function</span> <span class="fn">fetchHeroWithFallback</span>(slug) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> data = await fetchHero(slug); <span class="comment">// tries AEM Publish first</span>
+    <span class="kw">if</span> (data) <span class="kw">return</span> data;
+  } <span class="kw">catch</span> {}
+
+  <span class="comment">// Fall back to static JSON bundled with the app</span>
+  <span class="kw">const</span> res = await fetch(<span class="str">`/content/</span>${slug}<span class="str">.json`</span>);
+  <span class="kw">return</span> res.ok ? await res.json() : FALLBACK_HERO;
+}</code></pre>
+
+    <h3>Adobe's headless trial / sandbox</h3>
+    <p>Adobe provides a shared headless demo environment for evaluating AEM's content API without standing up your own instance. The GraphQL endpoint and sample content fragments are pre-provisioned. Useful for initial prototyping before a customer environment is available — check the AEM Headless Developer Portal for current sandbox credentials.</p>
+
+    <div class="note good">
+      <div class="note-title">The architecture is the same regardless of the delivery method</div>
+      <p>Whether you're using GraphQL against Publish, CF OpenAPI against Author, or static JSON fallbacks — your React components don't change. Keep all the data-fetching logic in <code>src/lib/aem.js</code> and swap the implementation there. Components just receive props.</p>
+    </div>
+  </section>
+
+  <!-- ── 5. QUICK COMPARISON ── -->
+  <section>
+    <h2>5 — At a glance: delivery method comparison</h2>
+    <table>
+      <tr>
+        <th>Method</th>
+        <th>Requires Publish?</th>
+        <th>Auth needed?</th>
+        <th>Safe in browser?</th>
+        <th>Best for</th>
+      </tr>
+      <tr>
+        <td>GraphQL persisted queries → Publish</td>
+        <td>Yes</td>
+        <td>No</td>
+        <td>Yes</td>
+        <td>Public-facing SPAs</td>
+      </tr>
+      <tr>
+        <td>GraphQL persisted queries → Author</td>
+        <td>No</td>
+        <td>Session cookie</td>
+        <td>Local dev only</td>
+        <td>Local development, UE preview</td>
+      </tr>
+      <tr>
+        <td>CF OpenAPI → Author</td>
+        <td>No</td>
+        <td>IMS token</td>
+        <td>No — server only</td>
+        <td>Draft preview, editorial tools, automation</td>
+      </tr>
+      <tr>
+        <td>CF OpenAPI → Publish</td>
+        <td>Yes</td>
+        <td>IMS token</td>
+        <td>No — server only</td>
+        <td>Server-side rendering, backend services</td>
+      </tr>
+      <tr>
+        <td>Static JSON fallback</td>
+        <td>No</td>
+        <td>No</td>
+        <td>Yes</td>
+        <td>Demos without live AEM, offline dev</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ── NAV FOOTER ── -->
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #2d1a4e;">
+    <a href="react-setup.html" style="display:inline-block;background:#0d1f2d;border:1px solid #1e3a5a;color:#7ec8e3;padding:0.7rem 1.5rem;border-radius:6px;font-size:0.9rem;">← Part 1: React + AEM CF setup</a>
+    <a href="ue-setup.html"    style="display:inline-block;background:#0d1f2d;border:1px solid #1e3a5a;color:#7ec8e3;padding:0.7rem 1.5rem;border-radius:6px;font-size:0.9rem;">Part 2: Universal Editor →</a>
+  </div>
+
+</main>
+</body>
+</html>
