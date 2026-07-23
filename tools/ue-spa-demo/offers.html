@@ -463,31 +463,25 @@
     function fetchHero(slug) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath3?_path=' + encodeURIComponent(path) + '&_t=' + Date.now(),
+        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path,
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
-          var item = (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
-          if (item && item._path && item._path !== path) return null;
-          return item;
+          return (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
         });
     }
 
     function fetchVariation(slug, variation) {
       var path = '/content/dam/ue-demo/fragments/' + slug;
-      var varParam = (variation && variation !== 'master')
-        ? '&_variation=' + encodeURIComponent(variation) : '';
+      var varSeg = (variation && variation !== 'master') ? ';variation=' + variation : '';
       return fetch(
-        PUBLISH + '/graphql/execute.json/global/heroByPath3?_path=' + encodeURIComponent(path) +
-          varParam + '&_t=' + Date.now(),
+        PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + path + varSeg,
         { headers: { Accept: 'application/json' }, cache: 'no-store' }
       )
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (d) {
-          var item = (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
-          if (item && item._path && item._path !== path) return null;
-          return item;
+          return (d && d.data && d.data.homeHeroByPath && d.data.homeHeroByPath.item) || null;
         })
         .catch(function () { return null; });
     }
