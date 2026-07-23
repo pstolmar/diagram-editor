@@ -313,7 +313,7 @@
         "valueType": "string",
         "name": "icon",
         "label": "Tab Icon (emoji or symbol)",
-        "value": "◈"
+        "value": "\u25c8"
       },
       {
         "component": "text",
@@ -1076,12 +1076,12 @@
       {
         "component": "text",
         "name": "grid",
-        "label": "Grid (cols×rows, e.g. 4x3 · 3x2 · 5x3)"
+        "label": "Grid (cols\u00d7rows, e.g. 4x3 \u00b7 3x2 \u00b7 5x3)"
       },
       {
         "component": "text",
         "name": "effect",
-        "label": "Entrance effect (sizzle · paint · grey · shatter · bloom · glitch · paint-wipe)"
+        "label": "Entrance effect (sizzle \u00b7 paint \u00b7 grey \u00b7 shatter \u00b7 bloom \u00b7 glitch \u00b7 paint-wipe)"
       },
       {
         "component": "text",
@@ -1091,7 +1091,7 @@
       {
         "component": "text",
         "name": "photos",
-        "label": "Photo category (ocean · balloons · landscape) — or leave blank to use inline images"
+        "label": "Photo category (ocean \u00b7 balloons \u00b7 landscape) \u2014 or leave blank to use inline images"
       }
     ]
   },
@@ -1395,12 +1395,12 @@
       {
         "component": "text",
         "name": "particles",
-        "label": "Particle mode (stars · dots · web · fire)"
+        "label": "Particle mode (stars \u00b7 dots \u00b7 web \u00b7 fire)"
       },
       {
         "component": "text",
         "name": "color",
-        "label": "Color · Count (e.g. blue 150)"
+        "label": "Color \u00b7 Count (e.g. blue 150)"
       }
     ]
   },
@@ -1661,17 +1661,17 @@
       {
         "component": "text",
         "name": "scene",
-        "label": "Scene preset (crystal · nebula · torus · cubes)"
+        "label": "Scene preset (crystal \u00b7 nebula \u00b7 torus \u00b7 cubes)"
       },
       {
         "component": "text",
         "name": "colors",
-        "label": "Color palette (blue · purple · green · sunset)"
+        "label": "Color palette (blue \u00b7 purple \u00b7 green \u00b7 sunset)"
       },
       {
         "component": "text",
         "name": "lighting",
-        "label": "Lighting mood (warm · cool · dramatic · neon)"
+        "label": "Lighting mood (warm \u00b7 cool \u00b7 dramatic \u00b7 neon)"
       },
       {
         "component": "text",
@@ -1787,7 +1787,7 @@
         "name": "inlineData",
         "label": "Inline Data",
         "valueType": "string",
-        "description": "JSON fallback data — used when Data URL is empty or fails"
+        "description": "JSON fallback data \u2014 used when Data URL is empty or fails"
       },
       {
         "component": "text",
@@ -1821,7 +1821,7 @@
         "name": "dataUrl",
         "label": "Data URL",
         "valueType": "string",
-        "description": "Pipeline data endpoint (JSON) — polled on interval"
+        "description": "Pipeline data endpoint (JSON) \u2014 polled on interval"
       },
       {
         "component": "text",
@@ -1835,7 +1835,7 @@
         "name": "inlineData",
         "label": "Inline Data",
         "valueType": "string",
-        "description": "JSON fallback data — used when Data URL is empty or fails"
+        "description": "JSON fallback data \u2014 used when Data URL is empty or fails"
       },
       {
         "component": "text",
@@ -1956,7 +1956,7 @@
         "name": "inlineData",
         "label": "Inline Data",
         "valueType": "string",
-        "description": "JSON fallback attack arcs — replayed in a loop"
+        "description": "JSON fallback attack arcs \u2014 replayed in a loop"
       },
       {
         "component": "select",
@@ -1982,5 +1982,30 @@
   {
     "id": "wave-terrain",
     "fields": []
+  },
+  {
+    "id": "ps-offer",
+    "fields": [
+      {
+        "component": "text",
+        "name": "eyebrow",
+        "label": "Eyebrow"
+      },
+      {
+        "component": "text",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "richtext",
+        "name": "description",
+        "label": "Description"
+      },
+      {
+        "component": "text",
+        "name": "ctaLabel",
+        "label": "CTA Label"
+      }
+    ]
   }
 ]
