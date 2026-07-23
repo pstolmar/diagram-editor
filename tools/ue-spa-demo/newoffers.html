@@ -552,7 +552,7 @@
           h('button', {
             className: 'ps-astro-toggle' + (props.astroOn ? ' on' : ''),
             onClick: function () { props.setAstroOn(function (v) { return !v; }); },
-          }, props.astroOn ? '🤖 Astro On' : '🤖 Astro Off'),
+          }, props.astroOn ? '🤖 Spacebot On' : '🤖 Spacebot Off'),
           h('a', { href: UE_EDIT_URL, target: '_blank', rel: 'noreferrer' },
             h('button', { className: 'ps-ue-btn' }, '✎ Edit in UE'),
           ),
@@ -944,12 +944,11 @@
 
     /* ── App ────────────────────────────────────────────────────────── */
     function App() {
-      var _h = useState(null);      var heroData     = _h[0]; var setHeroData     = _h[1];
-      var _o = useState(null);      var offers       = _o[0]; var setOffers       = _o[1];
-      var _g = useState(null);      var ghostVars    = _g[0]; var setGhostVars    = _g[1];
-      var _l = useState(true);      var loading      = _l[0]; var setLoading      = _l[1];
-      var _f = useState('master');  var ghostFocused = _f[0]; var setGhostFocused = _f[1];
-      var _a = useState(true);      var astroOn      = _a[0]; var setAstroOn      = _a[1];
+      var _h = useState(FALLBACK_HERO);   var heroData     = _h[0]; var setHeroData     = _h[1];
+      var _o = useState(FALLBACK_OFFERS); var offers       = _o[0]; var setOffers       = _o[1];
+      var _g = useState(FALLBACK_GHOST);  var ghostVars    = _g[0]; var setGhostVars    = _g[1];
+      var _f = useState('master');        var ghostFocused = _f[0]; var setGhostFocused = _f[1];
+      var _a = useState(true);            var astroOn      = _a[0]; var setAstroOn      = _a[1];
 
       function fetchGhostVars() {
         return Promise.allSettled([
@@ -966,27 +965,29 @@
       }
 
       useEffect(function () {
+        fetchHero('offers-home-hero')
+          .then(function (d) { if (d) setHeroData(d); })
+          .catch(function () {});
+
         Promise.allSettled([
-          fetchHero('offers-home-hero')
-            .then(function (d) { setHeroData(d || FALLBACK_HERO); })
-            .catch(function () { setHeroData(FALLBACK_HERO); }),
-          Promise.allSettled([
-            fetchHero('ps-spiderman'),
-            fetchHero('ps-god-of-war'),
-          ]).then(function (res) {
-            var slugs = ['ps-spiderman', 'ps-god-of-war'];
-            var map = {};
-            slugs.forEach(function (s, i) {
-              var fetched = res[i].value;
-              if (fetched && !(fetched.image && fetched.image._publishUrl)) {
+          fetchHero('ps-spiderman'),
+          fetchHero('ps-god-of-war'),
+        ]).then(function (res) {
+          var slugs = ['ps-spiderman', 'ps-god-of-war'];
+          var map = Object.assign({}, FALLBACK_OFFERS);
+          slugs.forEach(function (s, i) {
+            var fetched = res[i].value;
+            if (fetched) {
+              if (!(fetched.image && fetched.image._publishUrl)) {
                 fetched = Object.assign({}, fetched, { image: FALLBACK_OFFERS[s].image });
               }
-              map[s] = fetched || FALLBACK_OFFERS[s];
-            });
-            setOffers(map);
-          }).catch(function () { setOffers(FALLBACK_OFFERS); }),
-          fetchGhostVars(),
-        ]).then(function () { setLoading(false); });
+              map[s] = fetched;
+            }
+          });
+          setOffers(map);
+        }).catch(function () {});
+
+        fetchGhostVars();
 
         /* Re-fetch ghost variants whenever UE saves a CF */
         function onUeMsg(e) {
@@ -997,8 +998,6 @@
         window.addEventListener('message', onUeMsg);
         return function () { window.removeEventListener('message', onUeMsg); };
       }, []);
-
-      if (loading) return h('div', { className: 'ps-loading' }, 'Loading PS Store…');
 
       return h('div', { className: 'ps-page' },
         h(NavBar, { astroOn: astroOn, setAstroOn: setAstroOn }),
