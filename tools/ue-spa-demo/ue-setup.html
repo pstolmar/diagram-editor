@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UE Setup — React SPA Editability Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; line-height: 1.6; }
+    header { background: #1a1a2e; border-bottom: 2px solid #e44d26; padding: 2rem; }
+    header h1 { font-size: 1.8rem; color: #fff; }
+    header p { color: #aaa; margin-top: 0.4rem; font-size: 0.95rem; }
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+    section { margin-bottom: 2.5rem; }
+    h2 { font-size: 1.2rem; color: #e44d26; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid #333; }
+    h3 { font-size: 1rem; color: #7ec8e3; margin: 1.2rem 0 0.5rem; }
+    p, li { font-size: 0.92rem; color: #ccc; margin-bottom: 0.5rem; }
+    ul { padding-left: 1.4rem; }
+    code { font-family: 'Fira Mono', 'Consolas', monospace; font-size: 0.85rem; background: #1e1e1e; color: #f8c555; padding: 0.1em 0.4em; border-radius: 3px; }
+    pre { background: #1e1e1e; border: 1px solid #333; border-radius: 6px; padding: 1.2rem; overflow-x: auto; margin: 0.8rem 0; }
+    pre code { background: none; padding: 0; color: #e0e0e0; font-size: 0.82rem; }
+    .ok { color: #4ec94e; }
+    .bad { color: #e44d26; }
+    .warn { color: #f8c555; }
+    .tag { display: inline-block; padding: 0.15em 0.6em; border-radius: 3px; font-size: 0.75rem; font-weight: 700; margin-right: 0.4rem; vertical-align: middle; }
+    .tag-critical { background: #6b1010; color: #ff7b7b; }
+    .tag-gotcha  { background: #3b2e00; color: #f8c555; }
+    .tag-fixed   { background: #0a2e0a; color: #4ec94e; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.8rem 0; }
+    th { background: #1e1e1e; color: #7ec8e3; text-align: left; padding: 0.5rem 0.8rem; border: 1px solid #333; }
+    td { padding: 0.5rem 0.8rem; border: 1px solid #2a2a2a; vertical-align: top; }
+    td:first-child { color: #f8c555; font-family: monospace; white-space: nowrap; }
+    .card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1.2rem 1.4rem; margin-bottom: 1rem; }
+    .card.critical { border-left: 3px solid #e44d26; }
+    .card.gotcha   { border-left: 3px solid #f8c555; }
+    .card.fixed    { border-left: 3px solid #4ec94e; }
+    .card-title { font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem; }
+    hr { border: none; border-top: 1px solid #2a2a2a; margin: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Universal Editor + React SPA — Setup Reference</h1>
+  <p>Every mistake made, every gotcha hit, and the correct configuration that finally worked. Keep this page open next time UE breaks.</p>
+</header>
+
+<main>
+
+  <!-- ── SECTION 1: REQUIRED PAGE META ── -->
+  <section>
+    <h2>1 — Required &lt;meta&gt; tags in every UE-editable page</h2>
+    <p>These must be in the <code>&lt;head&gt;</code>. Without them UE cannot connect to the AEM author instance.</p>
+    <pre><code>&lt;!-- AEM author instance --&gt;
+&lt;meta name="urn:adobe:aue:config:host"
+      content="https://author-p138879-e1741192.adobeaemcloud.com"&gt;
+
+&lt;!-- Connection service (load from AEM CDN) --&gt;
+&lt;script src="https://universal-editor-service.experiencecloud.live/corslib/LATEST"&gt;&lt;/script&gt;</code></pre>
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">CRITICAL</span> The host meta tag must match EXACTLY</div>
+      <p>The host must be the full <code>https://author-p…-e….adobeaemcloud.com</code> URL — no trailing slash, no path. A typo here gives you a page that loads fine visually but the sidebar stays empty forever.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: DATA ATTRIBUTES ── -->
+  <section>
+    <h2>2 — Required data-aue-* attributes</h2>
+    <p>Every editable container needs all of these. Missing even one silently breaks editing.</p>
+    <table>
+      <tr><th>Attribute</th><th>Value format</th><th>Required on</th></tr>
+      <tr><td>data-aue-resource</td><td><code>urn:aem:/content/dam/…/jcr:content/data/master</code></td><td>Container + field elements</td></tr>
+      <tr><td>data-aue-type</td><td><code>component</code></td><td>Container elements</td></tr>
+      <tr><td>data-aue-model</td><td>Model ID from component-models.json</td><td>Container elements</td></tr>
+      <tr><td>data-aue-label</td><td>Human-readable name</td><td>Container elements</td></tr>
+      <tr><td>data-aue-prop</td><td>CF field name (must match actual CF model)</td><td>Individual field elements</td></tr>
+    </table>
+
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">CRITICAL</span> data-aue-model is mandatory — its absence = empty Content Tree</div>
+      <p>This was the root cause of "Content Tree is empty / nothing is clickable." Without <code>data-aue-model</code> on the container, UE does not register it in the tree at all. The page loads fine in UE but you cannot select anything.</p>
+    </div>
+
+    <div class="card gotcha">
+      <div class="card-title"><span class="tag tag-gotcha">GOTCHA</span> data-aue-prop values must match actual CF field names</div>
+      <p>CF field names are defined in the AEM Content Fragment model. Common PS Store CF fields: <code>eyebrow</code>, <code>title</code>, <code>description</code>, <code>ctaLabel</code>. Do not invent names — they silently fail.</p>
+    </div>
+
+    <h3>Minimal working React helper pattern</h3>
+    <pre><code>// Container annotation — put this on the wrapper div
+function aueRes(fragPath, label) {
+  return {
+    'data-aue-resource': 'urn:aem:' + fragPath,
+    'data-aue-type': 'component',
+    'data-aue-label': label || 'Content',
+    'data-aue-model': 'hero',   // ← MUST match a model ID in component-models.json
+  };
+}
+
+// Field annotation — put this on h1, p, etc.
+function aueField(fragPath, prop, type, label) {
+  return {
+    'data-aue-resource': 'urn:aem:' + fragPath,
+    'data-aue-prop': prop,      // ← MUST match actual CF field name
+    'data-aue-type': type || 'text',
+    'data-aue-label': label || prop,
+  };
+}
+
+// CF path helper
+function FRAG(slug, variation) {
+  return '/content/dam/ue-demo/fragments/' + slug
+       + '/jcr:content/data/' + (variation || 'master');
+}
+
+// Usage in JSX
+&lt;div {...aueRes(FRAG('summer-sale-hero'), 'Hero')}&gt;
+  &lt;h1 {...aueField(FRAG('summer-sale-hero'), 'title')}&gt;{data.title}&lt;/h1&gt;
+  &lt;p  {...aueField(FRAG('summer-sale-hero'), 'description')}&gt;{data.description}&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+  </section>
+
+  <!-- ── SECTION 3: COMPONENT-MODELS.JSON ── -->
+  <section>
+    <h2>3 — component-models.json must define every model ID you use</h2>
+    <p>UE fetches this from the site root. The <code>id</code> here must exactly match what you put in <code>data-aue-model</code>. Field <code>name</code> values here must match actual CF field names.</p>
+    <pre><code>// component-models.json (served from site root)
+[
+  {
+    "id": "hero",
+    "fields": [
+      { "component": "text",     "name": "eyebrow",     "label": "Eyebrow"      },
+      { "component": "text",     "name": "title",       "label": "Title"        },
+      { "component": "richtext", "name": "description", "label": "Description"  },
+      { "component": "text",     "name": "ctaLabel",    "label": "CTA Label"    },
+      { "component": "reference","name": "image",       "label": "Image", "multi": false }
+    ]
+  }
+]</code></pre>
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">CRITICAL</span> Never invent a model ID without adding it to this file</div>
+      <p>Using <code>data-aue-model="ps-offer"</code> when <code>ps-offer</code> does not exist in component-models.json causes UE to silently fail — no sidebar content, even though the Content Tree shows the component. Always add the model definition first.</p>
+    </div>
+    <div class="card gotcha">
+      <div class="card-title"><span class="tag tag-gotcha">GOTCHA</span> This repo uses a build step to assemble the JSON</div>
+      <p>Run <code>npm run build:json</code> after editing anything in <code>models/</code>. The file <code>component-models.json</code> at the repo root is the assembled output — edit the source files in <code>models/</code>, not the root file directly.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: UE URL FORMAT ── -->
+  <section>
+    <h2>4 — Correct URL format for opening a page in Universal Editor</h2>
+    <pre><code>https://experience.adobe.com/#/@workfrontcs/aem/editor/canvas/offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/newoffers.html</code></pre>
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">CRITICAL</span> Do NOT include https:// in the page path inside the hash</div>
+      <p>Browsers normalize <code>https://</code> → <code>https:/</code> inside URL hash fragments. If you write:</p>
+      <pre><code>...#/@org/aem/editor/canvas/https://offers--...aem.live/tools/...</code></pre>
+      <p>UE loads <code>https://https:/offers--...aem.live</code> which 404s. The page path after <code>/canvas/</code> must be <strong>just the host and path, no protocol</strong>.</p>
+    </div>
+    <table>
+      <tr><th>Part</th><th>Value</th></tr>
+      <tr><td>org slug</td><td><code>workfrontcs</code></td></tr>
+      <tr><td>site host</td><td><code>offers--diagram-editor--pstolmar.aem.live</code></td></tr>
+      <tr><td>page path</td><td><code>/tools/ue-spa-demo/newoffers.html</code></td></tr>
+    </table>
+  </section>
+
+  <!-- ── SECTION 5: CORS ── -->
+  <section>
+    <h2>5 — CORS on the AEM author instance</h2>
+    <p>UE at <code>experience.adobe.com</code> makes XHR requests to your author. The author must return CORS headers allowing <code>https://experience.adobe.com</code>.</p>
+    <p>The CORS OSGi config package for this project lives at: <code>tools/cors/</code>. Deploy with:</p>
+    <pre><code>aio aem:rde:install tools/cors/ui.config-1.0-SNAPSHOT.zip -t content-package</code></pre>
+    <div class="card gotcha">
+      <div class="card-title"><span class="tag tag-gotcha">GOTCHA</span> Rapid Development Environment (RDE) only</div>
+      <p>This deploy command targets the RDE. Production/stage environments need the package deployed via Cloud Manager pipeline.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: CDN PROPAGATION ── -->
+  <section>
+    <h2>6 — CDN propagation delay</h2>
+    <div class="card gotcha">
+      <div class="card-title"><span class="tag tag-gotcha">GOTCHA</span> 30–60 seconds after git push before changes are live</div>
+      <p>After <code>git push origin offers</code>, wait ~60 seconds before testing. Hard-refresh in UE (<strong>⌘+Shift+R</strong>) after the wait. Loading immediately after push will show the old version and make it look like your fix didn't work.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 7: SIMULATED DATE COUNTDOWN ── -->
+  <section>
+    <h2>7 — ?date= simulation pattern for demo countdown</h2>
+    <p>To demo a page "as of" a future date while keeping the countdown ticking in real time:</p>
+    <pre><code>// Capture real wall-clock time at page load
+var SIM_REAL_START = Date.now();
+
+// Parse ?date=YYYYMMDD from URL
+var SIM_DATE = (function() {
+  var m = location.search.match(/[?&]date=(\d{8})/);
+  if (!m) return null;
+  var s = m[1];
+  return new Date(s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8)+'T00:00:00Z');
+})();
+
+// In countdown hook — offset sim date by elapsed real time
+function useCountdown(expiryISO, simNow) {
+  function compute() {
+    // If simNow provided, advance it by however much real time has passed
+    var now = simNow
+      ? simNow.getTime() + (Date.now() - SIM_REAL_START)
+      : Date.now();
+    var diff = new Date(expiryISO).getTime() - now;
+    // ... compute d/h/m/s from diff
+  }
+
+  useEffect(function () {
+    // ← DO NOT add "if (simNow) return;" here — that freezes the countdown
+    function tick() { setParts(compute()); }
+    tick();
+    var id = setInterval(tick, 1000);
+    return function () { clearInterval(id); };
+  }, [expiryISO]);
+}</code></pre>
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">CRITICAL</span> Never add "if (simNow) return" inside useEffect</div>
+      <p>Adding an early return when <code>simNow</code> is truthy prevents the <code>setInterval</code> from running, which freezes the display at whatever value it had on mount. Remove it and offset with <code>SIM_REAL_START</code> instead.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 8: CHECKLIST ── -->
+  <section>
+    <h2>8 — Pre-demo UE checklist</h2>
+    <ul>
+      <li>✅ Every editable container has <code>data-aue-resource</code>, <code>data-aue-type="component"</code>, <strong><code>data-aue-model</code></strong>, and <code>data-aue-label</code></li>
+      <li>✅ Every model ID used in <code>data-aue-model</code> exists in <code>component-models.json</code></li>
+      <li>✅ All <code>data-aue-prop</code> values match real CF field names</li>
+      <li>✅ <code>&lt;meta name="urn:adobe:aue:config:host"&gt;</code> points to correct author host</li>
+      <li>✅ UE URL hash has no <code>https://</code> before the page host</li>
+      <li>✅ Waited 60 seconds after last <code>git push</code> before testing</li>
+      <li>✅ Opened in incognito OR hard-refreshed UE after push</li>
+      <li>✅ Logged in to <code>experience.adobe.com</code> with correct org (Workfront Customer Success)</li>
+    </ul>
+  </section>
+
+  <!-- ── SECTION 9: WHAT "WORKING" LOOKS LIKE ── -->
+  <section>
+    <h2>9 — What working looks like</h2>
+    <ul>
+      <li>Content Tree (left sidebar) shows named components: <strong>Hero</strong>, <strong>PS Plus Essential</strong>, etc.</li>
+      <li>Clicking a component on canvas highlights it and loads CF fields in right sidebar</li>
+      <li>Right sidebar shows model fields (Eyebrow, Title, Description, CTA Label) with live values from the CF</li>
+      <li>Editing a field and clicking out triggers a live update on the canvas</li>
+      <li>Countdown ticks in real time (seconds change every second)</li>
+      <li><code>?date=20260801</code> shows the hero as it would appear on Aug 1 2026 with a ticking countdown</li>
+    </ul>
+  </section>
+
+</main>
+</body>
+</html>
