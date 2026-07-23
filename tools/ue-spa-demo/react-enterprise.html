@@ -224,7 +224,7 @@ const { useState, useEffect, useRef, createElement: h, Fragment, memo } = React;
 
 /* ── AEM config ─────────────────────────────────────────────────────────── */
 const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
-const GRAPHQL = `${PUBLISH}/graphql/execute.json/global/hero`;
+const HERO_PATH = '/content/dam/ue-demo/fragments/home-hero';
 
 /* CF resource URNs */
 const RES_HERO = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
@@ -546,10 +546,14 @@ function App() {
   const [loading,  setLoading]  = useState(true);
 
   function fetchContent() {
-    return fetch(GRAPHQL + '?_v=' + Date.now(), { headers: { Accept: 'application/json' } })
+    const url = PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + HERO_PATH + ';variation=master;_t=' + Date.now();
+    return fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' })
       .then(r => r.json())
       .then(d => {
-        const item = d?.data?.homeHeroByPath?.item || d;
+        const item = d?.data?.homeHeroByPath?.item;
+        if (!item || (item._path && !item._path.includes('home-hero'))) {
+          setContent(FB); setLoading(false); return;
+        }
         setContent({
           ...FB, ...item,
           image: item?.contentReference?._publishUrl
