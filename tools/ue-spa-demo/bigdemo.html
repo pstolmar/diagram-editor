@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>Luma — EDS Platform Demo</title>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --luma-purple: #7C3AED; --luma-purple2: #6D28D9; --luma-gold: #F59E0B;
+      --luma-teal: #0891B2;   --luma-dark: #0C0A1A;   --luma-card: #16123A;
+      --luma-border: rgba(255,255,255,.08); --luma-muted: rgba(255,255,255,.6);
+      --adobe-red: #EB1000;   --adobe-blue: #1473E6;  --ai-color: #7DD3FC;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--luma-dark); color: #fff; overflow-x: hidden; }
+    img { display: block; } button { cursor: pointer; } a { text-decoration: none; color: inherit; }
+    .spin { animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+      background: rgba(12,10,26,.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--luma-border);
+    }
+    .nav-left { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-wordmark { font-size: 1.125rem; font-weight: 900; letter-spacing: -.03em; color: #fff; }
+    .nav-wordmark span { color: var(--luma-gold); }
+    .nav-links { display: flex; gap: 1.75rem; }
+    .nav-links a { font-size: .875rem; font-weight: 500; color: var(--luma-muted); transition: color .15s; }
+    .nav-links a:hover { color: #fff; }
+    .nav-right { display: flex; align-items: center; gap: .5rem; }
+    .nav-slot-pill {
+      display: flex; align-items: center; gap: .375rem;
+      background: rgba(255,255,255,.06); border: 1px solid var(--luma-border);
+      border-radius: 20px; padding: .3rem .875rem;
+      font-size: .75rem; font-weight: 600; color: var(--luma-muted);
+    }
+    .nav-slot-dot { width: 6px; height: 6px; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+    .btn-ai {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: rgba(125,211,252,.12); color: var(--ai-color);
+      border: 1px solid rgba(125,211,252,.25); border-radius: 4px;
+      padding: .4rem .9rem; font-family: inherit; font-size: .8rem; font-weight: 700;
+    }
+    .btn-ue {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: var(--luma-purple); color: #fff; border: none; border-radius: 4px;
+      padding: .4rem .9rem; font-family: inherit; font-size: .8rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .btn-ue:hover { background: var(--luma-purple2); }
+
+    /* ── Architecture Diagram ── */
+    .arch { background: #08061A; padding: 4rem 2rem; border-bottom: 1px solid var(--luma-border); }
+    .arch-inner { max-width: 1100px; margin: 0 auto; }
+    .arch-hed { font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--luma-muted); margin-bottom: .5rem; }
+    .arch-title { font-size: 1.5rem; font-weight: 900; margin-bottom: .375rem; }
+    .arch-sub { font-size: .9rem; color: var(--luma-muted); margin-bottom: 2.5rem; line-height: 1.6; max-width: 640px; }
+    .arch-layers { display: flex; flex-direction: column; gap: 0; }
+    .arch-layer { padding: 1rem 0; }
+    .arch-layer-label {
+      font-size: .6rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+      margin-bottom: .625rem; display: flex; align-items: center; gap: .5rem;
+    }
+    .arch-layer-label::after { content: ''; flex: 1; height: 1px; background: var(--luma-border); }
+    .arch-nodes { display: flex; gap: .75rem; flex-wrap: wrap; }
+    .arch-node {
+      display: flex; align-items: center; gap: .5rem;
+      background: rgba(255,255,255,.04); border-radius: 8px;
+      border: 1px solid var(--luma-border);
+      padding: .6rem 1rem; font-size: .8125rem; font-weight: 600;
+      position: relative; transition: border-color .2s, background .2s;
+      cursor: default;
+    }
+    .arch-node:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+    .arch-node-icon { font-size: 1rem; flex-shrink: 0; }
+    .arch-connector {
+      display: flex; justify-content: center; align-items: center;
+      padding: .375rem 0; gap: 4px; overflow: hidden;
+    }
+    .arch-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      animation: flowDot 1.8s linear infinite;
+      flex-shrink: 0;
+    }
+    .arch-dot:nth-child(2) { animation-delay: .3s; }
+    .arch-dot:nth-child(3) { animation-delay: .6s; }
+    .arch-dot:nth-child(4) { animation-delay: .9s; }
+    .arch-dot:nth-child(5) { animation-delay: 1.2s; }
+    .arch-dot:nth-child(6) { animation-delay: 1.5s; }
+    @keyframes flowDot { 0%,60%,100% { opacity:.15; transform: scale(.8); } 30% { opacity:1; transform: scale(1.2); } }
+    .arch-legend { margin-top: 1.5rem; font-size: .75rem; color: var(--luma-muted); border-top: 1px solid var(--luma-border); padding-top: 1rem; }
+
+    /* Layer colors */
+    .l-authoring  { color: var(--luma-gold);   } .l-authoring  .arch-dot { background: var(--luma-gold); }
+    .l-edge       { color: var(--luma-teal);   } .l-edge       .arch-dot { background: var(--luma-teal); }
+    .l-experience { color: var(--luma-purple); } .l-experience .arch-dot { background: var(--luma-purple); }
+    .l-ai         { color: var(--ai-color);    } .l-ai         .arch-dot { background: var(--ai-color); }
+
+    /* ── Rotating Hero ── */
+    .hero { position: relative; width: 100%; height: 580px; overflow: hidden; background: #050310; }
+    .hero-bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center 30%;
+      transition: opacity .6s ease;
+    }
+    .hero-overlay {
+      position: absolute; top: 0; bottom: 0; left: 0; width: 55%;
+      padding: 3.5rem 3.5rem; z-index: 4;
+      display: flex; flex-direction: column; justify-content: center;
+      background: linear-gradient(90deg, rgba(12,10,26,.97) 0%, rgba(12,10,26,.92) 75%, transparent 100%);
+    }
+    .hero-slot-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .65rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--luma-gold); margin-bottom: .875rem;
+    }
+    .hero-slot-badge::before { content: ''; width: 16px; height: 2px; background: var(--luma-gold); }
+    .hero-dm-pill {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(124,58,237,.18); border: 1px solid rgba(124,58,237,.35);
+      border-radius: 20px; padding: .25rem .75rem;
+      font-size: .65rem; font-weight: 700; color: #c4b5fd;
+      margin-bottom: 1.25rem; align-self: flex-start;
+    }
+    .hero-title {
+      font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; line-height: 1.08;
+      letter-spacing: -.025em; margin-bottom: .875rem;
+    }
+    .hero-desc { font-size: .9375rem; line-height: 1.65; color: var(--luma-muted); max-width: 400px; margin-bottom: 2rem; }
+    .hero-cta {
+      align-self: flex-start; background: var(--luma-gold); color: #000; border: none;
+      border-radius: 4px; padding: .875rem 2.25rem;
+      font-family: inherit; font-size: .9375rem; font-weight: 800;
+      transition: opacity .15s, transform .12s;
+    }
+    .hero-cta:hover { opacity: .9; transform: translateY(-1px); }
+    .hero-slots-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 5;
+      display: flex; height: 4px;
+    }
+    .hero-slot-seg { flex: 1; transition: background .3s; }
+    .hero-countdown {
+      position: absolute; bottom: 1.5rem; right: 2.5rem; z-index: 5;
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .hero-countdown-label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--luma-muted); }
+    .hero-cd-blocks { display: flex; gap: .375rem; }
+    .hero-cd-block {
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,.08); border-radius: 4px; padding: .35rem .625rem; min-width: 38px;
+    }
+    .hero-cd-num { font-size: 1.125rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; color: var(--luma-gold); }
+    .hero-cd-lab { font-size: .5rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--luma-muted); margin-top: .2rem; }
+
+    /* ── Content Grid ── */
+    .grid-section { background: #0A081E; padding: 4rem 2rem; }
+    .grid-inner { max-width: 1100px; margin: 0 auto; }
+    .grid-hed { font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--luma-teal); margin-bottom: .5rem; }
+    .grid-title { font-size: 1.5rem; font-weight: 900; margin-bottom: .375rem; }
+    .grid-qi-note {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(8,145,178,.08); border: 1px solid rgba(8,145,178,.2);
+      border-radius: 4px; padding: .35rem .875rem; margin-bottom: 1.5rem;
+      font-size: .75rem; font-family: monospace; color: var(--luma-teal);
+    }
+    .grid-filters { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .grid-filter {
+      padding: .4rem 1.1rem; border-radius: 20px; font-family: inherit;
+      font-size: .8125rem; font-weight: 600;
+      border: 1px solid var(--luma-border); background: transparent; color: var(--luma-muted);
+      transition: all .2s;
+    }
+    .grid-filter.active { background: var(--luma-purple); border-color: var(--luma-purple); color: #fff; }
+    .grid-filter:hover:not(.active) { border-color: rgba(255,255,255,.3); color: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .grid-card {
+      background: var(--luma-card); border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--luma-border); transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .grid-card:hover { border-color: rgba(255,255,255,.18); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.5); }
+    .grid-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: var(--luma-purple2); }
+    .grid-body { padding: 1.125rem; }
+    .grid-meta { display: flex; align-items: center; gap: .5rem; margin-bottom: .625rem; flex-wrap: wrap; }
+    .msm-badge {
+      font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      padding: .15rem .5rem; border-radius: 3px;
+    }
+    .msm-inherited { background: rgba(245,158,11,.1);  color: var(--luma-gold); }
+    .msm-localized  { background: rgba(124,58,237,.15); color: #c4b5fd; }
+    .msm-global     { background: rgba(8,145,178,.12);  color: var(--luma-teal); }
+    .wf-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .wf-live     { background: #22C55E; box-shadow: 0 0 5px #22C55E; }
+    .wf-review   { background: var(--luma-gold); }
+    .wf-approved { background: var(--luma-teal); }
+    .wf-draft    { background: #6B7280; }
+    .wf-label { font-size: .65rem; color: var(--luma-muted); font-weight: 600; }
+    .grid-card-title  { font-size: .9375rem; font-weight: 700; margin-bottom: .375rem; line-height: 1.3; }
+    .grid-card-desc   { font-size: .8125rem; color: var(--luma-muted); line-height: 1.55; margin-bottom: .875rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .grid-card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .grid-card-price  { font-size: 1rem; font-weight: 900; color: var(--luma-gold); }
+    .grid-card-btn    { background: var(--luma-purple); color: #fff; border: none; border-radius: 3px; padding: .4rem .9rem; font-family: inherit; font-size: .8125rem; font-weight: 700; transition: background .15s; }
+    .grid-card-btn:hover { background: var(--luma-purple2); }
+
+    /* ── Expand Modal ── */
+    .exp-backdrop {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      perspective: 1200px;
+      animation: bdIn .25s ease forwards;
+    }
+    .exp-backdrop.closing { animation: bdOut .52s ease forwards; pointer-events: none; }
+    @keyframes bdIn  { from { opacity:0; } to { opacity:1; } }
+    @keyframes bdOut { from { opacity:1; } to { opacity:0; } }
+    .exp-card {
+      position: relative; width: min(500px, 92vw);
+      background: var(--luma-card); border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18); overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.8);
+      transform-style: preserve-3d;
+      animation: flipIn .7s cubic-bezier(.22,1,.36,1) forwards;
+    }
+    .exp-card.closing { animation: settleOut .52s cubic-bezier(.4,0,1,1) forwards; }
+    @keyframes flipIn { 0% { transform: scale(.28) rotateY(720deg); opacity:0; } 60% { transform: scale(.9) rotateY(80deg); opacity:1; } 100% { transform: scale(1) rotateY(0deg); opacity:1; } }
+    @keyframes settleOut { 0% { transform: translateY(0) scale(1); opacity:1; } 55% { transform: translateY(38px) scale(.91); opacity:.85; } 100% { transform: translateY(110px) scale(.68); opacity:0; } }
+    .exp-x { position: absolute; top: .75rem; right: .75rem; z-index:2; width:30px; height:30px; border-radius:50%; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2); color:#fff; font-size:.9rem; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .exp-img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background: var(--luma-purple2); }
+    .exp-body { padding: 1.5rem 1.5rem 0; }
+    .exp-meta { display:flex; align-items:center; gap:.5rem; margin-bottom:.75rem; }
+    .exp-title { font-size:1.25rem; font-weight:800; margin-bottom:.625rem; }
+    .exp-desc { font-size:.9rem; color:var(--luma-muted); line-height:1.7; margin-bottom:.875rem; }
+    .exp-details { font-size:.75rem; color:rgba(255,255,255,.35); line-height:1.8; margin-bottom:1rem; border-top:1px solid var(--luma-border); padding-top:.875rem; }
+    .exp-price { font-size:1.25rem; font-weight:900; color:var(--luma-gold); margin-bottom:1.25rem; }
+    .exp-footer { padding: 1.25rem 1.5rem 1.5rem; }
+    .exp-close { display:block; width:100%; text-align:center; background:rgba(255,255,255,.07); color:#fff; border:1px solid rgba(255,255,255,.15); border-radius:4px; padding:.75rem; font-family:inherit; font-size:.9rem; font-weight:700; cursor:pointer; }
+
+    /* ── DM Visualizer ── */
+    .dm-section { background: var(--luma-dark); padding: 4rem 2rem; border-top: 1px solid var(--luma-border); }
+    .dm-inner { max-width: 1100px; margin: 0 auto; }
+    .dm-hed { font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--luma-purple); margin-bottom: .5rem; }
+    .dm-title { font-size: 1.5rem; font-weight: 900; margin-bottom: .375rem; }
+    .dm-sub { font-size: .9rem; color: var(--luma-muted); margin-bottom: 2rem; line-height: 1.6; }
+    .dm-layout { display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 1.5rem; align-items: start; }
+    .dm-panel { background: var(--luma-card); border-radius: 10px; border: 1px solid var(--luma-border); padding: 1.5rem; }
+    .dm-panel-title { font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--luma-muted); margin-bottom: 1.125rem; }
+    .dm-field { margin-bottom: 1.125rem; }
+    .dm-label { font-size: .75rem; font-weight: 600; color: var(--luma-muted); margin-bottom: .35rem; display: block; }
+    .dm-select, .dm-range {
+      width: 100%; background: rgba(255,255,255,.06); border: 1px solid var(--luma-border);
+      border-radius: 4px; color: #fff; padding: .5rem .75rem;
+      font-family: inherit; font-size: .8125rem; appearance: none;
+    }
+    .dm-range { padding: 0; height: 4px; accent-color: var(--luma-purple); cursor: pointer; }
+    .dm-url-box {
+      background: rgba(0,0,0,.4); border: 1px solid var(--luma-border); border-radius: 6px; padding: 1rem;
+      font-family: monospace; font-size: .78rem; line-height: 1.8; word-break: break-all;
+      margin-bottom: .875rem; min-height: 120px;
+    }
+    .dm-url-base { color: var(--luma-muted); }
+    .dm-url-param { color: var(--luma-gold); }
+    .dm-url-preset { color: #c4b5fd; }
+    .dm-copy {
+      width: 100%; background: var(--luma-purple); color: #fff; border: none; border-radius: 4px;
+      padding: .625rem; font-family: inherit; font-size: .8125rem; font-weight: 700; transition: background .15s;
+    }
+    .dm-copy:hover { background: var(--luma-purple2); }
+    .dm-preview-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; display: block; transition: opacity .3s; }
+    .dm-preview-label { font-size: .7rem; color: var(--luma-muted); text-align: center; margin-top: .625rem; }
+
+    /* ── AI Content Advisor ── */
+    .ai-section { background: #08061A; padding: 4rem 2rem; border-top: 1px solid var(--luma-border); }
+    .ai-inner { max-width: 1100px; margin: 0 auto; }
+    .ai-header { display: flex; align-items: center; gap: 1rem; margin-bottom: .375rem; }
+    .ai-badge { display: inline-flex; align-items: center; gap: .4rem; background: rgba(125,211,252,.1); border: 1px solid rgba(125,211,252,.2); border-radius: 20px; padding: .3rem .875rem; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ai-color); }
+    .ai-title { font-size: 1.5rem; font-weight: 900; margin-bottom: .375rem; }
+    .ai-sub { font-size: .9rem; color: var(--luma-muted); margin-bottom: 2rem; line-height: 1.6; max-width: 640px; }
+    .ai-recs { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; margin-bottom: 2.5rem; }
+    .ai-rec {
+      background: rgba(255,255,255,.03); border-radius: 10px;
+      border: 1px solid rgba(125,211,252,.12); padding: 1.375rem;
+    }
+    .ai-rec-type { font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ai-color); margin-bottom: .625rem; }
+    .ai-rec-body { font-size: .875rem; color: var(--luma-muted); line-height: 1.65; margin-bottom: 1.25rem; }
+    .ai-rec-action { background: rgba(125,211,252,.1); color: var(--ai-color); border: 1px solid rgba(125,211,252,.25); border-radius: 3px; padding: .4rem .875rem; font-family: inherit; font-size: .8rem; font-weight: 700; }
+    .ai-gv-title { font-size: 1rem; font-weight: 800; margin-bottom: 1.25rem; }
+    .ai-gv-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
+    .ai-gv-card {
+      background: rgba(255,255,255,.03); border-radius: 8px;
+      border: 1px solid var(--luma-border); padding: 1.125rem;
+      position: relative;
+    }
+    .ai-gv-label { position: absolute; top: -10px; left: 1rem; font-size: .6rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--luma-purple); background: #08061A; padding: 0 .375rem; }
+    .ai-gv-text { font-size: .8125rem; color: var(--luma-muted); line-height: 1.6; border-left: 2px solid rgba(124,58,237,.4); padding-left: .75rem; }
+
+    /* ── Footer ── */
+    .footer { background: #050310; border-top: 1px solid var(--luma-border); padding: 3rem 2rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-title { font-size: .875rem; font-weight: 800; margin-bottom: 1.25rem; color: var(--luma-muted); letter-spacing: .05em; text-transform: uppercase; }
+    .footer-table { width: 100%; border-collapse: collapse; }
+    .footer-table th { font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--luma-muted); padding: .5rem 0; border-bottom: 1px solid var(--luma-border); text-align: left; }
+    .footer-table td { font-size: .8125rem; padding: .625rem 0; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: top; }
+    .footer-table td:first-child { color: var(--luma-muted); width: 20%; }
+    .footer-table td:nth-child(2) { width: 50%; color: rgba(255,255,255,.8); }
+    .footer-table td:last-child { color: var(--luma-purple); font-weight: 600; width: 30%; }
+    .footer-copy { margin-top: 2rem; font-size: .8125rem; color: rgba(255,255,255,.2); }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+  'use strict';
+  var _React   = React;
+  var useState  = _React.useState;
+  var useEffect = _React.useEffect;
+  var useRef    = _React.useRef;
+  var h = _React.createElement;
+
+  var UE_EDIT_URL = 'https://experience.adobe.com/#/aem/editor/canvas/offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/bigdemo.html';
+  var CF_BASE     = '/content/dam/luma';
+
+  /* ── UE helpers ── */
+  function aueRes(path, label, model) {
+    return { 'data-aue-resource': 'urn:aem:' + CF_BASE + path, 'data-aue-type': 'component', 'data-aue-label': label || 'Content', 'data-aue-model': model || 'offer' };
+  }
+  function aueField(path, prop, type, label) {
+    return { 'data-aue-resource': 'urn:aem:' + CF_BASE + path, 'data-aue-prop': prop, 'data-aue-type': type || 'text', 'data-aue-label': label || prop };
+  }
+
+  /* ── Time slot config (authored via CF, shown as UE-editable) ── */
+  var SLOTS = [
+    { id: 'morning',   hours: [5,6,7,8,9,10,11], label: 'Morning Flow',    color: '#F59E0B', dmPreset: '$morning-warm$',    img: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1920&q=80', headline: 'Start with Intention', desc: 'Rise before the noise. Your morning practice sets the tone for everything that follows today.' },
+    { id: 'afternoon', hours: [12,13,14,15,16,17], label: 'Afternoon Power',  color: '#7C3AED', dmPreset: '$afternoon-bright$', img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1920&q=80', headline: 'Push Your Limits',   desc: 'Peak hours, peak performance. Harness your body\'s prime energy window and build something real.' },
+    { id: 'evening',   hours: [18,19,20,21,22],    label: 'Evening Restore',  color: '#0891B2', dmPreset: '$evening-cool$',    img: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=1920&q=80', headline: 'Recover with Purpose', desc: 'Great athletes know recovery is training. End your day with the same commitment you started it.' },
+    { id: 'night',     hours: [23,0,1,2,3,4],      label: 'Night Sessions',   color: '#6D28D9', dmPreset: '$night-intense$',   img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1920&q=80', headline: 'Champions Train Now', desc: 'When the world sleeps, the dedicated work. The quiet hours are yours — use them.' },
+  ];
+
+  function getCurrentSlot() {
+    var h = new Date().getHours();
+    return SLOTS.find(function (s) { return s.hours.indexOf(h) >= 0; }) || SLOTS[0];
+  }
+
+  function getNextSlotMs() {
+    var slot = getCurrentSlot();
+    var maxH = Math.max.apply(null, slot.hours);
+    var now = new Date();
+    var next = new Date(now);
+    next.setHours(maxH + 1, 0, 0, 0);
+    if (next <= now) { next.setDate(next.getDate() + 1); next.setHours(SLOTS[0].hours[0], 0, 0, 0); }
+    return next.getTime() - now.getTime();
+  }
+
+  /* ── Query Index mock (EDS format) ── */
+  var QI_DATA = { total: 6, offset: 0, limit: 6, data: [
+    { path: '/offers/morning-yoga-mat',   title: 'Eco Yoga Mat Pro',        img: 'https://images.unsplash.com/photo-1588286840104-8957b019727f?w=640&q=80', description: 'Sustainable cork + natural rubber. Non-slip surface, extra wide 72". Ships with carry strap.', price: '$89.99', slot: 'morning',   workflow: 'live',     msm: 'inherited', dmPreset: '$gear-card$' },
+    { path: '/offers/hiit-resistance-kit',title: 'HIIT Resistance Kit',     img: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=640&q=80', description: '5-band progressive resistance set. Includes carry bag and anchor door attachment. Build explosive power.', price: '$49.99', slot: 'afternoon', workflow: 'live',     msm: 'localized',  dmPreset: '$gear-card$' },
+    { path: '/offers/recovery-roller',    title: 'Deep Tissue Foam Roller', img: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=640&q=80', description: 'Vibrating 3-speed massage roller. 30-min charge gives 2 hours of deep-tissue myofascial release.', price: '$64.99', slot: 'evening',   workflow: 'review',   msm: 'inherited', dmPreset: '$gear-card$' },
+    { path: '/offers/morning-protein',    title: 'Morning Fuel Protein',    img: 'https://images.unsplash.com/photo-1620188467120-5042ed1eb5da?w=640&q=80', description: '25g whey isolate + adaptogens. Vanilla oat flavor. No artificial sugars, gluten free.', price: '$54.99', slot: 'morning',   workflow: 'live',     msm: 'global',     dmPreset: '$nutrition-card$' },
+    { path: '/offers/luma-band-ultra',    title: 'Luma Band Ultra',         img: 'https://images.unsplash.com/photo-1575311373937-040b8058f2b2?w=640&q=80', description: 'HRV tracking, sleep score, GPS, VO₂ max, and 14-day battery. Syncs with Luma workouts natively.', price: '$249.99', slot: 'all', workflow: 'approved', msm: 'global',     dmPreset: '$tech-card$' },
+    { path: '/offers/evening-plan',       title: '30-Day Evening Plan',     img: 'https://images.unsplash.com/photo-1544387079-b2b2bffc5b5a?w=640&q=80', description: 'AI-curated evening routines tailored to your recovery score. Stretch, breathe, and sleep better in 4 weeks.', price: '$19.99/mo', slot: 'evening', workflow: 'draft',    msm: 'localized',  dmPreset: '$program-card$' },
+  ]};
+
+  /* ── Architecture nodes ── */
+  var ARCH_LAYERS = [
+    { id: 'authoring', label: 'Authoring & AI', cls: 'l-authoring', nodes: [
+      { icon: '✏️', label: 'DA Live', tip: 'Document Authoring — form-based content editing, no HTML' },
+      { icon: '⚙️', label: 'AEM Author + Workflows', tip: 'Content Fragments, approval workflows, publish pipeline' },
+      { icon: '✦', label: 'Firefly GenAI', tip: 'Generate Variations, AI image generation in authoring' },
+      { icon: '🔗', label: 'MSM Blueprint', tip: 'Multi-Site Manager — master content rolled out to live copies' },
+    ]},
+    { id: 'edge', label: 'Edge Delivery', cls: 'l-edge', nodes: [
+      { icon: '⚡', label: 'EDS CDN', tip: 'Edge Delivery Services — 100 LH score, instant global delivery' },
+      { icon: '{}', label: 'query-index.json', tip: 'Auto-generated structured content index from all published pages' },
+      { icon: '📄', label: '.plain.html fragments', tip: 'EDS block HTML — fetch with a plain GET, inject anywhere' },
+      { icon: '🔌', label: 'GraphQL Persist', tip: 'AEM persisted queries — typed JSON for structured CF data' },
+    ]},
+    { id: 'experience', label: 'Experience Layer', cls: 'l-experience', nodes: [
+      { icon: '⚛', label: 'React SPA', tip: 'Client-side app stitching EDS fragments + AEM CF + DM assets' },
+      { icon: '🕐', label: 'Time Rotation', tip: 'Authored slot parameters drive which content shows per hour' },
+      { icon: '🖼', label: 'DM Parameters', tip: 'Dynamic Media named presets set in CF — one asset, many renditions' },
+      { icon: '🖊', label: 'UE / Canvas', tip: 'Universal Editor in-context editing, Experience Workspace, Quick Edit' },
+    ]},
+    { id: 'ai', label: 'Intelligence', cls: 'l-ai', nodes: [
+      { icon: '🤖', label: 'Content Advisor', tip: 'AI analysis of content performance + actionable recommendations' },
+      { icon: '🔄', label: 'Generate Variations', tip: 'LLM-powered copy variants generated from base CF content' },
+      { icon: '🌍', label: 'AI Translations', tip: 'Auto-translate + MSM rollout for global market delivery' },
+      { icon: '🎯', label: 'Personalization', tip: 'Real-time audience segmentation surfaced through offer slots' },
+    ]},
+  ];
+
+  /* ── useCountdown ── */
+  function useCountdown(msRemaining) {
+    function compute(ms) {
+      var s = Math.floor(Math.max(0, ms) / 1000);
+      return { h: Math.floor(s / 3600), m: Math.floor(s / 60) % 60, s: s % 60 };
+    }
+    var _s = useState(function () { return compute(msRemaining); });
+    var parts = _s[0]; var setParts = _s[1];
+    var startMs = useRef(msRemaining);
+    var loadedAt = useRef(Date.now());
+    useEffect(function () {
+      var id = setInterval(function () {
+        var elapsed = Date.now() - loadedAt.current;
+        setParts(compute(startMs.current - elapsed));
+      }, 1000);
+      return function () { clearInterval(id); };
+    }, []);
+    return parts;
+  }
+
+  /* ── Nav ── */
+  function Nav(props) {
+    var slot = props.slot;
+    return h('nav', { className: 'nav' },
+      h('div', { className: 'nav-left' },
+        h('span', { className: 'nav-wordmark' }, 'LU', h('span', null, 'MA')),
+        h('nav', { className: 'nav-links' },
+          ['Move','Gear','Nutrition','Community'].map(function (l) { return h('a', { key: l, href: '#' }, l); }),
+        ),
+      ),
+      h('div', { className: 'nav-right' },
+        h('div', { className: 'nav-slot-pill' },
+          h('span', { className: 'nav-slot-dot', style: { background: slot.color } }),
+          slot.label,
+        ),
+        h('button', { className: 'btn-ai', onClick: function () { document.getElementById('ai-section').scrollIntoView({ behavior: 'smooth' }); } }, '✦ Content Advisor'),
+        h('a', { href: UE_EDIT_URL, target: '_blank', rel: 'noreferrer' },
+          h('button', { className: 'btn-ue' }, '✎ Edit in UE')),
+      ),
+    );
+  }
+
+  /* ── Architecture Diagram ── */
+  function ArchDiagram() {
+    return h('section', { className: 'arch' },
+      h('div', { className: 'arch-inner' },
+        h('p',  { className: 'arch-hed' }, 'Platform Architecture'),
+        h('h2', { className: 'arch-title' }, 'One content model. Every channel.'),
+        h('p',  { className: 'arch-sub' }, 'Authors work in DA Live and AEM. Content flows through EDS to a React SPA that stitches query-index data, DM-parameterized assets, and AI recommendations — all editable in-context via Universal Editor.'),
+        h('div', { className: 'arch-layers' },
+          ARCH_LAYERS.map(function (layer, li) {
+            return h(_React.Fragment, { key: layer.id },
+              li > 0 && h('div', { className: 'arch-connector ' + ARCH_LAYERS[li-1].cls },
+                [1,2,3,4,5,6].map(function (i) { return h('span', { key: i, className: 'arch-dot' }); }),
+              ),
+              h('div', { className: 'arch-layer' },
+                h('p', { className: 'arch-layer-label ' + layer.cls }, layer.label),
+                h('div', { className: 'arch-nodes' },
+                  layer.nodes.map(function (n) {
+                    return h('div', { key: n.label, className: 'arch-node', title: n.tip },
+                      h('span', { className: 'arch-node-icon' }, n.icon),
+                      n.label,
+                    );
+                  }),
+                ),
+              ),
+            );
+          }),
+        ),
+        h('p', { className: 'arch-legend' }, '→ Hover any node to see its role · Live data flow on offers--diagram-editor--pstolmar.aem.live · EDS + AEM + DM + AI unified'),
+      ),
+    );
+  }
+
+  /* ── Rotating Hero ── */
+  function RotatingHero() {
+    var _slot = useState(getCurrentSlot); var slot = _slot[0]; var setSlot = _slot[1];
+    var parts = useCountdown(getNextSlotMs());
+    var _img = useState(true); var imgLoaded = _img[0]; var setImgLoaded = _img[1];
+
+    useEffect(function () {
+      var id = setInterval(function () { setSlot(getCurrentSlot()); }, 60000);
+      return function () { clearInterval(id); };
+    }, []);
+
+    return h('section', { className: 'hero' },
+      h('img', { className: 'hero-bg', src: slot.img, alt: '', onLoad: function () { setImgLoaded(true); }, style: { opacity: imgLoaded ? 1 : 0 } }),
+      h('div', { className: 'hero-overlay' },
+        h('p',   Object.assign({ className: 'hero-slot-badge' }, aueField('/offers/' + slot.id, 'slotLabel', 'text', 'Slot Label')), slot.label),
+        h('div', Object.assign({ className: 'hero-dm-pill' }, aueField('/offers/' + slot.id, 'dmPreset', 'text', 'DM Preset')), 'DM preset: ', slot.dmPreset),
+        h('h1',  Object.assign({ className: 'hero-title' }, aueField('/offers/' + slot.id, 'headline', 'text', 'Headline')), slot.headline),
+        h('p',   Object.assign({ className: 'hero-desc'  }, aueField('/offers/' + slot.id, 'description', 'richtext', 'Description')), slot.desc),
+        h('button', { className: 'hero-cta', onClick: function () { var el = document.getElementById('content-grid'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, 'Explore ' + slot.label),
+      ),
+      h('div', { className: 'hero-countdown' },
+        h('span', { className: 'hero-countdown-label' }, 'Next slot in'),
+        h('div', { className: 'hero-cd-blocks' },
+          [['h', parts.h], ['m', parts.m], ['s', parts.s]].map(function (p) {
+            return h('div', { key: p[0], className: 'hero-cd-block' },
+              h('span', { className: 'hero-cd-num' }, String(p[1]).padStart(2, '0')),
+              h('span', { className: 'hero-cd-lab' }, p[0]),
+            );
+          }),
+        ),
+      ),
+      h('div', { className: 'hero-slots-bar' },
+        SLOTS.map(function (s) {
+          return h('div', { key: s.id, className: 'hero-slot-seg', style: { background: s.id === slot.id ? s.color : 'rgba(255,255,255,.1)' } });
+        }),
+      ),
+    );
+  }
+
+  /* ── Content Grid Card ── */
+  function GridCard(props) {
+    var item = props.item;
+    var _ex = useState(false); var expanded = _ex[0]; var setExpanded = _ex[1];
+    var _cl = useState(false); var closing  = _cl[0]; var setClosing  = _cl[1];
+    var timerRef = useRef(null);
+
+    function openCard()  { setExpanded(true); setClosing(false); }
+    function closeCard() {
+      setClosing(true);
+      timerRef.current = setTimeout(function () { setExpanded(false); setClosing(false); }, 520);
+    }
+    useEffect(function () { return function () { clearTimeout(timerRef.current); }; }, []);
+
+    var msmClass = { inherited: 'msm-inherited', localized: 'msm-localized', global: 'msm-global' }[item.msm] || 'msm-global';
+    var msmLabel = { inherited: '🔗 Blueprint', localized: '✎ Localized', global: '🌐 Global' }[item.msm] || '🌐 Global';
+    var wfClass  = { live: 'wf-live', review: 'wf-review', approved: 'wf-approved', draft: 'wf-draft' }[item.workflow] || 'wf-draft';
+    var wfLabel  = { live: 'Live', review: 'In Review', approved: 'Approved', draft: 'Draft' }[item.workflow] || 'Draft';
+
+    var modal = expanded ? ReactDOM.createPortal(
+      h('div', { className: 'exp-backdrop' + (closing ? ' closing' : ''), onClick: closeCard },
+        h('div', { className: 'exp-card' + (closing ? ' closing' : ''), onClick: function (e) { e.stopPropagation(); } },
+          h('button', { className: 'exp-x', onClick: closeCard, 'aria-label': 'Close' }, '✕'),
+          h('img', { className: 'exp-img', src: item.img, alt: item.title }),
+          h('div', { className: 'exp-body' },
+            h('div', { className: 'exp-meta' },
+              h('span', { className: 'msm-badge ' + msmClass }, msmLabel),
+              h('span', { className: 'wf-dot ' + wfClass }),
+              h('span', { className: 'wf-label' }, wfLabel),
+            ),
+            h('p', { className: 'exp-title' }, item.title),
+            h('p', { className: 'exp-desc' }, item.description),
+            h('p', { className: 'exp-details' },
+              'Path: ' + item.path + '\n' +
+              'DM Preset: ' + item.dmPreset + '\n' +
+              'MSM: ' + msmLabel + ' · Workflow: ' + wfLabel + '\n' +
+              'EDS query-index slot: ' + item.slot,
+            ),
+            h('p', { className: 'exp-price' }, item.price),
+          ),
+          h('div', { className: 'exp-footer' },
+            h('button', { className: 'exp-close', onClick: closeCard }, 'Close'),
+          ),
+        ),
+      ),
+      document.body,
+    ) : null;
+
+    return h(_React.Fragment, null,
+      h('div', Object.assign({ className: 'grid-card' }, aueRes(item.path, item.title, 'offer-card')),
+        h('img', { className: 'grid-img', src: item.img, alt: item.title, loading: 'lazy' }),
+        h('div', { className: 'grid-body' },
+          h('div', { className: 'grid-meta' },
+            h('span', { className: 'msm-badge ' + msmClass }, msmLabel),
+            h('span', { className: 'wf-dot ' + wfClass }),
+            h('span', { className: 'wf-label' }, wfLabel),
+          ),
+          h('p',   Object.assign({ className: 'grid-card-title' }, aueField(item.path, 'title',       'text',     'Title')),       item.title),
+          h('p',   Object.assign({ className: 'grid-card-desc'  }, aueField(item.path, 'description', 'richtext', 'Description')), item.description),
+          h('div', { className: 'grid-card-footer' },
+            h('span',   Object.assign({ className: 'grid-card-price' }, aueField(item.path, 'price', 'text', 'Price')), item.price),
+            h('button', { className: 'grid-card-btn', onClick: openCard }, 'Details'),
+          ),
+        ),
+      ),
+      modal,
+    );
+  }
+
+  /* ── Content Grid Section ── */
+  function ContentGrid() {
+    var _filter = useState('all'); var filter = _filter[0]; var setFilter = _filter[1];
+    var _items = useState(QI_DATA.data); var items = _items[0]; var setItems = _items[1];
+    var _loaded = useState(false); var loaded = _loaded[0]; var setLoaded = _loaded[1];
+
+    useEffect(function () {
+      fetch('/query-index.json')
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d.data && d.data.length > 0) { setItems(d.data); } })
+        .catch(function () {})
+        .finally(function () { setLoaded(true); });
+    }, []);
+
+    var FILTERS = [
+      { key: 'all', label: 'All' },
+      { key: 'morning', label: '🌅 Morning' },
+      { key: 'afternoon', label: '☀️ Afternoon' },
+      { key: 'evening', label: '🌙 Evening' },
+    ];
+    var visible = filter === 'all' ? items : items.filter(function (i) { return i.slot === filter || i.slot === 'all'; });
+
+    return h('section', { className: 'grid-section', id: 'content-grid' },
+      h('div', { className: 'grid-inner' },
+        h('p',  { className: 'grid-hed' }, 'Content Grid'),
+        h('h2', { className: 'grid-title' }, 'Powered by query-index.json'),
+        h('div', { className: 'grid-qi-note' },
+          'GET /query-index.json → { total: ' + QI_DATA.total + ', data: [...] }',
+        ),
+        h('div', { className: 'grid-filters' },
+          FILTERS.map(function (f) {
+            return h('button', { key: f.key, className: 'grid-filter' + (filter === f.key ? ' active' : ''), onClick: function () { setFilter(f.key); } }, f.label);
+          }),
+        ),
+        h('div', { className: 'grid' },
+          visible.map(function (item) { return h(GridCard, { key: item.path, item: item }); }),
+        ),
+      ),
+    );
+  }
+
+  /* ── DM Visualizer ── */
+  function DmVisualizer() {
+    var _preset = useState('none'); var preset = _preset[0]; var setPreset = _preset[1];
+    var _fmt    = useState('webp'); var fmt    = _fmt[0];    var setFmt    = _fmt[1];
+    var _wid    = useState('800');  var wid    = _wid[0];    var setWid    = _wid[1];
+    var _sc     = useState('on');   var sc     = _sc[0];     var setSc     = _sc[1];
+    var _bri    = useState('0');    var bri    = _bri[0];    var setBri    = _bri[1];
+    var _copied = useState(false);  var copied = _copied[0]; var setCopied = _copied[1];
+
+    var base  = 'https://luma-media.scene7.com/is/image/LumaDemo/yoga-mat-hero';
+    var params = '?fmt=' + fmt + '&wid=' + wid + (bri !== '0' ? '&op_brightness=' + (bri > 0 ? '+' : '') + bri : '') + (sc === 'on' ? '&crop=auto' : '') + (preset !== 'none' ? '&' + preset : '');
+    var previewSrc = 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=' + wid + '&q=' + (fmt === 'avif' ? '70' : '80') + (bri > 0 ? '&bri=' + bri : '');
+
+    function copyUrl() {
+      navigator.clipboard.writeText(base + params).then(function () {
+        setCopied(true); setTimeout(function () { setCopied(false); }, 2000);
+      }).catch(function () {});
+    }
+
+    return h('section', { className: 'dm-section' },
+      h('div', { className: 'dm-inner' },
+        h('p',  { className: 'dm-hed' }, 'Dynamic Media Parameters'),
+        h('h2', { className: 'dm-title' }, 'One asset. Authored renditions.'),
+        h('p',  { className: 'dm-sub' }, 'Authors set these parameters in the Content Fragment property panel — no developer involvement. The SPA reads them from the CF and appends them to the base DM URL at render time.'),
+        h('div', { className: 'dm-layout' },
+          /* Author controls */
+          h('div', { className: 'dm-panel' },
+            h('p', { className: 'dm-panel-title' }, '✏️ Author sets in CF panel'),
+            h('div', { className: 'dm-field' },
+              h('label', { className: 'dm-label' }, 'Named Preset'),
+              h('select', { className: 'dm-select', value: preset, onChange: function (e) { setPreset(e.target.value); } },
+                h('option', { value: 'none' }, '(none)'),
+                ['$morning-warm$','$afternoon-bright$','$evening-cool$','$night-intense$','$hero-lg$','$card-sm$'].map(function (p) {
+                  return h('option', { key: p, value: p }, p);
+                }),
+              ),
+            ),
+            h('div', { className: 'dm-field' },
+              h('label', { className: 'dm-label' }, 'Format'),
+              h('select', { className: 'dm-select', value: fmt, onChange: function (e) { setFmt(e.target.value); } },
+                ['webp','jpeg','avif'].map(function (f) { return h('option', { key: f, value: f }, f); }),
+              ),
+            ),
+            h('div', { className: 'dm-field' },
+              h('label', { className: 'dm-label' }, 'Width'),
+              h('select', { className: 'dm-select', value: wid, onChange: function (e) { setWid(e.target.value); } },
+                ['400','800','1200','1600'].map(function (w) { return h('option', { key: w, value: w }, w + 'px'); }),
+              ),
+            ),
+            h('div', { className: 'dm-field' },
+              h('label', { className: 'dm-label' }, 'Smart Crop'),
+              h('select', { className: 'dm-select', value: sc, onChange: function (e) { setSc(e.target.value); } },
+                h('option', { value: 'on' }, 'On'), h('option', { value: 'off' }, 'Off'),
+              ),
+            ),
+            h('div', { className: 'dm-field' },
+              h('label', { className: 'dm-label' }, 'Brightness: ' + (bri > 0 ? '+' : '') + bri),
+              h('input', { className: 'dm-range', type: 'range', min: '-10', max: '10', value: bri, onChange: function (e) { setBri(e.target.value); } }),
+            ),
+          ),
+          /* URL output */
+          h('div', { className: 'dm-panel' },
+            h('p', { className: 'dm-panel-title' }, '🔗 Computed DM URL'),
+            h('div', { className: 'dm-url-box' },
+              h('span', { className: 'dm-url-base' }, base),
+              h('span', { className: 'dm-url-param' }, '?fmt=' + fmt + '&wid=' + wid),
+              bri !== '0' && h('span', { className: 'dm-url-param' }, '&op_brightness=' + (bri > 0 ? '+' : '') + bri),
+              sc === 'on' && h('span', { className: 'dm-url-param' }, '&crop=auto'),
+              preset !== 'none' && h('span', { className: 'dm-url-preset' }, '&' + preset),
+            ),
+            h('button', { className: 'dm-copy', onClick: copyUrl }, copied ? '✓ Copied!' : 'Copy URL'),
+          ),
+          /* Preview */
+          h('div', { className: 'dm-panel' },
+            h('p', { className: 'dm-panel-title' }, '👁 Simulated Preview'),
+            h('img', { className: 'dm-preview-img', src: previewSrc, alt: 'DM preview', key: wid }),
+            h('p', { className: 'dm-preview-label' }, 'Width: ' + wid + 'px · Format: ' + fmt + ' · Preset: ' + (preset === 'none' ? 'none' : preset)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /* ── AI Content Advisor ── */
+  function AiAdvisorPanel() {
+    var RECS = [
+      { type: 'Performance Alert', body: 'Evening Restore hero has 23% lower CTR this week vs. last. Try swapping to the vibration roller product image for the $evening-cool$ preset — similar offers saw +18% improvement.', action: 'Apply Suggestion' },
+      { type: 'Content Gap', body: 'No approved content for the Afternoon slot in the Nutrition category. Query index shows 0 results for tag "afternoon,nutrition". Generate with Firefly + Generate Variations?', action: 'Generate with Firefly' },
+      { type: 'MSM Rollout', body: '3 localized variants have drifted significantly from their Blueprint. Luma Band Ultra copy differs by 40%+ in EN-GB and DE. Consider a selective rollout sync.', action: 'Review Rollouts' },
+    ];
+    var GV_VARIANTS = [
+      { label: 'Original', text: 'Sustainable cork + natural rubber. Non-slip surface, extra wide 72". Ships with carry strap.' },
+      { label: 'Conversion', text: 'Join 50,000 Luma athletes. Our top-rated mat — non-slip, eco-certified, arrives in 2 days. Limited stock.' },
+      { label: 'SEO', text: 'Eco yoga mat with natural cork grip. Extra-wide 72" non-slip surface. Sustainable, durable, Luma-certified for all practice levels.' },
+    ];
+
+    return h('section', { className: 'ai-section', id: 'ai-section' },
+      h('div', { className: 'ai-inner' },
+        h('div', { className: 'ai-header' },
+          h('div', { className: 'ai-badge' }, '✦ AI'),
+        ),
+        h('h2', { className: 'ai-title' }, 'Content Advisor'),
+        h('p',  { className: 'ai-sub' }, 'Adobe AI surfaces performance signals, content gaps, and MSM drift — directly in the authoring workflow. These recommendations would appear in Experience Workspace alongside the page you\'re editing.'),
+        h('div', { className: 'ai-recs' },
+          RECS.map(function (r) {
+            return h('div', { key: r.type, className: 'ai-rec' },
+              h('p',    { className: 'ai-rec-type' }, r.type),
+              h('p',    { className: 'ai-rec-body' }, r.body),
+              h('button', { className: 'ai-rec-action' }, r.action),
+            );
+          }),
+        ),
+        h('p', { className: 'ai-gv-title' }, 'Generate Variations — Eco Yoga Mat Pro'),
+        h('div', { className: 'ai-gv-cards' },
+          GV_VARIANTS.map(function (v) {
+            return h('div', { key: v.label, className: 'ai-gv-card' },
+              h('span', { className: 'ai-gv-label' }, v.label),
+              h('p',    { className: 'ai-gv-text' }, v.text),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  /* ── Footer ── */
+  function Footer() {
+    var rows = [
+      ['Hero content',    'AEM CF time-slot parameters → DM preset → EDS CDN',   'Universal Editor / Canvas'],
+      ['Content grid',    'EDS query-index.json → filter by tag/slot',            'Quick Edit / DA Live'],
+      ['DM parameters',   'Dynamic Media named presets set in CF property panel', 'AEM CF panel → UE'],
+      ['MSM',             'AEM Multi-Site Manager — Blueprint rollout to live copies', 'AEM Author → Rollout wizard'],
+      ['Workflows',       'AEM review/approve/publish pipeline per content item', 'AEM Author inbox'],
+      ['AI / Generate',   'Content Advisor signals + Generate Variations copy',   'Experience Workspace'],
+    ];
+    return h('footer', { className: 'footer' },
+      h('div', { className: 'footer-inner' },
+        h('p', { className: 'footer-title' }, 'Technology Layer Reference'),
+        h('table', { className: 'footer-table' },
+          h('thead', null, h('tr', null, ['Capability','Technology + Data Flow','Edit Path'].map(function (c) { return h('th', { key: c }, c); }))),
+          h('tbody', null, rows.map(function (r) { return h('tr', { key: r[0] }, r.map(function (c, i) { return h('td', { key: i }, c); })); })),
+        ),
+        h('p', { className: 'footer-copy' }, 'Luma is an Adobe demo brand · Demo powered by Adobe AEM Edge Delivery Services + AEM Cloud Service + Dynamic Media + Universal Editor'),
+      ),
+    );
+  }
+
+  /* ── App ── */
+  function App() {
+    var _slot = useState(getCurrentSlot); var slot = _slot[0];
+    useEffect(function () {
+      var id = setInterval(function () {
+        /* slot state lives in RotatingHero; this keeps Nav in sync */
+      }, 60000);
+      return function () { clearInterval(id); };
+    }, []);
+    return h('div', null,
+      h(Nav, { slot: getCurrentSlot() }),
+      h(ArchDiagram),
+      h(RotatingHero),
+      h(ContentGrid),
+      h(DmVisualizer),
+      h(AiAdvisorPanel),
+      h(Footer),
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+})();
+</script>
+</body>
+</html>
