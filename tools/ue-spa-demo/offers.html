@@ -258,71 +258,6 @@
     }
     .og-cart:hover { background: var(--ps-blue2); }
 
-    /* ── Card Expand Overlay ─────────────────────────────────────────── */
-    .og-expand-backdrop {
-      position: fixed; inset: 0; z-index: 500;
-      background: rgba(0,0,0,.82); backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center;
-      perspective: 1200px;
-      animation: bdIn .25s ease forwards;
-    }
-    .og-expand-backdrop.closing { animation: bdOut .52s ease forwards; pointer-events: none; }
-    @keyframes bdIn  { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes bdOut { from { opacity: 1; } to { opacity: 0; } }
-
-    .og-expand-card {
-      position: relative; width: min(480px, 92vw);
-      background: var(--ps-card); border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.18); overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,.75);
-      transform-style: preserve-3d;
-      animation: flipZoomIn .7s cubic-bezier(.22,1,.36,1) forwards;
-    }
-    .og-expand-card.closing { animation: settleDown .52s cubic-bezier(.4,0,1,1) forwards; }
-    @keyframes flipZoomIn {
-      0%   { transform: scale(0.28) rotateY(720deg); opacity: 0; }
-      60%  { transform: scale(0.9)  rotateY(80deg);  opacity: 1; }
-      100% { transform: scale(1)    rotateY(0deg);   opacity: 1; }
-    }
-    @keyframes settleDown {
-      0%   { transform: translateY(0)     scale(1);    opacity: 1; }
-      55%  { transform: translateY(38px)  scale(.91);  opacity: .85; }
-      100% { transform: translateY(110px) scale(.68);  opacity: 0; }
-    }
-
-    .og-expand-cover {
-      width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;
-      background: linear-gradient(135deg,var(--ps-blue),var(--ps-blue2));
-    }
-    .og-expand-body  { padding: 1.5rem 1.5rem 0; }
-    .og-expand-footer { padding: 1.25rem 1.5rem 1.5rem; }
-    .og-expand-badge {
-      display: inline-block; font-size: .65rem; font-weight: 800;
-      letter-spacing: .1em; text-transform: uppercase;
-      background: var(--ps-blue); color: var(--ps-white);
-      padding: .2rem .625rem; border-radius: 2px; margin-bottom: .625rem;
-    }
-    .og-expand-title { font-size: 1.25rem; font-weight: 800; margin-bottom: .75rem; line-height: 1.3; }
-    .og-expand-desc  { font-size: .9rem; color: var(--ps-muted); line-height: 1.7; margin-bottom: 1.1rem; }
-    .og-expand-price { font-size: 1.125rem; font-weight: 900; margin-bottom: 1.25rem; color: var(--ps-white); }
-    .og-expand-close {
-      display: block; width: 100%; text-align: center;
-      background: rgba(255,255,255,.08); color: var(--ps-white);
-      border: 1px solid rgba(255,255,255,.18); border-radius: 4px;
-      padding: .75rem; font-family: inherit; font-size: .9rem; font-weight: 700;
-      cursor: pointer; transition: background .15s, border-color .15s;
-    }
-    .og-expand-close:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.3); }
-    .og-expand-x {
-      position: absolute; top: .75rem; right: .75rem;
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2);
-      color: var(--ps-white); font-size: .9rem;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background .15s; z-index: 2;
-    }
-    .og-expand-x:hover { background: rgba(255,255,255,.15); }
-
     /* ── Personalization Rail ────────────────────────────────────────── */
     .pr-section { background: var(--ps-black); padding: 5rem 2rem 6rem; }
     .pr-header  { max-width: 1100px; margin: 0 auto 2rem; }
@@ -360,47 +295,6 @@
       transition: background .15s;
     }
     .pr-cta:hover { background: var(--ps-blue2); }
-    .pr-price-wrap { margin-bottom: .875rem; }
-    .pr-price-wrap .pr-price { margin-bottom: 0; }
-    .pr-price-orig { font-size: .75rem; color: var(--ps-muted); text-decoration: line-through; display: block; }
-    .pr-save { font-size: .65rem; font-weight: 800; color: var(--ps-cyan); letter-spacing: .1em; text-transform: uppercase; display: block; margin-top: .2rem; margin-bottom: .25rem; }
-    .og-expand-price-wrap { margin-bottom: 1.25rem; }
-    .og-expand-price-wrap .og-expand-price { margin-bottom: 0; }
-    .og-expand-price-orig { font-size: .875rem; color: var(--ps-muted); text-decoration: line-through; display: block; }
-    .og-expand-save { font-size: .7rem; font-weight: 800; color: var(--ps-cyan); letter-spacing: .1em; text-transform: uppercase; display: block; margin-top: .2rem; margin-bottom: .25rem; }
-
-    /* ── Nav extras ─────────────────────────────────────────────────── */
-    .ps-nav-right { display: flex; align-items: center; gap: .625rem; }
-    .ps-ue-btn {
-      display: inline-flex; align-items: center; gap: .35rem;
-      background: #c084fc; color: #fff; border: none; border-radius: 4px;
-      padding: .45rem 1rem; font-family: inherit; font-size: .8rem; font-weight: 700;
-      cursor: pointer; transition: background .15s;
-    }
-    .ps-ue-btn:hover { background: #a855f7; }
-    .ps-astro-toggle {
-      display: inline-flex; align-items: center; gap: .3rem;
-      background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
-      border: 1px solid rgba(255,255,255,.15); border-radius: 20px;
-      padding: .35rem .875rem; font-family: inherit; font-size: .75rem; font-weight: 600;
-      cursor: pointer; transition: all .2s;
-    }
-    .ps-astro-toggle.on { background: rgba(0,212,255,.12); border-color: #00d4ff; color: #00d4ff; }
-    .ps-astro-toggle:hover { border-color: rgba(255,255,255,.35); color: #fff; }
-
-    /* ── GenVars single-card layout ──────────────────────────────── */
-    .gv-single { max-width: 420px; margin: 0 auto; }
-    .gv-variant-note {
-      max-width: 1100px; margin: .875rem auto 0;
-      font-size: .75rem; color: rgba(192,132,252,.6);
-      text-align: center; letter-spacing: .03em;
-    }
-
-    /* ── Astro Bot ───────────────────────────────────────────────── */
-    #astro-bot {
-      position: fixed; z-index: 9999; pointer-events: none;
-      width: 60px; height: 90px; opacity: 0;
-    }
 
     /* ── Footer ──────────────────────────────────────────────────────── */
     .ps-footer {
@@ -418,11 +312,7 @@
     var _React = React;
     var useState    = _React.useState;
     var useEffect   = _React.useEffect;
-    var useRef      = _React.useRef;
     var h = _React.createElement;
-
-    var UE_EDIT_URL = 'https://experience.adobe.com/#/aem/editor/canvas/offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/offers.html';
-    var TSUSHIMA_IMG = 'https://image.api.playstation.com/vulcan/ap/rnd/202106/2322/ZSrFeb6XkqKiq2PZKWg20yfe.jpg?w=440&thumb=false';
 
     /* ── AEM endpoints ───────────────────────────────────────────────── */
     var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
@@ -441,14 +331,15 @@
     }
 
     /* ── UE annotation helpers ───────────────────────────────────────── */
+    /* Spread onto a container element (the CF component boundary) */
     function aueRes(fragPath, label) {
       return {
         'data-aue-resource': 'urn:aem:' + fragPath,
         'data-aue-type': 'component',
         'data-aue-label': label || 'Content',
-        'data-aue-model': 'hero',
       };
     }
+    /* Spread onto a rendered text/image node (an editable field) */
     function aueField(fragPath, prop, type, label) {
       return {
         'data-aue-resource': 'urn:aem:' + fragPath,
@@ -459,22 +350,11 @@
     }
 
     /* ── Expiry dates ────────────────────────────────────────────────── */
-    var HERO_EXPIRY = '2026-08-12T23:59:00Z';
-    var HERO_CUTOFF = new Date('2026-08-13T00:00:00Z');
-
-    /* ── Date simulation via ?date=YYYYMMDD ──────────────────────────── */
-    var SIM_DATE = (function () {
-      var d = new URLSearchParams(window.location.search).get('date');
-      if (!d || d.length !== 8) return null;
-      return new Date(d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8) + 'T00:00:00Z');
-    })();
-    var SIM_REAL_START = Date.now(); /* real time at page load — used to keep sim ticking */
-    var HIDE_HERO = SIM_DATE !== null && SIM_DATE >= HERO_CUTOFF;
-
+    var HERO_EXPIRY = '2026-08-15T23:59:00Z';
     var GRID_EXPIRIES = {
       'ps-spiderman': '2026-08-03T23:59:00Z',
       'ps-god-of-war': '2026-08-10T23:59:00Z',
-      'ps-ghost':      '2026-08-15T23:59:00Z',
+      'ps-horizon':    '2026-08-15T23:59:00Z',
     };
 
     /* ── Fallback content ────────────────────────────────────────────── */
@@ -502,13 +382,13 @@
         ctaLabel: 'From $29.99',
         image: { _publishUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=640&q=80' },
       },
-      'ps-ghost': {
-        _path: '/content/dam/ue-demo/fragments/ps-ghost',
-        title: "Ghost of Tsushima Director's Cut",
+      'ps-horizon': {
+        _path: '/content/dam/ue-demo/fragments/ps-horizon',
+        title: 'Horizon Forbidden West',
         eyebrow: 'Deal of the Week',
-        description: 'Forge your own path as samurai Jin Sakai, protecting Tsushima in an epic open-world adventure.',
-        ctaLabel: 'From $49.99',
-        image: { _publishUrl: TSUSHIMA_IMG },
+        description: 'Aloy explores a lush but dangerous frontier, fighting massive machines threatening the world.',
+        ctaLabel: 'From $19.99',
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=640&q=80' },
       },
     };
 
@@ -519,7 +399,7 @@
         eyebrow: "Editor's Pick",
         description: 'Forge your own path as samurai Jin Sakai, protecting Tsushima in an epic open-world action adventure. Includes Iki Island expansion.',
         ctaLabel: 'From $49.99',
-        image: { _publishUrl: TSUSHIMA_IMG },
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
       punchy: {
         _path: '/content/dam/ue-demo/fragments/ps-ghost',
@@ -527,7 +407,7 @@
         eyebrow: "Editor's Pick",
         description: 'One samurai. One island. An unforgettable fight for honor. Iki Island expansion included.',
         ctaLabel: 'From $49.99',
-        image: { _publishUrl: TSUSHIMA_IMG },
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
       seo: {
         _path: '/content/dam/ue-demo/fragments/ps-ghost',
@@ -535,36 +415,24 @@
         eyebrow: "Editor's Pick",
         description: 'Acclaimed open-world samurai epic with Iki Island expansion and Legends multiplayer — complete edition on PS5.',
         ctaLabel: 'From $49.99',
-        image: { _publishUrl: TSUSHIMA_IMG },
+        image: { _publishUrl: 'https://images.unsplash.com/photo-1547638375-ebf04735d792?w=640&q=80' },
       },
     };
 
-    /* ── discountedPrice helper ─────────────────────────────────────── */
-    function discountedPrice(label, pct) {
-      var m = label && label.match(/\$(\d+\.\d{2})/);
-      if (!m) return { orig: label || '', disc: label || '' };
-      var orig = parseFloat(m[1]);
-      var disc = '$' + (orig * (1 - pct)).toFixed(2);
-      return { orig: label, disc: label.replace('$' + m[1], disc) };
-    }
-
     /* ── useCountdown hook ───────────────────────────────────────────── */
-    /* simNow: if set, offsets "now" so the clock starts from that date but keeps ticking */
-    function useCountdown(expiryISO, simNow) {
-      function compute() {
-        var now = simNow ? simNow.getTime() + (Date.now() - SIM_REAL_START) : Date.now();
-        var diff = Math.max(0, new Date(expiryISO).getTime() - now);
-        return {
-          d: Math.floor(diff / 86400000),
-          h: Math.floor(diff / 3600000) % 24,
-          m: Math.floor(diff / 60000) % 60,
-          s: Math.floor(diff / 1000) % 60,
-        };
-      }
-      var _s = useState(compute);
+    function useCountdown(expiryISO) {
+      var _s = useState({ d: 0, h: 0, m: 0, s: 0 });
       var parts = _s[0]; var setParts = _s[1];
       useEffect(function () {
-        function tick() { setParts(compute()); }
+        function tick() {
+          var diff = Math.max(0, new Date(expiryISO) - Date.now());
+          setParts({
+            d: Math.floor(diff / 86400000),
+            h: Math.floor(diff / 3600000) % 24,
+            m: Math.floor(diff / 60000) % 60,
+            s: Math.floor(diff / 1000) % 60,
+          });
+        }
         tick();
         var id = setInterval(tick, 1000);
         return function () { clearInterval(id); };
@@ -619,7 +487,7 @@
     }
 
     /* ── NavBar ──────────────────────────────────────────────────────── */
-    function NavBar(props) {
+    function NavBar() {
       return h('nav', { className: 'ps-nav' },
         h('div', { className: 'ps-nav-left' },
           h('span', { className: 'ps-wordmark' }, 'PlayStation'),
@@ -630,22 +498,13 @@
             h('a', { href: '#' }, 'Deals'),
           ),
         ),
-        h('div', { className: 'ps-nav-right' },
-          h('button', {
-            className: 'ps-astro-toggle' + (props.astroOn ? ' on' : ''),
-            onClick: function () { props.setAstroOn(function (v) { return !v; }); },
-          }, props.astroOn ? '🤖 Spacebot On' : '🤖 Spacebot Off'),
-          h('a', { href: UE_EDIT_URL, target: '_blank', rel: 'noreferrer' },
-            h('button', { className: 'ps-ue-btn' }, '✎ Edit in UE'),
-          ),
-          h('button', { className: 'ps-nav-signin' }, 'Sign In'),
-        ),
+        h('button', { className: 'ps-nav-signin' }, 'Sign In'),
       );
     }
 
     /* ── CountdownTimer ──────────────────────────────────────────────── */
     function CountdownTimer(props) {
-      var parts = useCountdown(props.expiryISO, props.simNow || null);
+      var parts = useCountdown(props.expiryISO);
       return h('div', { className: 'countdown' },
         ['d','h','m','s'].map(function (u) {
           return h('div', { key: u, className: 'countdown-block' },
@@ -658,7 +517,6 @@
 
     /* ── Hero ────────────────────────────────────────────────────────── */
     function Hero(props) {
-      if (HIDE_HERO) return null;
       var d = props.data || FALLBACK_HERO;
       var fp = FRAG('offers-home-hero');
       var desc = (d.description && (d.description.plaintext || d.description)) || '';
@@ -670,8 +528,8 @@
           h('p',      Object.assign({ className: 'hero-eyebrow' }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     d.eyebrow  || ''),
           h('h1',     Object.assign({ className: 'hero-title'   }, aueField(fp, 'title',       'text',     'Headline')),    d.title    || ''),
           h('p',      Object.assign({ className: 'hero-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
-          h(CountdownTimer, { expiryISO: HERO_EXPIRY, simNow: SIM_DATE }),
-          h('button', Object.assign({ className: 'hero-cta', onClick: function () { var el = document.getElementById('deals-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, aueField(fp, 'ctaLabel', 'text', 'CTA')), d.ctaLabel || ''),
+          h(CountdownTimer, { expiryISO: HERO_EXPIRY }),
+          h('button', Object.assign({ className: 'hero-cta'     }, aueField(fp, 'ctaLabel',    'text',     'CTA')),         d.ctaLabel || ''),
         ),
       );
     }
@@ -726,131 +584,86 @@
 
     /* ── GenVarsPanel ────────────────────────────────────────────────── */
     function GenVarsPanel(props) {
-      var ghostVars  = props.ghostVars || FALLBACK_GHOST;
-      var focused    = props.focused   || 'master';
-      var setFocused = props.setFocused;
+      var ghostVars = props.ghostVars || FALLBACK_GHOST;
       var TABS = [
         { key: 'master', label: 'Original' },
         { key: 'punchy', label: 'Punchy' },
         { key: 'seo',    label: 'SEO' },
       ];
+      var _f = useState('master'); var focused = _f[0]; var setFocused = _f[1];
 
       return h('section', { className: 'gv-section' },
         h('div', { className: 'gv-header' },
           h('div', { className: 'gv-badge' }, '✦ Generate Variations'),
           h('h2', { className: 'gv-title' }, 'Same offer, three AI-generated copy variants'),
           h('p',  { className: 'gv-sub' },
-            'Generate Variations in AEM created three versions of this offer. Click a card to select it — the Tsushima card in This Week\'s Deals updates live from the same Content Fragment. Click any card in Universal Editor to edit that variant.'),
+            'Generate Variations in AEM created three versions of this offer. Each is a named variation on one Content Fragment — click any card in Universal Editor to open that exact variation.'),
+          h('div', { className: 'gv-tabs' },
+            TABS.map(function (t) {
+              return h('button', {
+                key: t.key,
+                className: 'gv-tab' + (focused === t.key ? ' active' : ''),
+                onClick: function () { setFocused(t.key); },
+              }, t.label);
+            }),
+          ),
         ),
         h('div', { className: 'gv-cards' },
           TABS.map(function (t) {
-            var v   = ghostVars[t.key] || FALLBACK_GHOST[t.key];
-            var fp  = FRAG('ps-ghost', t.key);
+            var v = ghostVars[t.key] || FALLBACK_GHOST[t.key];
+            var fp = FRAG('ps-ghost', t.key);
             var desc = (v.description && (v.description.plaintext || v.description)) || '';
             return h('div',
-              Object.assign({
-                key: t.key,
-                className: 'gv-card' + (focused === t.key ? ' focused' : ''),
-                onClick: function () { setFocused(t.key); },
-                style: { cursor: 'pointer' },
-              }, aueRes(fp, 'Ghost of Tsushima — ' + t.label)),
+              Object.assign({ key: t.key, className: 'gv-card' + (focused === t.key ? ' focused' : '') }, aueRes(fp, 'Ghost — ' + t.label)),
               h('span', { className: 'gv-var-label' }, t.label),
               h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
               h('h3',  Object.assign({ className: 'gv-card-title' }, aueField(fp, 'title',       'text',     'Title')),       v.title    || ''),
               h('p',   Object.assign({ className: 'gv-desc'       }, aueField(fp, 'description', 'richtext', 'Description')), desc),
               h('p',   { className: 'gv-price' }, v.ctaLabel || ''),
-              h('button', { className: 'gv-cta' }, focused === t.key ? '✓ Selected' : 'Select'),
+              h('button', { className: 'gv-cta' }, 'Add to Cart'),
             );
           }),
         ),
-        h('p', { className: 'gv-variant-note' }, '↑ Scroll up — selected variant is reflected in This Week\'s Top Deals'),
       );
     }
 
     /* ── Offer Grid ──────────────────────────────────────────────────── */
-    var GRID_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-ghost'];
+    var GRID_SLUGS = ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'];
     function OfferCard(props) {
       var item = props.item; var slug = props.slug;
-      var parts    = useCountdown(GRID_EXPIRIES[slug] || '2026-08-15T23:59:00Z');
-      var fp       = FRAG(slug);
-      var desc     = (item.description && (item.description.plaintext || item.description)) || '';
-      var cover    = item.image && item.image._publishUrl;
-
-      var _ex = useState(false); var expanded = _ex[0]; var setExpanded = _ex[1];
-      var _cl = useState(false); var closing  = _cl[0]; var setClosing  = _cl[1];
-      var timerRef = useRef(null);
-
-      function openCard() { setExpanded(true); setClosing(false); }
-      function closeCard() {
-        setClosing(true);
-        timerRef.current = setTimeout(function () {
-          setExpanded(false);
-          setClosing(false);
-        }, 520);
-      }
-      useEffect(function () { return function () { clearTimeout(timerRef.current); }; }, []);
-
-      var modal = expanded ? ReactDOM.createPortal(
-        h('div', {
-          className: 'og-expand-backdrop' + (closing ? ' closing' : ''),
-          onClick: closeCard,
-        },
-          h('div', {
-            className: 'og-expand-card' + (closing ? ' closing' : ''),
-            onClick: function (e) { e.stopPropagation(); },
-          },
-            h('button', { className: 'og-expand-x', onClick: closeCard, 'aria-label': 'Close' }, '✕'),
-            cover
-              ? h('img', { className: 'og-expand-cover', src: cover, alt: item.title || '' })
-              : h('div', { className: 'og-expand-cover' }),
-            h('div', { className: 'og-expand-body' },
-              h('span', { className: 'og-expand-badge' }, item.eyebrow || ''),
-              h('p',    { className: 'og-expand-title' }, item.title || ''),
-              h('p',    { className: 'og-expand-desc'  }, desc),
-              h('p',    { className: 'og-expand-price' }, item.ctaLabel || ''),
-            ),
-            h('div', { className: 'og-expand-footer' },
-              h('button', { className: 'og-expand-close', onClick: closeCard }, 'Close'),
-            ),
+      var parts   = useCountdown(GRID_EXPIRIES[slug] || '2026-08-15T23:59:00Z');
+      var fp      = FRAG(slug);
+      var desc    = (item.description && (item.description.plaintext || item.description)) || '';
+      var cover   = item.image && item.image._publishUrl;
+      return h('div', Object.assign({ className: 'og-card' }, aueRes(fp, item.title || slug)),
+        cover
+          ? h('img', { className: 'og-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+          : h('div', { className: 'og-cover' }),
+        h('div', { className: 'og-body' },
+          h('span', Object.assign({ className: 'og-badge'   }, aueField(fp, 'eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
+          h('p',    Object.assign({ className: 'og-title-f' }, aueField(fp, 'title',       'text',     'Title')),       item.title    || ''),
+          h('p',    Object.assign({ className: 'og-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
+          h('div', { className: 'og-timer' },
+            h('span', { className: 'og-timer-label' }, 'Ends in'),
+            ['d','h','m','s'].map(function (u) {
+              return h('div', { key: u, className: 'og-mini' },
+                h('span', { className: 'og-mini-n' }, String(parts[u]).padStart(2,'0')),
+                h('span', { className: 'og-mini-l' }, u),
+              );
+            }),
+          ),
+          h('div', { className: 'og-footer' },
+            h('span',   Object.assign({ className: 'og-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('button', { className: 'og-cart' }, 'Add to Cart'),
           ),
         ),
-        document.body,
-      ) : null;
-
-      return h(_React.Fragment, null,
-        h('div', Object.assign({ className: 'og-card' }, aueRes(fp, item.title || slug)),
-          cover
-            ? h('img', { className: 'og-cover', src: cover, alt: item.title || '', loading: 'lazy' })
-            : h('div', { className: 'og-cover' }),
-          h('div', { className: 'og-body' },
-            h('span', Object.assign({ className: 'og-badge'   }, aueField(fp, 'eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
-            h('p',    Object.assign({ className: 'og-title-f' }, aueField(fp, 'title',       'text',     'Title')),       item.title    || ''),
-            h('p',    Object.assign({ className: 'og-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
-            h('div', { className: 'og-timer' },
-              h('span', { className: 'og-timer-label' }, 'Ends in'),
-              ['d','h','m','s'].map(function (u) {
-                return h('div', { key: u, className: 'og-mini' },
-                  h('span', { className: 'og-mini-n' }, String(parts[u]).padStart(2,'0')),
-                  h('span', { className: 'og-mini-l' }, u),
-                );
-              }),
-            ),
-            h('div', { className: 'og-footer' },
-              h('span',   Object.assign({ className: 'og-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
-              h('button', { className: 'og-cart', onClick: openCard }, 'Details'),
-            ),
-          ),
-        ),
-        modal,
       );
     }
 
     /* ── OfferGrid ───────────────────────────────────────────────────── */
     function OfferGrid(props) {
-      var offers    = props.offers;
-      var ghostVars = props.ghostVars;
-      var focused   = props.focused || 'master';
-      return h('section', { className: 'og-section', id: 'deals-section' },
+      var offers = props.offers;
+      return h('section', { className: 'og-section' },
         h('div', { className: 'og-header' },
           h('p',  { className: 'og-eyebrow' }, 'Limited Time Offers'),
           h('h2', { className: 'og-title' }, "This Week's Top Deals"),
@@ -858,16 +671,8 @@
         ),
         h('div', { className: 'og-grid' },
           GRID_SLUGS.map(function (slug) {
-            var item;
-            if (slug === 'ps-ghost') {
-              var gv = ghostVars && ghostVars[focused];
-              item = gv
-                ? Object.assign({}, gv, { image: (gv.image && gv.image._publishUrl) ? gv.image : { _publishUrl: TSUSHIMA_IMG } })
-                : FALLBACK_GHOST[focused] || FALLBACK_OFFERS['ps-ghost'];
-            } else {
-              item = (offers && offers[slug]) || FALLBACK_OFFERS[slug];
-            }
-            return h(OfferCard, { key: slug + '-' + (slug === 'ps-ghost' ? focused : ''), item: item, slug: slug });
+            var item = (offers && offers[slug]) || FALLBACK_OFFERS[slug];
+            return h(OfferCard, { key: slug, item: item, slug: slug });
           }),
         ),
       );
@@ -887,82 +692,33 @@
 
       var sm  = (offers && offers['ps-spiderman'])  || FALLBACK_OFFERS['ps-spiderman'];
       var gow = (offers && offers['ps-god-of-war']) || FALLBACK_OFFERS['ps-god-of-war'];
+      var hz  = (offers && offers['ps-horizon'])    || FALLBACK_OFFERS['ps-horizon'];
       var gM  = (ghostVars && ghostVars.master)     || FALLBACK_GHOST.master;
       var gP  = (ghostVars && ghostVars.punchy)     || FALLBACK_GHOST.punchy;
       var gS  = (ghostVars && ghostVars.seo)        || FALLBACK_GHOST.seo;
 
       /* Each tier: array of { item, slug, variation } */
       var TIER_DATA = {
-        guest:     [{ item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: gM,  slug: 'ps-ghost',      v: 'master' }],
-        essential: [{ item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: gM,  slug: 'ps-ghost',      v: 'master' }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }],
-        extra:     [{ item: gP,  slug: 'ps-ghost',      v: 'punchy' }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }],
-        premium:   [{ item: gS, slug: 'ps-ghost', v: 'seo', premium: true }, { item: sm, slug: 'ps-spiderman', v: 'master', premium: true }, { item: gow, slug: 'ps-god-of-war', v: 'master', premium: true }],
+        guest:     [{ item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: hz,  slug: 'ps-horizon',    v: 'master' }],
+        essential: [{ item: gow, slug: 'ps-god-of-war', v: 'master' }, { item: hz,  slug: 'ps-horizon',    v: 'master' }, { item: gM,  slug: 'ps-ghost',      v: 'master' }],
+        extra:     [{ item: hz,  slug: 'ps-horizon',    v: 'master' }, { item: gP,  slug: 'ps-ghost',      v: 'punchy' }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }],
+        premium:   [{ item: gS,  slug: 'ps-ghost',      v: 'seo'    }, { item: sm,  slug: 'ps-spiderman',  v: 'master' }, { item: gow, slug: 'ps-god-of-war', v: 'master' }],
       };
 
       function RailCard(rc) {
-        var item = rc.item; var slug = rc.slug; var variation = rc.v; var isPremium = rc.premium;
+        var item = rc.item; var slug = rc.slug; var variation = rc.v;
         var fp    = FRAG(slug, variation);
         var cover = item.image && item.image._publishUrl;
-        var desc  = (item.description && (item.description.plaintext || item.description)) || '';
-        var dp    = isPremium ? discountedPrice(item.ctaLabel || '', 0.1) : null;
-
-        var _ex = useState(false); var expanded = _ex[0]; var setExpanded = _ex[1];
-        var _cl = useState(false); var closing  = _cl[0]; var setClosing  = _cl[1];
-        var timerRef = useRef(null);
-
-        function openCard()  { setExpanded(true); setClosing(false); }
-        function closeCard() {
-          setClosing(true);
-          timerRef.current = setTimeout(function () { setExpanded(false); setClosing(false); }, 520);
-        }
-        useEffect(function () { return function () { clearTimeout(timerRef.current); }; }, []);
-
-        var modal = expanded ? ReactDOM.createPortal(
-          h('div', { className: 'og-expand-backdrop' + (closing ? ' closing' : ''), onClick: closeCard },
-            h('div', { className: 'og-expand-card' + (closing ? ' closing' : ''), onClick: function (e) { e.stopPropagation(); } },
-              h('button', { className: 'og-expand-x', onClick: closeCard, 'aria-label': 'Close' }, '✕'),
-              cover
-                ? h('img', { className: 'og-expand-cover', src: cover, alt: item.title || '' })
-                : h('div', { className: 'og-expand-cover' }),
-              h('div', { className: 'og-expand-body' },
-                h('span', { className: 'og-expand-badge' }, item.eyebrow || ''),
-                h('p',    { className: 'og-expand-title' }, item.title   || ''),
-                h('p',    { className: 'og-expand-desc'  }, desc),
-                dp
-                  ? h('div', { className: 'og-expand-price-wrap' },
-                      h('span', { className: 'og-expand-price-orig' }, dp.orig),
-                      h('span', { className: 'og-expand-save' }, 'Save 10%'),
-                      h('p',    { className: 'og-expand-price' }, dp.disc),
-                    )
-                  : h('p', { className: 'og-expand-price' }, item.ctaLabel || ''),
-              ),
-              h('div', { className: 'og-expand-footer' },
-                h('button', { className: 'og-expand-close', onClick: closeCard }, 'Close'),
-              ),
-            ),
+        return h('div', Object.assign({ className: 'pr-card' }, aueRes(fp, item.title || slug)),
+          cover
+            ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
+            : h('div', { className: 'pr-cover' }),
+          h('div', { className: 'pr-body' },
+            h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
+            h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
+            h('p',    Object.assign({ className: 'pr-price'   }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+            h('button', { className: 'pr-cta' }, 'Add to Cart'),
           ),
-          document.body,
-        ) : null;
-
-        return h(_React.Fragment, null,
-          h('div', Object.assign({ className: 'pr-card' }, aueRes(fp, item.title || slug)),
-            cover
-              ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
-              : h('div', { className: 'pr-cover' }),
-            h('div', { className: 'pr-body' },
-              h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
-              h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
-              dp
-                ? h('div', { className: 'pr-price-wrap' },
-                    h('span', { className: 'pr-price-orig' }, dp.orig),
-                    h('span', { className: 'pr-save' }, 'Save 10%'),
-                    h('p',    Object.assign({ className: 'pr-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), dp.disc),
-                  )
-                : h('p', Object.assign({ className: 'pr-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
-              h('button', { className: 'pr-cta', onClick: openCard }, 'Details'),
-            ),
-          ),
-          modal,
         );
       }
 
@@ -989,127 +745,6 @@
       );
     }
 
-    /* ── AstroBot ───────────────────────────────────────────────────── */
-    function AstroBot(props) {
-      var elRef = useRef(null);
-      var rafRef = useRef(null);
-
-      useEffect(function () {
-        if (!props.visible) return;
-        var el = elRef.current;
-        if (!el) return;
-
-        var mouseX = window.innerWidth / 2;
-        var mouseY = window.innerHeight / 2;
-        var botX = -120;
-        var botY = window.innerHeight + 120;
-        var phase = 'flyIn';
-        var flyStart = null;
-        var wobbleT = 0;
-        var FLY_MS = 2800;
-
-        /* Cubic bezier control points for the loopy fly-in path */
-        var P0 = { x: -120,                        y: window.innerHeight + 120 };
-        var P1 = { x: window.innerWidth * 0.88,    y: -90 };
-        var P2 = { x: -90,                         y: window.innerHeight * 0.38 };
-        var P3 = { x: window.innerWidth * 0.52,    y: 180 };
-
-        function lerp(a, b, t) { return a + (b - a) * t; }
-        function bez(t, p0, p1, p2, p3) {
-          var u = 1 - t;
-          return {
-            x: u*u*u*p0.x + 3*u*u*t*p1.x + 3*u*t*t*p2.x + t*t*t*p3.x,
-            y: u*u*u*p0.y + 3*u*u*t*p1.y + 3*u*t*t*p2.y + t*t*t*p3.y,
-          };
-        }
-        function ease(t) { return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; }
-
-        function onMouse(e) { mouseX = e.clientX; mouseY = e.clientY; }
-        window.addEventListener('mousemove', onMouse);
-
-        function tick(now) {
-          if (!flyStart) flyStart = now;
-          var angle = 0;
-
-          if (phase === 'flyIn') {
-            var t = Math.min((now - flyStart) / FLY_MS, 1);
-            var et = ease(t);
-            var pos  = bez(et,           P0, P1, P2, P3);
-            var pos2 = bez(Math.min(et + 0.015, 1), P0, P1, P2, P3);
-            botX = pos.x;
-            botY = pos.y;
-            angle = Math.atan2(pos2.y - pos.y, pos2.x - pos.x) * 180 / Math.PI + 90;
-            el.style.opacity = String(Math.min(t * 6, 1));
-            if (t >= 1) { phase = 'follow'; }
-          } else {
-            wobbleT += 0.045;
-            var wx = Math.cos(wobbleT * 0.7) * 6;
-            var wy = Math.sin(wobbleT) * 9;
-            var tx = mouseX - 72 + wx;
-            var ty = mouseY - 108 + wy;
-            botX = lerp(botX, tx, 0.038);
-            botY = lerp(botY, ty, 0.038);
-            var dx = tx - botX;
-            angle = Math.max(-18, Math.min(18, dx * 0.35));
-          }
-
-          el.style.left = Math.round(botX) + 'px';
-          el.style.top  = Math.round(botY) + 'px';
-          el.style.transform = 'rotate(' + angle.toFixed(1) + 'deg)';
-          rafRef.current = requestAnimationFrame(tick);
-        }
-
-        rafRef.current = requestAnimationFrame(tick);
-        return function () {
-          cancelAnimationFrame(rafRef.current);
-          window.removeEventListener('mousemove', onMouse);
-        };
-      }, [props.visible]);
-
-      if (!props.visible) return null;
-
-      /* Inline SVG — PlayStation Astro Bot inspired */
-      return h('div', { ref: elRef, id: 'astro-bot' },
-        h('svg', {
-          xmlns: 'http://www.w3.org/2000/svg',
-          viewBox: '0 0 60 90', width: '60', height: '90',
-          style: { filter: 'drop-shadow(0 4px 14px rgba(0,180,255,0.7))' },
-        },
-          /* Antenna */
-          h('line', { x1: '30', y1: '2', x2: '30', y2: '11', stroke: '#fff', strokeWidth: '2.5', strokeLinecap: 'round' }),
-          h('circle', { cx: '30', cy: '2', r: '4', fill: '#FFD700' }),
-          /* Helmet dome */
-          h('ellipse', { cx: '30', cy: '28', rx: '22', ry: '20', fill: 'white' }),
-          /* Visor */
-          h('ellipse', { cx: '30', cy: '30', rx: '16', ry: '13', fill: '#00b4ff' }),
-          h('ellipse', { cx: '22', cy: '22', rx: '7', ry: '5', fill: 'rgba(255,255,255,0.45)' }),
-          /* Eyes */
-          h('circle', { cx: '23', cy: '31', r: '4', fill: 'white' }),
-          h('circle', { cx: '37', cy: '31', r: '4', fill: 'white' }),
-          h('circle', { cx: '24', cy: '32', r: '2', fill: '#003791' }),
-          h('circle', { cx: '38', cy: '32', r: '2', fill: '#003791' }),
-          /* Body */
-          h('rect', { x: '11', y: '46', width: '38', height: '24', rx: '8', fill: '#003791' }),
-          /* Chest light */
-          h('circle', { cx: '30', cy: '57', r: '6', fill: '#00d4ff' }),
-          h('circle', { cx: '30', cy: '57', r: '3', fill: 'white' }),
-          /* Arms */
-          h('rect', { x: '1', y: '48', width: '10', height: '16', rx: '5', fill: '#0044aa' }),
-          h('rect', { x: '49', y: '48', width: '10', height: '16', rx: '5', fill: '#0044aa' }),
-          h('circle', { cx: '6',  cy: '66', r: '5', fill: '#00b4ff' }),
-          h('circle', { cx: '54', cy: '66', r: '5', fill: '#00b4ff' }),
-          /* Legs */
-          h('rect', { x: '14', y: '70', width: '12', height: '12', rx: '4', fill: '#0044aa' }),
-          h('rect', { x: '34', y: '70', width: '12', height: '12', rx: '4', fill: '#0044aa' }),
-          /* Thruster flames */
-          h('ellipse', { cx: '20', cy: '85', rx: '5', ry: '7', fill: '#ff7700', opacity: '0.9' }),
-          h('ellipse', { cx: '40', cy: '85', rx: '5', ry: '7', fill: '#ff7700', opacity: '0.9' }),
-          h('ellipse', { cx: '20', cy: '86', rx: '3', ry: '5', fill: '#ffdd00' }),
-          h('ellipse', { cx: '40', cy: '86', rx: '3', ry: '5', fill: '#ffdd00' }),
-        ),
-      );
-    }
-
     /* ── Footer ──────────────────────────────────────────────────────── */
     function Footer() {
       return h('footer', { className: 'ps-footer' },
@@ -1117,72 +752,57 @@
       );
     }
 
-    /* ── App ────────────────────────────────────────────────────────── */
+    /* ── App (loading state only — sections added in later tasks) ────── */
     function App() {
-      var _h = useState(FALLBACK_HERO);   var heroData     = _h[0]; var setHeroData     = _h[1];
-      var _o = useState(FALLBACK_OFFERS); var offers       = _o[0]; var setOffers       = _o[1];
-      var _g = useState(FALLBACK_GHOST);  var ghostVars    = _g[0]; var setGhostVars    = _g[1];
-      var _f = useState('master');        var ghostFocused = _f[0]; var setGhostFocused = _f[1];
-      var _a = useState(window.self === window.top); var astroOn = _a[0]; var setAstroOn = _a[1];
-
-      function fetchGhostVars() {
-        return Promise.allSettled([
-          fetchVariation('ps-ghost', 'master'),
-          fetchVariation('ps-ghost', 'punchy'),
-          fetchVariation('ps-ghost', 'seo'),
-        ]).then(function (res) {
-          setGhostVars({
-            master: (res[0].value && Object.assign({}, res[0].value, { image: { _publishUrl: TSUSHIMA_IMG } })) || FALLBACK_GHOST.master,
-            punchy: (res[1].value && Object.assign({}, res[1].value, { image: { _publishUrl: TSUSHIMA_IMG } })) || FALLBACK_GHOST.punchy,
-            seo:    (res[2].value && Object.assign({}, res[2].value, { image: { _publishUrl: TSUSHIMA_IMG } })) || FALLBACK_GHOST.seo,
-          });
-        });
-      }
+      var _h = useState(null);  var heroData = _h[0]; var setHeroData = _h[1];
+      var _o = useState(null);  var offers   = _o[0]; var setOffers   = _o[1];
+      var _g = useState(null);  var ghostVars = _g[0]; var setGhostVars = _g[1];
+      var _l = useState(true);  var loading  = _l[0]; var setLoading  = _l[1];
 
       useEffect(function () {
-        fetchHero('offers-home-hero')
-          .then(function (d) { if (d) setHeroData(d); })
-          .catch(function () {});
-
         Promise.allSettled([
-          fetchHero('ps-spiderman'),
-          fetchHero('ps-god-of-war'),
-        ]).then(function (res) {
-          var slugs = ['ps-spiderman', 'ps-god-of-war'];
-          var map = Object.assign({}, FALLBACK_OFFERS);
-          slugs.forEach(function (s, i) {
-            var fetched = res[i].value;
-            if (fetched) {
-              if (!(fetched.image && fetched.image._publishUrl)) {
+          fetchHero('offers-home-hero')
+            .then(function (d) { setHeroData(d || FALLBACK_HERO); })
+            .catch(function () { setHeroData(FALLBACK_HERO); }),
+          Promise.allSettled([
+            fetchHero('ps-spiderman'),
+            fetchHero('ps-god-of-war'),
+            fetchHero('ps-horizon'),
+          ]).then(function (res) {
+            var map = {};
+            ['ps-spiderman', 'ps-god-of-war', 'ps-horizon'].forEach(function (s, i) {
+              var fetched = res[i].value;
+              if (fetched && !(fetched.image && fetched.image._publishUrl)) {
                 fetched = Object.assign({}, fetched, { image: FALLBACK_OFFERS[s].image });
               }
-              map[s] = fetched;
-            }
-          });
-          setOffers(map);
-        }).catch(function () {});
-
-        fetchGhostVars();
-
-        /* Re-fetch ghost variants whenever UE saves a CF */
-        function onUeMsg(e) {
-          if (e.data && (e.data.type === 'aue:content-patch' || e.data.type === 'aue:content-update')) {
-            fetchGhostVars();
-          }
-        }
-        window.addEventListener('message', onUeMsg);
-        return function () { window.removeEventListener('message', onUeMsg); };
+              map[s] = fetched || FALLBACK_OFFERS[s];
+            });
+            setOffers(map);
+          }).catch(function () { setOffers(FALLBACK_OFFERS); }),
+          Promise.allSettled([
+            fetchVariation('ps-ghost', 'master'),
+            fetchVariation('ps-ghost', 'punchy'),
+            fetchVariation('ps-ghost', 'seo'),
+          ]).then(function (res) {
+            setGhostVars({
+              master: res[0].value || FALLBACK_GHOST.master,
+              punchy: res[1].value || FALLBACK_GHOST.punchy,
+              seo:    res[2].value || FALLBACK_GHOST.seo,
+            });
+          }),
+        ]).then(function () { setLoading(false); });
       }, []);
 
+      if (loading) return h('div', { className: 'ps-loading' }, 'Loading PS Store…');
+
       return h('div', { className: 'ps-page' },
-        h(NavBar, { astroOn: astroOn, setAstroOn: setAstroOn }),
+        h(NavBar),
         h(Hero, { data: heroData }),
         h(ConsoleSection),
-        h(GenVarsPanel, { ghostVars: ghostVars, focused: ghostFocused, setFocused: setGhostFocused }),
-        h(OfferGrid, { offers: offers, ghostVars: ghostVars, focused: ghostFocused }),
+        h(GenVarsPanel, { ghostVars: ghostVars }),
+        h(OfferGrid, { offers: offers }),
         h(PersonalizationRail, { offers: offers, ghostVars: ghostVars }),
         h(Footer),
-        h(AstroBot, { visible: astroOn }),
       );
     }
 
