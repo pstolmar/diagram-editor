@@ -594,17 +594,22 @@
       },
       {
         "component": "text",
-        "name": "heading",
-        "label": "Heading"
+        "name": "eyebrow",
+        "label": "Eyebrow"
       },
       {
         "component": "text",
-        "name": "body",
-        "label": "Body Text"
+        "name": "title",
+        "label": "Headline"
+      },
+      {
+        "component": "richtext",
+        "name": "description",
+        "label": "Description"
       },
       {
         "component": "text",
-        "name": "cta",
+        "name": "ctaLabel",
         "label": "CTA Text"
       }
     ]
