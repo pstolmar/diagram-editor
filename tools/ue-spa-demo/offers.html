@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <meta name="urn:adobe:aue:config:host" content="https://author-p138879-e1741192.adobeaemcloud.com"/>
   <title>PS Store — Summer Sale</title>
-  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <script src="https://universal-editor-service.experiencecloud.live/corslib/LATEST" async></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
@@ -436,9 +436,8 @@
     var PS5_REFURB_URL= 'https://gmedia.playstation.com/is/image/SIEPDC/certified-refurbished-xf-image-desktop-01-en-17feb26$en?$1200px--t$';
 
     /* ── CF path helper ──────────────────────────────────────────────── */
-    /* Returns CF root path — UE resolver expects the DAM path, not the JCR subnode */
-    function FRAG(slug) {
-      return '/content/dam/ue-demo/fragments/' + slug;
+    function FRAG(slug, variation) {
+      return '/content/dam/ue-demo/fragments/' + slug + '/jcr:content/data/' + (variation || 'master');
     }
 
     /* ── UE annotation helpers ───────────────────────────────────────── */
@@ -450,9 +449,9 @@
         'data-aue-model': 'hero',
       };
     }
-    /* Field elements inherit resource from parent container — no redundant data-aue-resource */
-    function aueField(prop, type, label) {
+    function aueField(fragPath, prop, type, label) {
       return {
+        'data-aue-resource': 'urn:aem:' + fragPath,
         'data-aue-prop': prop,
         'data-aue-type': type || 'text',
         'data-aue-label': label || prop,
@@ -668,11 +667,11 @@
         h('img', { className: 'hero-img-left',  src: PS_HERO_LEFT,  alt: '' }),
         h('img', { className: 'hero-img-right', src: PS_HERO_RIGHT, alt: '' }),
         h('div', { className: 'hero-overlay' },
-          h('p',      Object.assign({ className: 'hero-eyebrow' }, aueField('eyebrow',     'text',     'Eyebrow')),     d.eyebrow  || ''),
-          h('h1',     Object.assign({ className: 'hero-title'   }, aueField('title',       'text',     'Headline')),    d.title    || ''),
-          h('p',      Object.assign({ className: 'hero-desc'    }, aueField('description', 'richtext', 'Description')), desc),
+          h('p',      Object.assign({ className: 'hero-eyebrow' }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     d.eyebrow  || ''),
+          h('h1',     Object.assign({ className: 'hero-title'   }, aueField(fp, 'title',       'text',     'Headline')),    d.title    || ''),
+          h('p',      Object.assign({ className: 'hero-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
           h(CountdownTimer, { expiryISO: HERO_EXPIRY, simNow: SIM_DATE }),
-          h('button', Object.assign({ className: 'hero-cta', onClick: function () { var el = document.getElementById('deals-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, aueField('ctaLabel', 'text', 'CTA')), d.ctaLabel || ''),
+          h('button', Object.assign({ className: 'hero-cta', onClick: function () { var el = document.getElementById('deals-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, aueField(fp, 'ctaLabel', 'text', 'CTA')), d.ctaLabel || ''),
         ),
       );
     }
@@ -756,9 +755,9 @@
                 style: { cursor: 'pointer' },
               }, aueRes(fp, 'Ghost of Tsushima — ' + t.label)),
               h('span', { className: 'gv-var-label' }, t.label),
-              h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField('eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
-              h('h3',  Object.assign({ className: 'gv-card-title' }, aueField('title',       'text',     'Title')),       v.title    || ''),
-              h('p',   Object.assign({ className: 'gv-desc'       }, aueField('description', 'richtext', 'Description')), desc),
+              h('p',   Object.assign({ className: 'gv-eyebrow'    }, aueField(fp, 'eyebrow',     'text',     'Eyebrow')),     v.eyebrow  || ''),
+              h('h3',  Object.assign({ className: 'gv-card-title' }, aueField(fp, 'title',       'text',     'Title')),       v.title    || ''),
+              h('p',   Object.assign({ className: 'gv-desc'       }, aueField(fp, 'description', 'richtext', 'Description')), desc),
               h('p',   { className: 'gv-price' }, v.ctaLabel || ''),
               h('button', { className: 'gv-cta' }, focused === t.key ? '✓ Selected' : 'Select'),
             );
@@ -824,9 +823,9 @@
             ? h('img', { className: 'og-cover', src: cover, alt: item.title || '', loading: 'lazy' })
             : h('div', { className: 'og-cover' }),
           h('div', { className: 'og-body' },
-            h('span', Object.assign({ className: 'og-badge'   }, aueField('eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
-            h('p',    Object.assign({ className: 'og-title-f' }, aueField('title',       'text',     'Title')),       item.title    || ''),
-            h('p',    Object.assign({ className: 'og-desc'    }, aueField('description', 'richtext', 'Description')), desc),
+            h('span', Object.assign({ className: 'og-badge'   }, aueField(fp, 'eyebrow',     'text',     'Badge')),       item.eyebrow  || ''),
+            h('p',    Object.assign({ className: 'og-title-f' }, aueField(fp, 'title',       'text',     'Title')),       item.title    || ''),
+            h('p',    Object.assign({ className: 'og-desc'    }, aueField(fp, 'description', 'richtext', 'Description')), desc),
             h('div', { className: 'og-timer' },
               h('span', { className: 'og-timer-label' }, 'Ends in'),
               ['d','h','m','s'].map(function (u) {
@@ -837,7 +836,7 @@
               }),
             ),
             h('div', { className: 'og-footer' },
-              h('span',   Object.assign({ className: 'og-price' }, aueField('ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+              h('span',   Object.assign({ className: 'og-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
               h('button', { className: 'og-cart', onClick: openCard }, 'Details'),
             ),
           ),
@@ -951,15 +950,15 @@
               ? h('img', { className: 'pr-cover', src: cover, alt: item.title || '', loading: 'lazy' })
               : h('div', { className: 'pr-cover' }),
             h('div', { className: 'pr-body' },
-              h('span', Object.assign({ className: 'pr-badge'   }, aueField('eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
-              h('p',    Object.assign({ className: 'pr-title-f' }, aueField('title',    'text', 'Title')), item.title    || ''),
+              h('span', Object.assign({ className: 'pr-badge'   }, aueField(fp, 'eyebrow',  'text', 'Badge')), item.eyebrow  || ''),
+              h('p',    Object.assign({ className: 'pr-title-f' }, aueField(fp, 'title',    'text', 'Title')), item.title    || ''),
               dp
                 ? h('div', { className: 'pr-price-wrap' },
                     h('span', { className: 'pr-price-orig' }, dp.orig),
                     h('span', { className: 'pr-save' }, 'Save 10%'),
-                    h('p',    Object.assign({ className: 'pr-price' }, aueField('ctaLabel', 'text', 'Price')), dp.disc),
+                    h('p',    Object.assign({ className: 'pr-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), dp.disc),
                   )
-                : h('p', Object.assign({ className: 'pr-price' }, aueField('ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
+                : h('p', Object.assign({ className: 'pr-price' }, aueField(fp, 'ctaLabel', 'text', 'Price')), item.ctaLabel || ''),
               h('button', { className: 'pr-cta', onClick: openCard }, 'Details'),
             ),
           ),
