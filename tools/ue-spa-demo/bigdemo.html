@@ -625,6 +625,25 @@
   }
 
   /* ── DM Visualizer ── */
+  var DM_PRESET_IMGS = {
+    'none':               'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b',
+    '$morning-warm$':     'https://images.unsplash.com/photo-1506126613408-eca07ce68773',
+    '$afternoon-bright$': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b',
+    '$evening-cool$':     'https://images.unsplash.com/photo-1518611012118-696072aa579a',
+    '$night-intense$':    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48',
+    '$hero-lg$':          'https://images.unsplash.com/photo-1517836357463-d25dfeac3438',
+    '$card-sm$':          'https://images.unsplash.com/photo-1549060279-7e168fcee0c2',
+  };
+  var DM_PRESET_FILTER = {
+    'none':               '',
+    '$morning-warm$':     'sepia(0.25) saturate(1.4) hue-rotate(-15deg)',
+    '$afternoon-bright$': 'saturate(1.6) contrast(1.1)',
+    '$evening-cool$':     'saturate(0.8) hue-rotate(20deg)',
+    '$night-intense$':    'saturate(1.2) contrast(1.3) brightness(0.85)',
+    '$hero-lg$':          'saturate(1.1)',
+    '$card-sm$':          'saturate(0.95) contrast(1.05)',
+  };
+
   function DmVisualizer() {
     var _preset = useState('none'); var preset = _preset[0]; var setPreset = _preset[1];
     var _fmt    = useState('webp'); var fmt    = _fmt[0];    var setFmt    = _fmt[1];
@@ -633,9 +652,16 @@
     var _bri    = useState('0');    var bri    = _bri[0];    var setBri    = _bri[1];
     var _copied = useState(false);  var copied = _copied[0]; var setCopied = _copied[1];
 
-    var base  = 'https://luma-media.scene7.com/is/image/LumaDemo/yoga-mat-hero';
-    var params = '?fmt=' + fmt + '&wid=' + wid + (bri !== '0' ? '&op_brightness=' + (bri > 0 ? '+' : '') + bri : '') + (sc === 'on' ? '&crop=auto' : '') + (preset !== 'none' ? '&' + preset : '');
-    var previewSrc = 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=' + wid + '&q=' + (fmt === 'avif' ? '70' : '80') + (bri > 0 ? '&bri=' + bri : '');
+    var base   = 'https://publish-p138879-e1741192.adobeaemcloud.com/is/image/LumaDemo/yoga-mat-hero';
+    var params = '?fmt=' + fmt + '&wid=' + wid
+      + (bri !== '0' ? '&op_brightness=' + (Number(bri) > 0 ? '%2B' : '') + bri : '')
+      + (sc === 'on' ? '&crop=auto' : '')
+      + (preset !== 'none' ? '&' + preset : '');
+
+    var previewBase = DM_PRESET_IMGS[preset] || DM_PRESET_IMGS['none'];
+    var previewSrc  = previewBase + '?w=' + wid + '&q=' + (fmt === 'avif' ? '70' : '85') + '&fit=crop&crop=entropy';
+    var briVal      = 1 + (Number(bri) * 0.06);
+    var cssFilter   = (DM_PRESET_FILTER[preset] || '') + (bri !== '0' ? ' brightness(' + briVal + ')' : '');
 
     function copyUrl() {
       navigator.clipboard.writeText(base + params).then(function () {
@@ -655,8 +681,8 @@
             h('div', { className: 'dm-field' },
               h('label', { className: 'dm-label' }, 'Named Preset'),
               h('select', { className: 'dm-select', value: preset, onChange: function (e) { setPreset(e.target.value); } },
-                h('option', { value: 'none' }, '(none)'),
-                ['$morning-warm$','$afternoon-bright$','$evening-cool$','$night-intense$','$hero-lg$','$card-sm$'].map(function (p) {
+                h('option', { value: 'none' }, '(none — base asset)'),
+                Object.keys(DM_PRESET_IMGS).filter(function (k) { return k !== 'none'; }).map(function (p) {
                   return h('option', { key: p, value: p }, p);
                 }),
               ),
@@ -680,7 +706,7 @@
               ),
             ),
             h('div', { className: 'dm-field' },
-              h('label', { className: 'dm-label' }, 'Brightness: ' + (bri > 0 ? '+' : '') + bri),
+              h('label', { className: 'dm-label' }, 'Brightness: ' + (Number(bri) > 0 ? '+' : '') + bri),
               h('input', { className: 'dm-range', type: 'range', min: '-10', max: '10', value: bri, onChange: function (e) { setBri(e.target.value); } }),
             ),
           ),
@@ -690,7 +716,7 @@
             h('div', { className: 'dm-url-box' },
               h('span', { className: 'dm-url-base' }, base),
               h('span', { className: 'dm-url-param' }, '?fmt=' + fmt + '&wid=' + wid),
-              bri !== '0' && h('span', { className: 'dm-url-param' }, '&op_brightness=' + (bri > 0 ? '+' : '') + bri),
+              bri !== '0' && h('span', { className: 'dm-url-param' }, '&op_brightness=' + (Number(bri) > 0 ? '+' : '') + bri),
               sc === 'on' && h('span', { className: 'dm-url-param' }, '&crop=auto'),
               preset !== 'none' && h('span', { className: 'dm-url-preset' }, '&' + preset),
             ),
@@ -699,8 +725,14 @@
           /* Preview */
           h('div', { className: 'dm-panel' },
             h('p', { className: 'dm-panel-title' }, '👁 Simulated Preview'),
-            h('img', { className: 'dm-preview-img', src: previewSrc, alt: 'DM preview', key: wid }),
-            h('p', { className: 'dm-preview-label' }, 'Width: ' + wid + 'px · Format: ' + fmt + ' · Preset: ' + (preset === 'none' ? 'none' : preset)),
+            h('img', {
+              className: 'dm-preview-img',
+              src: previewSrc,
+              alt: 'DM preview',
+              key: preset + '-' + wid,
+              style: { filter: cssFilter || 'none', transition: 'filter .4s ease' },
+            }),
+            h('p', { className: 'dm-preview-label' }, wid + 'px · ' + fmt + (preset !== 'none' ? ' · ' + preset : '') + (bri !== '0' ? ' · bri ' + (Number(bri) > 0 ? '+' : '') + bri : '')),
           ),
         ),
       ),
