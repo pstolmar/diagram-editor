@@ -114,6 +114,46 @@
       </div>
     </div>
 
+    <!-- 3b. CF Edit ISE Diagnosis -->
+    <div class="card" style="border-color:rgba(210,153,34,.35);">
+      <div class="card-head">
+        <span class="card-title">3b · CF Edit — "Failed to fetch details / ISE" Diagnosis</span>
+        <span id="badge-cf" class="badge warn">Read me</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:.85rem;line-height:1.7;margin-bottom:1rem;">
+          <strong>What is happening:</strong> The component tree loads fine.
+          Only clicking a component to edit it fails. This means the page instrumentation is correct
+          — the problem is the <em>UE service → AEM Author</em> roundtrip that happens when you select a component.
+        </p>
+        <p style="font-size:.85rem;line-height:1.7;margin-bottom:1rem;">
+          When you click a component, UE calls:<br/>
+          <code style="font-size:.78rem;background:rgba(0,0,0,.4);padding:.15rem .4rem;border-radius:3px;">
+            GET https://universal-editor-service.adobe.io/resolve?...
+          </code><br/>
+          The UE service proxies to AEM Author. The UUID in the error is the UE service trace ID for that request.
+        </p>
+        <div id="cf-body">
+          <p style="color:var(--muted);font-size:.8rem;margin-bottom:.75rem;">Enter a CF path from your page to probe (without <code>/jcr:content/data/master</code>):</p>
+          <div style="display:flex;gap:.5rem;margin-bottom:.875rem;">
+            <input id="cf-path" type="text"
+              value="/content/dam/ue-demo/fragments/offers-home-hero"
+              style="flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:.5rem .75rem;font-family:monospace;font-size:.8rem;"/>
+            <button class="inspect-btn" onclick="probeCF()">Test CF Path</button>
+          </div>
+          <div id="cf-result"></div>
+          <div class="sep"></div>
+          <p style="font-size:.8rem;color:var(--muted);line-height:1.7;"><strong style="color:var(--text);">Common causes of ISE on CF edit:</strong><br/>
+          1. CF path referenced in <code>data-aue-resource</code> doesn't exist on AEM Author (was deleted, renamed, or never created)<br/>
+          2. AEM Author service account doesn't have read permission on that CF<br/>
+          3. The model ID in <code>data-aue-model</code> exists in <code>component-models.json</code> but has no matching AEM model node — check <code>/conf/global/settings/dam/cfm/models/</code><br/>
+          4. UE service version mismatch with your AEM Author version (check <a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/release-notes/universal-editor/release-notes" target="_blank" style="color:var(--blue);">UE release notes</a>)<br/>
+          5. <strong>Most likely if it recently broke without code changes:</strong> an AEM Author maintenance operation (index rebuild, migration, restart) left a lock or inconsistency on that specific CF node
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- 4. Inspect a page's UE attributes -->
     <div class="card">
       <div class="card-head">
@@ -218,7 +258,7 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
     out += row('cors.js script tag', 'NOT FOUND', 'MISSING', 'fail');
   }
 
-  out += row('window.adobeIMS', window.adobeIMS ? 'present' : 'undefined', window.adobeIMS ? 'OK' : 'Not injected yet', window.adobeIMS ? 'ok' : 'warn');
+  out += row('window.adobeIMS', window.adobeIMS ? 'present' : 'undefined (expected when not in UE)', window.adobeIMS ? 'In UE' : 'Standalone — normal', 'info');
   out += row('window.__ueEditable', window.__ueEditable !== undefined ? String(window.__ueEditable) : 'undefined', window.__ueEditable !== undefined ? 'In UE' : 'Standalone', window.__ueEditable !== undefined ? 'ok' : 'info');
   out += row('window.parent !== window', window.parent !== window ? 'true (in iframe)' : 'false', window.parent !== window ? 'Framed' : 'Top-level', 'info');
 
@@ -484,7 +524,7 @@ function renderInspect(doc, url) {
       });
       var acao = r.headers.get('access-control-allow-origin');
       if (!acao) {
-        out += row('access-control-allow-origin', 'not set', 'WARN — UE needs CORS', 'warn');
+        out += row('access-control-allow-origin', 'not set — expected for EDS pages', 'OK — UE uses iframe+postMessage, not fetch', 'info');
       }
       if (!out) out = '<p style="color:var(--muted);">No interesting headers found (same-origin HEAD; run from EDS CDN for full data).</p>';
       html('cors-body', out);
@@ -554,6 +594,55 @@ document.getElementById('cors-js').addEventListener('load', function() {
       + ' · window.__ueEditable: ' + (window.__ueEditable !== undefined ? window.__ueEditable : 'undefined'), false);
   }, 800);
 });
+
+/* ── 3b. CF path probe ── */
+window.probeCF = function() {
+  var cfPath = document.getElementById('cf-path').value.trim();
+  if (!cfPath) return;
+  badge('badge-cf', 'wait', 'Testing…');
+  var out = '';
+
+  /* We can't call AEM Author directly due to CORS, but we can:
+     1. Test the UE service ping
+     2. Try the AEM Publish assets API (public) for the same CF path
+     3. Show what URN the page is sending so the user can verify it in author
+  */
+  var urn = 'urn:aem:' + cfPath + '/jcr:content/data/master';
+  var publishUrl = 'https://publish-p138879-e1741192.adobeaemcloud.com' + cfPath + '.json';
+  var authorCrxUrl = 'https://author-p138879-e1741192.adobeaemcloud.com' + cfPath + '.json';
+
+  out += row('URN sent to UE service', esc(urn), 'What UE receives', 'info');
+  out += row('AEM Author path', esc(cfPath), 'Must exist on author', 'info');
+  out += row('Author CRXDE URL', esc(authorCrxUrl), 'Open in author browser', 'info');
+  out += '<div class="sep"></div>';
+
+  /* Try Publish assets API — if CF is published we'd get JSON back (no auth needed) */
+  var t0 = performance.now();
+  fetch(publishUrl, { mode: 'cors', cache: 'no-store' })
+    .then(function(r) {
+      var ms = Math.round(performance.now() - t0);
+      if (r.ok) {
+        return r.json().then(function(j) {
+          out += row('CF on Publish (assets API)', 'HTTP ' + r.status + ' · ' + ms + 'ms — CF is published and readable', 'EXISTS', 'ok');
+          out += '<pre style="max-height:120px;">' + esc(JSON.stringify(j, null, 2).slice(0, 600)) + '</pre>';
+          html('cf-result', out);
+          badge('badge-cf', 'ok', 'CF readable on Publish');
+        });
+      } else {
+        out += row('CF on Publish (assets API)', 'HTTP ' + r.status + ' · ' + ms + 'ms', r.status === 404 ? 'NOT FOUND or not published' : 'Error', r.status === 404 ? 'warn' : 'fail');
+        if (r.status === 404) out += '<p style="color:var(--yellow);font-size:.8rem;margin-top:.5rem;">CF may exist on Author but not be published. That\'s OK for UE editing — UE reads from Author, not Publish.</p>';
+        html('cf-result', out);
+        badge('badge-cf', 'warn', 'Not on Publish');
+      }
+    })
+    .catch(function(e) {
+      out += row('CF on Publish (assets API)', esc(e.message), 'CORS/Network', 'warn');
+      out += '<p style="color:var(--muted);font-size:.8rem;margin-top:.5rem;">CORS blocked Publish assets API — expected from browser. This does NOT mean the CF is missing.<br/>'
+           + '<strong style="color:var(--text);">To verify the CF exists: open AEM Author → Assets → ' + esc(cfPath) + '</strong></p>';
+      html('cf-result', out);
+      badge('badge-cf', 'info', 'CORS on Publish (expected)');
+    });
+};
 
 /* ── global status ── */
 setTimeout(function() {
