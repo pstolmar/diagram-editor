@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <meta name="urn:adobe:aue:config:host" content="https://author-p138879-e1741192.adobeaemcloud.com"/>
   <title>UE Debug — diagram-editor</title>
-  <script src="https://universal-editor-service.adobe.io/cors.js" async id="cors-js"></script>
+  <script src="https://universal-editor-service.experiencecloud.live/corslib/LATEST" async id="cors-js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -18,12 +18,11 @@
     body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5; }
     .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
     h1  { font-size: 1.25rem; font-weight: 700; margin-bottom: .25rem; }
-    h2  { font-size: .875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .875rem; }
     p.sub { color: var(--muted); margin-bottom: 2rem; font-size: .875rem; }
     .sections { display: flex; flex-direction: column; gap: 1.5rem; }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
     .card-head { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; border-bottom: 1px solid var(--border); }
-    .card-title { font-weight: 600; font-size: .875rem; display: flex; align-items: center; gap: .5rem; }
+    .card-title { font-weight: 600; font-size: .875rem; }
     .card-body { padding: 1rem; }
     .badge { display: inline-flex; align-items: center; gap: .3rem; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: .2rem .6rem; border-radius: 4px; }
     .ok    { background: rgba(63,185,80,.12);  color: var(--green);  }
@@ -31,7 +30,7 @@
     .warn  { background: rgba(210,153,34,.12); color: var(--yellow); }
     .info  { background: rgba(88,166,255,.12); color: var(--blue);   }
     .wait  { background: rgba(139,148,158,.1); color: var(--muted);  }
-    .row   { display: grid; grid-template-columns: 220px 1fr 80px; gap: .5rem; align-items: start; padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .8rem; }
+    .row   { display: grid; grid-template-columns: 260px 1fr 140px; gap: .5rem; align-items: start; padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .8rem; }
     .row:last-child { border-bottom: none; }
     .row-label { color: var(--muted); font-weight: 500; }
     .row-val { word-break: break-all; font-family: 'SF Mono', 'Fira Code', monospace; font-size: .78rem; }
@@ -44,7 +43,6 @@
     .ev-err { border-left-color: var(--red);    background: rgba(248,81,73,.06); }
     .ev-net { border-left-color: var(--blue);   }
     .ev-sys { border-left-color: var(--muted);  }
-    .cors-tag { font-size: .7rem; padding: .15rem .45rem; border-radius: 3px; margin-left: .35rem; background: rgba(88,166,255,.12); color: var(--blue); font-family: monospace; }
     table.attr-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
     table.attr-table th { text-align: left; color: var(--muted); font-weight: 600; padding: .35rem .5rem; border-bottom: 1px solid var(--border); }
     table.attr-table td { padding: .35rem .5rem; border-bottom: 1px solid rgba(255,255,255,.04); font-family: monospace; vertical-align: top; word-break: break-all; }
@@ -52,21 +50,19 @@
     .model-ok   { color: var(--green); }
     .model-miss { color: var(--red);   }
     .model-none { color: var(--muted); font-style: italic; }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
-    .reload-btn {
-      background: var(--blue); color: #000; border: none; border-radius: 4px;
-      padding: .45rem 1rem; font-size: .8rem; font-weight: 700; cursor: pointer;
-      font-family: inherit;
-    }
+    .reload-btn { background: var(--blue); color: #000; border: none; border-radius: 4px; padding: .45rem 1rem; font-size: .8rem; font-weight: 700; cursor: pointer; font-family: inherit; }
     .reload-btn:hover { opacity: .85; }
     .sep { height: 1px; background: var(--border); margin: .75rem 0; }
-    #inspect-url { width: 100%; background: rgba(0,0,0,.4); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: .5rem .75rem; font-family: monospace; font-size: .8rem; margin-bottom: .75rem; }
-    #inspect-url:focus { outline: none; border-color: var(--blue); }
+    input[type="text"], input[type="url"] { width: 100%; background: rgba(0,0,0,.4); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: .5rem .75rem; font-family: monospace; font-size: .8rem; margin-bottom: .75rem; }
+    input:focus { outline: none; border-color: var(--blue); }
     .inspect-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: .45rem 1rem; font-size: .8rem; cursor: pointer; font-family: inherit; font-weight: 600; }
     .inspect-btn:hover { border-color: var(--blue); color: var(--blue); }
     .spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--muted); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .hint { background: rgba(88,166,255,.07); border: 1px solid rgba(88,166,255,.2); border-radius: 5px; padding: .7rem 1rem; font-size: .8rem; line-height: 1.75; margin-top: .75rem; }
+    .hint code { background: rgba(0,0,0,.4); padding: .1rem .35rem; border-radius: 3px; font-size: .75rem; }
+    .hint strong { color: var(--text); }
   </style>
 </head>
 <body>
@@ -74,7 +70,7 @@
   <h1>Universal Editor Debug</h1>
   <p class="sub">Diagnostics for author-p138879-e1741192.adobeaemcloud.com · <span id="ts"></span></p>
 
-  <div style="margin-bottom:1.5rem; display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+  <div style="margin-bottom:1.5rem;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
     <button class="reload-btn" onclick="location.reload()">↻ Re-run all checks</button>
     <span id="global-status" class="badge wait">Running…</span>
   </div>
@@ -87,9 +83,7 @@
         <span class="card-title">1 · Page Instrumentation</span>
         <span id="badge-instr" class="badge wait">…</span>
       </div>
-      <div class="card-body" id="instr-body">
-        <div class="spinner"></div>
-      </div>
+      <div class="card-body" id="instr-body"><div class="spinner"></div></div>
     </div>
 
     <!-- 2. JSON model files -->
@@ -98,20 +92,16 @@
         <span class="card-title">2 · Component JSON Files</span>
         <span id="badge-json" class="badge wait">…</span>
       </div>
-      <div class="card-body" id="json-body">
-        <div class="spinner"></div>
-      </div>
+      <div class="card-body" id="json-body"><div class="spinner"></div></div>
     </div>
 
-    <!-- 3. AEM Author connectivity -->
+    <!-- 3. AEM Author connectivity + CORS probe -->
     <div class="card">
       <div class="card-head">
-        <span class="card-title">3 · AEM Author Connectivity</span>
+        <span class="card-title">3 · AEM Author Connectivity &amp; CORS</span>
         <span id="badge-author" class="badge wait">…</span>
       </div>
-      <div class="card-body" id="author-body">
-        <div class="spinner"></div>
-      </div>
+      <div class="card-body" id="author-body"><div class="spinner"></div></div>
     </div>
 
     <!-- 3b. CF Edit ISE Diagnosis -->
@@ -122,35 +112,29 @@
       </div>
       <div class="card-body">
         <p style="font-size:.85rem;line-height:1.7;margin-bottom:1rem;">
-          <strong>What is happening:</strong> The component tree loads fine.
-          Only clicking a component to edit it fails. This means the page instrumentation is correct
-          — the problem is the <em>UE service → AEM Author</em> roundtrip that happens when you select a component.
+          <strong>What is happening:</strong> The component tree loads fine. Only clicking a component to edit it fails.
+          This means the page instrumentation is correct — the problem is the <em>UE service → AEM Author</em> roundtrip.
         </p>
         <p style="font-size:.85rem;line-height:1.7;margin-bottom:1rem;">
           When you click a component, UE calls:<br/>
-          <code style="font-size:.78rem;background:rgba(0,0,0,.4);padding:.15rem .4rem;border-radius:3px;">
-            GET https://universal-editor-service.adobe.io/resolve?...
-          </code><br/>
-          The UE service proxies to AEM Author. The UUID in the error is the UE service trace ID for that request.
+          <code style="font-size:.78rem;background:rgba(0,0,0,.4);padding:.15rem .4rem;border-radius:3px;">GET https://universal-editor-service.experiencecloud.live/resolve?...</code><br/>
+          The UE service proxies to AEM Author. The UUID in the error is the UE service trace ID.
         </p>
-        <div id="cf-body">
-          <p style="color:var(--muted);font-size:.8rem;margin-bottom:.75rem;">Enter a CF path from your page to probe (without <code>/jcr:content/data/master</code>):</p>
-          <div style="display:flex;gap:.5rem;margin-bottom:.875rem;">
-            <input id="cf-path" type="text"
-              value="/content/dam/ue-demo/fragments/offers-home-hero"
-              style="flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:.5rem .75rem;font-family:monospace;font-size:.8rem;"/>
-            <button class="inspect-btn" onclick="probeCF()">Test CF Path</button>
-          </div>
-          <div id="cf-result"></div>
-          <div class="sep"></div>
-          <p style="font-size:.8rem;color:var(--muted);line-height:1.7;"><strong style="color:var(--text);">Common causes of ISE on CF edit:</strong><br/>
-          1. CF path referenced in <code>data-aue-resource</code> doesn't exist on AEM Author (was deleted, renamed, or never created)<br/>
-          2. AEM Author service account doesn't have read permission on that CF<br/>
-          3. The model ID in <code>data-aue-model</code> exists in <code>component-models.json</code> but has no matching AEM model node — check <code>/conf/global/settings/dam/cfm/models/</code><br/>
-          4. UE service version mismatch with your AEM Author version (check <a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/release-notes/universal-editor/release-notes" target="_blank" style="color:var(--blue);">UE release notes</a>)<br/>
-          5. <strong>Most likely if it recently broke without code changes:</strong> an AEM Author maintenance operation (index rebuild, migration, restart) left a lock or inconsistency on that specific CF node
-          </p>
+        <p style="color:var(--muted);font-size:.8rem;margin-bottom:.75rem;">Enter a CF path to probe (without <code>/jcr:content/data/master</code>):</p>
+        <div style="display:flex;gap:.5rem;margin-bottom:.875rem;">
+          <input id="cf-path" type="text" value="/content/dam/ue-demo/fragments/offers-home-hero" style="margin:0;flex:1;"/>
+          <button class="inspect-btn" onclick="probeCF()">Test CF Path</button>
         </div>
+        <div id="cf-result"></div>
+        <div class="sep"></div>
+        <p style="font-size:.8rem;color:var(--muted);line-height:1.7;">
+          <strong style="color:var(--text);">Common causes:</strong><br/>
+          1. <strong>Author CORS OSGi config not deployed</strong> — see Section 3 above; run
+             <code>aio aem:rde:install tools/cors/ui.config-1.0-SNAPSHOT.zip -t content-package</code><br/>
+          2. <strong>IMS session expired</strong> — sign out and back in at experience.adobe.com, re-open UE editor URL<br/>
+          3. CF path in <code>data-aue-resource</code> doesn't exist on Author<br/>
+          4. Model ID in <code>data-aue-model</code> has no matching AEM CF model node
+        </p>
       </div>
     </div>
 
@@ -169,15 +153,13 @@
       </div>
     </div>
 
-    <!-- 5. CORS / Response headers -->
+    <!-- 5. Page response headers -->
     <div class="card">
       <div class="card-head">
-        <span class="card-title">5 · CORS &amp; Response Headers</span>
+        <span class="card-title">5 · Page Response Headers</span>
         <span id="badge-cors" class="badge wait">…</span>
       </div>
-      <div class="card-body" id="cors-body">
-        <div class="spinner"></div>
-      </div>
+      <div class="card-body" id="cors-body"><div class="spinner"></div></div>
     </div>
 
     <!-- 6. UE postMessage event log -->
@@ -188,13 +170,13 @@
       </div>
       <div class="card-body">
         <p style="color:var(--muted);font-size:.8rem;margin-bottom:.75rem;">
-          Events received from <code>universal-editor-service.adobe.io</code> and the UE iframe. Load this page <em>inside</em> UE to see handshake messages.
+          Events from <code>universal-editor-service.experiencecloud.live</code>. Load this page <em>inside</em> UE to see handshake messages.
         </p>
         <div class="event-log" id="event-log"><em style="color:var(--muted);">Waiting for messages…</em></div>
       </div>
     </div>
 
-    <!-- 7. Script errors -->
+    <!-- 7. Runtime errors -->
     <div class="card">
       <div class="card-head">
         <span class="card-title">7 · Runtime Errors</span>
@@ -209,448 +191,354 @@
 </div>
 
 <script>
-/* ── utilities ── */
-var AUTHOR = 'https://author-p138879-e1741192.adobeaemcloud.com';
-var ts = function () { return new Date().toISOString().replace('T',' ').slice(0,23); };
+var AUTHOR  = 'https://author-p138879-e1741192.adobeaemcloud.com';
+var PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+var ts = function() { return new Date().toISOString().replace('T',' ').slice(0,23); };
 document.getElementById('ts').textContent = ts();
 
-function badge(id, cls, text) {
-  var el = document.getElementById(id);
-  el.className = 'badge ' + cls;
-  el.textContent = text;
-}
-function html(id, markup) { document.getElementById(id).innerHTML = markup; }
-function row(label, val, status, statusCls) {
-  return '<div class="row"><span class="row-label">' + esc(label) + '</span>'
-       + '<span class="row-val">' + (val || '—') + '</span>'
-       + '<span class="row-status"><span class="badge ' + (statusCls||'info') + '">' + esc(status||'') + '</span></span>'
-       + '</div>';
-}
+function badge(id, cls, text) { var e = document.getElementById(id); if (!e) return; e.className = 'badge ' + cls; e.textContent = text; }
+function html(id, m) { document.getElementById(id).innerHTML = m; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function row(label, val, status, cls) {
+  return '<div class="row"><span class="row-label">' + esc(label) + '</span>'
+       + '<span class="row-val">' + (val||'—') + '</span>'
+       + '<span class="row-status"><span class="badge ' + (cls||'info') + '">' + esc(status||'') + '</span></span></div>';
+}
 
 /* ── 1. Page instrumentation ── */
-(function checkInstr() {
-  var meta = document.querySelector('meta[name="urn:adobe:aue:system:aem"]');
-  var corsScript = document.getElementById('cors-js');
-  var issues = [];
-  var out = '';
+(function() {
+  var corsEl = document.getElementById('cors-js');
+  var issues = [], out = '';
 
-  if (meta) {
-    var content = meta.getAttribute('content') || '';
-    var ok = content.startsWith('aem:https://');
-    if (!ok) issues.push('meta content must start with aem:https://');
-    out += row('AUE meta tag', esc(content), ok ? 'OK' : 'BAD FORMAT', ok ? 'ok' : 'fail');
+  var metaNew = document.querySelector('meta[name="urn:adobe:aue:config:host"]');
+  var metaOld = document.querySelector('meta[name="urn:adobe:aue:system:aem"]');
+  if (metaNew) {
+    var c = metaNew.getAttribute('content') || '';
+    var ok = c.startsWith('https://');
+    out += row('AUE meta (config:host)', esc(c), ok ? 'OK' : 'BAD — needs https://', ok ? 'ok' : 'fail');
+    if (!ok) issues.push('content must start with https://, not aem:https://');
+  } else if (metaOld) {
+    out += row('AUE meta (system:aem — DEPRECATED)', esc(metaOld.getAttribute('content')||''), 'WARN — use config:host', 'warn');
+    issues.push('Deprecated meta: change name to urn:adobe:aue:config:host and remove aem: prefix from content');
   } else {
-    issues.push('Missing urn:adobe:aue:system:aem meta tag');
     out += row('AUE meta tag', 'NOT FOUND', 'MISSING', 'fail');
+    issues.push('No AUE meta tag found');
   }
 
-  if (corsScript) {
-    var loaded = corsScript.src && !corsScript.dataset.failed;
-    out += row('cors.js script tag', esc(corsScript.src), 'Present', 'ok');
-    corsScript.addEventListener('load',  function() { out += row('cors.js', 'loaded', 'OK', 'ok'); });
-    corsScript.addEventListener('error', function() {
-      addError('cors.js failed to load: ' + corsScript.src);
-      badge('badge-instr','fail','cors.js fail');
-    });
+  if (corsEl) {
+    var src = corsEl.src || '';
+    var good = src.includes('experiencecloud.live');
+    var old  = src.includes('adobe.io');
+    out += row('cors.js src', esc(src), good ? 'OK' : (old ? 'OLD — adobe.io' : 'Unknown'), good ? 'ok' : 'warn');
+    if (!good) issues.push('cors.js should be universal-editor-service.experiencecloud.live/corslib/LATEST');
+    corsEl.addEventListener('error', function() { addError('cors.js failed to load: ' + src); badge('badge-instr','fail','cors.js fail'); });
   } else {
-    issues.push('cors.js script tag not found');
-    out += row('cors.js script tag', 'NOT FOUND', 'MISSING', 'fail');
+    out += row('cors.js', 'NOT FOUND', 'MISSING', 'fail');
+    issues.push('cors.js script tag missing');
   }
 
-  out += row('window.adobeIMS', window.adobeIMS ? 'present' : 'undefined (expected when not in UE)', window.adobeIMS ? 'In UE' : 'Standalone — normal', 'info');
-  out += row('window.__ueEditable', window.__ueEditable !== undefined ? String(window.__ueEditable) : 'undefined', window.__ueEditable !== undefined ? 'In UE' : 'Standalone', window.__ueEditable !== undefined ? 'ok' : 'info');
-  out += row('window.parent !== window', window.parent !== window ? 'true (in iframe)' : 'false', window.parent !== window ? 'Framed' : 'Top-level', 'info');
-
-  out += '<div class="sep"></div>';
+  out += row('window.adobeIMS', window.adobeIMS ? 'defined' : 'undefined', window.adobeIMS ? 'In UE' : 'Standalone — normal', 'info');
+  out += row('In iframe', window.parent !== window ? 'true' : 'false', window.parent !== window ? 'Framed (UE?)' : 'Top-level', 'info');
   out += row('Page origin', esc(location.origin), 'Info', 'info');
-  out += row('Full URL', esc(location.href), 'Info', 'info');
 
   html('instr-body', out);
-  badge('badge-instr', issues.length ? 'fail' : 'ok', issues.length ? issues.length + ' issue(s)' : 'OK');
+  badge('badge-instr', issues.length ? 'warn' : 'ok', issues.length ? issues.length + ' issue(s)' : 'OK');
 })();
 
 /* ── 2. JSON model files ── */
-(function checkJson() {
-  var files = [
-    '/component-models.json',
-    '/component-definition.json',
-    '/component-filters.json',
-  ];
-  var results = {};
-  var pending = files.length;
-
+(function() {
+  var files = ['/component-models.json', '/component-definition.json', '/component-filters.json'];
+  var results = {}, pending = files.length;
   files.forEach(function(f) {
     var t0 = performance.now();
-    fetch(f)
-      .then(function(r) {
-        var status = r.status;
-        return r.text().then(function(txt) {
-          var ms = Math.round(performance.now() - t0);
-          try {
-            var parsed = JSON.parse(txt);
-            var count = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
-            results[f] = { ok: true, status: status, ms: ms, count: count, parsed: parsed };
-          } catch(e) {
-            results[f] = { ok: false, status: status, ms: ms, error: e.message, raw: txt.slice(0, 300) };
-          }
-        });
-      })
-      .catch(function(e) {
-        results[f] = { ok: false, error: e.message, status: 'Network error' };
-      })
-      .finally(function() {
-        pending--;
-        if (pending === 0) renderJson(results);
+    fetch(f).then(function(r) {
+      return r.text().then(function(txt) {
+        var ms = Math.round(performance.now()-t0);
+        try { var p = JSON.parse(txt); results[f] = { ok:true, status:r.status, ms:ms, parsed:p, count:Array.isArray(p)?p.length:Object.keys(p).length }; }
+        catch(e) { results[f] = { ok:false, status:r.status, ms:ms, error:e.message }; }
       });
+    }).catch(function(e) { results[f] = { ok:false, error:e.message }; })
+    .finally(function() { if (--pending===0) renderJson(results); });
   });
-
   function renderJson(r) {
-    var fails = Object.values(r).filter(function(v) { return !v.ok; }).length;
-    var out = '';
+    var fails=0, out='';
     Object.keys(r).forEach(function(f) {
-      var v = r[f];
-      if (v.ok) {
-        var label = f === '/component-models.json' ? v.count + ' models' :
-                    f === '/component-filters.json' ? v.count + ' filters' : 'valid JSON';
-        out += row(f, 'HTTP ' + v.status + ' · ' + v.ms + 'ms · ' + label, 'OK', 'ok');
-      } else {
-        out += row(f, esc(v.error || ('HTTP ' + v.status)), 'FAIL', 'fail');
-        if (v.raw) out += '<pre>' + esc(v.raw) + '</pre>';
-      }
+      var v=r[f];
+      if (v.ok) out += row(f, 'HTTP '+v.status+' · '+v.ms+'ms · '+v.count+(f.includes('models')?' models':f.includes('filters')?' filters':' keys'), 'OK', 'ok');
+      else { out += row(f, esc(v.error||'HTTP '+v.status), 'FAIL', 'fail'); fails++; }
     });
-
-    /* If models loaded fine, show model IDs list */
-    var models = r['/component-models.json'];
-    if (models && models.ok && Array.isArray(models.parsed)) {
-      var ids = models.parsed.map(function(m) { return m.id; }).filter(Boolean);
+    var m = r['/component-models.json'];
+    if (m && m.ok && Array.isArray(m.parsed)) {
+      var ids = m.parsed.map(function(x){return x.id;}).filter(Boolean);
       window._modelIds = ids;
-      out += '<div class="sep"></div>';
-      out += '<p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">Model IDs in component-models.json (' + ids.length + '):</p>';
-      out += '<pre style="max-height:120px;">' + esc(ids.join('\n')) + '</pre>';
+      out += '<div class="sep"></div><p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">Model IDs ('+ids.length+'):</p>';
+      out += '<pre style="max-height:120px;">'+esc(ids.join('\n'))+'</pre>';
     }
-
     html('json-body', out);
-    badge('badge-json', fails ? 'fail' : 'ok', fails ? fails + ' fail' : 'All valid');
+    badge('badge-json', fails?'fail':'ok', fails?fails+' fail':'All valid');
   }
 })();
 
-/* ── 3. AEM Author connectivity ── */
-(function checkAuthor() {
-  var endpoints = [
-    { label: 'Author root',         url: AUTHOR + '/', mode: 'no-cors' },
-    { label: 'UE service',          url: 'https://universal-editor-service.adobe.io/ping', mode: 'no-cors' },
-    { label: 'component-models.json (EDS)', url: location.origin + '/component-models.json', mode: 'cors' },
-  ];
-  var out = '';
-  var pending = endpoints.length;
-  var results = {};
+/* ── 3. AEM Author connectivity + CORS probe ── */
+(function() {
+  var out = '', pending = 3, hasErr = false;
+  function finish() { if (--pending===0) { html('author-body', out); badge('badge-author', hasErr?'fail':'ok', hasErr?'Issue found':'Done'); } }
 
-  endpoints.forEach(function(ep) {
-    var t0 = performance.now();
-    fetch(ep.url, { method: 'GET', mode: ep.mode, cache: 'no-store' })
-      .then(function(r) {
-        var ms = Math.round(performance.now() - t0);
-        results[ep.label] = { ok: true, status: r.status || 'opaque', ms: ms };
-      })
-      .catch(function(e) {
-        var ms = Math.round(performance.now() - t0);
-        /* no-cors fetches to cross-origin always throw — treat as reachable if it's a CORS error */
-        var reachable = ep.mode === 'no-cors' && e.message && (e.message.includes('CORS') || e.message.includes('Failed to fetch') || e.message.includes('NetworkError'));
-        results[ep.label] = { ok: ep.mode === 'no-cors', status: ep.mode === 'no-cors' ? 'no-cors (opaque)' : 'NETWORK ERR', ms: ms, note: e.message };
-      })
-      .finally(function() {
-        pending--;
-        if (pending === 0) renderAuthor(results);
-      });
-  });
+  /* 3a: Author reachability — no-cors, opaque response = server replied */
+  var t0 = performance.now();
+  fetch(AUTHOR+'/', { mode:'no-cors', cache:'no-store' })
+    .then(function() { out += row('Author reachable (no-cors)', Math.round(performance.now()-t0)+'ms', 'REACHABLE', 'ok'); })
+    .catch(function(e) { out += row('Author unreachable', esc(e.message), 'DOWN?', 'fail'); hasErr=true; })
+    .finally(finish);
 
-  function renderAuthor(r) {
-    var out = '';
-    Object.keys(r).forEach(function(k) {
-      var v = r[k];
-      out += row(k, esc(String(v.status)) + ' · ' + v.ms + 'ms' + (v.note ? ' — ' + esc(v.note) : ''), v.ok ? 'OK' : 'FAIL', v.ok ? 'ok' : 'fail');
-    });
+  /* 3b: UE service reachability */
+  var t1 = performance.now();
+  fetch('https://universal-editor-service.experiencecloud.live/', { mode:'no-cors', cache:'no-store' })
+    .then(function() { out += row('UE service (experiencecloud.live)', Math.round(performance.now()-t1)+'ms', 'REACHABLE', 'ok'); })
+    .catch(function(e) { out += row('UE service unreachable', esc(e.message), 'DOWN?', 'fail'); hasErr=true; })
+    .finally(finish);
 
-    out += '<div class="sep"></div>';
-    out += '<p style="color:var(--muted);font-size:.78rem;line-height:1.6;">';
-    out += 'Note: cross-origin no-cors fetches always return opaque responses — a network error here means the author is truly unreachable. ';
-    out += 'An opaque/no-cors response means the request reached the server (CORS blocked the response body, which is expected from the browser).';
-    out += '</p>';
-    html('author-body', out);
-    badge('badge-author', 'ok', 'Done');
-  }
+  /* 3c: Author CORS credentialed probe
+     This page's origin is NOT experience.adobe.com, so we EXPECT a CORS block.
+     But the error type tells us a lot:
+       - Any HTTP response  → Author CORS allows this page's origin (unusual, means very open CORS)
+       - TypeError/CORS err → Author blocked this origin — expected. Tells us Author IS up.
+       - NetworkError       → Author unreachable or TLS issue
+  */
+  var t2 = performance.now();
+  fetch(AUTHOR+'/libs/granite/csrf/token.json', { mode:'cors', credentials:'include', cache:'no-store' })
+    .then(function(r) {
+      var ms = Math.round(performance.now()-t2);
+      out += row('Author CORS (this origin)', 'HTTP '+r.status+' · '+ms+'ms — CORS allows '+esc(location.hostname), 'CORS OK', 'ok');
+      out += '<div class="hint">Author is returning CORS headers for <strong>'+esc(location.hostname)+'</strong>. If UE still fails, check IMS session (sign out/in at experience.adobe.com).</div>';
+    })
+    .catch(function(e) {
+      var ms = Math.round(performance.now()-t2);
+      var msg = (e&&e.message)||String(e);
+      var isCors = /cors|failed to fetch|networkerror/i.test(msg);
+      if (isCors) {
+        out += row('Author CORS (this origin blocked)', esc(location.hostname)+' · '+ms+'ms', 'Expected — not exp.adobe.com', 'info');
+        out += '<div class="hint">'
+          + 'CORS blocked from <strong>'+esc(location.hostname)+'</strong> — this is <em>expected</em>. '
+          + 'Author only allows <code>https://experience.adobe.com</code>.<br/><br/>'
+          + '<strong>To confirm UE\'s origin also works:</strong> open the browser <strong>Network tab</strong>, '
+          + 'click a CF element in UE, and find an <code>OPTIONS</code> preflight request to <code>'+esc(AUTHOR)+'</code>.<br/>'
+          + '&nbsp;&nbsp;→ Preflight 200: CORS is fine — issue is IMS session or missing CF node<br/>'
+          + '&nbsp;&nbsp;→ Preflight 403 / CORS error in console: Author CORS config not deployed<br/>'
+          + '&nbsp;&nbsp;&nbsp;&nbsp;Fix: <code>aio aem:rde:install tools/cors/ui.config-1.0-SNAPSHOT.zip -t content-package</code>'
+          + '</div>';
+      } else {
+        out += row('Author CORS probe (network error)', esc(msg)+' · '+ms+'ms', 'NETWORK ERR', 'fail');
+        hasErr = true;
+      }
+    })
+    .finally(finish);
 })();
 
 /* ── 4. Inspect page UE attributes ── */
 window.inspectPage = function() {
   var url = document.getElementById('inspect-url').value.trim();
   if (!url) return;
-  badge('badge-inspect', 'wait', 'Fetching…');
-  html('inspect-body', '<div class="spinner"></div>');
-
-  fetch(url, { mode: 'cors', cache: 'no-store' })
-    .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text();
-    })
-    .then(function(text) {
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(text, 'text/html');
-      renderInspect(doc, url);
-    })
+  badge('badge-inspect','wait','Fetching…');
+  html('inspect-body','<div class="spinner"></div>');
+  fetch(url, { mode:'cors', cache:'no-store' })
+    .then(function(r) { if (!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(function(txt) { renderInspect(new DOMParser().parseFromString(txt,'text/html'), url); })
     .catch(function(e) {
-      html('inspect-body', '<div class="row"><span style="color:var(--red)">Fetch failed: ' + esc(e.message) + '</span></div>'
-        + '<p style="color:var(--muted);font-size:.78rem;margin-top:.5rem;">EDS pages do not include Access-Control-Allow-Origin headers, so cross-origin fetch from the browser will fail. '
-        + 'Try fetching the preview URL instead (preview-- not offers--), or paste the raw HTML below.</p>');
-      badge('badge-inspect', 'warn', 'CORS blocked');
-      addTextareaFallback();
+      html('inspect-body','<p style="color:var(--red)">Fetch failed: '+esc(e.message)+'</p>'
+        +'<p style="color:var(--muted);font-size:.78rem;margin-top:.5rem;">EDS pages block cross-origin fetch. Try a preview-- URL or paste HTML below.</p>');
+      badge('badge-inspect','warn','CORS blocked');
+      var el = document.getElementById('inspect-body');
+      el.innerHTML += '<textarea id="paste-html" placeholder="Paste page HTML here…" style="width:100%;height:120px;margin-top:.75rem;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text);padding:.5rem;font-family:monospace;font-size:.75rem;border-radius:4px;"></textarea>'
+        +'<button class="inspect-btn" style="margin-top:.5rem;" onclick="analyzeHtml()">Analyze Pasted HTML</button>';
     });
 };
-
-function addTextareaFallback() {
-  var el = document.getElementById('inspect-body');
-  el.innerHTML += '<textarea id="paste-html" placeholder="Paste page HTML here for offline analysis..." '
-    + 'style="width:100%;height:120px;margin-top:.75rem;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text);padding:.5rem;font-family:monospace;font-size:.75rem;border-radius:4px;"></textarea>'
-    + '<button class="inspect-btn" style="margin-top:.5rem;" onclick="analyzeHtml()">Analyze Pasted HTML</button>';
-}
-
 window.analyzeHtml = function() {
   var txt = document.getElementById('paste-html').value;
-  if (!txt.trim()) return;
-  var parser = new DOMParser();
-  renderInspect(parser.parseFromString(txt, 'text/html'), '(pasted)');
+  if (txt.trim()) renderInspect(new DOMParser().parseFromString(txt,'text/html'),'(pasted)');
 };
 
 function renderInspect(doc, url) {
   var modelIds = window._modelIds || [];
-  var els = doc.querySelectorAll('[data-aue-resource],[data-aue-prop]');
   var issues = [];
 
-  /* Meta tag check */
-  var metaEl = doc.querySelector('meta[name="urn:adobe:aue:system:aem"]');
-  var metaContent = metaEl ? metaEl.getAttribute('content') : null;
+  var metaNew = doc.querySelector('meta[name="urn:adobe:aue:config:host"]');
+  var metaOld = doc.querySelector('meta[name="urn:adobe:aue:system:aem"]');
+  var metaContent='', metaSt, metaCls;
+  if (metaNew) {
+    metaContent = metaNew.getAttribute('content')||'';
+    var ok = metaContent.startsWith('https://');
+    metaSt = ok ? 'OK — config:host' : 'BAD content'; metaCls = ok ? 'ok' : 'fail';
+    if (!ok) issues.push('config:host content must start with https://');
+  } else if (metaOld) {
+    metaContent = metaOld.getAttribute('content')||'';
+    metaSt = 'WARN — use config:host'; metaCls = 'warn';
+    issues.push('Uses deprecated urn:adobe:aue:system:aem — change to config:host, remove aem: prefix');
+  } else { metaSt='MISSING'; metaCls='fail'; issues.push('No AUE meta tag'); }
 
-  /* cors.js check */
-  var corsPresent = !!doc.querySelector('script[src*="universal-editor-service"]');
+  var corsEl2 = doc.querySelector('script[src*="universal-editor-service"]');
+  var corsSrc = corsEl2 ? corsEl2.getAttribute('src') : null;
+  var corsOk  = corsSrc && corsSrc.includes('experiencecloud.live');
+  var corsOld2 = corsSrc && corsSrc.includes('adobe.io');
+  if (!corsEl2) issues.push('cors.js missing');
+  else if (!corsOk) issues.push('cors.js should use experiencecloud.live/corslib/LATEST');
 
-  /* Collect all data-aue-model values */
-  var modelRefs = {};
-  doc.querySelectorAll('[data-aue-model]').forEach(function(el) {
-    var m = el.getAttribute('data-aue-model');
-    if (m) modelRefs[m] = (modelRefs[m] || 0) + 1;
-  });
+  var modelRefs={}, resources={};
+  doc.querySelectorAll('[data-aue-model]').forEach(function(el) { var m=el.getAttribute('data-aue-model'); if(m) modelRefs[m]=(modelRefs[m]||0)+1; });
+  doc.querySelectorAll('[data-aue-resource]').forEach(function(el) { resources[el.getAttribute('data-aue-resource')]={ model:el.getAttribute('data-aue-model')||'(none)', type:el.getAttribute('data-aue-type')||'(none)' }; });
 
-  /* Collect all data-aue-resource paths */
-  var resources = {};
-  doc.querySelectorAll('[data-aue-resource]').forEach(function(el) {
-    var r = el.getAttribute('data-aue-resource');
-    var m = el.getAttribute('data-aue-model') || '(none)';
-    var type = el.getAttribute('data-aue-type') || '(none)';
-    resources[r] = { model: m, type: type };
-  });
-
-  var out = '';
-
-  /* Overview */
-  out += '<div class="grid3" style="margin-bottom:1rem;">';
-  out += '<div>' + row('AUE meta tag', esc(metaContent||'MISSING'), metaContent ? 'OK' : 'MISSING', metaContent ? 'ok' : 'fail') + '</div>';
-  out += '<div>' + row('cors.js', corsPresent ? 'Present' : 'MISSING', corsPresent ? 'OK' : 'MISSING', corsPresent ? 'ok' : 'fail') + '</div>';
-  out += '<div>' + row('Instrumented elements', els.length + ' total', 'Info', 'info') + '</div>';
+  var els = doc.querySelectorAll('[data-aue-resource],[data-aue-prop]');
+  var out = '<div class="grid3" style="margin-bottom:1rem;">';
+  out += '<div>'+row('AUE meta', esc(metaContent||'MISSING'), metaSt, metaCls)+'</div>';
+  out += '<div>'+row('cors.js', corsSrc?esc(corsSrc):'MISSING', corsOk?'OK':(corsOld2?'OLD — adobe.io':corsSrc?'Unknown':'MISSING'), corsOk?'ok':corsSrc?'warn':'fail')+'</div>';
+  out += '<div>'+row('Instrumented elements', els.length+' total', 'Info', 'info')+'</div>';
   out += '</div>';
 
-  if (!metaContent) issues.push('Missing urn:adobe:aue:system:aem meta tag');
-  if (!corsPresent) issues.push('cors.js not found');
-
-  /* Model reference check */
-  out += '<div class="sep"></div>';
-  out += '<p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">data-aue-model references vs component-models.json:</p>';
-  if (Object.keys(modelRefs).length === 0) {
-    out += '<p style="color:var(--muted);font-size:.78rem;">No data-aue-model attributes found on this page.</p>';
-  } else {
-    out += '<table class="attr-table"><thead><tr><th>model value</th><th>count</th><th>in component-models.json</th></tr></thead><tbody>';
+  if (Object.keys(modelRefs).length) {
+    out += '<div class="sep"></div><p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">data-aue-model refs vs component-models.json:</p>';
+    out += '<table class="attr-table"><thead><tr><th>model</th><th>count</th><th>in models.json</th></tr></thead><tbody>';
     Object.keys(modelRefs).sort().forEach(function(m) {
-      var known = modelIds.length === 0 ? null : modelIds.indexOf(m) >= 0;
-      var cls   = modelIds.length === 0 ? 'model-none' : (known ? 'model-ok' : 'model-miss');
-      var label = modelIds.length === 0 ? '(models not loaded yet)' : (known ? '✓ found' : '✗ NOT IN MODELS');
-      if (!known && modelIds.length > 0) issues.push('Model "' + m + '" not found in component-models.json');
-      out += '<tr><td class="' + cls + '">' + esc(m) + '</td><td>' + modelRefs[m] + '</td><td class="' + cls + '">' + label + '</td></tr>';
+      var known = modelIds.length ? modelIds.indexOf(m)>=0 : null;
+      var cls2 = modelIds.length ? (known?'model-ok':'model-miss') : 'model-none';
+      var lbl = modelIds.length ? (known?'✓ found':'✗ NOT FOUND') : '(load models first)';
+      if (!known && modelIds.length) issues.push('Model "'+m+'" not in component-models.json');
+      out += '<tr><td class="'+cls2+'">'+esc(m)+'</td><td>'+modelRefs[m]+'</td><td class="'+cls2+'">'+lbl+'</td></tr>';
     });
     out += '</tbody></table>';
   }
 
-  /* Resource URNs */
-  out += '<div class="sep"></div>';
-  out += '<p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">data-aue-resource URNs (' + Object.keys(resources).length + '):</p>';
+  out += '<div class="sep"></div><p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">data-aue-resource URNs ('+Object.keys(resources).length+'):</p>';
   out += '<table class="attr-table"><thead><tr><th>resource</th><th>model</th><th>type</th></tr></thead><tbody>';
-  Object.keys(resources).slice(0, 40).forEach(function(r) {
-    var v = resources[r];
-    var badUrn = !r.startsWith('urn:aem:') && !r.startsWith('urn:adobe:');
-    if (badUrn) issues.push('Bad URN format: ' + r);
-    out += '<tr><td style="' + (badUrn ? 'color:var(--red)' : '') + '">' + esc(r) + '</td>'
-         + '<td>' + esc(v.model) + '</td><td>' + esc(v.type) + '</td></tr>';
+  Object.keys(resources).slice(0,40).forEach(function(r) {
+    var v=resources[r], bad=!r.startsWith('urn:aem:')&&!r.startsWith('urn:adobe:');
+    if (bad) issues.push('Bad URN: '+r);
+    out += '<tr><td style="'+(bad?'color:var(--red)':'')+'">'+esc(r)+'</td><td>'+esc(v.model)+'</td><td>'+esc(v.type)+'</td></tr>';
   });
-  if (Object.keys(resources).length > 40) out += '<tr><td colspan="3" style="color:var(--muted);">…and ' + (Object.keys(resources).length - 40) + ' more</td></tr>';
+  if (Object.keys(resources).length>40) out += '<tr><td colspan="3" style="color:var(--muted);">…and '+(Object.keys(resources).length-40)+' more</td></tr>';
   out += '</tbody></table>';
 
   if (issues.length) {
-    out += '<div class="sep"></div>';
-    out += '<p style="color:var(--red);font-weight:700;font-size:.8rem;margin-bottom:.375rem;">Issues found (' + issues.length + '):</p>';
-    out += '<ul style="padding-left:1.25rem;font-size:.8rem;color:var(--red);">';
-    issues.forEach(function(i) { out += '<li>' + esc(i) + '</li>'; });
-    out += '</ul>';
+    out += '<div class="sep"></div><p style="color:var(--red);font-weight:700;font-size:.8rem;margin-bottom:.375rem;">Issues ('+issues.length+'):</p>';
+    out += '<ul style="padding-left:1.25rem;font-size:.8rem;color:var(--red);">'+issues.map(function(i){return '<li>'+esc(i)+'</li>';}).join('')+'</ul>';
   }
-
   html('inspect-body', out);
-  badge('badge-inspect', issues.length ? 'fail' : 'ok', issues.length ? issues.length + ' issue(s)' : 'Clean');
+  badge('badge-inspect', issues.length?'fail':'ok', issues.length?issues.length+' issue(s)':'Clean');
 }
 
-/* ── 5. CORS / response headers ── */
-(function checkCors() {
-  var url = location.href;
-  fetch(url, { method: 'HEAD', cache: 'no-store' })
-    .then(function(r) {
-      var interesting = ['access-control-allow-origin','access-control-allow-methods','x-frame-options',
-        'content-security-policy','x-robots-tag','cache-control','vary','x-cdn','x-served-by'];
-      var out = '';
-      interesting.forEach(function(h) {
-        var v = r.headers.get(h);
-        if (v !== null) {
-          var warn = (h === 'x-frame-options' && v.toLowerCase() !== 'allow') ||
-                     (h === 'content-security-policy' && v.includes('frame-ancestors') && !v.includes('experience.adobe.com'));
-          out += row(h, esc(v), warn ? 'WARN' : 'OK', warn ? 'warn' : 'ok');
-          if (warn) addError('Header ' + h + ': ' + v + ' — may block UE iframe');
-        }
-      });
-      var acao = r.headers.get('access-control-allow-origin');
-      if (!acao) {
-        out += row('access-control-allow-origin', 'not set — expected for EDS pages', 'OK — UE uses iframe+postMessage, not fetch', 'info');
+/* ── 5. Page response headers ── */
+(function() {
+  fetch(location.href, { method:'HEAD', cache:'no-store' }).then(function(r) {
+    var interesting=['access-control-allow-origin','access-control-allow-methods','x-frame-options','content-security-policy','cache-control','vary'];
+    var out='';
+    interesting.forEach(function(h) {
+      var v=r.headers.get(h);
+      if (v!==null) {
+        var warn=(h==='x-frame-options'&&v.toLowerCase()!=='allow')||(h==='content-security-policy'&&v.includes('frame-ancestors')&&!v.includes('experience.adobe.com'));
+        out += row(h, esc(v), warn?'WARN':'OK', warn?'warn':'ok');
+        if (warn) addError('Header '+h+': '+v+' — may block UE iframe');
       }
-      if (!out) out = '<p style="color:var(--muted);">No interesting headers found (same-origin HEAD; run from EDS CDN for full data).</p>';
-      html('cors-body', out);
-      badge('badge-cors', 'ok', 'Done');
-    })
-    .catch(function(e) {
-      html('cors-body', '<p style="color:var(--muted);">HEAD failed: ' + esc(e.message) + '</p>');
-      badge('badge-cors', 'warn', 'Failed');
     });
+    if (!r.headers.get('access-control-allow-origin')) out += row('access-control-allow-origin', 'not set — normal for EDS pages', 'OK — UE uses iframe+postMessage', 'info');
+    html('cors-body', out||'<p style="color:var(--muted);">No notable headers.</p>');
+    badge('badge-cors','ok','Done');
+  }).catch(function(e) { html('cors-body','<p style="color:var(--muted);">HEAD failed: '+esc(e.message)+'</p>'); badge('badge-cors','warn','Failed'); });
 })();
 
 /* ── 6. postMessage event log ── */
-var eventLog = document.getElementById('event-log');
-var eventCount = 0;
-
+var eventLog=document.getElementById('event-log'), eventCount=0;
 window.addEventListener('message', function(e) {
-  var isUE = e.origin && (e.origin.includes('adobe.io') || e.origin.includes('adobe.com') || e.origin.includes('adobeaemcloud'));
-  var type = (e.data && (e.data.type || e.data.action || e.data.name || JSON.stringify(e.data).slice(0, 80))) || '(no type)';
-  appendEvent('ev-ue', '[' + e.origin + '] ' + esc(String(type)), isUE);
+  var isUE=e.origin&&(e.origin.includes('adobe.io')||e.origin.includes('adobe.com')||e.origin.includes('adobeaemcloud'));
+  var type=(e.data&&(e.data.type||e.data.action||e.data.name||JSON.stringify(e.data).slice(0,80)))||'(no type)';
+  appendEvent('ev-ue','['+esc(e.origin)+'] '+esc(String(type)));
   eventCount++;
-  badge('badge-events', isUE ? 'ok' : 'info', eventCount + ' event(s)');
+  badge('badge-events', isUE?'ok':'info', eventCount+' event(s)');
 });
-
-function appendEvent(cls, text, isUE) {
-  var first = eventLog.querySelector('em');
-  if (first) first.remove();
-  var div = document.createElement('div');
-  div.className = 'ev ' + (cls || 'ev-sys');
-  div.innerHTML = '<span class="ev-ts">' + ts().slice(11) + '</span>' + text;
-  eventLog.appendChild(div);
-  eventLog.scrollTop = eventLog.scrollHeight;
+function appendEvent(cls,text) {
+  var f=eventLog.querySelector('em'); if(f) f.remove();
+  var d=document.createElement('div'); d.className='ev '+(cls||'ev-sys');
+  d.innerHTML='<span class="ev-ts">'+ts().slice(11)+'</span>'+text;
+  eventLog.appendChild(d); eventLog.scrollTop=eventLog.scrollHeight;
 }
 
-/* ── 7. Runtime error capture ── */
-var errorLog = document.getElementById('error-log');
-var errorCount = 0;
-
+/* ── 7. Runtime errors ── */
+var errorLog=document.getElementById('error-log'), errorCount=0;
 function addError(msg) {
-  var first = errorLog.querySelector('em');
-  if (first) first.remove();
-  var div = document.createElement('div');
-  div.className = 'ev ev-err';
-  div.innerHTML = '<span class="ev-ts">' + ts().slice(11) + '</span>' + esc(msg);
-  errorLog.appendChild(div);
-  errorCount++;
-  badge('badge-errors', 'fail', errorCount + ' error(s)');
+  var f=errorLog.querySelector('em'); if(f) f.remove();
+  var d=document.createElement('div'); d.className='ev ev-err';
+  d.innerHTML='<span class="ev-ts">'+ts().slice(11)+'</span>'+esc(msg);
+  errorLog.appendChild(d); errorCount++;
+  badge('badge-errors','fail',errorCount+' error(s)');
 }
-
-window.onerror = function(msg, src, line, col, err) {
-  addError((err ? err.message : msg) + ' — ' + (src || '') + ':' + line + ':' + col);
-  return false;
-};
-
-window.addEventListener('unhandledrejection', function(e) {
-  addError('Unhandled promise rejection: ' + esc(String(e.reason && e.reason.message || e.reason)));
-});
-
-/* cors.js load/error */
-document.getElementById('cors-js').addEventListener('error', function() {
-  addError('cors.js script failed to load');
-});
-document.getElementById('cors-js').addEventListener('load', function() {
-  appendEvent('ev-net', 'cors.js loaded OK', false);
-  /* Check if UE globals were set */
-  setTimeout(function() {
-    appendEvent('ev-sys', 'window.adobeIMS: ' + (window.adobeIMS ? 'defined' : 'undefined')
-      + ' · window.__ueEditable: ' + (window.__ueEditable !== undefined ? window.__ueEditable : 'undefined'), false);
-  }, 800);
+window.onerror=function(msg,src,line,col,err) { addError((err?err.message:msg)+' — '+(src||'')+':'+line+':'+col); return false; };
+window.addEventListener('unhandledrejection',function(e) { addError('Unhandled rejection: '+esc(String(e.reason&&e.reason.message||e.reason))); });
+document.getElementById('cors-js').addEventListener('error',function(){ addError('cors.js failed to load from: '+this.src); });
+document.getElementById('cors-js').addEventListener('load',function(){
+  appendEvent('ev-net','cors.js loaded OK from '+esc(this.src));
+  setTimeout(function(){ appendEvent('ev-sys','adobeIMS: '+(window.adobeIMS?'defined':'undefined')+' · __ueEditable: '+(window.__ueEditable!==undefined?window.__ueEditable:'undefined')); },800);
 });
 
 /* ── 3b. CF path probe ── */
 window.probeCF = function() {
-  var cfPath = document.getElementById('cf-path').value.trim();
+  var cfPath=document.getElementById('cf-path').value.trim();
   if (!cfPath) return;
-  badge('badge-cf', 'wait', 'Testing…');
-  var out = '';
+  badge('badge-cf','wait','Testing…');
+  var out='', done=0;
 
-  /* We can't call AEM Author directly due to CORS, but we can:
-     1. Test the UE service ping
-     2. Try the AEM Publish assets API (public) for the same CF path
-     3. Show what URN the page is sending so the user can verify it in author
-  */
-  var urn = 'urn:aem:' + cfPath + '/jcr:content/data/master';
-  var publishUrl = 'https://publish-p138879-e1741192.adobeaemcloud.com' + cfPath + '.json';
-  var authorCrxUrl = 'https://author-p138879-e1741192.adobeaemcloud.com' + cfPath + '.json';
-
-  out += row('URN sent to UE service', esc(urn), 'What UE receives', 'info');
-  out += row('AEM Author path', esc(cfPath), 'Must exist on author', 'info');
-  out += row('Author CRXDE URL', esc(authorCrxUrl), 'Open in author browser', 'info');
+  out += row('URN in data-aue-resource', esc('urn:aem:'+cfPath+'/jcr:content/data/master'), 'What UE receives', 'info');
+  out += row('Open CF in Author', '<a href="'+esc(AUTHOR+'/mnt/overlay/dam/gui/content/assets.html'+cfPath)+'" target="_blank" style="color:var(--blue);">Open in Assets UI</a>', 'Link', 'info');
   out += '<div class="sep"></div>';
 
-  /* Try Publish assets API — if CF is published we'd get JSON back (no auth needed) */
-  var t0 = performance.now();
-  fetch(publishUrl, { mode: 'cors', cache: 'no-store' })
+  function maybeFinish() { if (++done===2) { html('cf-result', out); badge('badge-cf', out.includes('"fail"')?'fail':out.includes('"warn"')?'warn':'ok', 'Done'); } }
+
+  /* Test 1: Publish assets API */
+  var t0=performance.now();
+  fetch(PUBLISH+cfPath+'.json', { mode:'cors', cache:'no-store' })
     .then(function(r) {
-      var ms = Math.round(performance.now() - t0);
-      if (r.ok) {
-        return r.json().then(function(j) {
-          out += row('CF on Publish (assets API)', 'HTTP ' + r.status + ' · ' + ms + 'ms — CF is published and readable', 'EXISTS', 'ok');
-          out += '<pre style="max-height:120px;">' + esc(JSON.stringify(j, null, 2).slice(0, 600)) + '</pre>';
-          html('cf-result', out);
-          badge('badge-cf', 'ok', 'CF readable on Publish');
-        });
-      } else {
-        out += row('CF on Publish (assets API)', 'HTTP ' + r.status + ' · ' + ms + 'ms', r.status === 404 ? 'NOT FOUND or not published' : 'Error', r.status === 404 ? 'warn' : 'fail');
-        if (r.status === 404) out += '<p style="color:var(--yellow);font-size:.8rem;margin-top:.5rem;">CF may exist on Author but not be published. That\'s OK for UE editing — UE reads from Author, not Publish.</p>';
-        html('cf-result', out);
-        badge('badge-cf', 'warn', 'Not on Publish');
-      }
+      var ms=Math.round(performance.now()-t0);
+      if (r.ok) return r.json().then(function(j){ out+=row('CF on Publish','HTTP '+r.status+' · '+ms+'ms','EXISTS','ok')+'<pre style="max-height:100px;">'+esc(JSON.stringify(j,null,2).slice(0,500))+'</pre>'; });
+      out += row('CF on Publish','HTTP '+r.status+' · '+ms+'ms', r.status===404?'Not published (OK for UE)':'Error', r.status===404?'info':'warn');
+    })
+    .catch(function(e) { out+=row('CF on Publish (CORS blocked)',esc(e.message),'Expected from browser','info'); })
+    .finally(maybeFinish);
+
+  /* Test 2: Author CORS probe for this exact CF path
+     Got HTTP response → CORS config allows our origin (unusual — Author is very permissive)
+     Got CORS error    → Author blocked our origin — EXPECTED (we're not experience.adobe.com)
+                         but proves Author IS up and responding
+     Got network error → Author unreachable
+  */
+  var t1=performance.now();
+  fetch(AUTHOR+cfPath+'.json', { mode:'cors', credentials:'include', cache:'no-store' })
+    .then(function(r) {
+      var ms=Math.round(performance.now()-t1);
+      out += row('CF on Author (CORS allowed!)', 'HTTP '+r.status+' · '+ms+'ms — CF exists, CORS allows this origin', 'EXISTS', 'ok');
     })
     .catch(function(e) {
-      out += row('CF on Publish (assets API)', esc(e.message), 'CORS/Network', 'warn');
-      out += '<p style="color:var(--muted);font-size:.8rem;margin-top:.5rem;">CORS blocked Publish assets API — expected from browser. This does NOT mean the CF is missing.<br/>'
-           + '<strong style="color:var(--text);">To verify the CF exists: open AEM Author → Assets → ' + esc(cfPath) + '</strong></p>';
-      html('cf-result', out);
-      badge('badge-cf', 'info', 'CORS on Publish (expected)');
-    });
+      var ms=Math.round(performance.now()-t1);
+      var msg=(e&&e.message)||String(e);
+      var isCors=/cors|failed to fetch|networkerror/i.test(msg);
+      if (isCors) {
+        out += row('Author CORS (this origin blocked)', esc(location.hostname)+' · '+ms+'ms', 'Expected', 'info');
+        out += '<div class="hint">'
+          + 'CORS blocked from <strong>'+esc(location.hostname)+'</strong> — expected (Author allows only experience.adobe.com).<br/>'
+          + '<strong>To see if UE\'s origin is blocked:</strong> open Network tab in the browser while in UE, click this CF component, '
+          + 'look for <code>OPTIONS '+esc(cfPath)+'</code> to <code>'+esc(AUTHOR)+'</code>.<br/>'
+          + '&nbsp;&nbsp;→ 200: CORS OK. Issue is IMS auth or CF node missing<br/>'
+          + '&nbsp;&nbsp;→ 403 or blocked: CORS OSGi config not deployed — run: '
+          + '<code>aio aem:rde:install tools/cors/ui.config-1.0-SNAPSHOT.zip -t content-package</code>'
+          + '</div>';
+      } else {
+        out += row('Author CF fetch (network error)', esc(msg)+' · '+ms+'ms', 'UNREACHABLE', 'fail');
+      }
+    })
+    .finally(maybeFinish);
 };
 
 /* ── global status ── */
 setTimeout(function() {
-  var fails = document.querySelectorAll('.badge.fail').length;
-  var warns = document.querySelectorAll('.badge.warn').length;
-  badge('global-status',
-    fails ? 'fail' : warns ? 'warn' : 'ok',
-    fails ? fails + ' failure(s)' : warns ? warns + ' warning(s)' : 'All checks pass');
+  var fails=document.querySelectorAll('.badge.fail').length;
+  var warns=document.querySelectorAll('.badge.warn').length;
+  badge('global-status', fails?'fail':warns?'warn':'ok', fails?fails+' failure(s)':warns?warns+' warning(s)':'All checks pass');
 }, 3500);
 </script>
 </body>
