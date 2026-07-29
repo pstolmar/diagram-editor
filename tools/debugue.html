@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>UE Debug — diagram-editor</title>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async id="cors-js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --muted: #8b949e;
+      --green: #3fb950; --red: #f85149; --yellow: #d29922;
+      --blue: #58a6ff; --purple: #bc8cff; --teal: #39d353;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5; }
+    .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    h1  { font-size: 1.25rem; font-weight: 700; margin-bottom: .25rem; }
+    h2  { font-size: .875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .875rem; }
+    p.sub { color: var(--muted); margin-bottom: 2rem; font-size: .875rem; }
+    .sections { display: flex; flex-direction: column; gap: 1.5rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; border-bottom: 1px solid var(--border); }
+    .card-title { font-weight: 600; font-size: .875rem; display: flex; align-items: center; gap: .5rem; }
+    .card-body { padding: 1rem; }
+    .badge { display: inline-flex; align-items: center; gap: .3rem; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: .2rem .6rem; border-radius: 4px; }
+    .ok    { background: rgba(63,185,80,.12);  color: var(--green);  }
+    .fail  { background: rgba(248,81,73,.12);  color: var(--red);    }
+    .warn  { background: rgba(210,153,34,.12); color: var(--yellow); }
+    .info  { background: rgba(88,166,255,.12); color: var(--blue);   }
+    .wait  { background: rgba(139,148,158,.1); color: var(--muted);  }
+    .row   { display: grid; grid-template-columns: 220px 1fr 80px; gap: .5rem; align-items: start; padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .8rem; }
+    .row:last-child { border-bottom: none; }
+    .row-label { color: var(--muted); font-weight: 500; }
+    .row-val { word-break: break-all; font-family: 'SF Mono', 'Fira Code', monospace; font-size: .78rem; }
+    .row-status { text-align: right; }
+    pre { background: rgba(0,0,0,.4); border: 1px solid var(--border); border-radius: 5px; padding: .875rem; font-size: .75rem; font-family: 'SF Mono', 'Fira Code', monospace; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; }
+    .event-log { font-family: 'SF Mono', monospace; font-size: .75rem; max-height: 340px; overflow-y: auto; padding: .5rem; }
+    .ev { padding: .35rem .5rem; border-radius: 3px; margin-bottom: .25rem; border-left: 3px solid var(--border); }
+    .ev-ts { color: var(--muted); margin-right: .5rem; }
+    .ev-ue  { border-left-color: var(--purple); }
+    .ev-err { border-left-color: var(--red);    background: rgba(248,81,73,.06); }
+    .ev-net { border-left-color: var(--blue);   }
+    .ev-sys { border-left-color: var(--muted);  }
+    .cors-tag { font-size: .7rem; padding: .15rem .45rem; border-radius: 3px; margin-left: .35rem; background: rgba(88,166,255,.12); color: var(--blue); font-family: monospace; }
+    table.attr-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+    table.attr-table th { text-align: left; color: var(--muted); font-weight: 600; padding: .35rem .5rem; border-bottom: 1px solid var(--border); }
+    table.attr-table td { padding: .35rem .5rem; border-bottom: 1px solid rgba(255,255,255,.04); font-family: monospace; vertical-align: top; word-break: break-all; }
+    table.attr-table tr:last-child td { border-bottom: none; }
+    .model-ok   { color: var(--green); }
+    .model-miss { color: var(--red);   }
+    .model-none { color: var(--muted); font-style: italic; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+    .reload-btn {
+      background: var(--blue); color: #000; border: none; border-radius: 4px;
+      padding: .45rem 1rem; font-size: .8rem; font-weight: 700; cursor: pointer;
+      font-family: inherit;
+    }
+    .reload-btn:hover { opacity: .85; }
+    .sep { height: 1px; background: var(--border); margin: .75rem 0; }
+    #inspect-url { width: 100%; background: rgba(0,0,0,.4); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: .5rem .75rem; font-family: monospace; font-size: .8rem; margin-bottom: .75rem; }
+    #inspect-url:focus { outline: none; border-color: var(--blue); }
+    .inspect-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: .45rem 1rem; font-size: .8rem; cursor: pointer; font-family: inherit; font-weight: 600; }
+    .inspect-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--muted); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="page" data-aue-resource="urn:aem:/content/dam/debug/ue-debug" data-aue-type="component" data-aue-label="UE Debug Page">
+  <h1>Universal Editor Debug</h1>
+  <p class="sub">Diagnostics for author-p138879-e1741192.adobeaemcloud.com · <span id="ts"></span></p>
+
+  <div style="margin-bottom:1.5rem; display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+    <button class="reload-btn" onclick="location.reload()">↻ Re-run all checks</button>
+    <span id="global-status" class="badge wait">Running…</span>
+  </div>
+
+  <div class="sections">
+
+    <!-- 1. Page instrumentation -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">1 · Page Instrumentation</span>
+        <span id="badge-instr" class="badge wait">…</span>
+      </div>
+      <div class="card-body" id="instr-body">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- 2. JSON model files -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">2 · Component JSON Files</span>
+        <span id="badge-json" class="badge wait">…</span>
+      </div>
+      <div class="card-body" id="json-body">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- 3. AEM Author connectivity -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">3 · AEM Author Connectivity</span>
+        <span id="badge-author" class="badge wait">…</span>
+      </div>
+      <div class="card-body" id="author-body">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- 4. Inspect a page's UE attributes -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">4 · Inspect Page UE Attributes</span>
+        <span id="badge-inspect" class="badge wait">Choose page →</span>
+      </div>
+      <div class="card-body">
+        <input id="inspect-url" type="url"
+          placeholder="https://offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/offers.html"
+          value="https://offers--diagram-editor--pstolmar.aem.live/tools/ue-spa-demo/offers.html"/>
+        <button class="inspect-btn" onclick="inspectPage()">Fetch &amp; Analyze</button>
+        <div id="inspect-body" style="margin-top:.875rem;"></div>
+      </div>
+    </div>
+
+    <!-- 5. CORS / Response headers -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">5 · CORS &amp; Response Headers</span>
+        <span id="badge-cors" class="badge wait">…</span>
+      </div>
+      <div class="card-body" id="cors-body">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- 6. UE postMessage event log -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">6 · UE postMessage Event Log</span>
+        <span id="badge-events" class="badge info">Live</span>
+      </div>
+      <div class="card-body">
+        <p style="color:var(--muted);font-size:.8rem;margin-bottom:.75rem;">
+          Events received from <code>universal-editor-service.adobe.io</code> and the UE iframe. Load this page <em>inside</em> UE to see handshake messages.
+        </p>
+        <div class="event-log" id="event-log"><em style="color:var(--muted);">Waiting for messages…</em></div>
+      </div>
+    </div>
+
+    <!-- 7. Script errors -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">7 · Runtime Errors</span>
+        <span id="badge-errors" class="badge ok">None</span>
+      </div>
+      <div class="card-body">
+        <div class="event-log" id="error-log"><em style="color:var(--muted);">No errors captured yet.</em></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── utilities ── */
+var AUTHOR = 'https://author-p138879-e1741192.adobeaemcloud.com';
+var ts = function () { return new Date().toISOString().replace('T',' ').slice(0,23); };
+document.getElementById('ts').textContent = ts();
+
+function badge(id, cls, text) {
+  var el = document.getElementById(id);
+  el.className = 'badge ' + cls;
+  el.textContent = text;
+}
+function html(id, markup) { document.getElementById(id).innerHTML = markup; }
+function row(label, val, status, statusCls) {
+  return '<div class="row"><span class="row-label">' + esc(label) + '</span>'
+       + '<span class="row-val">' + (val || '—') + '</span>'
+       + '<span class="row-status"><span class="badge ' + (statusCls||'info') + '">' + esc(status||'') + '</span></span>'
+       + '</div>';
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── 1. Page instrumentation ── */
+(function checkInstr() {
+  var meta = document.querySelector('meta[name="urn:adobe:aue:system:aem"]');
+  var corsScript = document.getElementById('cors-js');
+  var issues = [];
+  var out = '';
+
+  if (meta) {
+    var content = meta.getAttribute('content') || '';
+    var ok = content.startsWith('aem:https://');
+    if (!ok) issues.push('meta content must start with aem:https://');
+    out += row('AUE meta tag', esc(content), ok ? 'OK' : 'BAD FORMAT', ok ? 'ok' : 'fail');
+  } else {
+    issues.push('Missing urn:adobe:aue:system:aem meta tag');
+    out += row('AUE meta tag', 'NOT FOUND', 'MISSING', 'fail');
+  }
+
+  if (corsScript) {
+    var loaded = corsScript.src && !corsScript.dataset.failed;
+    out += row('cors.js script tag', esc(corsScript.src), 'Present', 'ok');
+    corsScript.addEventListener('load',  function() { out += row('cors.js', 'loaded', 'OK', 'ok'); });
+    corsScript.addEventListener('error', function() {
+      addError('cors.js failed to load: ' + corsScript.src);
+      badge('badge-instr','fail','cors.js fail');
+    });
+  } else {
+    issues.push('cors.js script tag not found');
+    out += row('cors.js script tag', 'NOT FOUND', 'MISSING', 'fail');
+  }
+
+  out += row('window.adobeIMS', window.adobeIMS ? 'present' : 'undefined', window.adobeIMS ? 'OK' : 'Not injected yet', window.adobeIMS ? 'ok' : 'warn');
+  out += row('window.__ueEditable', window.__ueEditable !== undefined ? String(window.__ueEditable) : 'undefined', window.__ueEditable !== undefined ? 'In UE' : 'Standalone', window.__ueEditable !== undefined ? 'ok' : 'info');
+  out += row('window.parent !== window', window.parent !== window ? 'true (in iframe)' : 'false', window.parent !== window ? 'Framed' : 'Top-level', 'info');
+
+  out += '<div class="sep"></div>';
+  out += row('Page origin', esc(location.origin), 'Info', 'info');
+  out += row('Full URL', esc(location.href), 'Info', 'info');
+
+  html('instr-body', out);
+  badge('badge-instr', issues.length ? 'fail' : 'ok', issues.length ? issues.length + ' issue(s)' : 'OK');
+})();
+
+/* ── 2. JSON model files ── */
+(function checkJson() {
+  var files = [
+    '/component-models.json',
+    '/component-definition.json',
+    '/component-filters.json',
+  ];
+  var results = {};
+  var pending = files.length;
+
+  files.forEach(function(f) {
+    var t0 = performance.now();
+    fetch(f)
+      .then(function(r) {
+        var status = r.status;
+        return r.text().then(function(txt) {
+          var ms = Math.round(performance.now() - t0);
+          try {
+            var parsed = JSON.parse(txt);
+            var count = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
+            results[f] = { ok: true, status: status, ms: ms, count: count, parsed: parsed };
+          } catch(e) {
+            results[f] = { ok: false, status: status, ms: ms, error: e.message, raw: txt.slice(0, 300) };
+          }
+        });
+      })
+      .catch(function(e) {
+        results[f] = { ok: false, error: e.message, status: 'Network error' };
+      })
+      .finally(function() {
+        pending--;
+        if (pending === 0) renderJson(results);
+      });
+  });
+
+  function renderJson(r) {
+    var fails = Object.values(r).filter(function(v) { return !v.ok; }).length;
+    var out = '';
+    Object.keys(r).forEach(function(f) {
+      var v = r[f];
+      if (v.ok) {
+        var label = f === '/component-models.json' ? v.count + ' models' :
+                    f === '/component-filters.json' ? v.count + ' filters' : 'valid JSON';
+        out += row(f, 'HTTP ' + v.status + ' · ' + v.ms + 'ms · ' + label, 'OK', 'ok');
+      } else {
+        out += row(f, esc(v.error || ('HTTP ' + v.status)), 'FAIL', 'fail');
+        if (v.raw) out += '<pre>' + esc(v.raw) + '</pre>';
+      }
+    });
+
+    /* If models loaded fine, show model IDs list */
+    var models = r['/component-models.json'];
+    if (models && models.ok && Array.isArray(models.parsed)) {
+      var ids = models.parsed.map(function(m) { return m.id; }).filter(Boolean);
+      window._modelIds = ids;
+      out += '<div class="sep"></div>';
+      out += '<p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">Model IDs in component-models.json (' + ids.length + '):</p>';
+      out += '<pre style="max-height:120px;">' + esc(ids.join('\n')) + '</pre>';
+    }
+
+    html('json-body', out);
+    badge('badge-json', fails ? 'fail' : 'ok', fails ? fails + ' fail' : 'All valid');
+  }
+})();
+
+/* ── 3. AEM Author connectivity ── */
+(function checkAuthor() {
+  var endpoints = [
+    { label: 'Author root',         url: AUTHOR + '/', mode: 'no-cors' },
+    { label: 'UE service',          url: 'https://universal-editor-service.adobe.io/ping', mode: 'no-cors' },
+    { label: 'component-models.json (EDS)', url: location.origin + '/component-models.json', mode: 'cors' },
+  ];
+  var out = '';
+  var pending = endpoints.length;
+  var results = {};
+
+  endpoints.forEach(function(ep) {
+    var t0 = performance.now();
+    fetch(ep.url, { method: 'GET', mode: ep.mode, cache: 'no-store' })
+      .then(function(r) {
+        var ms = Math.round(performance.now() - t0);
+        results[ep.label] = { ok: true, status: r.status || 'opaque', ms: ms };
+      })
+      .catch(function(e) {
+        var ms = Math.round(performance.now() - t0);
+        /* no-cors fetches to cross-origin always throw — treat as reachable if it's a CORS error */
+        var reachable = ep.mode === 'no-cors' && e.message && (e.message.includes('CORS') || e.message.includes('Failed to fetch') || e.message.includes('NetworkError'));
+        results[ep.label] = { ok: ep.mode === 'no-cors', status: ep.mode === 'no-cors' ? 'no-cors (opaque)' : 'NETWORK ERR', ms: ms, note: e.message };
+      })
+      .finally(function() {
+        pending--;
+        if (pending === 0) renderAuthor(results);
+      });
+  });
+
+  function renderAuthor(r) {
+    var out = '';
+    Object.keys(r).forEach(function(k) {
+      var v = r[k];
+      out += row(k, esc(String(v.status)) + ' · ' + v.ms + 'ms' + (v.note ? ' — ' + esc(v.note) : ''), v.ok ? 'OK' : 'FAIL', v.ok ? 'ok' : 'fail');
+    });
+
+    out += '<div class="sep"></div>';
+    out += '<p style="color:var(--muted);font-size:.78rem;line-height:1.6;">';
+    out += 'Note: cross-origin no-cors fetches always return opaque responses — a network error here means the author is truly unreachable. ';
+    out += 'An opaque/no-cors response means the request reached the server (CORS blocked the response body, which is expected from the browser).';
+    out += '</p>';
+    html('author-body', out);
+    badge('badge-author', 'ok', 'Done');
+  }
+})();
+
+/* ── 4. Inspect page UE attributes ── */
+window.inspectPage = function() {
+  var url = document.getElementById('inspect-url').value.trim();
+  if (!url) return;
+  badge('badge-inspect', 'wait', 'Fetching…');
+  html('inspect-body', '<div class="spinner"></div>');
+
+  fetch(url, { mode: 'cors', cache: 'no-store' })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function(text) {
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(text, 'text/html');
+      renderInspect(doc, url);
+    })
+    .catch(function(e) {
+      html('inspect-body', '<div class="row"><span style="color:var(--red)">Fetch failed: ' + esc(e.message) + '</span></div>'
+        + '<p style="color:var(--muted);font-size:.78rem;margin-top:.5rem;">EDS pages do not include Access-Control-Allow-Origin headers, so cross-origin fetch from the browser will fail. '
+        + 'Try fetching the preview URL instead (preview-- not offers--), or paste the raw HTML below.</p>');
+      badge('badge-inspect', 'warn', 'CORS blocked');
+      addTextareaFallback();
+    });
+};
+
+function addTextareaFallback() {
+  var el = document.getElementById('inspect-body');
+  el.innerHTML += '<textarea id="paste-html" placeholder="Paste page HTML here for offline analysis..." '
+    + 'style="width:100%;height:120px;margin-top:.75rem;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text);padding:.5rem;font-family:monospace;font-size:.75rem;border-radius:4px;"></textarea>'
+    + '<button class="inspect-btn" style="margin-top:.5rem;" onclick="analyzeHtml()">Analyze Pasted HTML</button>';
+}
+
+window.analyzeHtml = function() {
+  var txt = document.getElementById('paste-html').value;
+  if (!txt.trim()) return;
+  var parser = new DOMParser();
+  renderInspect(parser.parseFromString(txt, 'text/html'), '(pasted)');
+};
+
+function renderInspect(doc, url) {
+  var modelIds = window._modelIds || [];
+  var els = doc.querySelectorAll('[data-aue-resource],[data-aue-prop]');
+  var issues = [];
+
+  /* Meta tag check */
+  var metaEl = doc.querySelector('meta[name="urn:adobe:aue:system:aem"]');
+  var metaContent = metaEl ? metaEl.getAttribute('content') : null;
+
+  /* cors.js check */
+  var corsPresent = !!doc.querySelector('script[src*="universal-editor-service"]');
+
+  /* Collect all data-aue-model values */
+  var modelRefs = {};
+  doc.querySelectorAll('[data-aue-model]').forEach(function(el) {
+    var m = el.getAttribute('data-aue-model');
+    if (m) modelRefs[m] = (modelRefs[m] || 0) + 1;
+  });
+
+  /* Collect all data-aue-resource paths */
+  var resources = {};
+  doc.querySelectorAll('[data-aue-resource]').forEach(function(el) {
+    var r = el.getAttribute('data-aue-resource');
+    var m = el.getAttribute('data-aue-model') || '(none)';
+    var type = el.getAttribute('data-aue-type') || '(none)';
+    resources[r] = { model: m, type: type };
+  });
+
+  var out = '';
+
+  /* Overview */
+  out += '<div class="grid3" style="margin-bottom:1rem;">';
+  out += '<div>' + row('AUE meta tag', esc(metaContent||'MISSING'), metaContent ? 'OK' : 'MISSING', metaContent ? 'ok' : 'fail') + '</div>';
+  out += '<div>' + row('cors.js', corsPresent ? 'Present' : 'MISSING', corsPresent ? 'OK' : 'MISSING', corsPresent ? 'ok' : 'fail') + '</div>';
+  out += '<div>' + row('Instrumented elements', els.length + ' total', 'Info', 'info') + '</div>';
+  out += '</div>';
+
+  if (!metaContent) issues.push('Missing urn:adobe:aue:system:aem meta tag');
+  if (!corsPresent) issues.push('cors.js not found');
+
+  /* Model reference check */
+  out += '<div class="sep"></div>';
+  out += '<p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">data-aue-model references vs component-models.json:</p>';
+  if (Object.keys(modelRefs).length === 0) {
+    out += '<p style="color:var(--muted);font-size:.78rem;">No data-aue-model attributes found on this page.</p>';
+  } else {
+    out += '<table class="attr-table"><thead><tr><th>model value</th><th>count</th><th>in component-models.json</th></tr></thead><tbody>';
+    Object.keys(modelRefs).sort().forEach(function(m) {
+      var known = modelIds.length === 0 ? null : modelIds.indexOf(m) >= 0;
+      var cls   = modelIds.length === 0 ? 'model-none' : (known ? 'model-ok' : 'model-miss');
+      var label = modelIds.length === 0 ? '(models not loaded yet)' : (known ? '✓ found' : '✗ NOT IN MODELS');
+      if (!known && modelIds.length > 0) issues.push('Model "' + m + '" not found in component-models.json');
+      out += '<tr><td class="' + cls + '">' + esc(m) + '</td><td>' + modelRefs[m] + '</td><td class="' + cls + '">' + label + '</td></tr>';
+    });
+    out += '</tbody></table>';
+  }
+
+  /* Resource URNs */
+  out += '<div class="sep"></div>';
+  out += '<p style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem;">data-aue-resource URNs (' + Object.keys(resources).length + '):</p>';
+  out += '<table class="attr-table"><thead><tr><th>resource</th><th>model</th><th>type</th></tr></thead><tbody>';
+  Object.keys(resources).slice(0, 40).forEach(function(r) {
+    var v = resources[r];
+    var badUrn = !r.startsWith('urn:aem:') && !r.startsWith('urn:adobe:');
+    if (badUrn) issues.push('Bad URN format: ' + r);
+    out += '<tr><td style="' + (badUrn ? 'color:var(--red)' : '') + '">' + esc(r) + '</td>'
+         + '<td>' + esc(v.model) + '</td><td>' + esc(v.type) + '</td></tr>';
+  });
+  if (Object.keys(resources).length > 40) out += '<tr><td colspan="3" style="color:var(--muted);">…and ' + (Object.keys(resources).length - 40) + ' more</td></tr>';
+  out += '</tbody></table>';
+
+  if (issues.length) {
+    out += '<div class="sep"></div>';
+    out += '<p style="color:var(--red);font-weight:700;font-size:.8rem;margin-bottom:.375rem;">Issues found (' + issues.length + '):</p>';
+    out += '<ul style="padding-left:1.25rem;font-size:.8rem;color:var(--red);">';
+    issues.forEach(function(i) { out += '<li>' + esc(i) + '</li>'; });
+    out += '</ul>';
+  }
+
+  html('inspect-body', out);
+  badge('badge-inspect', issues.length ? 'fail' : 'ok', issues.length ? issues.length + ' issue(s)' : 'Clean');
+}
+
+/* ── 5. CORS / response headers ── */
+(function checkCors() {
+  var url = location.href;
+  fetch(url, { method: 'HEAD', cache: 'no-store' })
+    .then(function(r) {
+      var interesting = ['access-control-allow-origin','access-control-allow-methods','x-frame-options',
+        'content-security-policy','x-robots-tag','cache-control','vary','x-cdn','x-served-by'];
+      var out = '';
+      interesting.forEach(function(h) {
+        var v = r.headers.get(h);
+        if (v !== null) {
+          var warn = (h === 'x-frame-options' && v.toLowerCase() !== 'allow') ||
+                     (h === 'content-security-policy' && v.includes('frame-ancestors') && !v.includes('experience.adobe.com'));
+          out += row(h, esc(v), warn ? 'WARN' : 'OK', warn ? 'warn' : 'ok');
+          if (warn) addError('Header ' + h + ': ' + v + ' — may block UE iframe');
+        }
+      });
+      var acao = r.headers.get('access-control-allow-origin');
+      if (!acao) {
+        out += row('access-control-allow-origin', 'not set', 'WARN — UE needs CORS', 'warn');
+      }
+      if (!out) out = '<p style="color:var(--muted);">No interesting headers found (same-origin HEAD; run from EDS CDN for full data).</p>';
+      html('cors-body', out);
+      badge('badge-cors', 'ok', 'Done');
+    })
+    .catch(function(e) {
+      html('cors-body', '<p style="color:var(--muted);">HEAD failed: ' + esc(e.message) + '</p>');
+      badge('badge-cors', 'warn', 'Failed');
+    });
+})();
+
+/* ── 6. postMessage event log ── */
+var eventLog = document.getElementById('event-log');
+var eventCount = 0;
+
+window.addEventListener('message', function(e) {
+  var isUE = e.origin && (e.origin.includes('adobe.io') || e.origin.includes('adobe.com') || e.origin.includes('adobeaemcloud'));
+  var type = (e.data && (e.data.type || e.data.action || e.data.name || JSON.stringify(e.data).slice(0, 80))) || '(no type)';
+  appendEvent('ev-ue', '[' + e.origin + '] ' + esc(String(type)), isUE);
+  eventCount++;
+  badge('badge-events', isUE ? 'ok' : 'info', eventCount + ' event(s)');
+});
+
+function appendEvent(cls, text, isUE) {
+  var first = eventLog.querySelector('em');
+  if (first) first.remove();
+  var div = document.createElement('div');
+  div.className = 'ev ' + (cls || 'ev-sys');
+  div.innerHTML = '<span class="ev-ts">' + ts().slice(11) + '</span>' + text;
+  eventLog.appendChild(div);
+  eventLog.scrollTop = eventLog.scrollHeight;
+}
+
+/* ── 7. Runtime error capture ── */
+var errorLog = document.getElementById('error-log');
+var errorCount = 0;
+
+function addError(msg) {
+  var first = errorLog.querySelector('em');
+  if (first) first.remove();
+  var div = document.createElement('div');
+  div.className = 'ev ev-err';
+  div.innerHTML = '<span class="ev-ts">' + ts().slice(11) + '</span>' + esc(msg);
+  errorLog.appendChild(div);
+  errorCount++;
+  badge('badge-errors', 'fail', errorCount + ' error(s)');
+}
+
+window.onerror = function(msg, src, line, col, err) {
+  addError((err ? err.message : msg) + ' — ' + (src || '') + ':' + line + ':' + col);
+  return false;
+};
+
+window.addEventListener('unhandledrejection', function(e) {
+  addError('Unhandled promise rejection: ' + esc(String(e.reason && e.reason.message || e.reason)));
+});
+
+/* cors.js load/error */
+document.getElementById('cors-js').addEventListener('error', function() {
+  addError('cors.js script failed to load');
+});
+document.getElementById('cors-js').addEventListener('load', function() {
+  appendEvent('ev-net', 'cors.js loaded OK', false);
+  /* Check if UE globals were set */
+  setTimeout(function() {
+    appendEvent('ev-sys', 'window.adobeIMS: ' + (window.adobeIMS ? 'defined' : 'undefined')
+      + ' · window.__ueEditable: ' + (window.__ueEditable !== undefined ? window.__ueEditable : 'undefined'), false);
+  }, 800);
+});
+
+/* ── global status ── */
+setTimeout(function() {
+  var fails = document.querySelectorAll('.badge.fail').length;
+  var warns = document.querySelectorAll('.badge.warn').length;
+  badge('global-status',
+    fails ? 'fail' : warns ? 'warn' : 'ok',
+    fails ? fails + ' failure(s)' : warns ? warns + ' warning(s)' : 'All checks pass');
+}, 3500);
+</script>
+</body>
+</html>
