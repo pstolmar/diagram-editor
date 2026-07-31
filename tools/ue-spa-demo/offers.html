@@ -437,7 +437,7 @@
 
     /* ── CF path helper ──────────────────────────────────────────────── */
     function FRAG(slug, variation) {
-      return '/content/dam/ue-demo/fragments/' + slug;
+      return '/content/dam/ue-demo/fragments/' + slug + '/jcr:content/data/' + (variation || 'master');
     }
 
     /* ── UE annotation helpers ───────────────────────────────────────── */
