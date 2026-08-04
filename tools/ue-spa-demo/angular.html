@@ -149,12 +149,15 @@
 
 <script>
   /* Angular Elements — custom elements compiled from @angular/elements */
-  const RES = 'urn:aem:/content/dam/ue-demo/fragments/home-hero/jcr:content/data/master';
+  const FRAG_PATH = '/content/dam/ue-demo/fragments/angular-hero';
+  const RES = 'urn:aem:' + FRAG_PATH + '/jcr:content/data/master';
+  const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
   const FB = {
-    eyebrow: 'Angular · AEM Demo', title: 'Editable from AEM',
-    description: 'This SPA renders Universal Editor annotations so authors can edit fields in context.',
-    ctaLabel: 'Learn more',
-    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+    eyebrow: 'AEM Hybrid · Angular',
+    title: 'Investment Portfolio Dashboard',
+    description: 'Angular-powered analytics with real-time data — content authored and personalized in AEM Universal Editor without touching code.',
+    ctaLabel: 'View Dashboard',
+    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
   };
 
   /* Web Component — compiled output of @Component({ selector: 'ng-hero' }) */
@@ -167,7 +170,7 @@
       if (!c) return;
       const r = this._esc(RES);
       this.innerHTML = `
-        <div class="page-content" data-aue-resource="${r}" data-aue-type="component" data-aue-label="Hero CF" data-aue-model="hero">
+        <div class="page-content" data-aue-resource="${r}" data-aue-type="component" data-aue-label="Hero CF">
           <mat-card>
             <div class="mat-card-media">
               <img src="${this._esc(c.image)}" alt=""
@@ -214,7 +217,7 @@
             <mat-card style="padding:20px">
               <div style="font-size:.8rem;font-weight:700;color:#1976D2;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Content provenance</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                ${['Fragment path', '/content/dam/ue-demo/…', 'Model', 'homeHero', 'Variation', 'master', 'Status', '● Published'].map((t,i) =>
+                ${['Fragment path', '/content/dam/ue-demo/angular-hero', 'Model', 'homeHero', 'Variation', 'master', 'Status', '● Published'].map((t,i) =>
                   i % 2 === 0
                     ? `<div style="font-size:.75rem;color:#9e9e9e;font-weight:500">${t}</div>`
                     : `<div style="font-size:.8125rem;font-weight:700;color:#212121">${t}</div>`
@@ -241,9 +244,12 @@
     const el = root.querySelector('ng-hero');
 
     try {
-      const res = await fetch('https://publish-p138879-e1741192.adobeaemcloud.com/graphql/execute.json/global/hero?_v=' + Date.now(), { headers: { Accept: 'application/json' } });
+      const url = PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + FRAG_PATH + ';variation=master;_t=' + Date.now();
+      const res = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(res.status);
       const d = await res.json();
-      const item = d?.data?.homeHeroByPath?.item || d;
+      const item = d?.data?.homeHeroByPath?.item;
+      if (!item) throw new Error('no item');
       el.data = { ...FB, ...item,
         image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
         description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
