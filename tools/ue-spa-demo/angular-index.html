@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>Angular + AEM · Demo Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #DD0031;
+      --red-dark: #b71c1c;
+      --blue: #1976D2;
+      --surface: #fff;
+      --bg: #fafafa;
+      --text: #212121;
+      --text-2: #616161;
+      --text-3: #9e9e9e;
+      --divider: #e0e0e0;
+      --shadow-1: 0 2px 1px rgba(0,0,0,.09), 0 1px 1px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+      --shadow-2: 0 3px 3px rgba(0,0,0,.12), 0 3px 4px rgba(0,0,0,.07), 0 1px 8px rgba(0,0,0,.08);
+      --shadow-hover: 0 8px 10px rgba(0,0,0,.14), 0 3px 14px rgba(0,0,0,.12), 0 5px 5px rgba(0,0,0,.1);
+    }
+
+    body {
+      font-family: 'Roboto', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Toolbar ───────────────────────────────────────────────────────────── */
+    mat-toolbar {
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      height: 64px;
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,.22), 0 4px 5px rgba(0,0,0,.14);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .tb-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.125rem;
+      font-weight: 500;
+      white-space: nowrap;
+      text-decoration: none;
+      color: #fff;
+    }
+    .tb-brand .material-icons { font-size: 26px; }
+    .tb-div {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,.3);
+      margin: 0 16px;
+    }
+    .tb-subtitle {
+      font-size: .875rem;
+      font-weight: 400;
+      color: rgba(255,255,255,.78);
+      white-space: nowrap;
+    }
+    .tb-space { flex: 1; }
+    .aem-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      cursor: default;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,.2);
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #a5d6a7;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ── Hero header ───────────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(145deg, #1a0a0a 0%, #2d0014 40%, #1a0a20 100%);
+      padding: 56px 24px 60px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.12;
+      letter-spacing: -.02em;
+      margin-bottom: 14px;
+    }
+    .hero-title span { color: var(--red); }
+    .hero-subtitle {
+      font-size: 1.0625rem;
+      color: rgba(255,255,255,.62);
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+    .chips {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(221,0,49,.5);
+      background: rgba(221,0,49,.12);
+      color: #ff8a80;
+      font-size: .8125rem;
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+    .chip .material-icons { font-size: 15px; }
+
+    /* ── Page layout ───────────────────────────────────────────────────────── */
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Section headers ───────────────────────────────────────────────────── */
+    .section { padding: 48px 0; }
+    .section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .section-desc {
+      font-size: .9375rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    /* ── Demo card grid ────────────────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .demo-card {
+      display: block;
+      background: var(--surface);
+      border-radius: 4px;
+      box-shadow: var(--shadow-1);
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      transition: box-shadow .2s, transform .2s;
+      border-top: 3px solid transparent;
+    }
+    .demo-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+      border-top-color: var(--red);
+    }
+    .demo-card:hover .card-icon { background: var(--red); color: #fff; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px 20px 0;
+    }
+    .card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #fce4ec;
+      color: var(--red);
+      flex-shrink: 0;
+      transition: background .2s, color .2s;
+    }
+    .card-icon .material-icons { font-size: 22px; }
+    .card-head-text { flex: 1; min-width: 0; }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+    .card-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: .6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* Badge color variants */
+    .badge-core { background: #e8f5e9; color: #2e7d32; }
+    .badge-governance { background: #e3f2fd; color: #1565c0; }
+    .badge-architecture { background: #f3e5f5; color: #6a1b9a; }
+    .badge-foundation { background: #fff3e0; color: #e65100; }
+    .badge-guide { background: #e0f2f1; color: #00695c; }
+    .badge-reference { background: #fce4ec; color: #880e4f; }
+
+    .card-body { padding: 14px 20px 20px; }
+    .card-desc {
+      font-size: .875rem;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    .card-arrow {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px 16px;
+      gap: 6px;
+      font-size: .8125rem;
+      font-weight: 500;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .card-arrow .material-icons { font-size: 18px; }
+
+    /* ── Architecture diagram ──────────────────────────────────────────────── */
+    .arch-section { background: #fff; padding: 48px 0; border-top: 1px solid var(--divider); }
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 28px 0 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .arch-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: 6px;
+      padding: 18px 24px;
+      box-shadow: var(--shadow-1);
+      min-width: 180px;
+      text-align: center;
+    }
+    .arch-box .material-icons { font-size: 28px; color: var(--red); }
+    .arch-box-title {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: .01em;
+    }
+    .arch-box-sub {
+      font-size: .75rem;
+      color: var(--text-2);
+      line-height: 1.45;
+    }
+
+    .arch-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 8px;
+      min-width: 110px;
+      text-align: center;
+    }
+    .arch-arrow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+    }
+    .arch-line {
+      flex: 1;
+      height: 2px;
+      background: var(--red);
+      opacity: .35;
+    }
+    .arch-arrowhead {
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 9px solid var(--red);
+      opacity: .5;
+    }
+    .arch-label {
+      margin-top: 6px;
+      font-size: .6875rem;
+      color: var(--text-2);
+      font-weight: 500;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Second row — UE flow */
+    .arch-flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .arch-annotation {
+      background: #fffde7;
+      border: 1px solid #f9a825;
+      border-radius: 4px;
+      padding: 12px 16px;
+      font-size: .8125rem;
+      line-height: 1.6;
+      color: #5d4037;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .arch-annotation strong { color: #4a148c; }
+
+    /* ── Hybrid callout ────────────────────────────────────────────────────── */
+    .callout-section { padding: 0 0 48px; }
+    .hybrid-callout {
+      background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+      border-radius: 6px;
+      padding: 28px 32px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-2);
+    }
+    .hybrid-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      flex-shrink: 0;
+    }
+    .hybrid-icon .material-icons { font-size: 26px; color: #fff; }
+    .hybrid-text { flex: 1; }
+    .hybrid-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .hybrid-desc {
+      font-size: .9rem;
+      color: rgba(255,255,255,.8);
+      line-height: 1.65;
+    }
+    .hybrid-desc em {
+      font-style: normal;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* ── Quick deploy block ────────────────────────────────────────────────── */
+    .deploy-section { padding: 0 0 56px; }
+    .deploy-card {
+      background: #1e1e1e;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: var(--shadow-2);
+    }
+    .deploy-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      background: #2d2d2d;
+      border-bottom: 1px solid #3a3a3a;
+    }
+    .deploy-header .material-icons { font-size: 18px; color: #bdbdbd; }
+    .deploy-header-title {
+      font-size: .8125rem;
+      font-weight: 500;
+      color: #bdbdbd;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .deploy-comment {
+      color: #5f9ea0;
+      font-size: .8125rem;
+    }
+    .deploy-body { padding: 20px 24px 24px; }
+    .deploy-desc {
+      font-size: .875rem;
+      color: #9e9e9e;
+      margin-bottom: 16px;
+      line-height: 1.55;
+    }
+    pre.deploy-code {
+      font-family: 'Roboto Mono', 'Courier New', monospace;
+      font-size: .8125rem;
+      line-height: 1.7;
+      color: #e0e0e0;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .cmd-comment { color: #5f9ea0; }
+    .cmd-text { color: #e0e0e0; }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    footer {
+      background: #212121;
+      color: rgba(255,255,255,.55);
+      text-align: center;
+      padding: 24px;
+      font-size: .8125rem;
+    }
+    footer a { color: rgba(255,255,255,.7); text-decoration: none; }
+    footer a:hover { color: #fff; }
+
+    /* ── Divider ───────────────────────────────────────────────────────────── */
+    .divider { height: 1px; background: var(--divider); }
+
+    /* ── Animations ────────────────────────────────────────────────────────── */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .55; transform: scale(.85); }
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 1.75rem; }
+      .arch-flow, .arch-flow-row { flex-direction: column; }
+      .arch-connector { transform: rotate(90deg); margin: 4px 0; }
+      .hybrid-callout { flex-direction: column; }
+      .tb-subtitle { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ Toolbar ══════════════════════════════════════════════════════════════ -->
+<mat-toolbar>
+  <a href="angular-index.html" class="tb-brand">
+    <span class="material-icons">change_history</span>
+    Angular + AEM
+  </a>
+  <span class="tb-div"></span>
+  <span class="tb-subtitle">Demo Suite</span>
+  <span class="tb-space"></span>
+  <span class="aem-badge">
+    <span class="badge-dot"></span>
+    AEM Cloud · p138879
+  </span>
+</mat-toolbar>
+
+<!-- ══ Hero ═════════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <p class="hero-eyebrow">Adobe Experience Manager · Universal Editor</p>
+  <h1 class="hero-title"><span>Angular</span> + AEM · Demo Suite</h1>
+  <p class="hero-subtitle">Universal Editor · Content Fragments · Governance · The Migration Path</p>
+  <div class="chips">
+    <span class="chip"><span class="material-icons">check_circle</span>No EDS required</span>
+    <span class="chip"><span class="material-icons">check_circle</span>Framework agnostic</span>
+    <span class="chip"><span class="material-icons">check_circle</span>Regulatory compliant</span>
+  </div>
+</header>
+
+<!-- ══ Demo card grid ═══════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <p class="section-label">Demo Pages</p>
+    <h2 class="section-title">Choose your starting point</h2>
+    <p class="section-desc">Each demo is a standalone HTML page — an Angular app that reads from AEM Content Fragments and is editable live in Universal Editor. Start with the Investment Dashboard for the full story, or jump directly to any topic.</p>
+
+    <div class="card-grid">
+
+      <!-- Card 1 — Investment Dashboard -->
+      <a href="angular-finance.html" class="demo-card">
+        <div class="card-header">
+          <div class="card-icon"><span class="material-icons">bar_chart</span></div>
+          <div class="card-head-text">
+            <div class="card-title">Investment Dashboard</div>
+            <span class="card-badge badge-core">Core Demo</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Vanguard-inspired portfolio dashboard. AEM CF content, live USGS seismic feed, commodity price simulation, DA Live structured content, and non-editable regulatory section.</p>
+        </div>
+        <div class="card-arrow">
+          <span class="material-icons">arrow_forward</span>
+          Open demo
+        </div>
+      </a>
+
+      <!-- Card 2 — Content Governance -->
+      <a href="angular-governance.html" class="demo-card">
+        <div class="card-header">
+          <div class="card-icon"><span class="material-icons">shield</span></div>
+          <div class="card-head-text">
+            <div class="card-title">Content Governance</div>
+            <span class="card-badge badge-governance">Governance</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Regulatory compliance story. Editable marketing zones alongside SEC-required locked content. The governance architecture financial services teams need.</p>
+        </div>
+        <div class="card-arrow">
+          <span class="material-icons">arrow_forward</span>
+          Open demo
+        </div>
+      </a>
+
+      <!-- Card 3 — Migration Path -->
+      <a href="angular-spa-editor.html" class="demo-card">
+        <div class="card-header">
+          <div class="card-icon"><span class="material-icons">swap_horiz</span></div>
+          <div class="card-head-text">
+            <div class="card-title">The Migration Path</div>
+            <span class="card-badge badge-architecture">Architecture</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">SPA Editor → Universal Editor. Side-by-side comparison showing what you eliminate, what you keep, and the 3-step migration. Includes AI-assisted migration callout.</p>
+        </div>
+        <div class="card-arrow">
+          <span class="material-icons">arrow_forward</span>
+          Open demo
+        </div>
+      </a>
+
+      <!-- Card 4 — Angular + UE Basics -->
+      <a href="angular.html" class="demo-card">
+        <div class="card-header">
+          <div class="card-icon"><span class="material-icons">change_history</span></div>
+          <div class="card-head-text">
+            <div class="card-title">Angular + UE Basics</div>
+            <span class="card-badge badge-foundation">Foundation</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Minimal Angular Web Component with AEM CF editing. The foundation: data-aue-* attributes, GraphQL from Publish, UE postback listener.</p>
+        </div>
+        <div class="card-arrow">
+          <span class="material-icons">arrow_forward</span>
+          Open demo
+        </div>
+      </a>
+
+      <!-- Card 5 — Setup & Troubleshooting -->
+      <a href="angular-setup.html" class="demo-card">
+        <div class="card-header">
+          <div class="card-icon"><span class="material-icons">build</span></div>
+          <div class="card-head-text">
+            <div class="card-title">Setup &amp; Troubleshooting</div>
+            <span class="card-badge badge-guide">Guide</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Every error you'll see, what it means, and how to fix it. The guide that should have existed from day one.</p>
+        </div>
+        <div class="card-arrow">
+          <span class="material-icons">arrow_forward</span>
+          Open guide
+        </div>
+      </a>
+
+      <!-- Card 6 — React Comparison -->
+      <a href="react.html" class="demo-card">
+        <div class="card-header">
+          <div class="card-icon"><span class="material-icons">code</span></div>
+          <div class="card-head-text">
+            <div class="card-title">React Comparison</div>
+            <span class="card-badge badge-reference">Reference</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Same AEM CF + UE pattern in React. Shows framework-agnostic nature of Universal Editor.</p>
+        </div>
+        <div class="card-arrow">
+          <span class="material-icons">arrow_forward</span>
+          Open demo
+        </div>
+      </a>
+
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ Architecture overview ════════════════════════════════════════════════ -->
+<section class="arch-section">
+  <div class="wrap">
+    <p class="section-label">How it works</p>
+    <h2 class="section-title">Architecture overview</h2>
+    <p class="section-desc">Two separate flows — one for delivery, one for editing — that never cross-contaminate each other.</p>
+
+    <!-- Delivery flow -->
+    <div class="arch-flow" role="img" aria-label="Delivery flow: Angular SPA fetches from AEM Publish via GraphQL, which is replicated from AEM Author">
+      <div class="arch-box">
+        <span class="material-icons">change_history</span>
+        <div class="arch-box-title">Angular SPA</div>
+        <div class="arch-box-sub">Your app<br>any host</div>
+      </div>
+      <div class="arch-connector">
+        <div class="arch-arrow">
+          <div class="arch-line"></div>
+          <div class="arch-arrowhead"></div>
+        </div>
+        <div class="arch-label">fetches from</div>
+      </div>
+      <div class="arch-box">
+        <span class="material-icons">cloud_download</span>
+        <div class="arch-box-title">AEM Publish</div>
+        <div class="arch-box-sub">GraphQL API<br>public endpoint</div>
+      </div>
+      <div class="arch-connector">
+        <div class="arch-arrow">
+          <div class="arch-line"></div>
+          <div class="arch-arrowhead"></div>
+        </div>
+        <div class="arch-label">replicated from</div>
+      </div>
+      <div class="arch-box">
+        <span class="material-icons">edit</span>
+        <div class="arch-box-title">AEM Author</div>
+        <div class="arch-box-sub">Content Fragments<br>source of truth</div>
+      </div>
+    </div>
+
+    <!-- Editing flow -->
+    <div class="arch-flow-row" role="img" aria-label="Editing flow: Universal Editor proxies edits through universal-editor-service.adobe.io to AEM Author">
+      <div class="arch-box">
+        <span class="material-icons">web</span>
+        <div class="arch-box-title">Universal Editor</div>
+        <div class="arch-box-sub">WYSIWYG canvas<br>in the browser</div>
+      </div>
+      <div class="arch-connector">
+        <div class="arch-arrow">
+          <div class="arch-line"></div>
+          <div class="arch-arrowhead"></div>
+        </div>
+        <div class="arch-label">proxies to Author via</div>
+      </div>
+      <div class="arch-box">
+        <span class="material-icons">settings_ethernet</span>
+        <div class="arch-box-title">UE Service</div>
+        <div class="arch-box-sub">universal-editor-service<br>.adobe.io</div>
+      </div>
+      <div class="arch-connector">
+        <div class="arch-arrow">
+          <div class="arch-line"></div>
+          <div class="arch-arrowhead"></div>
+        </div>
+        <div class="arch-label">writes to</div>
+      </div>
+      <div class="arch-box">
+        <span class="material-icons">edit</span>
+        <div class="arch-box-title">AEM Author</div>
+        <div class="arch-box-sub">Content Fragments<br>source of truth</div>
+      </div>
+    </div>
+
+    <div class="arch-annotation">
+      <strong>Key constraint:</strong> The SPA never calls Author directly. UE editing goes through
+      <code>universal-editor-service.adobe.io</code> which proxies to Author. Your Angular app only
+      ever speaks to the Publish tier — keeping your public CDN deployment completely isolated from
+      authoring credentials.
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ Hybrid callout ═══════════════════════════════════════════════════════ -->
+<section class="wrap callout-section" style="padding-top:48px;">
+  <p class="section-label" style="color:var(--text-3);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;">AEM Hybrid architecture</p>
+  <div class="hybrid-callout">
+    <div class="hybrid-icon"><span class="material-icons">language</span></div>
+    <div class="hybrid-text">
+      <div class="hybrid-title">This app is on EDS — but it doesn't have to be.</div>
+      <p class="hybrid-desc">
+        This Angular app is hosted on <em>EDS (aem.live)</em> for this demo — but the pattern is entirely
+        host-agnostic. <em>Any publicly-accessible Angular URL</em> can be loaded in Universal Editor for
+        WYSIWYG editing. Your existing Angular deployment on your own CDN, AWS, Azure, or any cloud works
+        exactly the same. The only requirements are a reachable URL, the
+        <code>cors.js</code> script tag, and the AEM UE meta tag pointing to your Author instance.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ Quick deploy reminder ════════════════════════════════════════════════ -->
+<section class="wrap deploy-section" style="padding-top:48px;">
+  <p class="section-label" style="color:var(--text-3);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Quick deploy</p>
+  <h2 class="section-title">If UE stops working</h2>
+  <div class="deploy-card">
+    <div class="deploy-header">
+      <span class="material-icons">terminal</span>
+      <span class="deploy-header-title">Shell · CORS config redeploy</span>
+    </div>
+    <div class="deploy-body">
+      <p class="deploy-desc">Universal Editor relies on two CORS config packages deployed to the AEM RDE Author tier. If UE shows a blank Properties panel or stops saving, redeploy them:</p>
+      <pre class="deploy-code"><span class="cmd-comment"># If UE stops working, redeploy CORS configs:</span>
+<span class="cmd-text">aio aem:rde:install tools/cors/ui.config-ue-cors-1.0.zip --target author</span>
+<span class="cmd-text">aio aem:rde:install tools/cors/ui.config-ue-bearer-1.0.zip --target author</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Footer ═══════════════════════════════════════════════════════════════ -->
+<footer>
+  Angular + AEM Demo Suite &nbsp;·&nbsp;
+  AEM Cloud Service p138879-e1741192 &nbsp;·&nbsp;
+  <a href="angular-setup.html">Setup guide</a> &nbsp;·&nbsp;
+  <a href="index.html">All demos</a>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>GovView · Regulatory Compliance · AEM Content Governance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0a1628;
+      --navy-2:     #0f2040;
+      --navy-3:     #162d52;
+      --accent:     #1565C0;
+      --accent-lt:  #1976D2;
+      --accent-bg:  #e3f0ff;
+      --green:      #2e7d32;
+      --green-bg:   #e8f5e9;
+      --green-bd:   #4caf50;
+      --red:        #c62828;
+      --red-bg:     #ffebee;
+      --red-bd:     #ef5350;
+      --amber:      #e65100;
+      --amber-bg:   #fff3e0;
+      --text:       #212121;
+      --text-2:     #616161;
+      --text-3:     #9e9e9e;
+      --border:     #e0e0e0;
+      --surface:    #ffffff;
+      --bg:         #f5f7fa;
+      --shadow-1:   0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08);
+      --shadow-2:   0 3px 6px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.07);
+      --shadow-3:   0 8px 24px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.08);
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'Roboto', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 140px;
+      min-width: 140px;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 200;
+    }
+    .sidebar-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 12px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .logo-icon .material-icons { color: #fff; font-size: 22px; }
+    .logo-name {
+      font-size: .875rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: .06em;
+    }
+    .logo-tagline {
+      font-size: .6rem;
+      color: rgba(255,255,255,.45);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .nav-section-label {
+      font-size: .6rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.35);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 18px 16px 6px;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 8px;
+      margin: 2px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+      gap: 4px;
+    }
+    .nav-item .material-icons { font-size: 20px; color: rgba(255,255,255,.55); }
+    .nav-item span:last-child {
+      font-size: .65rem;
+      color: rgba(255,255,255,.55);
+      text-align: center;
+      letter-spacing: .02em;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.07); }
+    .nav-item:hover .material-icons,
+    .nav-item:hover span:last-child { color: rgba(255,255,255,.9); }
+    .nav-item.active { background: var(--accent); }
+    .nav-item.active .material-icons,
+    .nav-item.active span:last-child { color: #fff; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 10px;
+      border-top: 1px solid rgba(255,255,255,.09);
+      text-align: center;
+    }
+    .sidebar-footer .material-icons { color: rgba(255,255,255,.3); font-size: 18px; }
+    .sidebar-footer span {
+      display: block;
+      font-size: .55rem;
+      color: rgba(255,255,255,.25);
+      margin-top: 4px;
+    }
+
+    /* ── Main area ────────────────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────────────────────── */
+    .topbar {
+      background: var(--navy-2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      height: 52px;
+      gap: 12px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .topbar-breadcrumb {
+      font-size: .72rem;
+      color: rgba(255,255,255,.55);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .topbar-breadcrumb a { color: rgba(255,255,255,.55); text-decoration: none; }
+    .topbar-breadcrumb a:hover { color: rgba(255,255,255,.9); }
+    .topbar-breadcrumb .sep { color: rgba(255,255,255,.3); font-size: .8rem; }
+    .topbar-breadcrumb .current { color: rgba(255,255,255,.9); font-weight: 500; }
+    .topbar-space { flex: 1; }
+    .topbar-aem {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .aem-dot { width: 5px; height: 5px; background: #a5d6a7; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+    /* ── Content padding ──────────────────────────────────────────────────── */
+    .content-area { padding: 28px 32px; flex: 1; }
+
+    /* ── Page header ──────────────────────────────────────────────────────── */
+    .page-header {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 22px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-1);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .page-header-left h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .page-header-left .subtitle {
+      font-size: .9rem;
+      color: var(--text-2);
+      font-weight: 400;
+    }
+    .page-header-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 12px;
+      font-size: .75rem;
+      font-weight: 500;
+    }
+    .badge-compliance { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .badge-published  { background: #f5f5f5; color: var(--text-2); border: 1px solid #e0e0e0; }
+
+    /* ── Section chrome ───────────────────────────────────────────────────── */
+    .section-card {
+      background: var(--surface);
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-1);
+      overflow: hidden;
+    }
+
+    /* EDITABLE zone */
+    .zone-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .zone-edit {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-bottom: 1px solid #c8e6c9;
+    }
+    .zone-edit .material-icons { font-size: 14px; }
+    .zone-lock {
+      background: #ffebee;
+      color: #c62828;
+      border-bottom: 1px solid #ffcdd2;
+    }
+    .zone-lock .material-icons { font-size: 14px; }
+
+    .section-body { padding: 24px 28px; }
+
+    /* Editable section A */
+    .hero-band {
+      background: linear-gradient(135deg, #0d47a1 0%, #1565C0 60%, #1976D2 100%);
+      color: #fff;
+      padding: 28px 28px;
+      border-left: 4px solid #4caf50;
+      position: relative;
+    }
+    .hero-band::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(232,245,233,.06);
+      pointer-events: none;
+    }
+    .hero-band .eyebrow {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.75);
+      margin-bottom: 10px;
+    }
+    .hero-band .fund-name {
+      font-size: 1.6rem;
+      font-weight: 300;
+      letter-spacing: -.01em;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+    .hero-band .fund-desc {
+      font-size: .9rem;
+      color: rgba(255,255,255,.82);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+    .hero-band .ue-cursor {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(76,175,80,.2);
+      border: 1px solid rgba(76,175,80,.5);
+      color: #a5d6a7;
+      font-size: .68rem;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-top: 12px;
+    }
+    .hero-band .ue-cursor .material-icons { font-size: 11px; }
+
+    /* Loading skeleton */
+    .skel {
+      display: inline-block;
+      background: linear-gradient(90deg, rgba(255,255,255,.1) 25%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.1) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 4px;
+      height: 1em;
+    }
+    .skel-title { width: 340px; height: 1.6rem; margin-bottom: 10px; display: block; }
+    .skel-line  { width: 520px; height: .9rem; margin-bottom: 6px; display: block; }
+    .skel-line.short { width: 300px; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Section B — performance */
+    .perf-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+      margin-bottom: 20px;
+    }
+    .perf-table th {
+      background: var(--bg);
+      font-weight: 500;
+      font-size: .8rem;
+      color: var(--text-2);
+      padding: 10px 16px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: .03em;
+    }
+    .perf-table th:first-child { text-align: left; }
+    .perf-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      text-align: right;
+      color: var(--text);
+    }
+    .perf-table td:first-child { text-align: left; font-weight: 500; }
+    .perf-table tr:last-child td { border-bottom: none; }
+    .perf-positive { color: #2e7d32; font-weight: 500; }
+    .perf-negative { color: #c62828; font-weight: 500; }
+    .lock-cell {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: default;
+    }
+    .lock-cell .material-icons { font-size: 12px; color: #bdbdbd; }
+    .lock-tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30,30,30,.95);
+      color: #fff;
+      font-size: .72rem;
+      padding: 5px 9px;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .lock-cell:hover .lock-tooltip { display: block; }
+
+    .commentary-block {
+      background: #f9fbe7;
+      border-left: 3px solid #cddc39;
+      padding: 16px 18px;
+      border-radius: 0 6px 6px 0;
+    }
+    .commentary-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: #827717;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .commentary-label .material-icons { font-size: 14px; }
+    .commentary-text {
+      font-size: .9rem;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .commentary-zone-note {
+      font-size: .7rem;
+      color: var(--text-3);
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .commentary-zone-note .material-icons { font-size: 13px; }
+
+    /* Section C — risk */
+    .risk-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .risk-item {
+      padding: 14px 18px;
+      background: #fff;
+      border: 1px solid #ffcdd2;
+      border-left: 4px solid var(--red-bd);
+      border-radius: 0 6px 6px 0;
+    }
+    .risk-item h4 {
+      font-size: .875rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .risk-item h4 .material-icons { font-size: 14px; color: var(--red-bd); }
+    .risk-item p { font-size: .8125rem; color: var(--text-2); line-height: 1.6; }
+
+    .protected-note {
+      margin-top: 18px;
+      padding: 12px 16px;
+      background: var(--red-bg);
+      border: 1px solid #ffcdd2;
+      border-radius: 6px;
+      font-size: .78rem;
+      color: #b71c1c;
+      display: flex;
+      gap: 10px;
+      line-height: 1.5;
+    }
+    .protected-note .material-icons { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Section D — fee table */
+    .fee-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+    .fee-table th {
+      background: var(--bg);
+      font-size: .8rem;
+      color: var(--text-2);
+      font-weight: 500;
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .fee-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      color: var(--text);
+    }
+    .fee-table tr:last-child td { border-bottom: none; }
+    .fee-table .fee-val { font-weight: 500; color: var(--accent); font-size: .9rem; }
+    .fee-auto-note {
+      margin-top: 12px;
+      font-size: .75rem;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .fee-auto-note .material-icons { font-size: 14px; }
+
+    /* Section E — governance split */
+    .gov-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 700px) { .gov-split { grid-template-columns: 1fr; } }
+    .gov-col { padding: 22px 22px; border-radius: 8px; }
+    .gov-col-edit {
+      background: #f1f8e9;
+      border: 1px solid #c8e6c9;
+    }
+    .gov-col-lock {
+      background: #fff8f8;
+      border: 1px solid #ffcdd2;
+    }
+    .gov-col-title {
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .gov-col-edit .gov-col-title { color: #2e7d32; }
+    .gov-col-lock .gov-col-title { color: #c62828; }
+    .gov-col-title .material-icons { font-size: 16px; }
+    .gov-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .gov-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: .8375rem;
+      color: var(--text);
+    }
+    .gov-list li .material-icons {
+      font-size: 15px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .gov-col-edit .gov-list li .material-icons { color: #43a047; }
+    .gov-col-lock .gov-list li .material-icons { color: #e53935; }
+
+    /* Section F — audit log */
+    .audit-log { list-style: none; display: flex; flex-direction: column; gap: 0; }
+    .audit-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .audit-entry:last-child { border-bottom: none; }
+    .audit-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .audit-icon-edit { background: #e8f5e9; }
+    .audit-icon-edit .material-icons { font-size: 15px; color: #2e7d32; }
+    .audit-icon-system { background: #fff3e0; }
+    .audit-icon-system .material-icons { font-size: 15px; color: #e65100; }
+    .audit-body { flex: 1; min-width: 0; }
+    .audit-action {
+      font-size: .875rem;
+      color: var(--text);
+      font-weight: 400;
+    }
+    .audit-action strong { font-weight: 500; }
+    .audit-meta {
+      font-size: .72rem;
+      color: var(--text-3);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .audit-meta .material-icons { font-size: 12px; }
+    .audit-system-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff3e0;
+      color: #e65100;
+      font-size: .68rem;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 3px;
+      letter-spacing: .04em;
+    }
+    .audit-system-badge .material-icons { font-size: 10px; }
+    .audit-log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .audit-log-title {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .audit-log-title .material-icons { font-size: 14px; }
+    .audit-log-period {
+      font-size: .72rem;
+      color: var(--text-3);
+    }
+
+    /* Dividers */
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 28px;
+    }
+
+    /* Utility */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+    .text-muted { color: var(--text-2); }
+    .text-sm    { font-size: .8125rem; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Left sidebar ──────────────────────────────────────────────────────── -->
+<nav class="sidebar" aria-label="Application navigation">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <span class="material-icons">shield</span>
+    </div>
+    <div class="logo-name">GovView</div>
+    <div class="logo-tagline">Compliance</div>
+  </div>
+
+  <div class="nav-section-label">Main</div>
+
+  <a class="nav-item" href="#">
+    <span class="material-icons">dashboard</span>
+    <span>Dashboard</span>
+  </a>
+  <a class="nav-item active" href="#" aria-current="page">
+    <span class="material-icons">gavel</span>
+    <span>Disclosures</span>
+  </a>
+  <a class="nav-item" href="#">
+    <span class="material-icons">description</span>
+    <span>Fund<br>Prospectus</span>
+  </a>
+  <a class="nav-item" href="#">
+    <span class="material-icons">account_balance</span>
+    <span>Regulatory<br>Filings</span>
+  </a>
+
+  <div class="nav-section-label">Admin</div>
+
+  <a class="nav-item" href="#">
+    <span class="material-icons">group</span>
+    <span>Team</span>
+  </a>
+
+  <div class="sidebar-footer">
+    <span class="material-icons">lock</span>
+    <span>SOC 2 TYPE II</span>
+  </div>
+</nav>
+
+<!-- ── Main ──────────────────────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <nav class="topbar-breadcrumb" aria-label="Breadcrumb">
+      <a href="#">Regulatory Disclosures</a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a href="#">Fund Prospectus</a>
+      <span class="sep" aria-hidden="true">/</span>
+      <span class="current">Q3 2026</span>
+    </nav>
+    <div class="topbar-space"></div>
+    <div class="topbar-aem">
+      <div class="aem-dot" aria-hidden="true"></div>
+      AEM Universal Editor
+    </div>
+  </div>
+
+  <!-- Content area -->
+  <div class="content-area">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 id="page-title">Vanguard Total Market Index Fund</h1>
+        <div class="subtitle" id="page-subtitle">Q3 2026 Shareholder Report</div>
+        <div class="page-header-badges">
+          <span class="badge badge-compliance">
+            <span class="material-icons" style="font-size:13px">check_circle</span>
+            Compliance Reviewed
+          </span>
+          <span class="badge badge-published">
+            <span class="material-icons" style="font-size:13px">sync</span>
+            Last published: 3 days ago
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section A: Marketing header band (EDITABLE) ───────────────────── -->
+    <div class="section-card" id="section-marketing">
+      <div class="zone-header zone-edit">
+        <span class="material-icons">edit</span>
+        Editable by Marketing &nbsp;·&nbsp; AEM Universal Editor
+      </div>
+      <!-- AEM Content Fragment — UE instrumented -->
+      <div id="hero-cf-slot">
+        <!-- Rendered by JS after CF fetch -->
+        <div class="hero-band" aria-busy="true">
+          <div class="eyebrow">
+            <span class="skel" style="width:160px;height:.75rem;display:inline-block;"></span>
+          </div>
+          <div class="fund-name">
+            <span class="skel skel-title"></span>
+          </div>
+          <p>
+            <span class="skel skel-line"></span>
+            <span class="skel skel-line short"></span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section B: Fund Performance (EDITABLE commentary) ─────────────── -->
+    <div class="section-card" id="section-performance">
+      <div class="zone-header zone-edit">
+        <span class="material-icons">edit</span>
+        Commentary editable &nbsp;·&nbsp; Performance data locked
+      </div>
+      <div class="section-body">
+        <h2 style="font-size:1.05rem;font-weight:500;margin-bottom:16px;color:var(--text)">Fund Performance</h2>
+
+        <table class="perf-table" aria-label="Historical fund performance">
+          <thead>
+            <tr>
+              <th scope="col">Benchmark</th>
+              <th scope="col">
+                <span class="lock-cell">
+                  1-Year
+                  <span class="material-icons" aria-hidden="true">lock</span>
+                  <span class="lock-tooltip">Performance data sourced from regulatory filing system — not editable in CMS</span>
+                </span>
+              </th>
+              <th scope="col">
+                <span class="lock-cell">
+                  3-Year
+                  <span class="material-icons" aria-hidden="true">lock</span>
+                  <span class="lock-tooltip">Performance data sourced from regulatory filing system — not editable in CMS</span>
+                </span>
+              </th>
+              <th scope="col">
+                <span class="lock-cell">
+                  5-Year
+                  <span class="material-icons" aria-hidden="true">lock</span>
+                  <span class="lock-tooltip">Performance data sourced from regulatory filing system — not editable in CMS</span>
+                </span>
+              </th>
+              <th scope="col">
+                <span class="lock-cell">
+                  10-Year
+                  <span class="material-icons" aria-hidden="true">lock</span>
+                  <span class="lock-tooltip">Performance data sourced from regulatory filing system — not editable in CMS</span>
+                </span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Fund (VTSMX)</td>
+              <td class="perf-positive">+26.14%</td>
+              <td class="perf-positive">+11.87%</td>
+              <td class="perf-positive">+15.22%</td>
+              <td class="perf-positive">+12.98%</td>
+            </tr>
+            <tr>
+              <td>CRSP US Total Market Index</td>
+              <td class="perf-positive">+26.41%</td>
+              <td class="perf-positive">+12.03%</td>
+              <td class="perf-positive">+15.38%</td>
+              <td class="perf-positive">+13.11%</td>
+            </tr>
+            <tr>
+              <td>Benchmark Difference</td>
+              <td class="perf-negative">−0.27%</td>
+              <td class="perf-negative">−0.16%</td>
+              <td class="perf-negative">−0.16%</td>
+              <td class="perf-negative">−0.13%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Portfolio Manager Commentary — UE editable -->
+        <div class="commentary-block"
+          data-aue-resource="urn:aem:/content/dam/ue-demo/fragments/angular-hero/jcr:content/data/master"
+          data-aue-type="component"
+          data-aue-label="Portfolio Manager Commentary">
+          <div class="commentary-label">
+            <span class="material-icons">rate_review</span>
+            Portfolio Manager Commentary
+          </div>
+          <p class="commentary-text"
+            data-aue-resource="urn:aem:/content/dam/ue-demo/fragments/angular-hero/jcr:content/data/master"
+            data-aue-prop="description"
+            data-aue-type="richtext"
+            data-aue-label="Commentary"
+            id="commentary-text">
+            <!-- Populated from CF or fallback -->
+            The fund continued to deliver near-benchmark returns with minimal tracking error throughout Q3 2026.
+            Broad market participation across large-cap, mid-cap, and small-cap segments contributed positively,
+            while active rebalancing kept portfolio drift within tolerance. We remain constructive on domestic
+            equities given resilient corporate earnings and a moderating rate environment.
+          </p>
+          <div class="commentary-zone-note">
+            <span class="material-icons">info</span>
+            This commentary field is editable in AEM Universal Editor. Performance tables above are system-sourced and read-only.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section C: Key Risks (PROTECTED) ─────────────────────────────── -->
+    <!-- PROTECTED: no data-aue-* attributes — governance policy prevents CMS editing -->
+    <div class="section-card" id="section-risks">
+      <div class="zone-header zone-lock">
+        <span class="material-icons">lock</span>
+        Regulatory Required Content &nbsp;·&nbsp; Read-Only in CMS
+      </div>
+      <div class="section-body">
+        <h2 style="font-size:1.05rem;font-weight:500;margin-bottom:18px;color:var(--text)">Key Risk Disclosures</h2>
+
+        <ul class="risk-list" aria-label="Regulatory risk disclosures">
+          <li class="risk-item">
+            <h4>
+              <span class="material-icons" aria-hidden="true">warning</span>
+              Market Risk
+            </h4>
+            <p>The fund is subject to market risk, which is the possibility that the market values of securities owned
+            by the fund will decline and that the value of fund shares may therefore be less than what you paid for them.
+            Market values can change daily due to economic and other events (e.g., natural disasters, health crises,
+            terrorism, conflicts and social unrest) that affect markets, countries, companies, or governments.</p>
+          </li>
+          <li class="risk-item">
+            <h4>
+              <span class="material-icons" aria-hidden="true">warning</span>
+              Interest Rate Risk
+            </h4>
+            <p>Interest rate risk is the possibility that the market value of fixed income instruments owned by the fund
+            will change due to fluctuations in interest rates. When interest rates rise, the market value of fixed income
+            instruments may fall, and vice versa. This risk is typically greater for longer-duration instruments.
+            The fund may be adversely affected by changing interest rate environments.</p>
+          </li>
+          <li class="risk-item">
+            <h4>
+              <span class="material-icons" aria-hidden="true">warning</span>
+              Liquidity Risk
+            </h4>
+            <p>Liquidity risk is the possibility that the fund may not be able to sell a security or close out a
+            derivative position at a desirable time or price. In unusual market conditions, even normally liquid
+            securities may be difficult to value and to sell at a fair price. The fund's ability to sell such securities
+            may be impaired, which could adversely affect NAV and total return.</p>
+          </li>
+          <li class="risk-item">
+            <h4>
+              <span class="material-icons" aria-hidden="true">warning</span>
+              Concentration Risk
+            </h4>
+            <p>To the extent the fund's portfolio is concentrated in a particular sector, industry, geographic area,
+            or type of investment, the fund may be more susceptible to losses due to adverse occurrences affecting
+            that sector, industry, or geographic area. Investors should consider the additional risks associated with
+            non-diversification before investing.</p>
+          </li>
+        </ul>
+
+        <div class="protected-note" role="note">
+          <span class="material-icons" aria-hidden="true">lock</span>
+          <span>This content is managed through the Legal Content Management System and cannot be modified in the
+          Marketing CMS. Changes require Legal team approval and compliance sign-off. Any modifications trigger
+          an automated regulatory review workflow.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section D: Fee Table (PROTECTED) ──────────────────────────────── -->
+    <!-- PROTECTED: no data-aue-* attributes — governance policy prevents CMS editing -->
+    <div class="section-card" id="section-fees">
+      <div class="zone-header zone-lock">
+        <span class="material-icons">lock</span>
+        SEC-Required Disclosure &nbsp;·&nbsp; Protected
+      </div>
+      <div class="section-body">
+        <h2 style="font-size:1.05rem;font-weight:500;margin-bottom:16px;color:var(--text)">Fees &amp; Expenses</h2>
+
+        <table class="fee-table" aria-label="Fund fees and expenses">
+          <thead>
+            <tr>
+              <th scope="col">Fee Type</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Basis</th>
+              <th scope="col">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Total Expense Ratio (TER)</td>
+              <td class="fee-val">0.03%</td>
+              <td>Annual (of AUM)</td>
+              <td class="text-muted text-sm">Among lowest in category</td>
+            </tr>
+            <tr>
+              <td>Management Fee</td>
+              <td class="fee-val">0.02%</td>
+              <td>Annual</td>
+              <td class="text-muted text-sm">Internal advisory services</td>
+            </tr>
+            <tr>
+              <td>12b-1 Distribution Fee</td>
+              <td class="fee-val">None</td>
+              <td>—</td>
+              <td class="text-muted text-sm">No distribution or service fees</td>
+            </tr>
+            <tr>
+              <td>Redemption Fee</td>
+              <td class="fee-val">None</td>
+              <td>—</td>
+              <td class="text-muted text-sm">No short-term redemption fee</td>
+            </tr>
+            <tr>
+              <td>Purchase Transaction Fee</td>
+              <td class="fee-val">None</td>
+              <td>—</td>
+              <td class="text-muted text-sm">Available through Vanguard Brokerage</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="fee-auto-note">
+          <span class="material-icons" aria-hidden="true">autorenew</span>
+          Automatically updated from regulatory filing system · Next scheduled sync: 2026-10-01
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Section E: Governance story ──────────────────────────────────── -->
+    <div class="section-card" id="section-governance">
+      <div class="section-body">
+        <h2 style="font-size:1.05rem;font-weight:500;margin-bottom:6px;color:var(--text)">
+          Content Governance Model
+        </h2>
+        <p style="font-size:.8375rem;color:var(--text-2);margin-bottom:20px">
+          AEM separates marketing agility from regulatory compliance. Marketing teams move fast in the CMS;
+          legally required content stays locked.
+        </p>
+
+        <div class="gov-split">
+          <div class="gov-col gov-col-edit">
+            <div class="gov-col-title">
+              <span class="material-icons">check_circle</span>
+              What Marketing Can Control
+            </div>
+            <ul class="gov-list" aria-label="Content controllable by marketing">
+              <li>
+                <span class="material-icons" aria-hidden="true">check</span>
+                Brand colors, typography, and layout
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">check</span>
+                Fund descriptions and marketing copy
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">check</span>
+                Hero imagery and visual design
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">check</span>
+                Portfolio manager commentary
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">check</span>
+                Calls-to-action and campaign messaging
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">check</span>
+                Page structure, navigation, and UX copy
+              </li>
+            </ul>
+          </div>
+          <div class="gov-col gov-col-lock">
+            <div class="gov-col-title">
+              <span class="material-icons">lock</span>
+              What Is Locked
+            </div>
+            <ul class="gov-list" aria-label="Content locked from marketing">
+              <li>
+                <span class="material-icons" aria-hidden="true">lock</span>
+                Fee disclosures and expense ratios
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">lock</span>
+                Regulatory risk warnings (SEC/FINRA required)
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">lock</span>
+                Historical performance data
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">lock</span>
+                Legal disclaimers and fund terms
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">lock</span>
+                Regulatory required language
+              </li>
+              <li>
+                <span class="material-icons" aria-hidden="true">lock</span>
+                Compliance-reviewed boilerplate
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section F: Audit trail ─────────────────────────────────────────── -->
+    <div class="section-card" id="section-audit">
+      <div class="section-body">
+        <div class="audit-log-header">
+          <div class="audit-log-title">
+            <span class="material-icons" aria-hidden="true">history</span>
+            Content Change Log
+          </div>
+          <div class="audit-log-period">Last 30 days</div>
+        </div>
+        <div class="section-divider" style="margin: 14px 0 0;"></div>
+
+        <ul class="audit-log" aria-label="Content change audit log">
+          <li class="audit-entry">
+            <div class="audit-icon audit-icon-edit" aria-hidden="true">
+              <span class="material-icons">edit</span>
+            </div>
+            <div class="audit-body">
+              <div class="audit-action">
+                <strong>Marketing description updated</strong> — fund category and overview text revised
+              </div>
+              <div class="audit-meta">
+                <span class="material-icons" aria-hidden="true">person</span>
+                J. Smith &nbsp;·&nbsp;
+                <span class="material-icons" aria-hidden="true">schedule</span>
+                2026-07-28 14:23
+              </div>
+            </div>
+          </li>
+
+          <li class="audit-entry">
+            <div class="audit-icon audit-icon-edit" aria-hidden="true">
+              <span class="material-icons">edit</span>
+            </div>
+            <div class="audit-body">
+              <div class="audit-action">
+                <strong>Q3 commentary updated</strong> — portfolio manager commentary for Q3 2026 published
+              </div>
+              <div class="audit-meta">
+                <span class="material-icons" aria-hidden="true">person</span>
+                M. Johnson &nbsp;·&nbsp;
+                <span class="material-icons" aria-hidden="true">schedule</span>
+                2026-08-01 09:11
+              </div>
+            </div>
+          </li>
+
+          <li class="audit-entry">
+            <div class="audit-icon audit-icon-edit" aria-hidden="true">
+              <span class="material-icons">edit</span>
+            </div>
+            <div class="audit-body">
+              <div class="audit-action">
+                <strong>Fund name updated</strong> — display title corrected to include "Index"
+              </div>
+              <div class="audit-meta">
+                <span class="material-icons" aria-hidden="true">person</span>
+                J. Smith &nbsp;·&nbsp;
+                <span class="material-icons" aria-hidden="true">schedule</span>
+                2026-08-03 16:45
+              </div>
+            </div>
+          </li>
+
+          <li class="audit-entry">
+            <div class="audit-icon audit-icon-system" aria-hidden="true">
+              <span class="material-icons">sync</span>
+            </div>
+            <div class="audit-body">
+              <div class="audit-action">
+                <span class="audit-system-badge">
+                  <span class="material-icons" aria-hidden="true">warning</span>
+                  System
+                </span>
+                &nbsp;
+                <strong>Risk disclosure auto-synced from LegalCMS</strong> — quarterly regulatory update applied
+              </div>
+              <div class="audit-meta">
+                <span class="material-icons" aria-hidden="true">dns</span>
+                LegalCMS Sync Service &nbsp;·&nbsp;
+                <span class="material-icons" aria-hidden="true">schedule</span>
+                2026-08-04 00:00
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- /content-area -->
+</div><!-- /main -->
+
+<script>
+'use strict';
+
+// ── Config ──────────────────────────────────────────────────────────────────
+const FRAGMENT_PATH = '/content/dam/ue-demo/fragments/angular-hero';
+const RES = 'urn:aem:/content/dam/ue-demo/fragments/angular-hero/jcr:content/data/master';
+const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Fetch CF from AEM Publish ────────────────────────────────────────────────
+async function fetchCF() {
+  const query = `{
+    angularHeroByPath(
+      _path: "${FRAGMENT_PATH}"
+    ) {
+      item {
+        eyebrow
+        title
+        description { plaintext }
+        ctaLabel
+      }
+    }
+  }`;
+
+  const url = `${PUBLISH}/graphql/execute.json/ue-demo/angular-hero-by-path;path=${encodeURIComponent(FRAGMENT_PATH)}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const item = json?.data?.angularHeroByPath?.item;
+    if (item) return item;
+  } catch (_) {
+    // first strategy failed — try inline GraphQL
+  }
+
+  // Fallback: direct GraphQL endpoint
+  try {
+    const res2 = await fetch(`${PUBLISH}/graphql/execute.json/ue-demo/all-fragments`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (res2.ok) {
+      const json2 = await res2.json();
+      const items = json2?.data?.contentFragmentList?.items ?? [];
+      const match = items.find(i => i._path === FRAGMENT_PATH);
+      if (match) return match;
+    }
+  } catch (_) { /* fall through to defaults */ }
+
+  return null;
+}
+
+// ── Render hero band ─────────────────────────────────────────────────────────
+function renderHeroBand(cf) {
+  const eyebrow = cf?.eyebrow ?? 'Index Funds · Domestic Equity';
+  const title   = cf?.title   ?? 'Vanguard Total Market Index Fund';
+  const desc    = cf?.description?.plaintext ?? cf?.description
+    ?? 'A broadly diversified, low-cost fund that tracks the CRSP US Total Market Index, '
+    + 'providing exposure to the entire U.S. equity market including large-, mid-, small-, '
+    + 'and micro-cap stocks traded on the NYSE and NASDAQ.';
+
+  const r = esc(RES);
+  return `
+    <div class="hero-band"
+      data-aue-resource="${r}"
+      data-aue-type="component"
+      data-aue-label="Fund Marketing Header">
+      <div class="eyebrow"
+        data-aue-resource="${r}"
+        data-aue-prop="eyebrow"
+        data-aue-type="text"
+        data-aue-label="Fund Category">${esc(eyebrow)}</div>
+      <h2 class="fund-name"
+        data-aue-resource="${r}"
+        data-aue-prop="title"
+        data-aue-type="text"
+        data-aue-label="Fund Name">${esc(title)}</h2>
+      <p class="fund-desc"
+        data-aue-resource="${r}"
+        data-aue-prop="description"
+        data-aue-type="richtext"
+        data-aue-label="Marketing Description">${esc(desc)}</p>
+      <div class="ue-cursor" aria-label="AEM Universal Editor editable indicator">
+        <span class="material-icons" aria-hidden="true">edit</span>
+        Click any field in UE to edit
+      </div>
+    </div>`;
+}
+
+// ── Update page header from CF ───────────────────────────────────────────────
+function applyToPageHeader(cf) {
+  if (!cf) return;
+  const titleEl    = document.getElementById('page-title');
+  const subtitleEl = document.getElementById('page-subtitle');
+  if (titleEl && cf.title)   titleEl.textContent = cf.title;
+  if (subtitleEl && cf.eyebrow) {
+    // Leave the subtitle as-is — eyebrow is fund category, subtitle is the report label
+  }
+}
+
+// ── UE postback listener ─────────────────────────────────────────────────────
+window.addEventListener('message', (event) => {
+  if (!event.data || event.data.type !== 'aue:content-patch') return;
+  const { detail } = event.data;
+  if (!detail) return;
+
+  // Re-fetch and re-render on any UE content patch
+  fetchCF().then((cf) => {
+    const slot = document.getElementById('hero-cf-slot');
+    if (slot) slot.innerHTML = renderHeroBand(cf);
+    applyToPageHeader(cf);
+  });
+});
+
+// ── Bootstrap ────────────────────────────────────────────────────────────────
+(async function init() {
+  const slot = document.getElementById('hero-cf-slot');
+  try {
+    const cf = await fetchCF();
+    if (slot) slot.innerHTML = renderHeroBand(cf);
+    applyToPageHeader(cf);
+  } catch (err) {
+    // Render with fallback data — UE content tree is never empty
+    if (slot) slot.innerHTML = renderHeroBand(null);
+  }
+})();
+</script>
+</body>
+</html>

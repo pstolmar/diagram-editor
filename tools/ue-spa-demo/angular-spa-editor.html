@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>Angular Editing Evolution · SPA Editor → Universal Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:    #1976D2;
+      --blue-lt: #42A5F5;
+      --blue-bg: #E3F2FD;
+      --green:   #388E3C;
+      --green-lt:#66BB6A;
+      --green-bg:#E8F5E9;
+      --gray:    #78909C;
+      --gray-lt: #B0BEC5;
+      --gray-bg: #ECEFF1;
+      --gray-dk: #546E7A;
+      --red-dep: #B71C1C;
+      --surface: #fff;
+      --bg:      #F5F7FA;
+      --text:    #212121;
+      --text-2:  #757575;
+      --mono:    'Roboto Mono', 'Courier New', monospace;
+      --shadow-1: 0 2px 1px rgba(0,0,0,.09),0 1px 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.1);
+      --shadow-2: 0 3px 6px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.08);
+    }
+    body { font-family:'Roboto',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* ── Toolbar ──────────────────────────────────────────────────────────── */
+    .toolbar {
+      display:flex; align-items:center; padding:0 28px; height:64px;
+      background:linear-gradient(90deg,#0D1B2A 0%,#1565C0 100%); color:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.32); position:sticky; top:0; z-index:100;
+    }
+    .tb-brand { display:flex; align-items:center; gap:12px; font-size:1.125rem; font-weight:500; letter-spacing:.01em; }
+    .tb-logo { width:32px; height:32px; }
+    .tb-space { flex:1; }
+    .tb-chip {
+      display:inline-flex; align-items:center; gap:6px; padding:4px 12px;
+      border-radius:16px; font-size:.75rem; font-weight:700; letter-spacing:.04em;
+    }
+    .tb-chip-dep { background:rgba(183,28,28,.5); color:#FFCDD2; }
+    .tb-chip-new { background:rgba(56,142,60,.5); color:#C8E6C9; }
+    .tb-nav { display:flex; gap:4px; margin-right:16px; }
+    .tb-btn {
+      background:none; border:none; cursor:pointer; color:rgba(255,255,255,.75);
+      font-size:.8rem; font-weight:500; font-family:inherit; padding:0 12px; height:36px;
+      border-radius:4px; transition:background .15s,color .15s; letter-spacing:.04em;
+      text-transform:uppercase; text-decoration:none; display:inline-flex; align-items:center;
+    }
+    .tb-btn:hover { background:rgba(255,255,255,.12); color:#fff; }
+
+    /* ── Hero ─────────────────────────────────────────────────────────────── */
+    .hero {
+      background:linear-gradient(135deg,#0D1B2A 0%,#0D2440 45%,#0A1628 100%);
+      padding:72px 28px 80px; text-align:center;
+    }
+    .hero-eyebrow {
+      display:inline-flex; align-items:center; gap:8px; margin-bottom:20px;
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em;
+      color:var(--blue-lt);
+    }
+    .hero-title {
+      font-size:clamp(1.75rem,3.5vw,3rem); font-weight:700; color:#fff;
+      line-height:1.1; letter-spacing:-.02em; margin-bottom:20px;
+    }
+    .hero-title span { color:var(--blue-lt); }
+    .hero-sub {
+      font-size:1.0625rem; color:rgba(255,255,255,.65); max-width:680px;
+      margin:0 auto 36px; line-height:1.7;
+    }
+    .hero-chips { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .hero-chip {
+      display:inline-flex; align-items:center; gap:8px; padding:8px 18px;
+      border-radius:20px; font-size:.8125rem; font-weight:600; letter-spacing:.03em;
+    }
+    .chip-dep { background:rgba(183,28,28,.25); color:#EF9A9A; border:1px solid rgba(183,28,28,.4); }
+    .chip-new { background:rgba(56,142,60,.25); color:#A5D6A7; border:1px solid rgba(56,142,60,.4); }
+    .chip-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .chip-dot-dep { background:#EF5350; }
+    .chip-dot-new { background:var(--green-lt); animation:live-pulse 2s ease-in-out infinite; }
+
+    /* ── Layout shell ─────────────────────────────────────────────────────── */
+    .page { max-width:1280px; margin:0 auto; padding:0 28px; }
+    .section { padding:48px 0; }
+    .section + .section { border-top:1px solid #E0E7EF; }
+    .sec-label {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+      color:var(--text-2); margin-bottom:24px; display:flex; align-items:center; gap:8px;
+    }
+    .sec-label::after { content:''; flex:1; height:1px; background:#E0E7EF; }
+
+    /* ── Two-column split ─────────────────────────────────────────────────── */
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .col-old, .col-new {
+      border-radius:8px; overflow:hidden; position:relative;
+    }
+    /* OLD — faded/gray, slightly deprecated feel */
+    .col-old {
+      background:#F0F2F4; border:1px solid #CFD8DC;
+      opacity:.88; filter:saturate(.55);
+    }
+    .col-old .col-hdr {
+      background:#546E7A; color:#fff; padding:16px 20px;
+      display:flex; align-items:center; gap:10px; font-size:.875rem; font-weight:500;
+    }
+    .col-old .col-hdr-badge {
+      margin-left:auto; background:rgba(183,28,28,.7); color:#FFCDD2;
+      padding:2px 9px; border-radius:10px; font-size:.68rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.05em;
+    }
+    .col-old .col-body { padding:20px; }
+
+    /* NEW — vibrant blue/green */
+    .col-new {
+      background:#fff; border:2px solid rgba(25,118,210,.3);
+      box-shadow:0 0 0 4px rgba(25,118,210,.06);
+    }
+    .col-new .col-hdr {
+      background:linear-gradient(90deg,#1565C0 0%,#1976D2 100%); color:#fff; padding:16px 20px;
+      display:flex; align-items:center; gap:10px; font-size:.875rem; font-weight:500;
+    }
+    .col-new .col-hdr-badge {
+      margin-left:auto; background:rgba(56,142,60,.8); color:#C8E6C9;
+      padding:2px 9px; border-radius:10px; font-size:.68rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.05em;
+    }
+    .col-new .col-body { padding:20px; }
+
+    .col-subtitle {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+      margin-bottom:10px;
+    }
+    .col-old .col-subtitle { color:var(--gray-dk); }
+    .col-new .col-subtitle { color:var(--blue); }
+
+    /* ── Code blocks ──────────────────────────────────────────────────────── */
+    .code-wrap {
+      border-radius:6px; overflow:hidden; margin:14px 0;
+      font-family:var(--mono); font-size:.78rem; line-height:1.65;
+    }
+    .code-hdr {
+      padding:6px 14px; font-size:.68rem; font-weight:700; letter-spacing:.06em;
+      text-transform:uppercase; display:flex; align-items:center; gap:8px;
+    }
+    .col-old .code-hdr { background:#546E7A; color:#CFD8DC; }
+    .col-new .code-hdr { background:#1565C0; color:#90CAF9; }
+    .code-body {
+      padding:14px 16px; overflow-x:auto; white-space:pre;
+    }
+    .col-old .code-body { background:#37474F; color:#B0BEC5; }
+    .col-new .code-body { background:#0D2040; color:#E3F2FD; }
+    .cm-comment { color:#607D8B; }
+    .cm-comment-new { color:#4DB6AC; }
+    .cm-keyword { color:#80CBC4; }
+    .cm-keyword-new { color:#90CAF9; }
+    .cm-string { color:#FFCC80; }
+    .cm-string-new { color:#A5D6A7; }
+    .cm-attr { color:#CE93D8; }
+    .cm-attr-new { color:#80DEEA; }
+
+    /* ── Bullet lists ─────────────────────────────────────────────────────── */
+    .feat-list { list-style:none; padding:0; margin:12px 0; }
+    .feat-list li {
+      display:flex; align-items:flex-start; gap:10px; padding:6px 0;
+      border-bottom:1px solid rgba(0,0,0,.06); font-size:.875rem;
+    }
+    .feat-list li:last-child { border-bottom:none; }
+    .feat-list .icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+    .col-old .feat-list .icon { color:var(--gray); }
+    .col-new .feat-list .icon { color:var(--green); }
+
+    .problem-list { list-style:none; padding:0; margin:10px 0; }
+    .problem-list li {
+      display:flex; align-items:flex-start; gap:8px; padding:5px 0;
+      font-size:.8125rem; color:#795548;
+    }
+    .problem-list .icon { font-size:15px; color:#EF5350; flex-shrink:0; margin-top:1px; }
+
+    .benefit-list { list-style:none; padding:0; margin:10px 0; }
+    .benefit-list li {
+      display:flex; align-items:flex-start; gap:8px; padding:5px 0;
+      font-size:.8125rem; color:#2E7D32;
+    }
+    .benefit-list .icon { font-size:15px; color:var(--green); flex-shrink:0; margin-top:1px; }
+
+    /* ── Comparison table ─────────────────────────────────────────────────── */
+    .cmp-table { width:100%; border-collapse:collapse; font-size:.875rem; border-radius:8px; overflow:hidden; box-shadow:var(--shadow-1); }
+    .cmp-table th {
+      padding:12px 16px; font-size:.72rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.07em; text-align:left;
+    }
+    .cmp-table th:first-child { background:#ECEFF1; color:var(--gray-dk); width:26%; }
+    .cmp-table th.th-old { background:#546E7A; color:#CFD8DC; width:37%; }
+    .cmp-table th.th-new { background:#1976D2; color:#fff; width:37%; }
+    .cmp-table td { padding:11px 16px; vertical-align:top; }
+    .cmp-table tr:nth-child(even) td:first-child { background:#F5F7FA; }
+    .cmp-table tr:nth-child(odd) td:first-child { background:#ECEFF1; }
+    .cmp-table td:first-child { color:var(--text-2); font-weight:500; font-size:.8125rem; }
+    .cmp-table td.td-old { background:#FAFAFA; color:#546E7A; font-size:.8125rem; }
+    .cmp-table td.td-new { background:#F0F8FF; color:#1565C0; font-size:.8125rem; font-weight:500; }
+    .cmp-table tr { border-bottom:1px solid #E8EEF4; }
+    .cmp-table tr:last-child { border-bottom:none; }
+    .td-dep { display:inline-flex; align-items:center; gap:5px; }
+    .td-dep .material-icons { font-size:13px; color:#EF5350; }
+    .td-good { display:inline-flex; align-items:center; gap:5px; }
+    .td-good .material-icons { font-size:13px; color:var(--green); }
+
+    /* ── Live demo section ────────────────────────────────────────────────── */
+    .live-badge {
+      display:inline-flex; align-items:center; gap:8px; padding:6px 14px;
+      border-radius:20px; background:var(--blue-bg); color:var(--blue);
+      font-size:.75rem; font-weight:700; letter-spacing:.04em; margin-bottom:20px;
+    }
+    .live-badge-dot { width:7px; height:7px; border-radius:50%; background:var(--blue); animation:live-pulse 2s ease-in-out infinite; }
+
+    .demo-split { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
+
+    /* Live UE card */
+    .ue-card {
+      border-radius:8px; overflow:hidden;
+      border:2px solid rgba(25,118,210,.35);
+      box-shadow:0 0 0 4px rgba(25,118,210,.06),var(--shadow-2);
+    }
+    .ue-card-hdr {
+      background:linear-gradient(90deg,#1565C0,#1976D2); color:#fff;
+      padding:14px 18px; display:flex; align-items:center; gap:10px; font-size:.875rem; font-weight:500;
+    }
+    .ue-card-body { background:#fff; padding:20px; }
+    .ue-card-eyebrow { font-size:.72rem; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+    .ue-card-title { font-size:1.375rem; font-weight:700; color:var(--text); line-height:1.25; margin-bottom:12px; }
+    .ue-card-desc { font-size:.9rem; color:var(--text-2); line-height:1.65; margin-bottom:16px; }
+    .ue-card-img { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:4px; margin-bottom:14px; display:block; }
+    .ue-card-cta {
+      display:inline-flex; align-items:center; gap:7px; padding:0 18px; height:36px;
+      border-radius:4px; background:var(--blue); color:#fff; border:none; cursor:pointer;
+      font-family:inherit; font-size:.875rem; font-weight:500; letter-spacing:.04em;
+      text-transform:uppercase; text-decoration:none;
+      box-shadow:0 2px 4px rgba(25,118,210,.3);
+    }
+    .ue-card-spinner {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      padding:32px 0; font-size:.875rem; color:var(--text-2);
+    }
+    .spinner-ring {
+      width:20px; height:20px; border-radius:50%;
+      border:2px solid #e0e0e0; border-top-color:var(--blue);
+      animation:spin .7s linear infinite;
+    }
+
+    /* Strikethrough boilerplate */
+    .boilerplate-card {
+      border-radius:8px; background:#FAFAFA; border:1px solid #E0E7EF;
+      padding:20px; position:relative; overflow:hidden;
+    }
+    .boilerplate-card::before {
+      content:''; position:absolute; inset:0;
+      background:repeating-linear-gradient(135deg, transparent 0 18px, rgba(183,28,28,.04) 18px 20px);
+      pointer-events:none;
+    }
+    .boilerplate-hdr {
+      font-size:.72rem; font-weight:700; color:#EF5350; text-transform:uppercase;
+      letter-spacing:.08em; margin-bottom:14px; display:flex; align-items:center; gap:8px;
+    }
+    .boilerplate-item {
+      display:flex; align-items:flex-start; gap:8px; padding:7px 0;
+      border-bottom:1px solid #ECEFF1; opacity:.65;
+    }
+    .boilerplate-item:last-child { border-bottom:none; }
+    .boilerplate-item .material-icons { font-size:15px; color:#EF5350; flex-shrink:0; margin-top:2px; }
+    .boilerplate-name { font-size:.8125rem; font-weight:600; color:var(--gray-dk); text-decoration:line-through; text-decoration-color:rgba(183,28,28,.5); }
+    .boilerplate-desc { font-size:.75rem; color:#9E9E9E; margin-top:1px; }
+
+    /* ── Steps ────────────────────────────────────────────────────────────── */
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .step-card {
+      border-radius:8px; background:#fff; border:1px solid #E3F2FD;
+      border-top:3px solid var(--blue); padding:20px; box-shadow:var(--shadow-1);
+    }
+    .step-num {
+      width:32px; height:32px; border-radius:50%; background:var(--blue); color:#fff;
+      font-size:.875rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+      margin-bottom:12px;
+    }
+    .step-title { font-size:.9375rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+    .step-replaces {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+      color:#EF5350; margin-bottom:8px; display:flex; align-items:center; gap:5px;
+    }
+    .step-replaces .material-icons { font-size:13px; }
+    .step-desc { font-size:.8125rem; color:var(--text-2); line-height:1.6; }
+
+    /* ── AI callout ───────────────────────────────────────────────────────── */
+    .ai-card {
+      border-radius:10px; overflow:hidden;
+      background:linear-gradient(135deg,#0D1B2A 0%,#0D2440 100%);
+      border:1px solid rgba(25,118,210,.35); box-shadow:var(--shadow-2);
+    }
+    .ai-card-inner { display:grid; grid-template-columns:1.4fr 1fr; }
+    .ai-left { padding:36px 40px; }
+    .ai-right { background:rgba(25,118,210,.12); border-left:1px solid rgba(25,118,210,.25); padding:36px 32px; display:flex; flex-direction:column; justify-content:center; }
+    .ai-eyebrow {
+      display:inline-flex; align-items:center; gap:8px; padding:4px 12px;
+      border-radius:12px; background:rgba(25,118,210,.25); color:var(--blue-lt);
+      font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+      margin-bottom:16px;
+    }
+    .ai-title { font-size:1.375rem; font-weight:700; color:#fff; line-height:1.25; margin-bottom:14px; }
+    .ai-desc { font-size:.9rem; color:rgba(255,255,255,.68); line-height:1.7; margin-bottom:24px; }
+    .ai-prompt-label {
+      font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+      color:#4DB6AC; margin-bottom:8px;
+    }
+    .ai-prompt {
+      background:#0A1628; border:1px solid rgba(77,182,172,.2); border-radius:6px;
+      padding:12px 14px; font-family:var(--mono); font-size:.78rem; color:#B2DFDB; line-height:1.6;
+    }
+    .ai-feat-list { list-style:none; padding:0; }
+    .ai-feat-list li {
+      display:flex; align-items:flex-start; gap:10px; padding:9px 0;
+      border-bottom:1px solid rgba(255,255,255,.08); font-size:.875rem; color:rgba(255,255,255,.8);
+    }
+    .ai-feat-list li:last-child { border-bottom:none; }
+    .ai-check {
+      width:20px; height:20px; border-radius:50%; flex-shrink:0;
+      background:rgba(56,142,60,.2); border:1px solid rgba(56,142,60,.4);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .ai-check .material-icons { font-size:12px; color:#A5D6A7; }
+
+    /* ── Resources footer ─────────────────────────────────────────────────── */
+    .resources-footer {
+      background:#fff; border-top:2px solid var(--blue-bg);
+      padding:40px 0 48px;
+    }
+    .res-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .res-card {
+      border-radius:8px; border:1px solid #E3F2FD; padding:18px 20px;
+      text-decoration:none; display:block; transition:border-color .15s,box-shadow .15s;
+    }
+    .res-card:hover { border-color:var(--blue); box-shadow:0 2px 8px rgba(25,118,210,.12); }
+    .res-card-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--blue); margin-bottom:6px; }
+    .res-card-title { font-size:.9375rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+    .res-card-desc { font-size:.8rem; color:var(--text-2); line-height:1.5; }
+    .res-arrow { margin-top:12px; display:flex; align-items:center; gap:4px; font-size:.75rem; color:var(--blue); font-weight:500; }
+
+    /* ── Keyframes ────────────────────────────────────────────────────────── */
+    @keyframes live-pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:.3; transform:scale(.8); }
+    }
+    @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width:960px) {
+      .split { grid-template-columns:1fr; }
+      .demo-split { grid-template-columns:1fr; }
+      .steps { grid-template-columns:1fr; }
+      .ai-card-inner { grid-template-columns:1fr; }
+      .ai-right { border-left:none; border-top:1px solid rgba(25,118,210,.25); }
+      .res-grid { grid-template-columns:1fr 1fr; }
+    }
+    @media (max-width:600px) {
+      .page { padding:0 16px; }
+      .toolbar { padding:0 16px; }
+      .tb-nav { display:none; }
+      .hero { padding:52px 16px 60px; }
+      .res-grid { grid-template-columns:1fr; }
+      .ai-left { padding:28px 24px; }
+      .ai-right { padding:24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Toolbar ──────────────────────────────────────────────────────────────── -->
+<header class="toolbar">
+  <div class="tb-brand">
+    <svg class="tb-logo" viewBox="0 0 32 32" fill="none">
+      <polygon points="16,3 29,27 3,27" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2.4" stroke-linejoin="round"/>
+      <polygon points="16,10 23,24 9,24" fill="rgba(255,255,255,.22)"/>
+    </svg>
+    Angular Editing Evolution
+  </div>
+  <span class="tb-space"></span>
+  <nav class="tb-nav">
+    <a class="tb-btn" href="#architecture">Architecture</a>
+    <a class="tb-btn" href="#matrix">Comparison</a>
+    <a class="tb-btn" href="#demo">Live Demo</a>
+    <a class="tb-btn" href="#migration">Migration</a>
+  </nav>
+  <span class="tb-chip tb-chip-dep"><span>SPA Editor: Deprecated 2024</span></span>
+  &nbsp;
+  <span class="tb-chip tb-chip-new"><span class="chip-dot chip-dot-new"></span>Universal Editor: GA 2024</span>
+</header>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="material-icons" style="font-size:14px">change_history</span>
+    Angular + AEM · Migration Guide
+  </div>
+  <h1 class="hero-title">AEM + Angular: <span>The Editing Evolution</span></h1>
+  <p class="hero-sub">
+    How to upgrade from SPA Editor to Universal Editor — and why you should
+  </p>
+  <div class="hero-chips">
+    <span class="hero-chip chip-dep">
+      <span class="chip-dot chip-dot-dep"></span>
+      SPA Editor: Deprecated 2024
+    </span>
+    <span class="hero-chip chip-new">
+      <span class="chip-dot chip-dot-new"></span>
+      Universal Editor: GA 2024
+    </span>
+  </div>
+</section>
+
+<!-- ── Section 1: Architecture ──────────────────────────────────────────────── -->
+<div class="page">
+  <section class="section" id="architecture">
+    <div class="sec-label"><span class="material-icons" style="font-size:16px">architecture</span>Section 1 — Architecture comparison</div>
+
+    <div class="split">
+      <!-- OLD column -->
+      <div class="col-old">
+        <div class="col-hdr">
+          <span class="material-icons" style="font-size:18px">history</span>
+          SPA Editor (Old Approach)
+          <span class="col-hdr-badge">Deprecated</span>
+        </div>
+        <div class="col-body">
+          <div class="col-subtitle">How it worked</div>
+          <ul class="feat-list">
+            <li><span class="material-icons icon">link</span><span>JSON Model API driven: every page call hits the AEM Author</span></li>
+            <li><span class="material-icons icon">settings</span><span><code style="font-family:var(--mono);font-size:.78rem;background:#E0E7EF;padding:1px 5px;border-radius:3px">ModelManager.initialize()</code> bootstraps the SPA against AEM</span></li>
+            <li><span class="material-icons icon">extension</span><span><code style="font-family:var(--mono);font-size:.78rem;background:#E0E7EF;padding:1px 5px;border-radius:3px">@adobe/aem-react-editable-components</code> for component mapping</span></li>
+            <li><span class="material-icons icon">folder</span><span>Every component requires a matching Sling model + JCR dialog</span></li>
+            <li><span class="material-icons icon">build</span><span>React-centric: no Angular SDK ever shipped at parity</span></li>
+          </ul>
+
+          <div class="code-wrap">
+            <div class="code-hdr">
+              <span class="material-icons" style="font-size:14px">code</span>
+              Old approach — MapTo() registration
+            </div>
+            <div class="code-body"><span class="cm-comment">// Old approach — every component needs AEM mapping</span>
+<span class="cm-keyword">import</span> { MapTo, EditableComponent } <span class="cm-keyword">from</span> <span class="cm-string">'@adobe/aem-react-editable-components'</span>;
+
+MapTo(<span class="cm-string">'my-app/components/hero'</span>)(HeroComponent, {
+  isEmpty: props => !props.title
+});
+
+<span class="cm-comment">// Requires: matching Sling component (/apps/my-app/components/hero)</span>
+<span class="cm-comment">//          Sling model Java class</span>
+<span class="cm-comment">//          cq:editConfig XML</span>
+<span class="cm-comment">//          dialog.xml with field definitions</span>
+<span class="cm-comment">//          HTL template to serialize model as JSON</span></div>
+          </div>
+
+          <div class="col-subtitle" style="margin-top:16px">Problems</div>
+          <ul class="problem-list">
+            <li><span class="material-icons icon">cancel</span><span>Tight AEM coupling — SPA can't render without Author JSON API</span></li>
+            <li><span class="material-icons icon">cancel</span><span>Custom JSON model contract — breaking changes on AEM upgrades</span></li>
+            <li><span class="material-icons icon">cancel</span><span>Author-side rendering in the critical path — slow, fragile</span></li>
+            <li><span class="material-icons icon">cancel</span><span>React-only officially — Angular teams left improvising</span></li>
+            <li><span class="material-icons icon">cancel</span><span>Massive Java/XML boilerplate for every editable component</span></li>
+            <li><span class="material-icons icon">cancel</span><span><strong>Deprecated by Adobe in 2024</strong></span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- NEW column -->
+      <div class="col-new">
+        <div class="col-hdr">
+          <span class="material-icons" style="font-size:18px">auto_awesome</span>
+          Universal Editor + Content Fragments
+          <span class="col-hdr-badge">GA · Recommended</span>
+        </div>
+        <div class="col-body">
+          <div class="col-subtitle">How it works</div>
+          <ul class="feat-list">
+            <li><span class="material-icons icon">check_circle</span><span>Any HTML element becomes editable via three <code style="font-family:var(--mono);font-size:.78rem;background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:3px">data-aue-*</code> attributes</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Fetch CF content from <strong>Publish</strong> via GraphQL — no Author in the render path</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Editable from any URL — your Angular app doesn't need to live on EDS</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Framework-agnostic — works with Angular, React, Vue, vanilla JS, Web Components</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Content model defined in CF Fragment Models — no Java, no XML</span></li>
+          </ul>
+
+          <div class="code-wrap">
+            <div class="code-hdr">
+              <span class="material-icons" style="font-size:14px">code</span>
+              New approach — just data attributes on your Angular template
+            </div>
+            <div class="code-body"><span class="cm-comment-new">&lt;!-- New approach — just add data attributes to your Angular template --&gt;</span>
+&lt;<span class="cm-keyword-new">div</span>
+  <span class="cm-attr-new">data-aue-resource</span>=<span class="cm-string-new">"urn:aem:/content/dam/.../jcr:content/data/master"</span>
+  <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"component"</span>
+  <span class="cm-attr-new">data-aue-label</span>=<span class="cm-string-new">"Hero"</span>&gt;
+
+  &lt;<span class="cm-keyword-new">h1</span>
+    <span class="cm-attr-new">data-aue-prop</span>=<span class="cm-string-new">"title"</span>
+    <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"text"</span>&gt;{{title}}&lt;/h1&gt;
+
+  &lt;<span class="cm-keyword-new">p</span>
+    <span class="cm-attr-new">data-aue-prop</span>=<span class="cm-string-new">"description"</span>
+    <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"richtext"</span>&gt;{{description}}&lt;/p&gt;
+&lt;/div&gt;
+
+<span class="cm-comment-new">// No Sling mapping. No cq:editConfig. No dialog XML.</span>
+<span class="cm-comment-new">// No Java classes. No HTL templates. No AEM coupling.</span></div>
+          </div>
+
+          <div class="col-subtitle" style="margin-top:16px">Benefits</div>
+          <ul class="benefit-list">
+            <li><span class="material-icons icon">check_circle</span><span>Framework-agnostic — any Angular component works immediately</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>No AEM coupling — your app runs independently</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Content served from CDN-cached Publish — fast, scalable</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>CF models replace all dialog XML — authored in the AEM UI</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Actively developed — GA, on Adobe's investment roadmap</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 2: Comparison matrix ──────────────────────────────────────── -->
+  <section class="section" id="matrix">
+    <div class="sec-label"><span class="material-icons" style="font-size:16px">compare_arrows</span>Section 2 — Migration complexity matrix</div>
+
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th class="th-old"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:5px">history</span>SPA Editor</th>
+          <th class="th-new"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:5px">auto_awesome</span>Universal Editor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AEM coupling</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>Tight — Sling models required for every component</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>None — just HTTP + data attributes</span></td>
+        </tr>
+        <tr>
+          <td>Content model</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>JSON Model API — custom, AEM-proprietary contract</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>Content Fragments — standard, portable CF models</span></td>
+        </tr>
+        <tr>
+          <td>Framework support</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>React-only officially — Angular improvised</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>Any framework — Angular, React, Vue, vanilla</span></td>
+        </tr>
+        <tr>
+          <td>Editor setup per component</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>Complex: Sling model + HTL + cq:editConfig XML + dialog XML</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>3 HTML attributes: <code style="font-family:var(--mono);font-size:.75rem">data-aue-resource</code>, <code style="font-family:var(--mono);font-size:.75rem">data-aue-type</code>, <code style="font-family:var(--mono);font-size:.75rem">data-aue-prop</code></span></td>
+        </tr>
+        <tr>
+          <td>Content delivery</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>Author JSON API — Author in the render path, no CDN</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>GraphQL from Publish — CDN-served, fast, cacheable</span></td>
+        </tr>
+        <tr>
+          <td>Performance impact</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>Author calls in render path — slow, not scalable</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>Publish + CDN — no Author latency in delivery</span></td>
+        </tr>
+        <tr>
+          <td>Local development</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>Requires live AEM Author connection</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>Mock CF JSON locally — Author only needed for edit sessions</span></td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td class="td-old" style="color:#EF5350;font-weight:700"><span class="td-dep"><span class="material-icons">cancel</span>Deprecated 2024 — no new investment</span></td>
+          <td class="td-new" style="color:var(--green);font-weight:700"><span class="td-good"><span class="material-icons">check_circle</span>GA 2024 — actively developed</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── Section 3: Live demo ───────────────────────────────────────────────── -->
+  <section class="section" id="demo">
+    <div class="sec-label"><span class="material-icons" style="font-size:16px">play_circle</span>Section 3 — Live demo</div>
+
+    <div class="live-badge">
+      <span class="live-badge-dot"></span>
+      This section fetches real CF content from AEM Publish and is fully UE-instrumented
+    </div>
+
+    <div class="demo-split">
+      <!-- Live UE-editable card -->
+      <div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+          <span class="material-icons" style="font-size:14px">auto_awesome</span>
+          The new way — live UE-editable Angular component
+        </div>
+        <div class="ue-card" id="ue-live-card">
+          <div class="ue-card-hdr">
+            <span class="material-icons" style="font-size:18px">change_history</span>
+            <span>Angular Component · UE-instrumented</span>
+            <span style="margin-left:auto;font-size:.72rem;opacity:.7;font-family:var(--mono)">data-aue-resource active</span>
+          </div>
+          <div class="ue-card-body" id="ue-card-content">
+            <div class="ue-card-spinner">
+              <span class="spinner-ring"></span>
+              Fetching from AEM Publish…
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:10px 14px;background:var(--green-bg);border-radius:6px;border-left:3px solid var(--green);font-size:.8rem;color:#2E7D32;display:flex;align-items:center;gap:8px">
+          <span class="material-icons" style="font-size:15px">info</span>
+          Open this page in AEM Universal Editor to edit the content above inline — no code changes needed.
+        </div>
+      </div>
+
+      <!-- What SPA Editor would have required -->
+      <div>
+        <div style="font-size:.8rem;font-weight:700;color:#EF5350;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+          <span class="material-icons" style="font-size:14px">block</span>
+          The old way — SPA Editor boilerplate you no longer need
+        </div>
+        <div class="boilerplate-card">
+          <div class="boilerplate-hdr">
+            <span class="material-icons" style="font-size:14px">delete_sweep</span>
+            All of this is eliminated by Universal Editor
+          </div>
+
+          <div class="boilerplate-item">
+            <span class="material-icons">cancel</span>
+            <div>
+              <div class="boilerplate-name">HeroModel.java</div>
+              <div class="boilerplate-desc">Sling model — maps JCR properties to JSON fields. 80–120 lines of Java per component.</div>
+            </div>
+          </div>
+          <div class="boilerplate-item">
+            <span class="material-icons">cancel</span>
+            <div>
+              <div class="boilerplate-name">hero.html (HTL template)</div>
+              <div class="boilerplate-desc">Server-side HTL that serializes the Sling model as JSON for the SPA model API.</div>
+            </div>
+          </div>
+          <div class="boilerplate-item">
+            <span class="material-icons">cancel</span>
+            <div>
+              <div class="boilerplate-name">_cq_editConfig.xml</div>
+              <div class="boilerplate-desc">Configures AEM Author editing behavior: drag-and-drop, placeholder, in-place editing.</div>
+            </div>
+          </div>
+          <div class="boilerplate-item">
+            <span class="material-icons">cancel</span>
+            <div>
+              <div class="boilerplate-name">_cq_dialog.xml</div>
+              <div class="boilerplate-desc">Author dialog XML — every field defined with type, label, validation rules.</div>
+            </div>
+          </div>
+          <div class="boilerplate-item">
+            <span class="material-icons">cancel</span>
+            <div>
+              <div class="boilerplate-name">MapTo() registration</div>
+              <div class="boilerplate-desc"><code style="font-family:var(--mono);font-size:.75rem">MapTo('my-app/components/hero')(Component)</code> — ties Angular/React to AEM resource type.</div>
+            </div>
+          </div>
+          <div class="boilerplate-item">
+            <span class="material-icons">cancel</span>
+            <div>
+              <div class="boilerplate-name">ModelManager.initialize()</div>
+              <div class="boilerplate-desc">Bootstrap call that fetches the page model JSON from AEM Author on every load.</div>
+            </div>
+          </div>
+          <div class="boilerplate-item">
+            <span class="material-icons">cancel</span>
+            <div>
+              <div class="boilerplate-name">JSON Model API contract</div>
+              <div class="boilerplate-desc">Proprietary AEM JSON shape — changes on AEM upgrades, breaking your SPA silently.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 4: Migration guide ────────────────────────────────────────── -->
+  <section class="section" id="migration">
+    <div class="sec-label"><span class="material-icons" style="font-size:16px">trending_flat</span>Section 4 — Migration guide</div>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-title">Create Content Fragment Models</div>
+        <div class="step-replaces">
+          <span class="material-icons">arrow_forward</span>
+          Replaces AEM Component dialogs
+        </div>
+        <p class="step-desc">
+          In the AEM UI, define a Content Fragment Model for each component type — fields, types, validations.
+          This replaces all <code style="font-family:var(--mono);font-size:.75rem">_cq_dialog.xml</code> and Sling model
+          field definitions. Authors create CF instances directly from these models.
+        </p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-title">Replace MapTo() with data-aue-* attributes</div>
+        <div class="step-replaces">
+          <span class="material-icons">arrow_forward</span>
+          Replaces all SPA Editor component registrations
+        </div>
+        <p class="step-desc">
+          In your Angular templates, remove all <code style="font-family:var(--mono);font-size:.75rem">MapTo()</code> calls and
+          <code style="font-family:var(--mono);font-size:.75rem">EditableComponent</code> wrappers.
+          Add <code style="font-family:var(--mono);font-size:.75rem">data-aue-resource</code>, <code style="font-family:var(--mono);font-size:.75rem">data-aue-type</code>,
+          and <code style="font-family:var(--mono);font-size:.75rem">data-aue-prop</code> directly to your existing HTML elements.
+          No AEM dependency imported.
+        </p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-title">Update data fetching to GraphQL Publish</div>
+        <div class="step-replaces">
+          <span class="material-icons">arrow_forward</span>
+          Replaces ModelManager / AemPageModel calls
+        </div>
+        <p class="step-desc">
+          Remove all <code style="font-family:var(--mono);font-size:.75rem">ModelManager.initialize()</code> and
+          <code style="font-family:var(--mono);font-size:.75rem">AemPageModel</code> imports.
+          Replace with a simple <code style="font-family:var(--mono);font-size:.75rem">fetch()</code> to your
+          GraphQL persistent query endpoint on <strong>Publish</strong> — CDN-cached, fast, no Author dependency.
+          Add a <code style="font-family:var(--mono);font-size:.75rem">message</code> listener for
+          <code style="font-family:var(--mono);font-size:.75rem">aue:content-patch</code> to refresh after UE edits.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 5: AI-assisted migration callout ───────────────────────────── -->
+  <section class="section" id="ai">
+    <div class="sec-label"><span class="material-icons" style="font-size:16px">smart_toy</span>Section 5 — AI-assisted migration</div>
+
+    <div class="ai-card">
+      <div class="ai-card-inner">
+        <div class="ai-left">
+          <div class="ai-eyebrow">
+            <span class="material-icons" style="font-size:12px">auto_awesome</span>
+            MCP · AI-assisted migration
+          </div>
+          <h2 class="ai-title">Migrate in hours, not weeks — with Claude Code + AEM MCP</h2>
+          <p class="ai-desc">
+            Adobe's AEM MCP tools let Claude Code analyze your existing SPA Editor components,
+            suggest equivalent Content Fragment models, and generate the <code style="font-family:var(--mono);font-size:.8rem;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;color:#80DEEA">data-aue-*</code>
+            instrumentation for your Angular templates — reducing a multi-week migration to hours.
+          </p>
+          <div class="ai-prompt-label">Example Claude prompt</div>
+          <div class="ai-prompt">Given this SPA Editor MapTo() component and its Sling model,
+suggest the equivalent Content Fragment model fields
+and add UE data-aue-* instrumentation to my Angular template.</div>
+        </div>
+        <div class="ai-right">
+          <ul class="ai-feat-list">
+            <li>
+              <span class="ai-check"><span class="material-icons">check</span></span>
+              Claude analyzes your existing <code style="font-family:var(--mono);font-size:.78rem">MapTo()</code> registrations and Sling models
+            </li>
+            <li>
+              <span class="ai-check"><span class="material-icons">check</span></span>
+              Generates equivalent CF Fragment Model field definitions
+            </li>
+            <li>
+              <span class="ai-check"><span class="material-icons">check</span></span>
+              Adds <code style="font-family:var(--mono);font-size:.78rem">data-aue-resource</code> / <code style="font-family:var(--mono);font-size:.78rem">data-aue-prop</code> to Angular templates
+            </li>
+            <li>
+              <span class="ai-check"><span class="material-icons">check</span></span>
+              Replaces <code style="font-family:var(--mono);font-size:.78rem">ModelManager</code> calls with GraphQL Publish fetches
+            </li>
+            <li>
+              <span class="ai-check"><span class="material-icons">check</span></span>
+              Validates UE instrumentation against CF model field names
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── Resources footer ───────────────────────────────────────────────────────── -->
+<footer class="resources-footer" id="resources">
+  <div class="page">
+    <div class="sec-label"><span class="material-icons" style="font-size:16px">link</span>Section 6 — Related demos &amp; resources</div>
+    <div class="res-grid">
+      <a class="res-card" href="angular.html">
+        <div class="res-card-label">Demo · Angular</div>
+        <div class="res-card-title">Angular + UE Baseline</div>
+        <div class="res-card-desc">Simple Angular app with a UE-editable hero Card — the starting point for new projects.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View demo</div>
+      </a>
+      <a class="res-card" href="angular-finance.html">
+        <div class="res-card-label">Demo · Angular Finance</div>
+        <div class="res-card-title">VanguardView · Finance</div>
+        <div class="res-card-desc">Full Angular finance dashboard with live market data, Document Authoring, and UE-editable hero.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View demo</div>
+      </a>
+      <a class="res-card" href="angular-governance.html">
+        <div class="res-card-label">Demo · Angular Governance</div>
+        <div class="res-card-title">Angular Governance</div>
+        <div class="res-card-desc">Content governance and approval workflows built on Angular + AEM CF + Universal Editor.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View demo</div>
+      </a>
+      <a class="res-card" href="angular-setup.html">
+        <div class="res-card-label">Guide · Setup</div>
+        <div class="res-card-title">Angular + AEM Setup Guide</div>
+        <div class="res-card-desc">Common errors, gotchas, and fixes when wiring up Angular with Universal Editor and Content Fragments.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View guide</div>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Constants ─────────────────────────────────────────────────────────────────
+  const FRAG_PATH = '/content/dam/ue-demo/fragments/angular-hero';
+  const RES       = 'urn:aem:' + FRAG_PATH + '/jcr:content/data/master';
+  const PUBLISH   = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+
+  const FB = {
+    eyebrow:    'AEM Hybrid · Angular',
+    title:      'Investment Portfolio Dashboard',
+    description:'Angular-powered analytics with real-time data — content authored and personalized in AEM Universal Editor without touching code.',
+    ctaLabel:   'View Dashboard',
+    image:      'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=900&q=80',
+  };
+
+  function esc(v) {
+    return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Render live UE card ───────────────────────────────────────────────────────
+  function renderCard(c) {
+    const r = esc(RES);
+    document.getElementById('ue-card-content').innerHTML = `
+      <div data-aue-resource="${r}" data-aue-type="component" data-aue-label="Hero CF">
+        <img class="ue-card-img" src="${esc(c.image)}" alt="Hero"
+          data-aue-resource="${r}" data-aue-prop="contentReference"
+          data-aue-type="image" data-aue-label="Hero Image"/>
+        <div class="ue-card-eyebrow"
+          data-aue-resource="${r}" data-aue-prop="eyebrow"
+          data-aue-type="text" data-aue-label="Eyebrow">${esc(c.eyebrow)}</div>
+        <div class="ue-card-title"
+          data-aue-resource="${r}" data-aue-prop="title"
+          data-aue-type="text" data-aue-label="Title">${esc(c.title)}</div>
+        <p class="ue-card-desc"
+          data-aue-resource="${r}" data-aue-prop="description"
+          data-aue-type="richtext" data-aue-label="Description">${esc(c.description)}</p>
+        <a class="ue-card-cta" href="#"
+          data-aue-resource="${r}" data-aue-prop="ctaLabel"
+          data-aue-type="text" data-aue-label="CTA">
+          <span class="material-icons" style="font-size:16px">arrow_forward</span>
+          ${esc(c.ctaLabel)}
+        </a>
+        <div style="margin-top:14px;padding:8px 12px;background:var(--blue-bg);border-radius:4px;font-size:.75rem;color:var(--blue);display:flex;align-items:center;gap:6px">
+          <span style="font-size:15px">&#x2B21;</span>
+          This is a live UE-editable component — open in Universal Editor to edit inline
+        </div>
+      </div>`;
+  }
+
+  // ── Fetch CF from Publish ─────────────────────────────────────────────────────
+  async function fetchHero() {
+    try {
+      const url = PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + FRAG_PATH
+        + ';variation=master;_t=' + Date.now();
+      const res = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(res.status);
+      const d = await res.json();
+      const item = d?.data?.homeHeroByPath?.item;
+      if (!item) throw new Error('no item');
+      renderCard({
+        ...FB, ...item,
+        image:       item?.contentReference?._publishUrl || item?.contentReference?._path || FB.image,
+        description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+      });
+    } catch {
+      renderCard(FB);
+    }
+  }
+
+  fetchHero();
+
+  // ── UE postback listener ──────────────────────────────────────────────────────
+  window.addEventListener('message', function(e) {
+    if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
+      setTimeout(fetchHero, 600);
+    }
+  });
+</script>
+</body>
+</html>
