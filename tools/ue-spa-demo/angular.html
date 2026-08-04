@@ -243,20 +243,30 @@
     root.innerHTML = '<ng-hero></ng-hero>';
     const el = root.querySelector('ng-hero');
 
-    try {
-      const url = PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + FRAG_PATH + ';variation=master;_t=' + Date.now();
-      const res = await fetch(url, { headers: { Accept: 'application/json' } });
-      if (!res.ok) throw new Error(res.status);
-      const d = await res.json();
-      const item = d?.data?.homeHeroByPath?.item;
-      if (!item) throw new Error('no item');
-      el.data = { ...FB, ...item,
-        image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
-        description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
-      };
-    } catch {
-      el.data = FB;
+    async function fetchHero() {
+      try {
+        const url = PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + FRAG_PATH + ';variation=master;_t=' + Date.now();
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(res.status);
+        const d = await res.json();
+        const item = d?.data?.homeHeroByPath?.item;
+        if (!item) throw new Error('no item');
+        el.data = { ...FB, ...item,
+          image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+          description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+        };
+      } catch {
+        el.data = FB;
+      }
     }
+
+    fetchHero();
+
+    window.addEventListener('message', function(e) {
+      if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update') {
+        setTimeout(fetchHero, 600);
+      }
+    });
   })();
 </script>
 </body>
