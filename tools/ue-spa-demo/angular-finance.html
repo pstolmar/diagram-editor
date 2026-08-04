@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
-  <title>VanguardView · Angular Finance · AEM Hybrid</title>
+  <title>PortfolioView · Angular Finance · AEM Hybrid</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
   <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
@@ -17,6 +17,7 @@
       --shadow-1: 0 2px 1px rgba(0,0,0,.09),0 1px 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.1);
       --shadow-2: 0 3px 3px rgba(0,0,0,.12),0 3px 4px rgba(0,0,0,.07),0 1px 8px rgba(0,0,0,.08);
     }
+    html { scroll-behavior: smooth; }
     body { font-family:'Roboto',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
     /* ── Toolbar ─────────────────────────────────────────────────────────── */
@@ -34,6 +35,7 @@
       font-size:.875rem; font-weight:500; font-family:inherit;
       padding:0 14px; height:36px; border-radius:4px;
       transition:background .15s,color .15s; letter-spacing:.04em; text-transform:uppercase;
+      text-decoration:none; display:inline-flex; align-items:center;
     }
     .mat-btn:hover { background:rgba(255,255,255,.1); color:#fff; }
     .tb-space { flex:1; }
@@ -257,14 +259,14 @@
       <polygon points="13,2 24,22 2,22" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2.2" stroke-linejoin="round"/>
       <polygon points="13,8 19.5,20 6.5,20" fill="rgba(255,255,255,.28)"/>
     </svg>
-    VanguardView · Angular + AEM
+    PortfolioView · Angular + AEM
   </div>
   <div class="tb-div"></div>
   <nav class="tb-nav">
-    <button class="mat-btn">Portfolio</button>
-    <button class="mat-btn">Markets</button>
-    <button class="mat-btn">Research</button>
-    <button class="mat-btn">Reports</button>
+    <a class="mat-btn" href="#hero">Portfolio</a>
+    <a class="mat-btn" href="#live-feeds">Markets</a>
+    <a class="mat-btn" href="#da-content">Research</a>
+    <a class="mat-btn" href="angular-governance.html">Reports</a>
   </nav>
   <span class="tb-space"></span>
   <div class="aem-badge">
@@ -285,8 +287,8 @@
     <div class="reg-body">
       <p class="reg-p">Past performance is not indicative of future results. All investments involve risk, including the potential loss of principal. The value of investments and the income derived from them can fall as well as rise, and investors may get back less than they originally invested.</p>
       <p class="reg-p">The market data, commodity prices, and index values presented on this page are either simulated or sourced from third-party public APIs for illustrative purposes only. They do not constitute investment advice, a solicitation, or an offer to buy or sell any financial instrument.</p>
-      <p class="reg-p">VanguardView is a technology demonstration platform and is not a registered investment adviser. Earthquake data is provided by the U.S. Geological Survey (USGS) and is for informational purposes only. Users should consult a qualified financial professional before making any investment decisions.</p>
-      <p class="reg-p">© 2026 VanguardView Demo Platform. This demonstration is not affiliated with The Vanguard Group, Inc. or any registered financial institution.</p>
+      <p class="reg-p">PortfolioView is a technology demonstration platform and is not a registered investment adviser. Earthquake data is provided by the U.S. Geological Survey (USGS) and is for informational purposes only. Users should consult a qualified financial professional before making any investment decisions.</p>
+      <p class="reg-p">This site is for demonstration purposes only. Not affiliated with any financial institution.</p>
       <span class="reg-note">⬡ This section is protected — design is flexible, content is not editable in the CMS</span>
     </div>
   </div>
@@ -422,13 +424,13 @@ class NgHero extends HTMLElement {
                 data-aue-resource="${r}" data-aue-prop="description"
                 data-aue-type="richtext" data-aue-label="Description">${esc(c.description)}</p>
               <div class="hero-actions">
-                <a class="btn-raised" href="#portfolio"
+                <a class="btn-raised" href="#live-feeds"
                   data-aue-resource="${r}" data-aue-prop="ctaLabel"
                   data-aue-type="text" data-aue-label="CTA">
                   <span class="material-icons" style="font-size:18px">show_chart</span>
                   ${esc(c.ctaLabel)}
                 </a>
-                <a class="btn-ghost" href="#markets">
+                <a class="btn-ghost" href="#live-feeds">
                   <span class="material-icons" style="font-size:18px">trending_up</span>
                   Live Markets
                 </a>
@@ -499,6 +501,7 @@ function renderMarket(slot, dateStr) {
             <span>${m.pfx}${Math.abs(chg).toFixed(m.decChg)}</span>
             <span style="opacity:.7">(${Math.abs(pct).toFixed(2)}%)</span>
           </div>
+          <div style="font-size:.65rem;color:#9e9e9e;margin-top:6px">Simulated · Historical</div>
         </div>
         <div class="mkt-spark">${sparklineSVG(rngS, m.base, m.range * 0.5)}</div>
         <div class="mkt-pulse" style="background:${barClr}"></div>
@@ -636,7 +639,7 @@ class NgCommodityTicker extends HTMLElement {
         <div id="coffee-chg" class="${cc.cls}">${cc.text}</div>
         <div class="com-chart">${cChart}</div>
       </div>
-      <div class="com-note">Simulated · indicative only</div>
+      <div style="font-size:.65rem;color:#9e9e9e;text-align:center;margin-top:8px;padding:0 20px 14px">⚡ Demo data · Prices are simulated for illustration only</div>
     </div>`;
   }
 }
@@ -717,9 +720,9 @@ customElements.define('ng-da-live', NgDaLive);
   const simDate = getSimDate();
 
   root.innerHTML = `
-    <ng-hero></ng-hero>
+    <ng-hero id="hero"></ng-hero>
     <div id="mkt-slot"></div>
-    <div class="section wrap" style="padding-bottom:8px">
+    <div id="live-feeds" class="section wrap" style="padding-bottom:8px">
       <div class="sec-hdr">
         <span class="live-dot"></span>
         <span class="sec-title">Live Data Feed</span>
@@ -730,7 +733,7 @@ customElements.define('ng-da-live', NgDaLive);
         <ng-commodity-ticker></ng-commodity-ticker>
       </div>
     </div>
-    <div class="section wrap" style="padding-bottom:48px">
+    <div id="da-content" class="section wrap" style="padding-bottom:48px">
       <div class="sec-hdr">
         <span class="material-icons" style="font-size:16px;color:var(--amber)">auto_awesome</span>
         <span class="sec-title">Content from Document Authoring · Live</span>

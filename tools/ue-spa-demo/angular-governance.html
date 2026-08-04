@@ -622,6 +622,100 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
+
+    /* ── Technical Details accordion ────────────────────────────────────── */
+    .tech-details {
+      background: var(--surface);
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-1);
+      overflow: hidden;
+    }
+    .tech-details > summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 28px;
+      cursor: pointer;
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text);
+      border-left: 4px solid var(--accent);
+      list-style: none;
+      user-select: none;
+      transition: background .15s;
+    }
+    .tech-details > summary::-webkit-details-marker { display: none; }
+    .tech-details > summary:hover { background: #f0f4ff; }
+    .tech-details > summary .td-icon { color: var(--accent); font-size: 20px; flex-shrink: 0; }
+    .tech-details > summary .td-chevron {
+      margin-left: auto;
+      font-size: 20px;
+      color: var(--text-3);
+      transition: transform .2s;
+    }
+    .tech-details[open] > summary .td-chevron { transform: rotate(180deg); }
+    .tech-details-body {
+      background: #f8f9fb;
+      padding: 24px 28px;
+      border-top: 1px solid var(--border);
+    }
+    .tech-details-body ol {
+      list-style: none;
+      counter-reset: tech-item;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .tech-details-body ol > li {
+      counter-increment: tech-item;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 0 14px;
+    }
+    .tech-details-body ol > li::before {
+      content: counter(tech-item);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      font-size: .72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .tech-details-body ol > li > div { min-width: 0; }
+    .tech-details-body h4 {
+      font-size: .875rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+    .tech-details-body p {
+      font-size: .8125rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin-bottom: 0;
+    }
+    .tech-details-body pre {
+      margin-top: 8px;
+      background: #1e2a3a;
+      color: #c5e1ff;
+      font-family: 'Roboto Mono', 'Courier New', monospace;
+      font-size: .74rem;
+      line-height: 1.6;
+      padding: 12px 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      white-space: pre;
+    }
   </style>
 </head>
 <body>
@@ -638,7 +732,7 @@
 
   <div class="nav-section-label">Main</div>
 
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="angular-index.html">
     <span class="material-icons">dashboard</span>
     <span>Dashboard</span>
   </a>
@@ -646,18 +740,18 @@
     <span class="material-icons">gavel</span>
     <span>Disclosures</span>
   </a>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="#section-d">
     <span class="material-icons">description</span>
     <span>Fund<br>Prospectus</span>
   </a>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="#section-c">
     <span class="material-icons">account_balance</span>
     <span>Regulatory<br>Filings</span>
   </a>
 
   <div class="nav-section-label">Admin</div>
 
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="angular-index.html">
     <span class="material-icons">group</span>
     <span>Team</span>
   </a>
@@ -831,6 +925,7 @@
 
     <!-- ── Section C: Key Risks (PROTECTED) ─────────────────────────────── -->
     <!-- PROTECTED: no data-aue-* attributes — governance policy prevents CMS editing -->
+    <span id="section-c" style="display:block;height:0;overflow:hidden;visibility:hidden"></span>
     <div class="section-card" id="section-risks">
       <div class="zone-header zone-lock">
         <span class="material-icons">lock</span>
@@ -893,6 +988,7 @@
 
     <!-- ── Section D: Fee Table (PROTECTED) ──────────────────────────────── -->
     <!-- PROTECTED: no data-aue-* attributes — governance policy prevents CMS editing -->
+    <span id="section-d" style="display:block;height:0;overflow:hidden;visibility:hidden"></span>
     <div class="section-card" id="section-fees">
       <div class="zone-header zone-lock">
         <span class="material-icons">lock</span>
@@ -1030,6 +1126,67 @@
         </div>
       </div>
     </div>
+
+    <!-- ── Technical Details accordion ──────────────────────────────────── -->
+    <details class="tech-details">
+      <summary>
+        <span class="material-icons td-icon">engineering</span>
+        Technical Details — How AEM Enforces Content Governance
+        <span class="material-icons td-chevron">expand_more</span>
+      </summary>
+      <div class="tech-details-body">
+        <ol>
+          <li>
+            <div>
+              <h4>JCR ACLs (Node-level permissions)</h4>
+              <p>AEM's repository uses Apache Jackrabbit Oak ACLs. Each JCR node can carry <code>allow</code>/<code>deny</code> entries for specific principals (users or groups). The <code>rep:write</code> privilege controls whether a node can be modified. For example, the Legal team's group (<code>legal-editors</code>) is granted <code>rep:read</code> but denied <code>rep:write</code> on <code>/content/dam/ue-demo/fragments/angular-hero/jcr:content/data/master</code> for the <code>riskDisclosures</code> and <code>feeTable</code> fields — AEM Author simply won't save changes from unauthorized users even if Universal Editor is open.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h4>Universal Editor respects AEM's permission model</h4>
+              <p>When UE sends a PATCH request to AEM Author to save an edited field, Author runs its normal permission check. If the authenticated user lacks <code>rep:write</code> on that node, Author returns 403 and UE surfaces an error. The <code>data-aue-*</code> attributes only determine what UE <em>offers to edit</em> — AEM Author determines what it <em>actually allows</em>. This means you can serve UE-instrumented HTML to all users; AEM enforces who can save.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h4>Conditionally rendering <code>data-aue-*</code> attributes</h4>
+              <p>In a server-rendered Angular app (SSR) or when using AEM as the page delivery layer, the <code>data-aue-resource</code> and <code>data-aue-prop</code> attributes can be rendered conditionally based on session permissions:</p>
+              <pre>// Angular SSR or Node middleware — only emit UE attributes for authorized roles
+const isEditor = userRoles.includes('marketing-editor');
+const aueProps = isEditor
+  ? `data-aue-resource="${res}" data-aue-prop="title"`
+  : '';</pre>
+              <p style="margin-top:8px">On EDS/static delivery these attributes are always in the HTML — but AEM Author still enforces write permissions at save time.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h4>Content Fragment model — field-level configuration</h4>
+              <p>In the CF Model editor (<code>/conf/.../settings/dam/cfm/models</code>), each field has "Required" and "Translatable" flags. AEM also supports Content Fragment Variations: a <code>legal</code> variation can be restricted so only the Legal group can edit it, while Marketing edits the <code>master</code> variation. Example: <code>eyebrow</code>, <code>title</code>, and <code>description</code> on the <code>master</code> variation are Marketing-editable; <code>riskDisclosure</code> on the <code>legal</code> variation is scoped to the Legal CUG only.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h4>AEM Closed User Groups (CUGs)</h4>
+              <p>CUGs restrict which authenticated users can access content on Publish. For compliance content this means certain regulatory documents are only accessible to logged-in advisors, while marketing content remains public. Applied via <code>rep:cugPolicy</code> on the parent node, CUGs integrate directly with AEM's Sling authentication handler.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h4>Workflow and review gates</h4>
+              <p>AEM's workflow engine can require Legal team approval before any CF changes are replicated to Publish. Even if a Marketing editor modifies a field on Author, the content won't reach Publish until the Legal Review workflow step is approved. Every regulatory content change accumulates a complete audit trail — reviewer identity, timestamp, and diff — stored in the JCR workflow history.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h4>Replication privileges</h4>
+              <p>Separate from edit permissions, the <code>crx:replicate</code> privilege controls who can trigger replication from Author to Publish. Marketing editors can edit their CF fields on Author but cannot push to Publish — only a Release Manager group holding <code>crx:replicate</code> can do that. This creates a mandatory review step between authoring and live publication, independent of workflow configuration.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </details>
 
     <!-- ── Section F: Audit trail ─────────────────────────────────────────── -->
     <div class="section-card" id="section-audit">
@@ -1263,5 +1420,8 @@ window.addEventListener('message', (event) => {
   }
 })();
 </script>
+<div style="background:#f5f5f5;border-top:1px solid #e0e0e0;padding:10px 24px;font-size:.72rem;color:#9e9e9e;text-align:center">
+  This site is for demonstration purposes only. Not affiliated with any financial institution. Data shown is simulated or sourced from public APIs.
+</div>
 </body>
 </html>
