@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>VanguardView · Angular Finance · AEM Hybrid</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #DD0031; --blue: #1976D2; --surface: #fff; --bg: #fafafa;
+      --green: #388e3c; --red-loss: #d32f2f; --amber: #ffc107;
+      --text: #212121; --text-2: #757575;
+      --shadow-1: 0 2px 1px rgba(0,0,0,.09),0 1px 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.1);
+      --shadow-2: 0 3px 3px rgba(0,0,0,.12),0 3px 4px rgba(0,0,0,.07),0 1px 8px rgba(0,0,0,.08);
+    }
+    body { font-family:'Roboto',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* ── Toolbar ─────────────────────────────────────────────────────────── */
+    mat-toolbar {
+      display:flex; align-items:center; padding:0 24px; height:64px;
+      background:var(--red); color:#fff;
+      box-shadow:0 2px 4px rgba(0,0,0,.22),0 4px 5px rgba(0,0,0,.14);
+      position:sticky; top:0; z-index:100;
+    }
+    .tb-brand { display:flex; align-items:center; gap:10px; font-size:1.125rem; font-weight:500; white-space:nowrap; }
+    .tb-div { width:1px; height:28px; background:rgba(255,255,255,.28); margin:0 10px; }
+    .tb-nav { display:flex; gap:2px; }
+    .mat-btn {
+      background:none; border:none; cursor:pointer; color:rgba(255,255,255,.82);
+      font-size:.875rem; font-weight:500; font-family:inherit;
+      padding:0 14px; height:36px; border-radius:4px;
+      transition:background .15s,color .15s; letter-spacing:.04em; text-transform:uppercase;
+    }
+    .mat-btn:hover { background:rgba(255,255,255,.1); color:#fff; }
+    .tb-space { flex:1; }
+    .aem-badge {
+      position:relative; display:inline-flex; align-items:center; gap:6px;
+      padding:5px 12px; border-radius:16px; background:var(--blue); color:#fff;
+      font-size:.75rem; font-weight:700; letter-spacing:.04em; cursor:default; white-space:nowrap;
+    }
+    .badge-dot { width:6px; height:6px; border-radius:50%; background:#a5d6a7; animation:live-pulse 2s ease-in-out infinite; }
+    .badge-tip {
+      display:none; position:absolute; top:calc(100% + 10px); right:0;
+      width:286px; padding:12px 14px; background:rgba(30,30,30,.97); color:#fff;
+      border-radius:4px; font-size:.8125rem; font-weight:400; line-height:1.55;
+      letter-spacing:0; text-transform:none; box-shadow:0 4px 18px rgba(0,0,0,.32);
+    }
+    .badge-tip::before {
+      content:''; position:absolute; top:-6px; right:18px;
+      border:6px solid transparent; border-bottom-color:rgba(30,30,30,.97); border-top:none;
+    }
+    .aem-badge:hover .badge-tip { display:block; }
+
+    /* ── Page layout ─────────────────────────────────────────────────────── */
+    .wrap { max-width:1200px; margin:0 auto; padding:0 24px; }
+    .section { padding:36px 0; }
+    .sec-hdr { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .sec-title { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-2); }
+    .live-dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:live-pulse 1.8s ease-in-out infinite; flex-shrink:0; }
+
+    /* ── Hero ────────────────────────────────────────────────────────────── */
+    .hero-bg {
+      background:linear-gradient(135deg,#0d1b2a 0%,#1b2838 45%,#0d2d47 100%);
+      padding:72px 0 80px;
+    }
+    .hero-grid { display:grid; grid-template-columns:1.1fr 0.9fr; gap:52px; align-items:center; }
+    .hero-eyebrow {
+      font-size:.72rem; font-weight:700; color:var(--red); text-transform:uppercase;
+      letter-spacing:.12em; margin-bottom:18px;
+    }
+    .hero-title {
+      font-size:clamp(1.75rem,3vw,2.875rem); font-weight:700; color:#fff;
+      line-height:1.12; margin-bottom:22px; letter-spacing:-.01em;
+    }
+    .hero-desc { font-size:1.0625rem; line-height:1.72; color:rgba(255,255,255,.72); margin-bottom:34px; }
+    .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-raised {
+      display:inline-flex; align-items:center; gap:8px; padding:0 22px; height:44px;
+      border-radius:4px; background:var(--red); color:#fff; border:none; cursor:pointer;
+      font-family:inherit; font-size:.875rem; font-weight:500;
+      letter-spacing:.04em; text-transform:uppercase; text-decoration:none;
+      box-shadow:0 3px 1px rgba(0,0,0,.2),0 2px 2px rgba(0,0,0,.14),0 1px 5px rgba(0,0,0,.12);
+      transition:box-shadow .2s;
+    }
+    .btn-raised:hover { box-shadow:0 5px 5px rgba(0,0,0,.2),0 3px 14px rgba(0,0,0,.12); }
+    .btn-ghost {
+      display:inline-flex; align-items:center; gap:8px; padding:0 22px; height:44px;
+      border-radius:4px; background:transparent; color:rgba(255,255,255,.86);
+      border:1px solid rgba(255,255,255,.38); cursor:pointer;
+      font-family:inherit; font-size:.875rem; font-weight:500;
+      letter-spacing:.04em; text-transform:uppercase; text-decoration:none;
+      transition:background .15s,border-color .15s;
+    }
+    .btn-ghost:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.62); }
+    .hero-img-wrap { position:relative; border-radius:8px; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,.45); }
+    .hero-img-wrap img { width:100%; aspect-ratio:16/10; object-fit:cover; display:block; }
+    .hero-img-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(135deg,rgba(221,0,49,.18) 0%,transparent 58%);
+    }
+    .hero-img-badge {
+      position:absolute; bottom:16px; left:16px; display:flex; align-items:center; gap:8px;
+      padding:6px 14px; border-radius:4px; background:rgba(0,0,0,.62); backdrop-filter:blur(8px);
+      color:#fff; font-size:.75rem; font-weight:500;
+    }
+    .hero-img-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--red); }
+
+    /* ── Cards ───────────────────────────────────────────────────────────── */
+    mat-card {
+      display:block; background:var(--surface); border-radius:4px;
+      box-shadow:var(--shadow-1); overflow:hidden;
+    }
+
+    /* ── Market summary ──────────────────────────────────────────────────── */
+    .mkt-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .mkt-card { background:var(--surface); border-radius:4px; box-shadow:var(--shadow-1); overflow:hidden; }
+    .mkt-body { padding:20px 20px 10px; }
+    .mkt-label { font-size:.72rem; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+    .mkt-price { font-size:1.625rem; font-weight:300; letter-spacing:-.025em; color:var(--text); margin-bottom:5px; }
+    .mkt-price sub { font-size:.95rem; font-weight:400; color:#9e9e9e; vertical-align:baseline; }
+    .mkt-change { display:flex; align-items:center; gap:5px; font-size:.8125rem; font-weight:500; }
+    .mkt-change.up { color:var(--green); }
+    .mkt-change.dn { color:var(--red-loss); }
+    .mkt-spark { padding:10px 20px 0; }
+    .mkt-pulse {
+      height:3px; border-radius:0 0 4px 4px;
+      animation:pulse-bar 2.8s ease-in-out infinite;
+    }
+    .mkt-unavail {
+      border:2px dashed #e0e0e0; border-radius:4px; padding:28px 20px;
+      text-align:center; color:var(--text-2);
+    }
+
+    @keyframes pulse-bar {
+      0%,100% { opacity:1; transform:scaleX(1); }
+      50% { opacity:.38; transform:scaleX(.97); }
+    }
+    @keyframes live-pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:.3; transform:scale(.8); }
+    }
+    @keyframes blink {
+      0%,49% { opacity:1; } 50%,100% { opacity:0; }
+    }
+    @keyframes spin {
+      from { transform:rotate(0deg); } to { transform:rotate(360deg); }
+    }
+
+    /* ── Live feed ───────────────────────────────────────────────────────── */
+    .feed-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+    .feed-panel { background:var(--surface); border-radius:4px; box-shadow:var(--shadow-1); overflow:hidden; display:flex; flex-direction:column; }
+    .feed-hdr { padding:14px 20px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; gap:10px; }
+    .feed-title { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-2); flex:1; }
+    .quake-row {
+      display:flex; align-items:flex-start; gap:12px; padding:11px 20px;
+      border-bottom:1px solid #fafafa; transition:background .1s;
+    }
+    .quake-row:hover { background:#f9fbe7; }
+    .quake-row:last-child { border-bottom:none; }
+    .quake-mag {
+      flex-shrink:0; width:36px; height:36px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.8125rem; font-weight:700; color:#fff;
+    }
+    .mag-lo { background:#f9a825; } .mag-md { background:#e65100; } .mag-hi { background:#b71c1c; }
+    .quake-loc { font-size:.875rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .quake-ago { font-size:.75rem; color:var(--text-2); margin-top:2px; }
+    .feed-foot { padding:9px 20px; font-size:.72rem; color:var(--text-2); border-top:1px solid #f0f0f0; }
+
+    /* ── Commodity ticker ────────────────────────────────────────────────── */
+    .com-row { padding:14px 20px 4px; border-bottom:1px solid #f5f5f5; }
+    .com-row:last-of-type { border-bottom:none; }
+    .com-name { font-size:.875rem; font-weight:500; color:var(--text); margin-bottom:6px; }
+    .com-unit { font-size:.72rem; color:var(--text-2); float:right; margin-top:2px; }
+    .com-price { font-size:1.4rem; font-weight:300; letter-spacing:-.02em; }
+    .com-cursor { font-size:.875rem; animation:blink 1s step-start infinite; color:var(--red); }
+    .com-chg { font-size:.8rem; font-weight:500; margin-top:3px; margin-bottom:8px; }
+    .com-chg.up { color:var(--green); } .com-chg.dn { color:var(--red-loss); }
+    .com-chart { padding:0 20px 12px; }
+    .com-note { padding:8px 20px 16px; font-size:.72rem; color:#bdbdbd; font-style:italic; }
+
+    /* ── DA Live panel ───────────────────────────────────────────────────── */
+    .da-wrap { background:#1a1a2e; border-radius:4px; box-shadow:var(--shadow-2); overflow:hidden; }
+    .da-inner { display:grid; grid-template-columns:1.5fr 1fr; }
+    .da-left { padding:40px 44px; }
+    .da-right { background:linear-gradient(140deg,#0d47a1 0%,#1565c0 100%); padding:40px 36px; display:flex; flex-direction:column; justify-content:center; }
+    .da-source {
+      display:inline-flex; align-items:center; gap:8px; margin-bottom:16px;
+      font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
+    }
+    .da-src-pill { padding:2px 9px; border-radius:10px; font-size:.65rem; font-weight:700; }
+    .da-name { font-size:1.875rem; font-weight:700; color:#fff; line-height:1.1; margin-bottom:10px; }
+    .da-tagline { font-size:1rem; color:rgba(255,255,255,.68); margin-bottom:26px; line-height:1.55; }
+    .da-price-row { display:flex; align-items:baseline; gap:6px; margin-bottom:6px; }
+    .da-price { font-size:2.25rem; font-weight:700; color:var(--amber); letter-spacing:-.025em; }
+    .da-period { font-size:.9rem; color:rgba(255,255,255,.55); }
+    .da-cta {
+      margin-top:28px; display:inline-flex; align-items:center; gap:8px;
+      padding:0 24px; height:44px; border-radius:4px; background:var(--amber);
+      color:#1a1a2e; border:none; cursor:pointer; font-family:inherit;
+      font-size:.875rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+      transition:background .15s;
+    }
+    .da-cta:hover { background:#ffd54f; }
+    .da-features { list-style:none; }
+    .da-features li {
+      display:flex; align-items:center; gap:12px; padding:9px 0;
+      border-bottom:1px solid rgba(255,255,255,.1); font-size:.9rem; color:rgba(255,255,255,.85);
+    }
+    .da-features li:last-child { border-bottom:none; }
+    .da-check {
+      width:22px; height:22px; border-radius:50%; flex-shrink:0;
+      background:rgba(76,175,80,.22); border:1px solid rgba(76,175,80,.45);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .da-check .material-icons { font-size:13px; color:#a5d6a7; }
+
+    /* ── Regulatory ──────────────────────────────────────────────────────── */
+    .reg-section { background:#f5f5f5; border-top:1px solid #e8e8e8; padding:32px 0; margin-top:8px; }
+    .reg-hdr { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+    .reg-title { font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#9e9e9e; }
+    .reg-body { border-left:3px solid #d0d0d0; padding-left:20px; }
+    .reg-p { font-size:.8125rem; line-height:1.72; color:#757575; margin-bottom:10px; }
+    .reg-p:last-of-type { margin-bottom:0; }
+    .reg-note {
+      display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+      padding:6px 12px; background:rgba(0,0,0,.04); border-radius:4px;
+      font-size:.72rem; color:#9e9e9e; font-style:italic;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width:960px) {
+      .hero-grid { grid-template-columns:1fr; }
+      .hero-img-wrap { display:none; }
+      .mkt-grid { grid-template-columns:1fr; }
+      .feed-grid { grid-template-columns:1fr; }
+      .da-inner { grid-template-columns:1fr; }
+    }
+    @media (max-width:600px) {
+      .wrap { padding:0 16px; }
+      mat-toolbar { padding:0 16px; }
+      .tb-nav { display:none; }
+      .tb-div { display:none; }
+      .hero-bg { padding:48px 0 56px; }
+    }
+  </style>
+</head>
+<body>
+
+<mat-toolbar>
+  <div class="tb-brand">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <polygon points="13,2 24,22 2,22" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2.2" stroke-linejoin="round"/>
+      <polygon points="13,8 19.5,20 6.5,20" fill="rgba(255,255,255,.28)"/>
+    </svg>
+    VanguardView · Angular + AEM
+  </div>
+  <div class="tb-div"></div>
+  <nav class="tb-nav">
+    <button class="mat-btn">Portfolio</button>
+    <button class="mat-btn">Markets</button>
+    <button class="mat-btn">Research</button>
+    <button class="mat-btn">Reports</button>
+  </nav>
+  <span class="tb-space"></span>
+  <div class="aem-badge">
+    <span class="badge-dot"></span>
+    AEM Hybrid
+    <div class="badge-tip">This Angular app is edited by URL in Universal Editor — it doesn't need to live on EDS</div>
+  </div>
+</mat-toolbar>
+
+<div id="root"><p style="padding:52px;text-align:center;opacity:.35;font-size:.875rem">Initializing Angular…</p></div>
+
+<section class="reg-section">
+  <div class="wrap">
+    <div class="reg-hdr">
+      <span class="material-icons" style="font-size:18px;color:#9e9e9e">lock</span>
+      <span class="reg-title">Regulatory Disclosures</span>
+    </div>
+    <div class="reg-body">
+      <p class="reg-p">Past performance is not indicative of future results. All investments involve risk, including the potential loss of principal. The value of investments and the income derived from them can fall as well as rise, and investors may get back less than they originally invested.</p>
+      <p class="reg-p">The market data, commodity prices, and index values presented on this page are either simulated or sourced from third-party public APIs for illustrative purposes only. They do not constitute investment advice, a solicitation, or an offer to buy or sell any financial instrument.</p>
+      <p class="reg-p">VanguardView is a technology demonstration platform and is not a registered investment adviser. Earthquake data is provided by the U.S. Geological Survey (USGS) and is for informational purposes only. Users should consult a qualified financial professional before making any investment decisions.</p>
+      <p class="reg-p">© 2026 VanguardView Demo Platform. This demonstration is not affiliated with The Vanguard Group, Inc. or any registered financial institution.</p>
+      <span class="reg-note">⬡ This section is protected — design is flexible, content is not editable in the CMS</span>
+    </div>
+  </div>
+</section>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────────
+const FRAG_PATH = '/content/dam/ue-demo/fragments/angular-hero';
+const RES = 'urn:aem:' + FRAG_PATH + '/jcr:content/data/master';
+const PUBLISH = 'https://publish-p138879-e1741192.adobeaemcloud.com';
+const FB = {
+  eyebrow: 'AEM Hybrid · Angular',
+  title: 'Investment Portfolio Dashboard',
+  description: 'Angular-powered analytics with real-time data — content authored and personalized in AEM Universal Editor without touching code.',
+  ctaLabel: 'View Dashboard',
+  image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
+};
+
+// ── Utilities ──────────────────────────────────────────────────────────────────
+function esc(v) {
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function seededRng(seed) {
+  let s = ((seed >>> 0) || 1);
+  return () => {
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s ^= (s >>> 16);
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+function dateToSeed(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(h, 33) ^ str.charCodeAt(i)) >>> 0;
+  return h || 1;
+}
+
+function prevDay(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00Z');
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function isFuture(dateStr) {
+  return dateStr > new Date().toISOString().slice(0, 10);
+}
+
+function getSimDate() {
+  const p = new URLSearchParams(location.search).get('date');
+  if (p) return p;
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function timeAgo(ms) {
+  const m = Math.floor((Date.now() - ms) / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+
+function sparklineSVG(rng, baseline, range, w=130, h=38) {
+  const pts = Array.from({length:10}, () => baseline + (rng() - 0.5) * range);
+  const mn = Math.min(...pts), mx = Math.max(...pts), span = mx - mn || 1;
+  const pad = 3;
+  const norm = pts.map(p => (p - mn) / span);
+  const d = norm.map((y, i) => {
+    const x = (pad + (i / 9) * (w - pad * 2)).toFixed(1);
+    const yy = (pad + (1 - y) * (h - pad * 2)).toFixed(1);
+    return (i === 0 ? 'M' : 'L') + x + ',' + yy;
+  }).join(' ');
+  const area = d + ` L${(w - pad).toFixed(1)},${h} L${pad},${h} Z`;
+  const up = pts[9] >= pts[0];
+  const clr = up ? '#388e3c' : '#d32f2f';
+  const fill = up ? 'rgba(56,142,60,.1)' : 'rgba(211,47,47,.1)';
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <path d="${area}" fill="${fill}"/>
+    <path d="${d}" fill="none" stroke="${clr}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function candleSVG(rng, baseline, range, w=198, h=54) {
+  const n = 10, cw = 13;
+  const gap = (w - n * cw) / (n - 1);
+  const candles = [];
+  let px = baseline;
+  for (let i = 0; i < n; i++) {
+    const o = px, ch = (rng() - 0.47) * range, c = o + ch;
+    const hi = Math.max(o, c) + rng() * range * 0.35;
+    const lo = Math.min(o, c) - rng() * range * 0.35;
+    candles.push({ o, hi, lo, c });
+    px = c;
+  }
+  const vals = candles.flatMap(c => [c.hi, c.lo]);
+  const mn = Math.min(...vals), mx = Math.max(...vals), span = mx - mn || 1;
+  const sy = v => ((mx - v) / span * (h - 4) + 2).toFixed(1);
+  const parts = candles.map((c, i) => {
+    const x = (i * (cw + gap)).toFixed(1);
+    const mid = (i * (cw + gap) + cw / 2).toFixed(1);
+    const up = c.c >= c.o;
+    const clr = up ? '#388e3c' : '#d32f2f';
+    const bt = Math.min(+sy(c.o), +sy(c.c));
+    const bh = Math.max(Math.abs(+sy(c.c) - +sy(c.o)), 1.5).toFixed(1);
+    return `<line x1="${mid}" y1="${sy(c.hi)}" x2="${mid}" y2="${sy(c.lo)}" stroke="${clr}" stroke-width="1"/>`
+      + `<rect x="${x}" y="${bt.toFixed(1)}" width="${cw}" height="${bh}" fill="${clr}" rx="1"/>`;
+  }).join('');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${parts}</svg>`;
+}
+
+// ── NgHero ─────────────────────────────────────────────────────────────────────
+class NgHero extends HTMLElement {
+  set data(v) { this._d = v; this._render(); }
+  _render() {
+    const c = this._d; if (!c) return;
+    const r = esc(RES);
+    this.innerHTML = `
+      <section class="hero-bg" data-aue-resource="${r}" data-aue-type="component" data-aue-label="Hero CF">
+        <div class="wrap">
+          <div class="hero-grid">
+            <div>
+              <div class="hero-eyebrow"
+                data-aue-resource="${r}" data-aue-prop="eyebrow"
+                data-aue-type="text" data-aue-label="Eyebrow">${esc(c.eyebrow)}</div>
+              <h1 class="hero-title"
+                data-aue-resource="${r}" data-aue-prop="title"
+                data-aue-type="text" data-aue-label="Title">${esc(c.title)}</h1>
+              <p class="hero-desc"
+                data-aue-resource="${r}" data-aue-prop="description"
+                data-aue-type="richtext" data-aue-label="Description">${esc(c.description)}</p>
+              <div class="hero-actions">
+                <a class="btn-raised" href="#portfolio"
+                  data-aue-resource="${r}" data-aue-prop="ctaLabel"
+                  data-aue-type="text" data-aue-label="CTA">
+                  <span class="material-icons" style="font-size:18px">show_chart</span>
+                  ${esc(c.ctaLabel)}
+                </a>
+                <a class="btn-ghost" href="#markets">
+                  <span class="material-icons" style="font-size:18px">trending_up</span>
+                  Live Markets
+                </a>
+              </div>
+            </div>
+            <div class="hero-img-wrap">
+              <img src="${esc(c.image)}" alt="Financial dashboard"
+                data-aue-resource="${r}" data-aue-prop="contentReference"
+                data-aue-type="image" data-aue-label="Hero Image"/>
+              <div class="hero-img-overlay"></div>
+              <div class="hero-img-badge">
+                <span class="hero-img-badge-dot"></span>
+                Angular Element · AEM Content Fragment
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>`;
+  }
+}
+customElements.define('ng-hero', NgHero);
+
+// ── Market Summary ─────────────────────────────────────────────────────────────
+function renderMarket(slot, dateStr) {
+  const MKTS = [
+    { id:'gold',      label:'Gold (XAU/USD)',          base:3220, range:80,   unit:'/oz',  pfx:'$',  dec:2,  decChg:2 },
+    { id:'coffee',    label:'Coffee (Arabica C)',       base:2.78, range:0.22, unit:'/lb',  pfx:'$',  dec:4,  decChg:4 },
+    { id:'portfolio', label:'Global Portfolio Index',  base:4847, range:120,  unit:' pts', pfx:'',   dec:2,  decChg:2 },
+  ];
+
+  if (isFuture(dateStr)) {
+    slot.innerHTML = `<div class="section wrap" id="markets">
+      <div class="sec-hdr">
+        <span class="sec-title">Market Summary</span>
+        <span style="font-size:.72rem;color:#bdbdbd;margin-left:6px">${esc(dateStr)}</span>
+      </div>
+      <div class="mkt-grid">${MKTS.map(m => `
+        <div class="mkt-card">
+          <div class="mkt-unavail">
+            <div style="font-size:2rem;opacity:.3" class="material-icons">query_stats</div>
+            <div style="font-size:.875rem;font-weight:500;margin:8px 0 4px">${esc(m.label)}</div>
+            <div style="font-size:.8rem;color:#bdbdbd">Market data unavailable for this date</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+    return;
+  }
+
+  const prev = prevDay(dateStr);
+  const cards = MKTS.map(m => {
+    const rng  = seededRng(dateToSeed(dateStr + m.id));
+    const rngP = seededRng(dateToSeed(prev + m.id));
+    const rngS = seededRng(dateToSeed(dateStr + m.id + 'sp'));
+    const price   = m.base + (rng()  - 0.5) * m.range;
+    const pPrice  = m.base + (rngP() - 0.5) * m.range;
+    const chg = price - pPrice, pct = (chg / pPrice) * 100;
+    const up = chg >= 0;
+    const cls = up ? 'up' : 'dn', arr = up ? '▲' : '▼';
+    const barClr = up ? '#388e3c' : '#d32f2f';
+    return `
+      <div class="mkt-card">
+        <div class="mkt-body">
+          <div class="mkt-label">${esc(m.label)}</div>
+          <div class="mkt-price">${m.pfx}${price.toFixed(m.dec)}<sub>${m.unit}</sub></div>
+          <div class="mkt-change ${cls}">
+            <span>${arr}</span>
+            <span>${m.pfx}${Math.abs(chg).toFixed(m.decChg)}</span>
+            <span style="opacity:.7">(${Math.abs(pct).toFixed(2)}%)</span>
+          </div>
+        </div>
+        <div class="mkt-spark">${sparklineSVG(rngS, m.base, m.range * 0.5)}</div>
+        <div class="mkt-pulse" style="background:${barClr}"></div>
+      </div>`;
+  });
+
+  slot.innerHTML = `<div class="section wrap" id="markets">
+    <div class="sec-hdr">
+      <span class="live-dot"></span>
+      <span class="sec-title">Market Summary</span>
+      <span style="font-size:.72rem;color:#bdbdbd;margin-left:6px">Historical · ${esc(dateStr)}</span>
+      <span style="flex:1"></span>
+      <a href="?date=YYYY-MM-DD" style="font-size:.72rem;color:var(--blue);text-decoration:none;opacity:.7">explore by date →</a>
+    </div>
+    <div class="mkt-grid">${cards.join('')}</div>
+  </div>`;
+}
+
+// ── Earthquake Feed ────────────────────────────────────────────────────────────
+class NgEarthquakeFeed extends HTMLElement {
+  connectedCallback() {
+    this._last = null;
+    this._show(`<div style="padding:32px;text-align:center">
+      <div style="width:24px;height:24px;border-radius:50%;border:2px solid #e0e0e0;border-top-color:var(--blue);animation:spin .8s linear infinite;margin:0 auto 12px"></div>
+      <div style="font-size:.8rem;color:#9e9e9e">Loading seismic data…</div>
+    </div>`);
+    this._fetch();
+    this._t = setInterval(() => this._fetch(), 90000);
+  }
+  disconnectedCallback() { clearInterval(this._t); }
+
+  async _fetch() {
+    try {
+      const r = await fetch('https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=4.5&limit=8&orderby=time');
+      if (!r.ok) throw new Error(r.status);
+      const d = await r.json();
+      this._last = d.features || [];
+      this._renderFeed(this._last, false);
+    } catch {
+      if (this._last) this._renderFeed(this._last, true);
+      else this._show('<div style="padding:24px 20px;color:#9e9e9e;font-size:.875rem">Unable to load seismic data — retrying…</div>');
+    }
+  }
+
+  _magCls(m) { return m >= 6.5 ? 'mag-hi' : m >= 5.5 ? 'mag-md' : 'mag-lo'; }
+
+  _renderFeed(feats, interrupted) {
+    const rows = feats.map(f => {
+      const p = f.properties;
+      return `<div class="quake-row">
+        <div class="quake-mag ${this._magCls(p.mag || 0)}">${(p.mag || 0).toFixed(1)}</div>
+        <div style="min-width:0">
+          <div class="quake-loc">${esc(p.place || 'Unknown region')}</div>
+          <div class="quake-ago">${timeAgo(p.time)}</div>
+        </div>
+      </div>`;
+    }).join('');
+    const dotStyle = interrupted ? 'background:#ef6c00' : '';
+    const foot = interrupted
+      ? '<span style="color:#ef6c00">⚠ Connection interrupted — showing last data</span>'
+      : 'Updated ' + new Date().toLocaleTimeString();
+    this.innerHTML = `<div class="feed-panel">
+      <div class="feed-hdr">
+        <span class="live-dot" style="${dotStyle}"></span>
+        <span class="feed-title">Global Seismic Activity · Live</span>
+      </div>
+      ${rows}
+      <div class="feed-foot">${foot}</div>
+    </div>`;
+  }
+
+  _show(inner) { this.innerHTML = `<div class="feed-panel">${inner}</div>`; }
+}
+customElements.define('ng-earthquake-feed', NgEarthquakeFeed);
+
+// ── Commodity Ticker ───────────────────────────────────────────────────────────
+class NgCommodityTicker extends HTMLElement {
+  connectedCallback() {
+    this._g = { px: 3218.40, open: 3218.40 };
+    this._c = { px: 2.7840,  open: 2.7840  };
+    this._seed = dateToSeed(getSimDate() + 'tick');
+    this._render();
+    this._gt = setInterval(() => {
+      this._g.px += (seededRng(++this._seed)() - 0.5) * 1.0;
+      this._tick('gold', this._g.px, this._g.open, '$', 2);
+    }, 8000);
+    this._ct = setInterval(() => {
+      this._c.px += (seededRng(++this._seed + 9973)() - 0.5) * 0.006;
+      this._tick('coffee', this._c.px, this._c.open, '$', 4);
+    }, 23000);
+  }
+  disconnectedCallback() { clearInterval(this._gt); clearInterval(this._ct); }
+
+  _chg(px, open, pfx, dec) {
+    const ch = px - open, pct = (ch / open) * 100;
+    const up = ch >= 0, sym = up ? '+' : '';
+    return {
+      cls: 'com-chg ' + (up ? 'up' : 'dn'),
+      text: sym + pfx + Math.abs(ch).toFixed(dec) + ' (' + sym + pct.toFixed(3) + '%) from open',
+    };
+  }
+
+  _tick(id, px, open, pfx, dec) {
+    const pe = this.querySelector('#' + id + '-px');
+    const ce = this.querySelector('#' + id + '-chg');
+    if (pe) pe.textContent = pfx + px.toFixed(dec);
+    if (ce) { const c = this._chg(px, open, pfx, dec); ce.className = c.cls; ce.textContent = c.text; }
+  }
+
+  _render() {
+    const gChart = candleSVG(seededRng(dateToSeed(getSimDate() + 'g-candle')), 3218, 26);
+    const cChart = candleSVG(seededRng(dateToSeed(getSimDate() + 'c-candle')), 2.78, 0.052);
+    const gc = this._chg(this._g.px, this._g.open, '$', 2);
+    const cc = this._chg(this._c.px, this._c.open, '$', 4);
+    this.innerHTML = `<div class="feed-panel">
+      <div class="feed-hdr">
+        <span class="live-dot"></span>
+        <span class="feed-title">Commodity Simulation</span>
+      </div>
+      <div class="com-row">
+        <div class="com-name">Gold (XAU/USD)<span class="com-unit">per troy oz</span></div>
+        <div style="display:flex;align-items:baseline;gap:5px;padding-top:2px">
+          <span class="com-price" id="gold-px">$${this._g.px.toFixed(2)}</span>
+          <span class="com-cursor">●</span>
+        </div>
+        <div id="gold-chg" class="${gc.cls}">${gc.text}</div>
+        <div class="com-chart">${gChart}</div>
+      </div>
+      <div class="com-row">
+        <div class="com-name">Coffee (Arabica C)<span class="com-unit">per lb</span></div>
+        <div style="display:flex;align-items:baseline;gap:5px;padding-top:2px">
+          <span class="com-price" id="coffee-px">$${this._c.px.toFixed(4)}</span>
+          <span class="com-cursor">●</span>
+        </div>
+        <div id="coffee-chg" class="${cc.cls}">${cc.text}</div>
+        <div class="com-chart">${cChart}</div>
+      </div>
+      <div class="com-note">Simulated · indicative only</div>
+    </div>`;
+  }
+}
+customElements.define('ng-commodity-ticker', NgCommodityTicker);
+
+// ── DA Live Panel ──────────────────────────────────────────────────────────────
+const DA_FB = {
+  name: 'Enterprise Tier',
+  tagline: 'Built for global-scale content operations',
+  price: '$4,200', period: '/month',
+  cta: 'Contact Sales',
+  features: [
+    'Unlimited Content Fragments',
+    'Multi-site & Multi-language Manager',
+    'AI-powered content workflows',
+    'GraphQL Headless Delivery',
+    'Universal Editor — any SPA',
+    'SLA 99.99% + dedicated CSM',
+  ],
+};
+
+class NgDaLive extends HTMLElement {
+  async connectedCallback() {
+    this._show(DA_FB, false);
+    try {
+      const r = await fetch('https://da-sc.adobeaem.workers.dev/live/pstolmar/eds-authorkit-demo/structured/enterprise-tier');
+      if (!r.ok) throw new Error(r.status);
+      const d = await r.json();
+      if (d && (d.name || d.title)) this._show({ ...DA_FB, ...d }, true);
+    } catch { /* keep fallback */ }
+  }
+
+  _show(d, live) {
+    const rawFeats = d.features || DA_FB.features;
+    const feats = Array.isArray(rawFeats)
+      ? rawFeats
+      : typeof rawFeats === 'string'
+        ? rawFeats.split(',').map(s => s.trim())
+        : DA_FB.features;
+    const srcPill = live
+      ? `<span class="da-src-pill" style="background:#a5d6a7;color:#1a2e1a">Document Authoring · Live</span>`
+      : `<span class="da-src-pill" style="background:#ffe082;color:#3e2a00">Fallback Data</span>`;
+    const items = feats.map(f => `
+      <li>
+        <span class="da-check"><span class="material-icons">check</span></span>
+        ${esc(String(f))}
+      </li>`).join('');
+    this.innerHTML = `<div class="da-wrap">
+      <div class="da-inner">
+        <div class="da-left">
+          <div class="da-source">
+            <span class="material-icons" style="font-size:14px;color:var(--amber)">auto_awesome</span>
+            ${srcPill}
+          </div>
+          <div class="da-name">${esc(d.name || DA_FB.name)}</div>
+          <div class="da-tagline">${esc(d.tagline || DA_FB.tagline)}</div>
+          <div class="da-price-row">
+            <span class="da-price">${esc(d.price || DA_FB.price)}</span>
+            <span class="da-period">${esc(d.period || DA_FB.period)}</span>
+          </div>
+          <button class="da-cta">
+            <span class="material-icons" style="font-size:18px">mail_outline</span>
+            ${esc(d.cta || DA_FB.cta)}
+          </button>
+        </div>
+        <div class="da-right">
+          <ul class="da-features">${items}</ul>
+        </div>
+      </div>
+    </div>`;
+  }
+}
+customElements.define('ng-da-live', NgDaLive);
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+(async () => {
+  const root = document.getElementById('root');
+  const simDate = getSimDate();
+
+  root.innerHTML = `
+    <ng-hero></ng-hero>
+    <div id="mkt-slot"></div>
+    <div class="section wrap" style="padding-bottom:8px">
+      <div class="sec-hdr">
+        <span class="live-dot"></span>
+        <span class="sec-title">Live Data Feed</span>
+        <span style="font-size:.72rem;color:#bdbdbd;margin-left:6px">Earthquake data refreshes every 90s · Commodities tick live</span>
+      </div>
+      <div class="feed-grid">
+        <ng-earthquake-feed></ng-earthquake-feed>
+        <ng-commodity-ticker></ng-commodity-ticker>
+      </div>
+    </div>
+    <div class="section wrap" style="padding-bottom:48px">
+      <div class="sec-hdr">
+        <span class="material-icons" style="font-size:16px;color:var(--amber)">auto_awesome</span>
+        <span class="sec-title">Content from Document Authoring · Live</span>
+      </div>
+      <ng-da-live></ng-da-live>
+    </div>`;
+
+  renderMarket(document.getElementById('mkt-slot'), simDate);
+  setInterval(() => renderMarket(document.getElementById('mkt-slot'), simDate), 300000);
+
+  const hero = root.querySelector('ng-hero');
+  hero.data = FB;
+
+  async function fetchHero() {
+    try {
+      const url = PUBLISH + '/graphql/execute.json/global/heroByPath3;path=' + FRAG_PATH + ';variation=master;_t=' + Date.now();
+      const res = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(res.status);
+      const d = await res.json();
+      const item = d?.data?.homeHeroByPath?.item;
+      if (!item) throw new Error('no item');
+      hero.data = {
+        ...FB, ...item,
+        image: item?.contentReference?._publishUrl || item?.contentReference?._path || item?.image || FB.image,
+        description: item?.description?.plaintext || item?.description?.html || item?.description || FB.description,
+      };
+    } catch { hero.data = FB; }
+  }
+
+  fetchHero();
+
+  window.addEventListener('message', e => {
+    if (e.data?.type === 'aue:content-patch' || e.data?.type === 'aue:content-update')
+      setTimeout(fetchHero, 600);
+  });
+})();
+</script>
+</body>
+</html>
