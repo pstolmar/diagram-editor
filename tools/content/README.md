@@ -2,7 +2,7 @@
 
 AEM content packages for demo fragments. Deploy to RDE after deploying CORS configs.
 
-## angular-hero — `ui.content-angular-hero-1.1.zip`
+## angular-hero — `ui.content-angular-hero-1.3.zip`
 
 Creates the `angular-hero` Content Fragment used by `tools/ue-spa-demo/angular.html`.
 
@@ -13,7 +13,7 @@ Creates the `angular-hero` Content Fragment used by `tools/ue-spa-demo/angular.h
 ### Option A — aio CLI
 
 ```bash
-aio aem:rde:install tools/content/ui.content-angular-hero-1.1.zip --target author
+aio aem:rde:install tools/content/ui.content-angular-hero-1.3.zip --target author
 ```
 
 After install, publish the fragment so GraphQL on Publish serves it.
