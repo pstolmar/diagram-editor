@@ -326,6 +326,64 @@
     }
     .aem-footer-links { font-size: .5625rem; color: #9ca3af; line-height: 1.9; }
 
+    /* ── Panel After Header strip ── */
+    .panel-after-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: rgba(20,115,230,.12);
+      border-bottom: 1px solid rgba(20,115,230,.25);
+      border-radius: 12px 12px 0 0;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 11;
+    }
+    .panel-after-header-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .pah-badge {
+      background: #1473e6;
+      color: #fff;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: .7rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pah-hint {
+      font-size: .75rem;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pah-done {
+      font-size: .75rem;
+      color: #4ade80;
+      white-space: nowrap;
+    }
+    .btn-modernize-top {
+      flex-shrink: 0;
+      padding: 6px 16px;
+      background: #1473e6;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: .8rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .03em;
+      transition: background .15s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn-modernize-top:hover { background: #0d5bbf; transform: translateY(-1px); }
+    .btn-modernize-top.hidden { display: none; }
+
     /* ── RIGHT PANEL: EDS After ── */
     .panel-after {
       background: var(--eds-bg);
@@ -1128,6 +1186,18 @@
       ════════════════════════════════════════════════════════════════ -->
       <div class="panel-after" id="panelAfter" aria-label="EDS equivalent page">
 
+        <!-- Top action strip — always visible, invites interaction -->
+        <div class="panel-after-header" id="panelAfterHeader">
+          <div class="panel-after-header-label">
+            <span class="pah-badge">EDS Equivalent</span>
+            <span class="pah-hint" id="pahHint">Click to see this page as EDS blocks &rarr;</span>
+            <span class="pah-done" id="pahDone" style="display:none">&#10003; Migration complete &mdash; 5 blocks &middot; edge-rendered</span>
+          </div>
+          <button class="btn-modernize-top" id="btnModernizeTop" onclick="startMigration()">
+            Modernize &rarr;
+          </button>
+        </div>
+
         <!-- Progress bar (absolute, z-index 12) -->
         <div class="migration-progress" id="migrationProgress" aria-hidden="true">
           <div class="migration-progress-bar" id="migrationProgressBar"></div>
@@ -1532,6 +1602,17 @@
       var bar        = document.getElementById('migrationProgressBar');
       var beforeSecs = document.querySelectorAll('.aem-section');
       var footer     = document.getElementById('migrationFooter');
+      var btnTop     = document.getElementById('btnModernizeTop');
+      var pahHint    = document.getElementById('pahHint');
+      var pahDone    = document.getElementById('pahDone');
+
+      // Scroll the panels row into view
+      var panelAfterEl = document.getElementById('panelAfter');
+      var scrollTarget = panelAfterEl && panelAfterEl.closest('.panels-row, .arena-inner, section');
+      if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Disable top button while migrating
+      if (btnTop) { btnTop.disabled = true; btnTop.style.opacity = '.45'; }
 
       // 1. Fade locked overlay out immediately
       locked.classList.add('unlocking');
@@ -1543,10 +1624,19 @@
       STEPS.forEach(function (step, i) {
         var base = i * 1800;
 
-        // Flash the before section twice
+        // Scroll + scale + flash the before section
         schedule(function () {
           var beforeEl = document.getElementById(step.before);
           if (beforeEl) {
+            // Scroll left panel guided focus
+            beforeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Briefly scale up for 400ms
+            beforeEl.style.transition = 'transform .3s ease';
+            beforeEl.style.transform = 'scale(1.015)';
+            schedule(function () {
+              beforeEl.style.transform = '';
+            }, 400);
+            // Flash twice
             beforeEl.classList.add('section-flashing');
             schedule(function () {
               beforeEl.classList.remove('section-flashing');
@@ -1587,13 +1677,18 @@
         }, base + 1300);
       });
 
-      // 4. After all steps complete: dim before, show success footer
+      // 4. After all steps complete: dim before, show success footer, update header
       var doneDelay = STEPS.length * 1800 + 800;
       schedule(function () {
         beforeSecs.forEach(function (sec) { sec.classList.add('dimmed'); });
         footer.classList.add('visible');
         migrating = false;
         migrated  = true;
+
+        // Update top header to done state
+        if (btnTop) btnTop.classList.add('hidden');
+        if (pahHint) pahHint.style.display = 'none';
+        if (pahDone) pahDone.style.display = '';
       }, doneDelay);
     };
 
@@ -1611,6 +1706,9 @@
       var sections   = document.querySelectorAll('.eds-section');
       var beforeSecs = document.querySelectorAll('.aem-section');
       var footer     = document.getElementById('migrationFooter');
+      var btnTop     = document.getElementById('btnModernizeTop');
+      var pahHint    = document.getElementById('pahHint');
+      var pahDone    = document.getElementById('pahDone');
 
       // Remove any lingering overlay elements
       document.querySelectorAll('.eds-reveal-overlay').forEach(function (el) {
@@ -1625,8 +1723,15 @@
       beforeSecs.forEach(function (sec) {
         sec.classList.remove('dimmed');
         sec.classList.remove('section-flashing');
+        sec.style.transform = '';
+        sec.style.transition = '';
       });
       footer.classList.remove('visible');
+
+      // Restore top header to initial state
+      if (btnTop) { btnTop.classList.remove('hidden'); btnTop.disabled = false; btnTop.style.opacity = ''; }
+      if (pahHint) pahHint.style.display = '';
+      if (pahDone) pahDone.style.display = 'none';
 
       // Reset progress bar (opacity 0 → safe to snap width back)
       progress.classList.remove('active');
