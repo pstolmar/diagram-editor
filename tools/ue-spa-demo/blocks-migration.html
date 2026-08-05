@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>AEM Core Components → EDS Blocks · Migration Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:    #1976D2;
+      --blue-lt: #42A5F5;
+      --blue-bg: #E3F2FD;
+      --green:   #388E3C;
+      --green-lt:#66BB6A;
+      --green-bg:#E8F5E9;
+      --amber:   #F57C00;
+      --amber-bg:#FFF3E0;
+      --gray:    #78909C;
+      --gray-lt: #B0BEC5;
+      --gray-bg: #ECEFF1;
+      --gray-dk: #546E7A;
+      --red-dep: #B71C1C;
+      --surface: #fff;
+      --bg:      #F5F7FA;
+      --text:    #212121;
+      --text-2:  #757575;
+      --mono:    'Roboto Mono', 'Courier New', monospace;
+      --shadow-1: 0 2px 1px rgba(0,0,0,.09),0 1px 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.1);
+      --shadow-2: 0 3px 6px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.08);
+    }
+    body { font-family:'Roboto',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* ── Toolbar ──────────────────────────────────────────────────────────── */
+    .toolbar {
+      display:flex; align-items:center; padding:0 28px; height:64px;
+      background:linear-gradient(90deg,#0D1B2A 0%,#1565C0 100%); color:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.32); position:sticky; top:0; z-index:100;
+    }
+    .tb-brand { display:flex; align-items:center; gap:12px; font-size:1.125rem; font-weight:500; letter-spacing:.01em; }
+    .tb-logo { width:32px; height:32px; }
+    .tb-space { flex:1; }
+    .tb-chip {
+      display:inline-flex; align-items:center; gap:6px; padding:4px 12px;
+      border-radius:16px; font-size:.75rem; font-weight:700; letter-spacing:.04em;
+    }
+    .tb-chip-dep { background:rgba(183,28,28,.5); color:#FFCDD2; }
+    .tb-chip-new { background:rgba(56,142,60,.5); color:#C8E6C9; }
+    .tb-nav { display:flex; gap:4px; margin-right:16px; }
+    .tb-btn {
+      background:none; border:none; cursor:pointer; color:rgba(255,255,255,.75);
+      font-size:.8rem; font-weight:500; font-family:inherit; padding:0 12px; height:36px;
+      border-radius:4px; transition:background .15s,color .15s; letter-spacing:.04em;
+      text-transform:uppercase; text-decoration:none; display:inline-flex; align-items:center;
+    }
+    .tb-btn:hover { background:rgba(255,255,255,.12); color:#fff; }
+
+    /* ── Hero ─────────────────────────────────────────────────────────────── */
+    .hero {
+      background:linear-gradient(135deg,#0D1B2A 0%,#0D2440 45%,#0A1628 100%);
+      padding:72px 28px 80px; text-align:center;
+    }
+    .hero-eyebrow {
+      display:inline-flex; align-items:center; gap:8px; margin-bottom:20px;
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em;
+      color:var(--blue-lt);
+    }
+    .hero-title {
+      font-size:clamp(1.75rem,3.5vw,3rem); font-weight:700; color:#fff;
+      line-height:1.1; letter-spacing:-.02em; margin-bottom:20px;
+    }
+    .hero-title span { color:var(--blue-lt); }
+    .hero-sub {
+      font-size:1.0625rem; color:rgba(255,255,255,.65); max-width:680px;
+      margin:0 auto 36px; line-height:1.7;
+    }
+    .hero-chips { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .hero-chip {
+      display:inline-flex; align-items:center; gap:8px; padding:8px 18px;
+      border-radius:20px; font-size:.8125rem; font-weight:600; letter-spacing:.03em;
+    }
+    .chip-dep { background:rgba(183,28,28,.25); color:#EF9A9A; border:1px solid rgba(183,28,28,.4); }
+    .chip-new { background:rgba(56,142,60,.25); color:#A5D6A7; border:1px solid rgba(56,142,60,.4); }
+    .chip-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .chip-dot-dep { background:#EF5350; }
+    .chip-dot-new { background:var(--green-lt); animation:live-pulse 2s ease-in-out infinite; }
+
+    /* ── Layout shell ─────────────────────────────────────────────────────── */
+    .page { max-width:1280px; margin:0 auto; padding:0 28px; }
+    .section { padding:48px 0; scroll-margin-top:72px; }
+    .section + .section { border-top:1px solid #E0E7EF; }
+    .sec-label {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+      color:var(--text-2); margin-bottom:24px; display:flex; align-items:center; gap:8px;
+    }
+    .sec-label::after { content:''; flex:1; height:1px; background:#E0E7EF; }
+    .sec-title { font-size:1.25rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+    .sec-sub { font-size:.9375rem; color:var(--text-2); line-height:1.65; margin-bottom:28px; max-width:720px; }
+
+    /* ── Two-column split ─────────────────────────────────────────────────── */
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .col-old, .col-new { border-radius:8px; overflow:hidden; position:relative; }
+
+    .col-old { background:#F0F2F4; border:1px solid #CFD8DC; opacity:.88; filter:saturate(.55); }
+    .col-old .col-hdr {
+      background:#546E7A; color:#fff; padding:16px 20px;
+      display:flex; align-items:center; gap:10px; font-size:.875rem; font-weight:500;
+    }
+    .col-old .col-hdr-badge {
+      margin-left:auto; background:rgba(183,28,28,.7); color:#FFCDD2;
+      padding:2px 9px; border-radius:10px; font-size:.68rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.05em;
+    }
+    .col-old .col-body { padding:20px; }
+
+    .col-new { background:#fff; border:2px solid rgba(25,118,210,.3); box-shadow:0 0 0 4px rgba(25,118,210,.06); }
+    .col-new .col-hdr {
+      background:linear-gradient(90deg,#1565C0 0%,#1976D2 100%); color:#fff; padding:16px 20px;
+      display:flex; align-items:center; gap:10px; font-size:.875rem; font-weight:500;
+    }
+    .col-new .col-hdr-badge {
+      margin-left:auto; background:rgba(56,142,60,.8); color:#C8E6C9;
+      padding:2px 9px; border-radius:10px; font-size:.68rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.05em;
+    }
+    .col-new .col-body { padding:20px; }
+
+    .col-subtitle {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+      margin-bottom:10px;
+    }
+    .col-old .col-subtitle { color:var(--gray-dk); }
+    .col-new .col-subtitle { color:var(--blue); }
+
+    /* ── CSS Radio Tabs ───────────────────────────────────────────────────── */
+    .tab-radio { display:none; }
+
+    .tab-bar { display:flex; overflow:hidden; }
+    .tab-lbl {
+      padding:7px 14px; font-size:.68rem; font-weight:700; letter-spacing:.06em;
+      text-transform:uppercase; cursor:pointer; user-select:none;
+      transition:background .12s,color .12s; white-space:nowrap;
+      border-bottom:2px solid transparent;
+    }
+
+    /* Old column tabs */
+    .tab-bar-old { background:#3B515B; }
+    .tab-bar-old .tab-lbl { color:rgba(255,255,255,.45); }
+    #to-htl:checked    ~ .tab-bar-old label[for="to-htl"],
+    #to-sling:checked  ~ .tab-bar-old label[for="to-sling"],
+    #to-dialog:checked ~ .tab-bar-old label[for="to-dialog"] {
+      background:#546E7A; color:#fff; border-bottom-color:#80CBC4;
+    }
+    #to-htl:checked    ~ .tab-panels-old .tab-panel:nth-child(1),
+    #to-sling:checked  ~ .tab-panels-old .tab-panel:nth-child(2),
+    #to-dialog:checked ~ .tab-panels-old .tab-panel:nth-child(3) { display:block; }
+
+    /* New column tabs */
+    .tab-bar-new { background:#0D47A1; }
+    .tab-bar-new .tab-lbl { color:rgba(255,255,255,.45); }
+    #tn-js:checked  ~ .tab-bar-new label[for="tn-js"],
+    #tn-css:checked ~ .tab-bar-new label[for="tn-css"] {
+      background:#1565C0; color:#fff; border-bottom-color:#80DEEA;
+    }
+    #tn-js:checked  ~ .tab-panels-new .tab-panel:nth-child(1),
+    #tn-css:checked ~ .tab-panels-new .tab-panel:nth-child(2) { display:block; }
+
+    /* Section 3 UE tabs */
+    .tab-bar-ue { background:#0D47A1; }
+    .tab-bar-ue .tab-lbl { color:rgba(255,255,255,.45); }
+    #tu-auth:checked ~ .tab-bar-ue label[for="tu-auth"],
+    #tu-dec:checked  ~ .tab-bar-ue label[for="tu-dec"] {
+      background:#1565C0; color:#fff; border-bottom-color:#80DEEA;
+    }
+    #tu-auth:checked ~ .tab-panels-ue .tab-panel:nth-child(1),
+    #tu-dec:checked  ~ .tab-panels-ue .tab-panel:nth-child(2) { display:block; }
+
+    /* Tab panel container + hidden-by-default */
+    .tab-panels { border-radius:0; }
+    .tab-panel { display:none; }
+
+    /* Code body styles re-used for tab panels */
+    .code-body-old {
+      padding:14px 16px; overflow-x:auto; white-space:pre;
+      background:#37474F; color:#B0BEC5;
+      font-family:var(--mono); font-size:.78rem; line-height:1.65;
+    }
+    .code-body-new {
+      padding:14px 16px; overflow-x:auto; white-space:pre;
+      background:#0D2040; color:#E3F2FD;
+      font-family:var(--mono); font-size:.78rem; line-height:1.65;
+    }
+
+    /* ── Code blocks (non-tabbed) ─────────────────────────────────────────── */
+    .code-wrap { border-radius:6px; overflow:hidden; margin:14px 0; }
+    .code-hdr {
+      padding:6px 14px; font-size:.68rem; font-weight:700; letter-spacing:.06em;
+      text-transform:uppercase; display:flex; align-items:center; gap:8px;
+    }
+    .col-old .code-hdr { background:#546E7A; color:#CFD8DC; }
+    .col-new .code-hdr { background:#1565C0; color:#90CAF9; }
+
+    /* Syntax colors — old */
+    .cm-comment  { color:#607D8B; }
+    .cm-keyword  { color:#80CBC4; }
+    .cm-string   { color:#FFCC80; }
+    .cm-attr     { color:#CE93D8; }
+    /* Syntax colors — new */
+    .cm-comment-new { color:#4DB6AC; }
+    .cm-keyword-new { color:#90CAF9; }
+    .cm-string-new  { color:#A5D6A7; }
+    .cm-attr-new    { color:#80DEEA; }
+    .cm-punct-new   { color:#B0BEC5; }
+
+    /* ── Bullet lists ─────────────────────────────────────────────────────── */
+    .feat-list { list-style:none; padding:0; margin:12px 0; }
+    .feat-list li {
+      display:flex; align-items:flex-start; gap:10px; padding:6px 0;
+      border-bottom:1px solid rgba(0,0,0,.06); font-size:.875rem;
+    }
+    .feat-list li:last-child { border-bottom:none; }
+    .feat-list .icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+    .col-old .feat-list .icon { color:var(--gray); }
+    .col-new .feat-list .icon { color:var(--green); }
+
+    .problem-list { list-style:none; padding:0; margin:12px 0; }
+    .problem-list li {
+      display:flex; align-items:flex-start; gap:8px; padding:5px 0;
+      font-size:.8125rem; color:#795548;
+      border-bottom:1px solid rgba(0,0,0,.05);
+    }
+    .problem-list li:last-child { border-bottom:none; }
+    .problem-list .icon { font-size:15px; color:#EF5350; flex-shrink:0; margin-top:1px; }
+
+    .benefit-list { list-style:none; padding:0; margin:12px 0; }
+    .benefit-list li {
+      display:flex; align-items:flex-start; gap:8px; padding:5px 0;
+      font-size:.8125rem; color:#2E7D32;
+      border-bottom:1px solid rgba(0,0,0,.05);
+    }
+    .benefit-list li:last-child { border-bottom:none; }
+    .benefit-list .icon { font-size:15px; color:var(--green); flex-shrink:0; margin-top:1px; }
+
+    /* ── Comparison table ─────────────────────────────────────────────────── */
+    .cmp-table { width:100%; border-collapse:collapse; font-size:.875rem; border-radius:8px; overflow:hidden; box-shadow:var(--shadow-1); }
+    .cmp-table th {
+      padding:12px 16px; font-size:.72rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.07em; text-align:left;
+    }
+    .cmp-table th:first-child { background:#ECEFF1; color:var(--gray-dk); width:22%; }
+    .cmp-table th.th-old { background:#546E7A; color:#CFD8DC; width:39%; }
+    .cmp-table th.th-new { background:#1976D2; color:#fff; width:39%; }
+    .cmp-table td { padding:11px 16px; vertical-align:top; }
+    .cmp-table tr:nth-child(even) td:first-child { background:#F5F7FA; }
+    .cmp-table tr:nth-child(odd)  td:first-child { background:#ECEFF1; }
+    .cmp-table td:first-child { color:var(--text-2); font-weight:500; font-size:.8125rem; }
+    .cmp-table td.td-old { background:#FAFAFA; color:#546E7A; font-size:.8125rem; }
+    .cmp-table td.td-new { background:#F0F8FF; color:#1565C0; font-size:.8125rem; font-weight:500; }
+    .cmp-table tr { border-bottom:1px solid #E8EEF4; }
+    .cmp-table tr:last-child { border-bottom:none; }
+    .td-dep { display:inline-flex; align-items:center; gap:5px; }
+    .td-dep .material-icons { font-size:13px; color:#EF5350; }
+    .td-good { display:inline-flex; align-items:center; gap:5px; }
+    .td-good .material-icons { font-size:13px; color:var(--green); }
+
+    /* ── UE bridge section ────────────────────────────────────────────────── */
+    .ue-bridge {
+      background:#fff; border-radius:8px; border:2px solid rgba(25,118,210,.25);
+      box-shadow:var(--shadow-1); overflow:hidden;
+    }
+    .ue-bridge-hdr {
+      background:linear-gradient(90deg,#1565C0,#1976D2); color:#fff;
+      padding:16px 20px; display:flex; align-items:center; gap:10px; font-size:.9375rem; font-weight:600;
+    }
+    .ue-bridge-body { padding:24px; }
+
+    .callout-box {
+      display:flex; gap:14px; padding:18px 20px; border-radius:6px;
+      background:linear-gradient(135deg,#E3F2FD 0%,#E8F5E9 100%);
+      border:1px solid rgba(25,118,210,.2); margin-top:20px;
+    }
+    .callout-box .callout-icon { font-size:22px; color:var(--blue); flex-shrink:0; margin-top:1px; }
+    .callout-box p { font-size:.875rem; color:#1A3A5C; line-height:1.7; }
+    .callout-box strong { color:var(--blue); }
+
+    /* ── Steps (4-column for migration guide) ────────────────────────────── */
+    .steps-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+    .step-card {
+      border-radius:8px; background:#fff; border:1px solid #E3F2FD;
+      border-top:3px solid var(--blue); padding:20px; box-shadow:var(--shadow-1);
+    }
+    .step-num {
+      width:32px; height:32px; border-radius:50%; background:var(--blue); color:#fff;
+      font-size:.875rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+      margin-bottom:12px;
+    }
+    .step-title { font-size:.9375rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+    .step-replaces {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+      color:#EF5350; margin-bottom:10px; display:flex; align-items:center; gap:5px;
+    }
+    .step-replaces .material-icons { font-size:13px; }
+    .step-desc { font-size:.8125rem; color:var(--text-2); line-height:1.6; }
+    .step-code {
+      margin-top:10px; padding:9px 12px; border-radius:4px;
+      background:#F0F8FF; border:1px solid #BBDEFB;
+      font-family:var(--mono); font-size:.75rem; color:#1565C0; line-height:1.5;
+    }
+
+    /* ── Coverage card grid ───────────────────────────────────────────────── */
+    .coverage-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .cov-card {
+      border-radius:8px; background:#fff; border:1px solid #E0E7EF;
+      padding:18px 16px; box-shadow:var(--shadow-1); position:relative;
+    }
+    .cov-card-icon {
+      width:36px; height:36px; border-radius:6px; background:var(--blue-bg);
+      display:flex; align-items:center; justify-content:center; margin-bottom:12px;
+    }
+    .cov-card-icon .material-icons { font-size:18px; color:var(--blue); }
+    .cov-old { font-size:.72rem; font-weight:700; color:var(--gray-dk); text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+    .cov-arrow { font-size:.72rem; color:var(--gray); margin:4px 0; display:flex; align-items:center; gap:4px; }
+    .cov-arrow .material-icons { font-size:14px; color:var(--blue); }
+    .cov-new { font-size:.875rem; font-weight:700; color:var(--text); margin-bottom:8px; font-family:var(--mono); }
+    .cov-badge {
+      display:inline-flex; align-items:center; padding:2px 8px; border-radius:10px;
+      font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    }
+    .badge-easy   { background:var(--green-bg); color:var(--green); }
+    .badge-medium { background:var(--amber-bg); color:var(--amber); }
+    .badge-custom { background:var(--blue-bg);  color:var(--blue); }
+
+    /* ── Resources footer ─────────────────────────────────────────────────── */
+    .resources-footer { background:#fff; border-top:2px solid var(--blue-bg); padding:40px 0 48px; }
+    .res-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .res-card {
+      border-radius:8px; border:1px solid #E3F2FD; padding:18px 20px;
+      text-decoration:none; display:block; transition:border-color .15s,box-shadow .15s;
+    }
+    .res-card:hover { border-color:var(--blue); box-shadow:0 2px 8px rgba(25,118,210,.12); }
+    .res-card-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--blue); margin-bottom:6px; }
+    .res-card-title { font-size:.9375rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+    .res-card-desc { font-size:.8rem; color:var(--text-2); line-height:1.5; }
+    .res-arrow { margin-top:12px; display:flex; align-items:center; gap:4px; font-size:.75rem; color:var(--blue); font-weight:500; }
+
+    /* ── Keyframes ────────────────────────────────────────────────────────── */
+    @keyframes live-pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:.3; transform:scale(.8); }
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width:960px) {
+      .split          { grid-template-columns:1fr; }
+      .steps-4        { grid-template-columns:1fr 1fr; }
+      .coverage-grid  { grid-template-columns:1fr 1fr; }
+      .res-grid       { grid-template-columns:1fr 1fr; }
+    }
+    @media (max-width:600px) {
+      .page { padding:0 16px; }
+      .toolbar { padding:0 16px; }
+      .tb-nav { display:none; }
+      .hero { padding:52px 16px 60px; }
+      .steps-4        { grid-template-columns:1fr; }
+      .coverage-grid  { grid-template-columns:1fr 1fr; }
+      .res-grid       { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Toolbar ──────────────────────────────────────────────────────────────── -->
+<header class="toolbar">
+  <div class="tb-brand">
+    <svg class="tb-logo" viewBox="0 0 32 32" fill="none">
+      <rect x="4" y="4" width="11" height="11" rx="2" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2"/>
+      <rect x="17" y="4" width="11" height="11" rx="2" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.9)" stroke-width="2"/>
+      <rect x="4" y="17" width="11" height="11" rx="2" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.9)" stroke-width="2"/>
+      <rect x="17" y="17" width="11" height="11" rx="2" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2"/>
+    </svg>
+    Core Components → EDS Blocks
+  </div>
+  <span class="tb-space"></span>
+  <nav class="tb-nav">
+    <a class="tb-btn" href="#teaser">Teaser Example</a>
+    <a class="tb-btn" href="#matrix">Comparison</a>
+    <a class="tb-btn" href="#ue-bridge">UE Editing</a>
+    <a class="tb-btn" href="#migration">Migration</a>
+    <a class="tb-btn" href="#coverage">Coverage</a>
+  </nav>
+  <span class="tb-chip tb-chip-dep">Core Components: 2012–2023</span>
+  &nbsp;
+  <span class="tb-chip tb-chip-new"><span class="chip-dot chip-dot-new"></span>EDS Blocks: Now</span>
+</header>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="material-icons" style="font-size:14px">swap_horiz</span>
+    AEM · Component Model Migration
+  </div>
+  <h1 class="hero-title">AEM Core Components <span>→ EDS Blocks</span></h1>
+  <p class="hero-sub">Less infrastructure. Faster authoring. Same editorial power.</p>
+  <div class="hero-chips">
+    <span class="hero-chip chip-dep">
+      <span class="chip-dot chip-dot-dep"></span>
+      Core Components: 2012–2023
+    </span>
+    <span class="hero-chip chip-new">
+      <span class="chip-dot chip-dot-new"></span>
+      EDS Blocks: Now
+    </span>
+  </div>
+</section>
+
+<div class="page">
+
+  <!-- ── Section 1: Side-by-side — Teaser ─────────────────────────────────── -->
+  <section class="section" id="teaser">
+    <div class="sec-label">
+      <span class="material-icons" style="font-size:16px">compare</span>
+      Section 1 — The Teaser component: before and after
+    </div>
+
+    <div class="split">
+
+      <!-- OLD column ─────────────────────────────────────────────────────── -->
+      <div class="col-old">
+        <div class="col-hdr">
+          <span class="material-icons" style="font-size:18px">history</span>
+          AEM Teaser Core Component
+          <span class="col-hdr-badge">Legacy</span>
+        </div>
+        <div class="col-body">
+
+          <!-- CSS radio tabs: HTL / Sling Model / Dialog XML -->
+          <input type="radio" id="to-htl"    name="to" hidden checked class="tab-radio"/>
+          <input type="radio" id="to-sling"  name="to" hidden class="tab-radio"/>
+          <input type="radio" id="to-dialog" name="to" hidden class="tab-radio"/>
+
+          <div class="tab-bar tab-bar-old">
+            <label for="to-htl"    class="tab-lbl">HTL Template</label>
+            <label for="to-sling"  class="tab-lbl">Sling Model</label>
+            <label for="to-dialog" class="tab-lbl">Dialog XML</label>
+          </div>
+
+          <div class="tab-panels tab-panels-old">
+
+            <!-- Panel 1: HTL Template -->
+            <div class="tab-panel code-body-old"><span class="cm-comment">&lt;!-- teaser/teaser.html --&gt;</span>
+&lt;<span class="cm-keyword">div</span> <span class="cm-attr">data-sly-use.teaser</span>=<span class="cm-string">"com.adobe.cq.wcm.core.components.models.Teaser"</span>
+     <span class="cm-attr">class</span>=<span class="cm-string">"cmp-teaser"</span> <span class="cm-attr">id</span>=<span class="cm-string">"${teaser.id}"</span>&gt;
+  &lt;<span class="cm-keyword">div</span> <span class="cm-attr">class</span>=<span class="cm-string">"cmp-teaser__image"</span>&gt;
+    &lt;<span class="cm-keyword">sly</span> <span class="cm-attr">data-sly-resource</span>=<span class="cm-string">"${'image' @ resourceType=
+      'core/wcm/components/image/v3/image'}"</span>/&gt;
+  &lt;/<span class="cm-keyword">div</span>&gt;
+  &lt;<span class="cm-keyword">div</span> <span class="cm-attr">class</span>=<span class="cm-string">"cmp-teaser__content"</span>&gt;
+    &lt;<span class="cm-keyword">p</span> <span class="cm-attr">class</span>=<span class="cm-string">"cmp-teaser__pretitle"</span>&gt;${teaser.pretitle}&lt;/<span class="cm-keyword">p</span>&gt;
+    &lt;<span class="cm-keyword">h2</span> <span class="cm-attr">class</span>=<span class="cm-string">"cmp-teaser__title"</span>&gt;${teaser.title}&lt;/<span class="cm-keyword">h2</span>&gt;
+    &lt;<span class="cm-keyword">div</span> <span class="cm-attr">class</span>=<span class="cm-string">"cmp-teaser__description"</span>&gt;
+      ${teaser.description <span class="cm-keyword">@</span> context=<span class="cm-string">'html'</span>}
+    &lt;/<span class="cm-keyword">div</span>&gt;
+    &lt;<span class="cm-keyword">a</span> <span class="cm-attr">class</span>=<span class="cm-string">"cmp-teaser__action-link"</span>
+       <span class="cm-attr">href</span>=<span class="cm-string">"${teaser.actions[0].url}"</span>&gt;
+      ${teaser.actions[0].text}
+    &lt;/<span class="cm-keyword">a</span>&gt;
+  &lt;/<span class="cm-keyword">div</span>&gt;
+&lt;/<span class="cm-keyword">div</span>&gt;</div>
+
+            <!-- Panel 2: Sling Model -->
+            <div class="tab-panel code-body-old"><span class="cm-comment">// com.adobe.cq.wcm.core.components.models.Teaser</span>
+<span class="cm-keyword">public interface</span> <span class="cm-string">Teaser</span> <span class="cm-keyword">extends</span> Component {
+
+    <span class="cm-keyword">String</span> getPretitle();
+    <span class="cm-keyword">String</span> getTitle();
+    <span class="cm-keyword">String</span> getDescription();
+    <span class="cm-keyword">String</span> getLinkURL();
+    <span class="cm-keyword">List</span>&lt;ListItem&gt; getActions();
+    <span class="cm-attr">@Nullable</span> ImageData getFeaturedImage();
+
+    <span class="cm-comment">// + 12 more methods, 3 implementation classes,</span>
+    <span class="cm-comment">// content policy mapping, design dialog,</span>
+    <span class="cm-comment">// OSGi configuration, Sling model adapters...</span>
+}</div>
+
+            <!-- Panel 3: Dialog XML -->
+            <div class="tab-panel code-body-old"><span class="cm-comment">&lt;!-- _cq_dialog/.content.xml — abbreviated --&gt;</span>
+&lt;<span class="cm-keyword">jcr:root</span>
+    <span class="cm-attr">jcr:primaryType</span>=<span class="cm-string">"nt:unstructured"</span>
+    <span class="cm-attr">jcr:title</span>=<span class="cm-string">"Teaser"</span>
+    <span class="cm-attr">sling:resourceType</span>=<span class="cm-string">"cq/gui/components/authoring/dialog"</span>&gt;
+  &lt;<span class="cm-keyword">content</span> <span class="cm-attr">jcr:primaryType</span>=<span class="cm-string">"nt:unstructured"</span>&gt;
+    &lt;<span class="cm-keyword">items</span> <span class="cm-attr">jcr:primaryType</span>=<span class="cm-string">"nt:unstructured"</span>&gt;
+      &lt;<span class="cm-keyword">tabs</span>
+          <span class="cm-attr">sling:resourceType</span>=<span class="cm-string">"granite/ui/components/coral/
+            foundation/tabs"</span>&gt;
+        <span class="cm-comment">&lt;!-- Asset tab, Links tab, Text tab,</span>
+<span class="cm-comment">             Accessibility tab --&gt;</span>
+        <span class="cm-comment">&lt;!-- ~200 lines of dialog XML... --&gt;</span>
+      &lt;/<span class="cm-keyword">tabs</span>&gt;
+    &lt;/<span class="cm-keyword">items</span>&gt;
+  &lt;/<span class="cm-keyword">content</span>&gt;
+&lt;/<span class="cm-keyword">jcr:root</span>&gt;</div>
+
+          </div><!-- /tab-panels-old -->
+
+          <div class="col-subtitle" style="margin-top:20px">Problems</div>
+          <ul class="problem-list">
+            <li><span class="material-icons icon">cancel</span><span>Requires AEM backend running for every render</span></li>
+            <li><span class="material-icons icon">cancel</span><span>Java Sling model — OSGi bundle must be deployed</span></li>
+            <li><span class="material-icons icon">cancel</span><span>XML dialog config — 200+ lines per component</span></li>
+            <li><span class="material-icons icon">cancel</span><span>Tight AEM coupling — no local dev without AEM</span></li>
+            <li><span class="material-icons icon">cancel</span><span>Sling model mapping, resource type registration</span></li>
+            <li><span class="material-icons icon">cancel</span><span>Cannot run on CDN edge — AEM publish required</span></li>
+          </ul>
+
+        </div><!-- /col-body -->
+      </div><!-- /col-old -->
+
+      <!-- NEW column ─────────────────────────────────────────────────────── -->
+      <div class="col-new">
+        <div class="col-hdr">
+          <span class="material-icons" style="font-size:18px">auto_awesome</span>
+          EDS Teaser Block
+          <span class="col-hdr-badge">Recommended</span>
+        </div>
+        <div class="col-body">
+
+          <!-- CSS radio tabs: Block JS / Block CSS -->
+          <input type="radio" id="tn-js"  name="tn" hidden checked class="tab-radio"/>
+          <input type="radio" id="tn-css" name="tn" hidden class="tab-radio"/>
+
+          <div class="tab-bar tab-bar-new">
+            <label for="tn-js"  class="tab-lbl">Block JS</label>
+            <label for="tn-css" class="tab-lbl">Block CSS</label>
+          </div>
+
+          <div class="tab-panels tab-panels-new">
+
+            <!-- Panel 1: Block JS -->
+            <div class="tab-panel code-body-new"><span class="cm-comment-new">// blocks/teaser/teaser.js</span>
+<span class="cm-keyword-new">export default function</span> <span class="cm-string-new">decorate</span>(block) {
+  <span class="cm-keyword-new">const</span> [imageCell, contentCell] = block.children;
+  <span class="cm-keyword-new">const</span> img = imageCell<span class="cm-punct-new">?.</span>querySelector(<span class="cm-string-new">'img'</span>);
+  <span class="cm-keyword-new">const</span> [pretitle, title, desc, cta] =
+    contentCell<span class="cm-punct-new">?.</span>children ?? [];
+
+  block.innerHTML = <span class="cm-string-new">`
+    &lt;div class="teaser-media"&gt;
+      ${img<span class="cm-punct-new">?.</span>outerHTML ?? <span class="cm-string-new">''</span>}
+    &lt;/div&gt;
+    &lt;div class="teaser-body"&gt;
+      &lt;p class="teaser-eyebrow"&gt;
+        ${pretitle<span class="cm-punct-new">?.</span>textContent ?? <span class="cm-string-new">''</span>}
+      &lt;/p&gt;
+      &lt;h2&gt;${title<span class="cm-punct-new">?.</span>textContent ?? <span class="cm-string-new">''</span>}&lt;/h2&gt;
+      &lt;p&gt;${desc<span class="cm-punct-new">?.</span>textContent ?? <span class="cm-string-new">''</span>}&lt;/p&gt;
+      &lt;a href="${cta<span class="cm-punct-new">?.</span>querySelector(<span class="cm-string-new">'a'</span>)<span class="cm-punct-new">?.</span>href ?? <span class="cm-string-new">'#'</span>}"&gt;
+        ${cta<span class="cm-punct-new">?.</span>textContent ?? <span class="cm-string-new">'Learn more'</span>}
+      &lt;/a&gt;
+    &lt;/div&gt;`</span>;
+}</div>
+
+            <!-- Panel 2: Block CSS -->
+            <div class="tab-panel code-body-new"><span class="cm-comment-new">/* blocks/teaser/teaser.css */</span>
+<span class="cm-keyword-new">.teaser</span> {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+<span class="cm-keyword-new">.teaser-media img</span> {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+<span class="cm-keyword-new">.teaser-eyebrow</span> {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: <span class="cm-string-new">#666</span>;
+  margin-bottom: .25rem;
+}
+
+<span class="cm-keyword-new">.teaser-body a</span> {
+  display: inline-flex;
+  padding: .5rem 1.25rem;
+  background: #1976D2;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+}</div>
+
+          </div><!-- /tab-panels-new -->
+
+          <div class="col-subtitle" style="margin-top:20px">Benefits</div>
+          <ul class="benefit-list">
+            <li><span class="material-icons icon">check_circle</span><span>No backend — runs entirely in the browser</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>No Java, no XML, no OSGi — just JS and CSS</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Authored in Word, Google Sheets, or Document Authoring</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Deploys in seconds via Git push — no AEM pipeline</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Runs on CDN edge — zero AEM publish latency</span></li>
+            <li><span class="material-icons icon">check_circle</span><span>Local dev with <code style="font-family:var(--mono);font-size:.78rem;background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:3px">aem up</code> — no AEM instance required</span></li>
+          </ul>
+
+        </div><!-- /col-body -->
+      </div><!-- /col-new -->
+
+    </div><!-- /split -->
+  </section>
+
+  <!-- ── Section 2: Migration complexity matrix ──────────────────────────── -->
+  <section class="section" id="matrix">
+    <div class="sec-label">
+      <span class="material-icons" style="font-size:16px">compare_arrows</span>
+      Section 2 — Migration complexity matrix
+    </div>
+
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>What</th>
+          <th class="th-old"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:5px">history</span>Core Component</th>
+          <th class="th-new"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:5px">auto_awesome</span>EDS Block</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Authoring</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>Touch UI dialog — XML-defined fields per component</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>Word doc / DA table — authors write naturally</span></td>
+        </tr>
+        <tr>
+          <td>Content storage</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>JCR — AEM repository, requires AEM to read</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>SharePoint / Google Drive — standard files</span></td>
+        </tr>
+        <tr>
+          <td>Rendering</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>HTL + Sling — server-side on AEM publish</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>JS decorator — browser-side, no server needed</span></td>
+        </tr>
+        <tr>
+          <td>Deployment</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>OSGi bundle → AEM — Cloud Manager pipeline required</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>Git push → CDN — live in under a minute</span></td>
+        </tr>
+        <tr>
+          <td>Performance</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>AEM publish response — server latency in the path</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span>CDN edge cache — sub-50ms delivery globally</span></td>
+        </tr>
+        <tr>
+          <td>Local dev</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>Full AEM required — SDK, local JCR, Maven build</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span><code style="font-family:var(--mono);font-size:.78rem">aem up</code> — lightweight proxy, no AEM instance</span></td>
+        </tr>
+        <tr>
+          <td>UE editing</td>
+          <td class="td-old"><span class="td-dep"><span class="material-icons">warning</span>cq:editConfig + dialog XML — per-component setup</span></td>
+          <td class="td-new"><span class="td-good"><span class="material-icons">check_circle</span><code style="font-family:var(--mono);font-size:.78rem">data-aue-*</code> attributes — inline HTML instrumentation</span></td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td class="td-old" style="font-weight:700;color:#B71C1C"><span class="td-dep"><span class="material-icons">schedule</span>Mature, supported — but no strategic investment</span></td>
+          <td class="td-new" style="font-weight:700;color:var(--green)"><span class="td-good"><span class="material-icons">check_circle</span>Strategic direction — Adobe's primary investment</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── Section 3: Making a Block UE-editable ─────────────────────────────── -->
+  <section class="section" id="ue-bridge">
+    <div class="sec-label">
+      <span class="material-icons" style="font-size:16px">edit_note</span>
+      Section 3 — Adding Universal Editor to an EDS Block
+    </div>
+
+    <p class="sec-sub">
+      The same teaser block becomes editable in Universal Editor by adding
+      <code style="font-family:var(--mono);font-size:.875rem;background:var(--blue-bg);color:var(--blue);padding:1px 6px;border-radius:3px">data-aue-*</code>
+      attributes to the HTML that AEM delivers. No changes to the block JS or CSS.
+    </p>
+
+    <div class="ue-bridge">
+      <div class="ue-bridge-hdr">
+        <span class="material-icons" style="font-size:18px">integration_instructions</span>
+        UE Instrumentation — Teaser Block
+        <span style="margin-left:auto;font-size:.72rem;opacity:.7;font-family:var(--mono)">data-aue-* attributes bridge authoring to editing</span>
+      </div>
+      <div class="ue-bridge-body">
+
+        <!-- CSS radio tabs for the UE section -->
+        <input type="radio" id="tu-auth" name="tu" hidden checked class="tab-radio"/>
+        <input type="radio" id="tu-dec"  name="tu" hidden class="tab-radio"/>
+
+        <div class="tab-bar tab-bar-ue" style="border-radius:6px 6px 0 0;overflow:hidden;">
+          <label for="tu-auth" class="tab-lbl">Authored HTML (AEM delivers)</label>
+          <label for="tu-dec"  class="tab-lbl">Decorated Output (after JS runs)</label>
+        </div>
+
+        <div class="tab-panels tab-panels-ue" style="border-radius:0 0 6px 6px;overflow:hidden;">
+
+          <!-- Panel 1: Authored HTML -->
+          <div class="tab-panel code-body-new" style="border-radius:0 0 6px 6px;"><span class="cm-comment-new">&lt;!-- AEM delivers this from a Word doc table --&gt;</span>
+&lt;<span class="cm-keyword-new">div</span> <span class="cm-attr-new">class</span>=<span class="cm-string-new">"teaser"</span>
+  <span class="cm-attr-new">data-aue-resource</span>=<span class="cm-string-new">"urn:aem:/content/mysite/en/home/jcr:content/root/teaser"</span>
+  <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"component"</span>
+  <span class="cm-attr-new">data-aue-label</span>=<span class="cm-string-new">"Teaser"</span>&gt;
+  &lt;<span class="cm-keyword-new">div</span>&gt;
+    &lt;<span class="cm-keyword-new">div</span>&gt;&lt;<span class="cm-keyword-new">img</span> <span class="cm-attr-new">src</span>=<span class="cm-string-new">"/media/hero.jpg"</span> <span class="cm-attr-new">alt</span>=<span class="cm-string-new">""</span>/&gt;&lt;/<span class="cm-keyword-new">div</span>&gt;
+  &lt;/<span class="cm-keyword-new">div</span>&gt;
+  &lt;<span class="cm-keyword-new">div</span>&gt;
+    &lt;<span class="cm-keyword-new">div</span>
+      <span class="cm-attr-new">data-aue-prop</span>=<span class="cm-string-new">"pretitle"</span>
+      <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"text"</span>
+      <span class="cm-attr-new">data-aue-label</span>=<span class="cm-string-new">"Eyebrow"</span>&gt;Innovation&lt;/<span class="cm-keyword-new">div</span>&gt;
+    &lt;<span class="cm-keyword-new">div</span>
+      <span class="cm-attr-new">data-aue-prop</span>=<span class="cm-string-new">"title"</span>
+      <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"text"</span>
+      <span class="cm-attr-new">data-aue-label</span>=<span class="cm-string-new">"Title"</span>&gt;The Next Generation&lt;/<span class="cm-keyword-new">div</span>&gt;
+    &lt;<span class="cm-keyword-new">div</span>
+      <span class="cm-attr-new">data-aue-prop</span>=<span class="cm-string-new">"description"</span>
+      <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"richtext"</span>
+      <span class="cm-attr-new">data-aue-label</span>=<span class="cm-string-new">"Description"</span>&gt;…&lt;/<span class="cm-keyword-new">div</span>&gt;
+    &lt;<span class="cm-keyword-new">div</span>&gt;&lt;<span class="cm-keyword-new">a</span> <span class="cm-attr-new">href</span>=<span class="cm-string-new">"/path"</span>&gt;Learn More&lt;/<span class="cm-keyword-new">a</span>&gt;&lt;/<span class="cm-keyword-new">div</span>&gt;
+  &lt;/<span class="cm-keyword-new">div</span>&gt;
+&lt;/<span class="cm-keyword-new">div</span>&gt;</div>
+
+          <!-- Panel 2: Decorated Output -->
+          <div class="tab-panel code-body-new" style="border-radius:0 0 6px 6px;"><span class="cm-comment-new">&lt;!-- After decorate(block) runs — block root attrs are preserved --&gt;</span>
+&lt;<span class="cm-keyword-new">div</span> <span class="cm-attr-new">class</span>=<span class="cm-string-new">"teaser"</span>
+  <span class="cm-attr-new">data-aue-resource</span>=<span class="cm-string-new">"urn:aem:/content/mysite/en/home/jcr:content/root/teaser"</span>
+  <span class="cm-attr-new">data-aue-type</span>=<span class="cm-string-new">"component"</span>
+  <span class="cm-attr-new">data-aue-label</span>=<span class="cm-string-new">"Teaser"</span>&gt;
+  &lt;<span class="cm-keyword-new">div</span> <span class="cm-attr-new">class</span>=<span class="cm-string-new">"teaser-media"</span>&gt;
+    &lt;<span class="cm-keyword-new">img</span> <span class="cm-attr-new">src</span>=<span class="cm-string-new">"/media/hero.jpg"</span> <span class="cm-attr-new">alt</span>=<span class="cm-string-new">""</span>/&gt;
+  &lt;/<span class="cm-keyword-new">div</span>&gt;
+  &lt;<span class="cm-keyword-new">div</span> <span class="cm-attr-new">class</span>=<span class="cm-string-new">"teaser-body"</span>&gt;
+    &lt;<span class="cm-keyword-new">p</span> <span class="cm-attr-new">class</span>=<span class="cm-string-new">"teaser-eyebrow"</span>&gt;Innovation&lt;/<span class="cm-keyword-new">p</span>&gt;
+    &lt;<span class="cm-keyword-new">h2</span>&gt;The Next Generation&lt;/<span class="cm-keyword-new">h2</span>&gt;
+    &lt;<span class="cm-keyword-new">p</span>&gt;…&lt;/<span class="cm-keyword-new">p</span>&gt;
+    &lt;<span class="cm-keyword-new">a</span> <span class="cm-attr-new">href</span>=<span class="cm-string-new">"/path"</span>&gt;Learn More&lt;/<span class="cm-keyword-new">a</span>&gt;
+  &lt;/<span class="cm-keyword-new">div</span>&gt;
+&lt;/<span class="cm-keyword-new">div</span>&gt;
+
+<span class="cm-comment-new">&lt;!-- Block-level data-aue-resource / data-aue-type / data-aue-label --&gt;</span>
+<span class="cm-comment-new">&lt;!-- survive innerHTML replacement — they're on the block root, not --&gt;</span>
+<span class="cm-comment-new">&lt;!-- the child cells.                                               --&gt;</span>
+<span class="cm-comment-new">&lt;!-- Child data-aue-prop attrs are dropped by the innerHTML rewrite --&gt;</span>
+<span class="cm-comment-new">&lt;!-- above. Use DOM manipulation (not innerHTML) to preserve them.  --&gt;</span></div>
+
+        </div><!-- /tab-panels-ue -->
+
+        <div class="callout-box">
+          <span class="material-icons callout-icon">layers</span>
+          <p>
+            <strong>Three concerns, composing cleanly.</strong>
+            EDS blocks are the only component type where the authoring model (Word table),
+            the delivery model (semantic HTML rendered by the decorator), and the editing model
+            (<code style="font-family:var(--mono);font-size:.82rem">data-aue-*</code> attributes for Universal Editor)
+            are all separate concerns. Change the authoring structure without touching the JS.
+            Change the decorator without modifying the content model. Add UE instrumentation
+            without altering either. No coupling in either direction.
+          </p>
+        </div>
+
+      </div><!-- /ue-bridge-body -->
+    </div><!-- /ue-bridge -->
+  </section>
+
+  <!-- ── Section 4: 4-step migration guide ─────────────────────────────────── -->
+  <section class="section" id="migration">
+    <div class="sec-label">
+      <span class="material-icons" style="font-size:16px">trending_flat</span>
+      Section 4 — Migration guide (4 steps)
+    </div>
+
+    <div class="steps-4">
+
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-title">Export content</div>
+        <div class="step-replaces">
+          <span class="material-icons">arrow_forward</span>
+          Extracts from JCR
+        </div>
+        <p class="step-desc">
+          Use the AEM content migration script — or simply copy-paste — to extract content
+          from Core Component JCR properties into Word documents, Google Sheets, or
+          Document Authoring pages. One table row = one authored field.
+        </p>
+        <div class="step-code">aem export --component teaser
+  --output /sharepoint/content</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-title">Create the block folder</div>
+        <div class="step-replaces">
+          <span class="material-icons">arrow_forward</span>
+          Replaces HTL + Sling model
+        </div>
+        <p class="step-desc">
+          Add <code style="font-family:var(--mono);font-size:.78rem">blocks/teaser/teaser.js</code> and
+          <code style="font-family:var(--mono);font-size:.78rem">blocks/teaser/teaser.css</code>.
+          The <code style="font-family:var(--mono);font-size:.78rem">decorate(block)</code> function reads
+          the Word-authored table structure — first column image, second column content cells.
+          No AEM, no Java.
+        </p>
+        <div class="step-code">blocks/teaser/
+  teaser.js   ← decorator
+  teaser.css  ← styles</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-title">Add UE instrumentation</div>
+        <div class="step-replaces">
+          <span class="material-icons">arrow_forward</span>
+          Replaces cq:editConfig + dialog
+        </div>
+        <p class="step-desc">
+          Add <code style="font-family:var(--mono);font-size:.78rem">data-aue-resource</code>,
+          <code style="font-family:var(--mono);font-size:.78rem">data-aue-type</code>, and
+          <code style="font-family:var(--mono);font-size:.78rem">data-aue-prop</code> attributes — either
+          directly in the block JS (for JS-controlled rendering) or via
+          <code style="font-family:var(--mono);font-size:.78rem">component-models.json</code>
+          for the page-level editing model.
+        </p>
+        <div class="step-code">data-aue-resource="urn:aem:…"
+data-aue-type="component"
+data-aue-prop="title"</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-title">Sunset the Core Component</div>
+        <div class="step-replaces">
+          <span class="material-icons">arrow_forward</span>
+          Remove Java + XML dependency
+        </div>
+        <p class="step-desc">
+          Once content is migrated and the block is verified in both rendering and UE editing,
+          remove the Core Component OSGi dependency. Delete the HTL template, Sling model,
+          and dialog XML. No more Java build step, no more XML config, no more AEM coupling.
+        </p>
+        <div class="step-code">git rm -r src/main/java/…/Teaser*
+git rm -r ui.apps/teaser/_cq_dialog</div>
+      </div>
+
+    </div><!-- /steps-4 -->
+  </section>
+
+  <!-- ── Section 5: Component coverage ──────────────────────────────────────── -->
+  <section class="section" id="coverage">
+    <div class="sec-label">
+      <span class="material-icons" style="font-size:16px">grid_view</span>
+      Section 5 — Core Components → EDS Block equivalents
+    </div>
+    <p class="sec-sub">
+      Every major Core Component has a natural EDS block counterpart. Several are built into
+      EDS out of the box — others are one <code style="font-family:var(--mono);font-size:.875rem">decorate()</code> function away.
+    </p>
+
+    <div class="coverage-grid">
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">image</span></div>
+        <div class="cov-old">Image</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">image block</div>
+        <span class="cov-badge badge-easy">Easy · Built-in</span>
+      </div>
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">text_fields</span></div>
+        <div class="cov-old">Text</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">text block / DA content</div>
+        <span class="cov-badge badge-easy">Easy · Built-in</span>
+      </div>
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">view_quilt</span></div>
+        <div class="cov-old">Teaser</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">teaser block</div>
+        <span class="cov-badge badge-medium">Medium · Shown above</span>
+      </div>
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">menu</span></div>
+        <div class="cov-old">Navigation</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">nav block</div>
+        <span class="cov-badge badge-easy">Easy · Built-in</span>
+      </div>
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">expand_more</span></div>
+        <div class="cov-old">Accordion</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">accordion block</div>
+        <span class="cov-badge badge-easy">Easy · Built-in</span>
+      </div>
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">view_carousel</span></div>
+        <div class="cov-old">Carousel</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">carousel block</div>
+        <span class="cov-badge badge-medium">Medium · Built-in</span>
+      </div>
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">snippet_folder</span></div>
+        <div class="cov-old">Experience Fragment</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">CF + block composition</div>
+        <span class="cov-badge badge-custom">Custom · CF-backed</span>
+      </div>
+
+      <div class="cov-card">
+        <div class="cov-card-icon"><span class="material-icons">search</span></div>
+        <div class="cov-old">Search</div>
+        <div class="cov-arrow"><span class="material-icons">arrow_forward</span></div>
+        <div class="cov-new">search block</div>
+        <span class="cov-badge badge-medium">Medium · Custom</span>
+      </div>
+
+    </div><!-- /coverage-grid -->
+  </section>
+
+</div><!-- /page -->
+
+<!-- ── Resources footer ───────────────────────────────────────────────────────── -->
+<footer class="resources-footer" id="resources">
+  <div class="page">
+    <div class="sec-label">
+      <span class="material-icons" style="font-size:16px">link</span>
+      Related demos &amp; migration guides
+    </div>
+    <div class="res-grid">
+      <a class="res-card" href="angular-spa-editor.html">
+        <div class="res-card-label">Guide · Angular</div>
+        <div class="res-card-title">SPA Editor → Universal Editor</div>
+        <div class="res-card-desc">Migrating Angular apps from the deprecated SPA Editor to Universal Editor with data-aue-* attributes.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View guide</div>
+      </a>
+      <a class="res-card" href="react-enterprise.html">
+        <div class="res-card-label">Demo · React</div>
+        <div class="res-card-title">React + UE Enterprise</div>
+        <div class="res-card-desc">Enterprise React application with Content Fragments, live UE editing, and CDN-served content from AEM Publish.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View demo</div>
+      </a>
+      <a class="res-card" href="cf-spa.html">
+        <div class="res-card-label">Demo · CF + SPA</div>
+        <div class="res-card-title">Content Fragments + SPA</div>
+        <div class="res-card-desc">Content Fragment-backed SPA pattern — fetch from Publish via GraphQL, edit with Universal Editor, no JCR coupling.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View demo</div>
+      </a>
+      <a class="res-card" href="ue-setup.html">
+        <div class="res-card-label">Guide · Setup</div>
+        <div class="res-card-title">Universal Editor Setup</div>
+        <div class="res-card-desc">Common gotchas and fixes when wiring up any frontend — Angular, React, EDS — with the Universal Editor CORS service.</div>
+        <div class="res-arrow"><span class="material-icons" style="font-size:14px">arrow_forward</span>View guide</div>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<div style="background:#111;border-top:1px solid #333;padding:10px 24px;font-size:.72rem;color:#666;text-align:center">
+  This site is for demonstration purposes only. Code snippets are illustrative — not production-ready implementations.
+</div>
+
+<script>
+  // Smooth scroll for toolbar nav links
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

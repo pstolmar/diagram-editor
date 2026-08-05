@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDS Block Authoring · From Zero to UE-Editable</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.6; }
+    header { background: linear-gradient(135deg, #060e1f 0%, #0f1a2e 60%, #0f0f1a 100%); border-bottom: 3px solid #1473e6; padding: 2.5rem 2rem; }
+    header h1 { font-size: 1.9rem; color: #fff; letter-spacing: -0.02em; }
+    header h1 span { color: #1473e6; }
+    header p { color: #aaa; margin-top: 0.5rem; font-size: 0.95rem; max-width: 720px; }
+    main { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.1rem; color: #1473e6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.2rem; padding-bottom: 0.4rem; border-bottom: 1px solid #0e1f3a; }
+    h3 { font-size: 0.95rem; color: #7ec8e3; margin: 1.6rem 0 0.5rem; font-weight: 600; }
+    p, li { font-size: 0.91rem; color: #ccc; margin-bottom: 0.5rem; }
+    ul { padding-left: 1.5rem; }
+    ul li { margin-bottom: 0.35rem; }
+    code { font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace; font-size: 0.84rem; background: #1e1e2e; color: #f8c555; padding: 0.12em 0.45em; border-radius: 3px; }
+    pre { background: #1e1e2e; border: 1px solid #2d2d3e; border-radius: 6px; padding: 1.2rem 1.4rem; overflow-x: auto; margin: 0.9rem 0; }
+    pre code { background: none; padding: 0; color: #e0e0e0; font-size: 0.82rem; line-height: 1.7; }
+    .comment { color: #6b7280; }
+    .kw { color: #c792ea; }
+    .str { color: #c3e88d; }
+    .fn { color: #82aaff; }
+    .prop { color: #f8c555; }
+    .num { color: #f78c6c; }
+
+    /* Tag badges */
+    .tag { display: inline-block; padding: 0.15em 0.6em; border-radius: 3px; font-size: 0.72rem; font-weight: 700; margin-right: 0.4rem; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.04em; }
+    .tag-critical { background: #4a0a0a; color: #ff7b7b; }
+    .tag-gotcha   { background: #3b2e00; color: #f8c555; }
+    .tag-fix      { background: #0a2e15; color: #4ec94e; }
+    .tag-tip      { background: #0a1e35; color: #7ec8e3; }
+    .tag-step     { background: #101a30; color: #1473e6; border: 1px solid #1473e6; }
+
+    /* Cards */
+    .card { background: #141420; border: 1px solid #2d2d3e; border-radius: 8px; padding: 1.1rem 1.4rem; margin-bottom: 1rem; }
+    .card.critical { border-left: 4px solid #ff5252; }
+    .card.gotcha   { border-left: 4px solid #f8c555; }
+    .card.fix      { border-left: 4px solid #4ec94e; }
+    .card.note     { border-left: 4px solid #7ec8e3; }
+    .card.aem      { border-left: 4px solid #1473e6; }
+    .card-title { font-weight: 700; margin-bottom: 0.5rem; font-size: 0.93rem; }
+    .card p:last-child { margin-bottom: 0; }
+
+    /* Error-cause-fix blocks */
+    .ecf { background: #141420; border: 1px solid #2d2d3e; border-radius: 10px; margin-bottom: 1.6rem; overflow: hidden; }
+    .ecf-error  { padding: 1rem 1.4rem; background: #1e0a0a; border-bottom: 1px solid #2d2d3e; }
+    .ecf-error .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #ff7b7b; margin-bottom: 0.4rem; }
+    .ecf-cause  { padding: 0.9rem 1.4rem; background: #1a1410; border-bottom: 1px solid #2d2d3e; }
+    .ecf-cause .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #f8c555; margin-bottom: 0.4rem; }
+    .ecf-fix    { padding: 0.9rem 1.4rem; background: #0a1a10; }
+    .ecf-fix .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #4ec94e; margin-bottom: 0.4rem; }
+    .ecf pre    { margin: 0.5rem 0 0; }
+    .ecf p:last-child { margin-bottom: 0; }
+
+    /* Step numbers */
+    .step-header { display: flex; align-items: center; gap: 0.8rem; margin: 1.8rem 0 0.6rem; }
+    .step-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #1473e6; color: #fff; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .step-label { font-size: 0.95rem; color: #7ec8e3; font-weight: 600; }
+
+    /* File tree */
+    .filetree { background: #1e1e2e; border: 1px solid #2d2d3e; border-radius: 6px; padding: 1rem 1.4rem; font-family: 'Fira Mono', 'Consolas', monospace; font-size: 0.83rem; line-height: 2; margin: 0.9rem 0; color: #ccc; }
+    .filetree .dir  { color: #7ec8e3; }
+    .filetree .file { color: #c3e88d; }
+    .filetree .ann  { color: #6b7280; }
+
+    /* Word table visual */
+    .word-map { display: grid; grid-template-columns: 1fr 0.4fr 1fr; gap: 0; align-items: start; margin: 1rem 0; background: #1e1e2e; border: 1px solid #2d2d3e; border-radius: 6px; padding: 1.2rem 1.4rem; font-family: 'Fira Mono', 'Consolas', monospace; font-size: 0.79rem; line-height: 1.8; }
+    .word-map .col-label { color: #7ec8e3; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+    .word-map .arrow-col { text-align: center; color: #555; padding-top: 1.4rem; font-size: 1.1rem; }
+    .word-map pre { background: none; border: none; padding: 0; margin: 0; font-size: 0.79rem; color: #e0e0e0; }
+
+    /* Attribute table */
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin: 0.9rem 0; }
+    th { background: #1e1e2e; color: #7ec8e3; text-align: left; padding: 0.5rem 0.9rem; border: 1px solid #2d2d3e; font-weight: 600; }
+    td { padding: 0.5rem 0.9rem; border: 1px solid #222230; vertical-align: top; color: #ccc; }
+    td:first-child { color: #f8c555; font-family: 'Fira Mono', 'Consolas', monospace; white-space: nowrap; font-size: 0.82rem; }
+    td code { font-size: 0.8rem; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { display: flex; align-items: flex-start; gap: 0.8rem; padding: 0.55rem 0; border-bottom: 1px solid #1e1e2e; font-size: 0.91rem; color: #ccc; }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .cb { flex-shrink: 0; width: 18px; height: 18px; border: 2px solid #333; border-radius: 3px; margin-top: 0.1rem; background: #0f0f1a; }
+
+    hr { border: none; border-top: 1px solid #1e1e2e; margin: 2.5rem 0; }
+    strong { color: #e0e0e0; }
+    footer { background: #0a0a14; border-top: 1px solid #1e1e2e; padding: 2rem 1.5rem; text-align: center; }
+    footer nav { margin-bottom: 0.8rem; }
+    footer a { color: #1473e6; text-decoration: none; font-size: 0.88rem; margin: 0 0.8rem; }
+    footer a:hover { text-decoration: underline; }
+    footer p { color: #555; font-size: 0.78rem; margin: 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>EDS Block Authoring · <span>From Zero to UE-Editable</span></h1>
+  <p>Anatomy of a block, the <code>decorate()</code> contract, UE instrumentation, and converting Core Components</p>
+</header>
+
+<main>
+
+  <!-- ── SECTION 1: ANATOMY ── -->
+  <section>
+    <h2>1 — Block Anatomy: The Contract</h2>
+
+    <p>A block is a folder with two files. That's it.</p>
+
+    <div class="filetree">
+      <div><span class="dir">blocks/</span></div>
+      <div>&nbsp;&nbsp;<span class="dir">└── teaser/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">├── teaser.js</span>&nbsp;&nbsp;&nbsp;<span class="ann">← decorator function (required)</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">└── teaser.css</span>&nbsp;&nbsp;<span class="ann">← styles (optional but conventional)</span></div>
+    </div>
+
+    <p>AEM EDS auto-discovers blocks by matching the CSS class on a <code>&lt;div&gt;</code> element to a folder under <code>blocks/</code>. When a match is found, EDS dynamically imports <code>blocks/teaser/teaser.js</code> and calls <code>decorate(block)</code>.</p>
+
+    <h3>The <code>decorate(block)</code> contract</h3>
+
+    <pre><code><span class="comment">// blocks/teaser/teaser.js</span>
+<span class="comment">// AEM EDS calls this once per .teaser element on the page.</span>
+<span class="comment">// block = the DOM element matching the block name.</span>
+<span class="kw">export default function</span> <span class="fn">decorate</span>(block) {
+  <span class="comment">// block.children = rows from the Word/Google Doc table</span>
+  <span class="comment">// Each row  = one &lt;div&gt;</span>
+  <span class="comment">// Each cell = nested &lt;div&gt;</span>
+  <span class="comment">// Your job: transform this raw structure into semantic HTML.</span>
+
+  <span class="kw">const</span> [[imageCell], [textCell]] = [...block.children].<span class="fn">map</span>(
+    row =&gt; [...row.children]
+  );
+  <span class="comment">// Now restructure, add classes, fetch data, wire events...</span>
+}</code></pre>
+
+    <h3>Word table → HTML mapping</h3>
+
+    <p>When an author creates a table in their document, EDS converts it to nested <code>&lt;div&gt;</code> elements before your decorator runs:</p>
+
+    <div class="word-map">
+      <div>
+        <div class="col-label">Word table</div>
+        <pre>┌─────────────────┐
+│  /image.jpg     │
+│                 │
+├─────────────────┤
+│  Title          │
+│  Description    │
+│  [CTA button]   │
+└─────────────────┘</pre>
+      </div>
+      <div class="arrow-col">→</div>
+      <div>
+        <div class="col-label">Delivered HTML</div>
+        <pre>&lt;div class="teaser"&gt;
+  &lt;div&gt;           ← row 1
+    &lt;div&gt;image&lt;/div&gt;  ← cell 1
+  &lt;/div&gt;
+  &lt;div&gt;           ← row 2
+    &lt;div&gt;Title&lt;/div&gt;
+    &lt;div&gt;Desc&lt;/div&gt;
+    &lt;div&gt;CTA&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+      </div>
+    </div>
+
+    <div class="card aem">
+      <div class="card-title"><span class="tag tag-tip">Key rule</span> Block name === folder name === CSS class</div>
+      <p>A block named <code>my-teaser</code> must live at <code>blocks/my-teaser/my-teaser.js</code>. The folder, the JS file, and the CSS class on the page element must all match exactly — the comparison is case-sensitive. One character off and the block silently does not load.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: BUILD FROM SCRATCH ── -->
+  <section>
+    <h2>2 — Step-by-Step: Build a Teaser Block from Scratch</h2>
+
+    <!-- Step 1 -->
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-label">Create the files</div>
+    </div>
+
+    <pre><code>mkdir -p blocks/teaser
+touch blocks/teaser/teaser.js blocks/teaser/teaser.css</code></pre>
+
+    <!-- Step 2 -->
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-label">Write the decorator</div>
+    </div>
+
+    <p>Read the rows, pull content from the cells, clear the block, and rebuild with semantic HTML:</p>
+
+    <pre><code><span class="comment">// blocks/teaser/teaser.js</span>
+<span class="kw">export default function</span> <span class="fn">decorate</span>(block) {
+  <span class="kw">const</span> rows = [...block.children];
+  <span class="kw">const</span> hasMedia = rows.length &gt; <span class="num">1</span>;
+  <span class="kw">const</span> [mediaRow, contentRow] = hasMedia ? rows : [<span class="kw">null</span>, rows[<span class="num">0</span>]];
+
+  <span class="kw">const</span> img = mediaRow?.<span class="fn">querySelector</span>(<span class="str">'img'</span>);
+  <span class="kw">const</span> [eyebrowEl, titleEl, descEl, ctaEl] = [...(contentRow?.children ?? [])];
+
+  block.innerHTML = <span class="str">''</span>;
+
+  <span class="kw">if</span> (img) {
+    <span class="kw">const</span> media = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+    media.className = <span class="str">'teaser-media'</span>;
+    media.<span class="fn">append</span>(img);
+    block.<span class="fn">append</span>(media);
+  }
+
+  <span class="kw">const</span> body = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+  body.className = <span class="str">'teaser-body'</span>;
+
+  <span class="kw">if</span> (eyebrowEl) {
+    <span class="kw">const</span> e = document.<span class="fn">createElement</span>(<span class="str">'p'</span>);
+    e.className = <span class="str">'teaser-eyebrow'</span>;
+    e.textContent = eyebrowEl.textContent;
+    body.<span class="fn">append</span>(e);
+  }
+  <span class="kw">if</span> (titleEl) {
+    <span class="kw">const</span> h = document.<span class="fn">createElement</span>(<span class="str">'h2'</span>);
+    h.textContent = titleEl.textContent;
+    body.<span class="fn">append</span>(h);
+  }
+  <span class="kw">if</span> (descEl) body.<span class="fn">append</span>(descEl);
+  <span class="kw">if</span> (ctaEl) {
+    ctaEl.className = <span class="str">'teaser-cta'</span>;
+    body.<span class="fn">append</span>(ctaEl);
+  }
+  block.<span class="fn">append</span>(body);
+}</code></pre>
+
+    <!-- Step 3 -->
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-label">Write the CSS</div>
+    </div>
+
+    <pre><code><span class="comment">/* blocks/teaser/teaser.css */</span>
+.teaser {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.teaser-media img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+}
+
+.teaser-eyebrow {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-brand, #1473e6);
+  margin-bottom: 0.5rem;
+}
+
+.teaser-body h2 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+
+.teaser-cta a {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  background: var(--color-brand, #1473e6);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .teaser { grid-template-columns: 1fr; }
+}</code></pre>
+
+    <!-- Step 4 -->
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-label">Author it in a Word doc or Google Doc</div>
+    </div>
+
+    <p>Create a table anywhere in your document. The first row holds the image, the second row holds the text content — one cell per content field:</p>
+
+    <pre><code>┌─────────────────────────────────────────┐
+│  Teaser                                 │  ← header row sets the block name
+├─────────────────────────────────────────┤
+│  /content/dam/mysite/hero.jpg           │  ← row 1, cell 1: image
+├──────────────┬──────────────────────────┤
+│  New Feature │                          │  ← row 2, cell 1: eyebrow
+├──────────────┴──────────────────────────┤
+│  The headline goes here                 │  ← row 2, cell 2: title
+├─────────────────────────────────────────┤
+│  A short supporting description.        │  ← row 2, cell 3: description
+├─────────────────────────────────────────┤
+│  Learn more  →  /products/feature       │  ← row 2, cell 4: CTA
+└─────────────────────────────────────────┘</code></pre>
+
+    <div class="card note">
+      <div class="card-title"><span class="tag tag-tip">Tip</span> Block name variants</div>
+      <p>You can pass variants by adding them to the header row: <code>Teaser (dark, compact)</code>. EDS adds <code>dark</code> and <code>compact</code> as additional CSS classes on the block element. Your decorator can branch on <code>block.classList.contains('dark')</code>.</p>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div class="step-label">Test with <code>aem up</code></div>
+    </div>
+
+    <pre><code>aem up
+<span class="comment"># Starts local dev proxy at http://localhost:3000</span>
+<span class="comment"># Visit http://localhost:3000/your-page</span>
+<span class="comment"># EDS fetches your document, converts it to HTML,</span>
+<span class="comment"># then calls decorate() on the .teaser element.</span></code></pre>
+
+    <p>Open DevTools and inspect the rendered block. Confirm the <code>.teaser-media</code> and <code>.teaser-body</code> divs are present. If the block wrapper is there but looks wrong, your decorator is running — check the cell extraction logic.</p>
+  </section>
+
+  <!-- ── SECTION 3: UE INSTRUMENTATION ── -->
+  <section>
+    <h2>3 — Universal Editor Instrumentation</h2>
+
+    <p>Two things are needed in <code>&lt;head&gt;</code> before Universal Editor can see the page at all:</p>
+
+    <pre><code><span class="comment">&lt;!-- Declare which AEM Author instance owns this page --&gt;</span>
+&lt;meta name=<span class="str">"urn:adobe:aue:system:aem"</span>
+      content=<span class="str">"aem:https://author-p138879-e1741192.adobeaemcloud.com"</span>/&gt;
+
+<span class="comment">&lt;!-- Load the UE client bridge that handles postMessages and auth --&gt;</span>
+&lt;script src=<span class="str">"https://universal-editor-service.adobe.io/cors.js"</span> async&gt;&lt;/script&gt;</code></pre>
+
+    <p>Once the page loads inside the UE iframe, you also need <code>data-aue-*</code> attributes on your DOM elements to declare what is editable. Choose one of two approaches:</p>
+
+    <h3>Approach A — Component model (for EDS page-specific content)</h3>
+
+    <p>Register the block's editable fields in <code>component-models.json</code> at the site root. EDS reads this file when resolving the block's Properties panel in UE.</p>
+
+    <pre><code><span class="comment">// component-models.json (merged from models/ by npm run build:json)</span>
+{
+  <span class="prop">"id"</span>: <span class="str">"teaser"</span>,
+  <span class="prop">"fields"</span>: [
+    { <span class="prop">"component"</span>: <span class="str">"text"</span>,       <span class="prop">"name"</span>: <span class="str">"eyebrow"</span>,     <span class="prop">"label"</span>: <span class="str">"Eyebrow"</span>,      <span class="prop">"valueType"</span>: <span class="str">"string"</span> },
+    { <span class="prop">"component"</span>: <span class="str">"text"</span>,       <span class="prop">"name"</span>: <span class="str">"title"</span>,      <span class="prop">"label"</span>: <span class="str">"Title"</span>,       <span class="prop">"valueType"</span>: <span class="str">"string"</span> },
+    { <span class="prop">"component"</span>: <span class="str">"richtext"</span>,  <span class="prop">"name"</span>: <span class="str">"description"</span>, <span class="prop">"label"</span>: <span class="str">"Description"</span> },
+    { <span class="prop">"component"</span>: <span class="str">"aem-content"</span>, <span class="prop">"name"</span>: <span class="str">"image"</span>,  <span class="prop">"label"</span>: <span class="str">"Image"</span> }
+  ]
+}</code></pre>
+
+    <p>Then, at the end of your <code>decorate()</code> function (after rebuilding the DOM), add the UE attributes to the block container:</p>
+
+    <pre><code><span class="comment">// At the END of decorate() — after all DOM mutations</span>
+<span class="kw">const</span> pageRes = document.<span class="fn">querySelector</span>(<span class="str">'[name="aue-resource"]'</span>)?.content ?? <span class="str">''</span>;
+block.dataset.aueResource = <span class="str">`urn:aem:</span>${pageRes}<span class="str">`</span>;
+block.dataset.aueType     = <span class="str">'component'</span>;
+block.dataset.aueModel    = <span class="str">'teaser'</span>;    <span class="comment">// must match component-models.json "id"</span>
+block.dataset.aueLabel    = <span class="str">'Teaser'</span>;</code></pre>
+
+    <h3>Approach B — Content Fragment-backed (for reusable/shared content)</h3>
+
+    <p>When the same content appears across multiple pages, store it in a Content Fragment and point each block instance at the CF path. Do <strong>not</strong> use a component model — UE derives the field list from the CF model directly.</p>
+
+    <pre><code><span class="comment">// blocks/teaser/teaser.js — CF-backed variant</span>
+<span class="kw">const</span> FRAG  = <span class="str">'/content/dam/mysite/fragments/teaser-home/jcr:content/data/master'</span>;
+<span class="kw">const</span> RES   = <span class="str">'urn:aem:'</span> + FRAG;
+
+<span class="comment">// After building the DOM in decorate(), annotate each field element:</span>
+
+eyebrowEl.dataset.aueResource = RES;
+eyebrowEl.dataset.aueProp     = <span class="str">'eyebrow'</span>;
+eyebrowEl.dataset.aueType     = <span class="str">'text'</span>;
+eyebrowEl.dataset.aueLabel    = <span class="str">'Eyebrow'</span>;
+
+titleEl.dataset.aueResource   = RES;
+titleEl.dataset.aueProp       = <span class="str">'title'</span>;
+titleEl.dataset.aueType       = <span class="str">'text'</span>;
+titleEl.dataset.aueLabel      = <span class="str">'Title'</span>;
+
+descEl.dataset.aueResource    = RES;
+descEl.dataset.aueProp        = <span class="str">'description'</span>;
+descEl.dataset.aueType        = <span class="str">'richtext'</span>;
+descEl.dataset.aueLabel       = <span class="str">'Description'</span>;
+
+<span class="comment">// Container: resource + type only. NO data-aue-model.</span>
+block.dataset.aueResource     = RES;
+block.dataset.aueType         = <span class="str">'component'</span>;
+block.dataset.aueLabel        = <span class="str">'Teaser'</span>;</code></pre>
+
+    <div class="card critical">
+      <div class="card-title"><span class="tag tag-critical">Critical</span> Never add <code>data-aue-model</code> to a CF-backed block container</div>
+      <p>When <code>data-aue-model</code> is present, UE calls the <code>/details</code> API endpoint to look up the component model definition in your <code>component-models.json</code>. When no matching model ID is found — which is always the case for CF-backed blocks — UE returns HTTP 500 and the Properties panel breaks entirely. For CF-backed editing, omit <code>data-aue-model</code> from the container. UE reads the field structure from the CF model directly.</p>
+    </div>
+
+    <h3>UE attribute quick reference</h3>
+
+    <table>
+      <tr>
+        <th>Attribute</th>
+        <th>Where to put it</th>
+        <th>Value</th>
+      </tr>
+      <tr>
+        <td>data-aue-resource</td>
+        <td>Container + every field element</td>
+        <td><code>urn:aem:/content/dam/.../jcr:content/data/master</code></td>
+      </tr>
+      <tr>
+        <td>data-aue-type</td>
+        <td>Container element</td>
+        <td><code>component</code></td>
+      </tr>
+      <tr>
+        <td>data-aue-type</td>
+        <td>Plain text field</td>
+        <td><code>text</code></td>
+      </tr>
+      <tr>
+        <td>data-aue-type</td>
+        <td>Rich text / HTML field</td>
+        <td><code>richtext</code></td>
+      </tr>
+      <tr>
+        <td>data-aue-type</td>
+        <td>Image field</td>
+        <td><code>image</code></td>
+      </tr>
+      <tr>
+        <td>data-aue-prop</td>
+        <td>Every field element</td>
+        <td>CF field name, e.g. <code>eyebrow</code>, <code>title</code>, <code>ctaLabel</code></td>
+      </tr>
+      <tr>
+        <td>data-aue-label</td>
+        <td>Every field element</td>
+        <td>Human-readable label shown in UE Properties panel</td>
+      </tr>
+      <tr>
+        <td>data-aue-model</td>
+        <td>Container (Approach A only)</td>
+        <td>Must match <code>"id"</code> in <code>component-models.json</code>. Omit for CF-backed approach.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ── SECTION 4: CONVERTING A CORE COMPONENT ── -->
+  <section>
+    <h2>4 — Converting a Core Component to an EDS Block</h2>
+
+    <p>The full recipe for migrating an AEM Core Component (Teaser, Hero, Cards, etc.) to an EDS block.</p>
+
+    <!-- Step 1 -->
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-label">Audit the Core Component dialog fields</div>
+    </div>
+
+    <p>Open the Core Component dialog in CRXDE at <code>/apps/core/wcm/components/teaser/v2/teaser/cq:dialog</code>. List every field the author can fill in. For the Teaser v2, the typical fields are:</p>
+
+    <ul>
+      <li><code>pretitle</code> — eyebrow / pre-title text</li>
+      <li><code>jcr:title</code> — headline</li>
+      <li><code>titleType</code> — heading level (H1–H6)</li>
+      <li><code>jcr:description</code> — body copy</li>
+      <li><code>fileReference</code> — image DAM path</li>
+      <li><code>titleLink</code> — link on the headline</li>
+      <li><code>actions</code> — array of CTA links</li>
+      <li><code>hideDescription</code>, <code>hideTitle</code> — display toggles</li>
+    </ul>
+
+    <!-- Step 2 -->
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-label">Decide: block rows or Content Fragment</div>
+    </div>
+
+    <table>
+      <tr>
+        <th>Use block rows (Word table)</th>
+        <th>Use a Content Fragment</th>
+      </tr>
+      <tr>
+        <td>Content is unique to this page</td>
+        <td>Content appears on 2+ pages</td>
+      </tr>
+      <tr>
+        <td>Author owns it in the document</td>
+        <td>Content team owns it centrally in DAM</td>
+      </tr>
+      <tr>
+        <td>Simple text + image, no variants</td>
+        <td>Multiple language variants / personalisation targets</td>
+      </tr>
+      <tr>
+        <td>Teaser: usually page-specific</td>
+        <td>Hero, global promo banner: usually CF</td>
+      </tr>
+    </table>
+
+    <!-- Step 3 -->
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-label">Export existing content from the JCR</div>
+    </div>
+
+    <p>Use Query Builder to find all existing Teaser instances so you know what data to migrate:</p>
+
+    <pre><code>GET /bin/querybuilder.json
+    ?type=nt:unstructured
+    &amp;property=sling:resourceType
+    &amp;property.value=core/wcm/components/teaser/v2/teaser
+    &amp;p.limit=-1
+    &amp;p.hits=full</code></pre>
+
+    <p>Map the JCR properties to your block's row structure:</p>
+
+    <table>
+      <tr>
+        <th>JCR property</th>
+        <th>Block row / CF field</th>
+      </tr>
+      <tr>
+        <td>pretitle</td>
+        <td>Row 2, cell 1 (eyebrow)</td>
+      </tr>
+      <tr>
+        <td>jcr:title</td>
+        <td>Row 2, cell 2 (title)</td>
+      </tr>
+      <tr>
+        <td>jcr:description</td>
+        <td>Row 2, cell 3 (description)</td>
+      </tr>
+      <tr>
+        <td>fileReference</td>
+        <td>Row 1, cell 1 (image path)</td>
+      </tr>
+      <tr>
+        <td>actions/item0/jcr:title + link</td>
+        <td>Row 2, cell 4 (CTA: text + URL)</td>
+      </tr>
+    </table>
+
+    <!-- Step 4 -->
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-label">Create the Word docs / DA pages</div>
+    </div>
+
+    <p>For each migrated page, open the DA (Document Authoring) page and recreate the Teaser as a table. One row per content group, one cell per field, matching the structure your new block's <code>decorate()</code> expects. Use the image DAM path directly in a cell — EDS resolves it to an <code>&lt;img&gt;</code> tag automatically.</p>
+
+    <!-- Step 5 -->
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div class="step-label">Remove the Core Component instances</div>
+    </div>
+
+    <p>Once you have verified each migrated page renders correctly in <code>aem up</code> and on the preview URL, delete the Core Component nodes from the JCR page structure. In CRXDE, locate the <code>jcr:content/root/container/teaser_XXXXX</code> node and delete it. Activate the page to push the deletion to Publish.</p>
+
+    <!-- Step 6 -->
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <div class="step-label">Remove the OSGi / Maven dependency (if applicable)</div>
+    </div>
+
+    <p>If your project included the Core Components all-in-one package, remove it once no Core Component types remain in use:</p>
+
+    <pre><code><span class="comment">&lt;!-- pom.xml — remove this dependency block --&gt;</span>
+&lt;dependency&gt;
+  &lt;groupId&gt;com.adobe.cq&lt;/groupId&gt;
+  &lt;artifactId&gt;core.wcm.components.all&lt;/artifactId&gt;
+  &lt;version&gt;2.x.x&lt;/version&gt;
+  &lt;type&gt;zip&lt;/type&gt;
+&lt;/dependency&gt;</code></pre>
+
+    <div class="card gotcha">
+      <div class="card-title"><span class="tag tag-gotcha">Caution</span> Remove incrementally</div>
+      <p>Remove the Core Component dependency only after <em>all</em> instances of every Core Component type have been migrated. Removing it while any page still references <code>core/wcm/components/...</code> causes a 500 on those pages in AEM Author.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: COMMON PITFALLS ── -->
+  <section>
+    <h2>5 — Common Pitfalls</h2>
+    <p style="margin-bottom:1.4rem;">Each block below is one failure pattern. Red = what you see. Yellow = why it happens. Green = exact fix.</p>
+
+    <!-- Pitfall 1 -->
+    <div class="ecf">
+      <div class="ecf-error">
+        <div class="label">If you see this behavior</div>
+        <p style="margin-top:0.3rem;">The block container div is present in the DOM but nothing inside it renders. No JS errors in the console.</p>
+      </div>
+      <div class="ecf-cause">
+        <div class="label">It means</div>
+        <p>The JS file name doesn't match the CSS class name on the block element. EDS constructs the import path from the class name and uses an exact string match — case-sensitive. A block with class <code>my-Block</code> looks for <code>blocks/my-Block/my-Block.js</code>, which doesn't exist if you named the folder <code>my-block</code>.</p>
+      </div>
+      <div class="ecf-fix">
+        <div class="label">Fix it this way</div>
+        <p>Use all-lowercase, hyphenated names for everything: folder name, JS file name, CSS file name, and the class used in the document. The rule is: <strong>folder = file stem = CSS class</strong>, all lowercase with hyphens. No camelCase, no underscores.</p>
+        <pre><code><span class="comment"># Correct</span>
+blocks/my-teaser/my-teaser.js   → class="my-teaser" on the page element
+
+<span class="comment"># Incorrect — will silently fail</span>
+blocks/myTeaser/myTeaser.js     → class="my-teaser" ← mismatch</code></pre>
+      </div>
+    </div>
+
+    <!-- Pitfall 2 -->
+    <div class="ecf">
+      <div class="ecf-error">
+        <div class="label">If you see this behavior</div>
+        <p style="margin-top:0.3rem;"><code>decorate()</code> is never called. The block HTML remains as raw nested divs. The browser console shows no import errors.</p>
+      </div>
+      <div class="ecf-cause">
+        <div class="label">It means</div>
+        <p>A JS syntax error in your file prevents the module from loading. The dynamic <code>import()</code> in <code>scripts/aem.js</code> rejects silently when the module fails to parse. Common causes: missing semicolons, a stray <code>const</code> before the <code>export default</code>, or a template literal that isn't closed.</p>
+      </div>
+      <div class="ecf-fix">
+        <div class="label">Fix it this way</div>
+        <p>Open the Network tab, filter for your block JS file, and check its status. If it's 200 but still not running, open the Sources tab, navigate to the file, and look for a parse error marker. Alternatively, run the linter:</p>
+        <pre><code>npm run lint:js blocks/teaser/teaser.js</code></pre>
+        <p style="margin-top:0.5rem;">Also confirm the function is the default export: <code>export default function decorate(block) { ... }</code></p>
+      </div>
+    </div>
+
+    <!-- Pitfall 3 -->
+    <div class="ecf">
+      <div class="ecf-error">
+        <div class="label">If you see this behavior</div>
+        <p style="margin-top:0.3rem;">You click the block inside Universal Editor but no fields appear in the Properties panel (right sidebar). The Content Tree shows the component.</p>
+      </div>
+      <div class="ecf-cause">
+        <div class="label">It means</div>
+        <p><code>data-aue-prop</code> attributes were placed on the original cell elements, but your <code>decorate()</code> function clears the block with <code>block.innerHTML = ''</code> before annotating — so the annotated elements are discarded and replaced with unannotated ones. UE reads the DOM after decoration completes; it never sees the original cells.</p>
+      </div>
+      <div class="ecf-fix">
+        <div class="label">Fix it this way</div>
+        <p>Add all <code>data-aue-*</code> attributes <em>after</em> you have finished rebuilding the DOM — on the new elements you created, not on the original cells. A reliable pattern is to set them at the very end of <code>decorate()</code>:</p>
+        <pre><code><span class="kw">export default function</span> <span class="fn">decorate</span>(block) {
+  <span class="comment">// 1. Destructure original cells</span>
+  <span class="comment">// 2. Clear block and rebuild DOM</span>
+  <span class="comment">// 3. Append all new elements</span>
+
+  <span class="comment">// 4. Only NOW add UE attributes:</span>
+  <span class="kw">const</span> RES = <span class="str">'urn:aem:/content/dam/.../jcr:content/data/master'</span>;
+  titleEl.dataset.aueResource = RES;
+  titleEl.dataset.aueProp     = <span class="str">'title'</span>;
+  titleEl.dataset.aueType     = <span class="str">'text'</span>;
+  titleEl.dataset.aueLabel    = <span class="str">'Title'</span>;
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- Pitfall 4 -->
+    <div class="ecf">
+      <div class="ecf-error">
+        <div class="label">If you see this</div>
+        <pre><code>Failed to fetch details
+URL: https://universal-editor-service.adobe.io/details
+Backend responded with: 500</code></pre>
+      </div>
+      <div class="ecf-cause">
+        <div class="label">It means</div>
+        <p><code>data-aue-model</code> is present on a container element. UE calls <code>/details</code> to look up the component model definition from your site's <code>component-models.json</code>. When the model ID isn't registered there — or the file isn't served from the site root — the lookup returns 500 and the Properties panel breaks for that component.</p>
+      </div>
+      <div class="ecf-fix">
+        <div class="label">Fix it this way</div>
+        <p><strong>CF-backed approach:</strong> Remove <code>data-aue-model</code> from the container entirely. UE reads the editable field structure from the Content Fragment model automatically.</p>
+        <p style="margin-top:0.5rem;"><strong>Component model approach:</strong> Ensure the model ID in <code>data-aue-model</code> exactly matches an <code>"id"</code> entry in <code>component-models.json</code>, and that the file is served at the site root. Run <code>npm run build:json</code> to regenerate the merged file from the <code>models/</code> fragments.</p>
+      </div>
+    </div>
+
+    <!-- Pitfall 5 -->
+    <div class="ecf">
+      <div class="ecf-error">
+        <div class="label">If you see this behavior</div>
+        <p style="margin-top:0.3rem;">Block renders correctly on <code>localhost:3000</code> but fails to load on <code>*.aem.live</code> or <code>*.aem.page</code>. Browser console shows a module import error.</p>
+      </div>
+      <div class="ecf-cause">
+        <div class="label">It means</div>
+        <p>An import path in your block JS is missing the <code>.js</code> extension. Node.js and bundlers resolve bare imports like <code>import { foo } from './utils'</code> without extensions, but EDS uses native ES module <code>import()</code> in the browser, which requires explicit extensions. The ESLint airbnb-base config enforces this locally — a missing extension is a lint error — but the error is only surfaced when the linter runs, not by the local dev proxy.</p>
+      </div>
+      <div class="ecf-fix">
+        <div class="label">Fix it this way</div>
+        <p>Always include the <code>.js</code> extension on all import paths. Run the linter before pushing:</p>
+        <pre><code><span class="comment"># Correct</span>
+<span class="kw">import</span> { formatDate } <span class="kw">from</span> <span class="str">'./utils.js'</span>;
+<span class="kw">import</span> { loadCSS } <span class="kw">from</span> <span class="str">'../../scripts/aem.js'</span>;
+
+<span class="comment"># Incorrect — works on localhost, breaks in the browser</span>
+<span class="kw">import</span> { formatDate } <span class="kw">from</span> <span class="str">'./utils'</span>;</code></pre>
+        <pre><code>npm run lint:js   <span class="comment"># catches missing extensions before you push</span></code></pre>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+  <nav>
+    <a href="angular-setup.html">Angular + UE Setup Guide</a>
+    <a href="index.html">Demo Index</a>
+  </nav>
+  <p>Internal demo reference — not customer-facing. AEM Cloud Service instance: author-p138879-e1741192.</p>
+</footer>
+
+</body>
+</html>

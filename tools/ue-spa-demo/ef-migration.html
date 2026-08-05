@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>XF/CF &rarr; EDS Migration Demo</title>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07070f;
+      --fg: #e5e7eb;
+      --muted: rgba(229,231,235,.55);
+      --border: rgba(255,255,255,.08);
+      --adobe-red: #EB1000;
+      --adobe-blue: #1473E6;
+      --adobe-blue-dark: #0d66d0;
+      --aem-xf: #1473E6;
+      --aem-xf-bg: #e8f1fd;
+      --aem-cf: #d97706;
+      --aem-cf-bg: #fffbeb;
+      --aem-core: #5b6bdf;
+      --aem-core-bg: #eef0fd;
+      --aem-panel: #f4f5f7;
+      --eds-bg: #0d1117;
+      --eds-card: #161b22;
+      --eds-border: rgba(255,255,255,.1);
+      --eds-green: #22c55e;
+      --eds-blue: #3b82f6;
+      --eds-amber: #f59e0b;
+      --eds-purple: #a855f7;
+      --panel-radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Page Nav ── */
+    .page-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,7,15,.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .page-nav-inner {
+      max-width: 1440px; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+      padding: 0 32px; height: 52px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: .9375rem; white-space: nowrap;
+    }
+    .nav-icon {
+      width: 26px; height: 26px; flex-shrink: 0;
+    }
+    .nav-links-group { display: flex; gap: 20px; flex: 1; }
+    .nav-links-group a {
+      font-size: .8125rem; font-weight: 500; color: var(--muted);
+      transition: color .15s;
+    }
+    .nav-links-group a:hover { color: var(--fg); }
+    .nav-ue-badge {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 20px;
+      background: rgba(20,115,230,.12); border: 1px solid rgba(20,115,230,.25);
+      font-size: .6875rem; font-weight: 600; color: #6badff;
+      white-space: nowrap;
+    }
+    .badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #6badff; animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    /* ── Page Hero ── */
+    .page-hero {
+      padding: 56px 32px 44px;
+      background: linear-gradient(155deg, #07070f 0%, #0e0e20 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .page-hero-inner { max-width: 900px; margin: 0 auto; }
+    .hero-eyebrow {
+      font-size: .6875rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--adobe-blue); margin-bottom: 12px;
+    }
+    .hero-title {
+      font-size: clamp(1.75rem, 4vw, 2.625rem);
+      font-weight: 900; line-height: 1.1; letter-spacing: -.03em;
+      margin-bottom: 14px;
+    }
+    .hero-title .hi { color: var(--adobe-red); }
+    .hero-sub {
+      font-size: 1rem; line-height: 1.65; color: var(--muted); max-width: 620px;
+    }
+
+    /* ── Demo Arena ── */
+    .demo-arena { padding: 44px 32px; }
+    .arena-inner { max-width: 1440px; margin: 0 auto; }
+
+    /* ── Panel Labels ── */
+    .panels-labels {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .panel-label-col { display: flex; flex-direction: column; gap: 4px; }
+    .plabel-after { text-align: right; align-items: flex-end; display: flex; flex-direction: column; gap: 4px; }
+    .panel-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .625rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .panel-badge::before {
+      content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    }
+    .panel-badge--before { color: #94a3b8; }
+    .panel-badge--before::before { background: #94a3b8; }
+    .panel-badge--after { color: #4ade80; }
+    .panel-badge--after::before { background: #4ade80; }
+    .panel-title { font-size: .9375rem; font-weight: 700; }
+    .panel-subtitle { font-size: .75rem; color: var(--muted); }
+    .sep-col { display: flex; align-items: center; justify-content: center; }
+    .sep-arrow {
+      font-size: 1.125rem; color: var(--muted);
+      padding: 6px 14px; background: rgba(255,255,255,.04);
+      border: 1px solid var(--border); border-radius: 6px;
+    }
+
+    /* ── Panels Row ── */
+    .panels-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 24px; align-items: start;
+    }
+
+    /* ── LEFT PANEL: AEM Before ── */
+    .panel-before {
+      background: var(--aem-panel);
+      color: #1a1a1a;
+      border: 1px solid #d1d5db;
+      border-radius: var(--panel-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 32px rgba(0,0,0,.35);
+    }
+
+    .aem-section {
+      position: relative;
+      border: 2px dashed transparent;
+      transition: opacity .6s ease;
+    }
+    .aem-section--xf { border-color: var(--aem-xf); }
+    .aem-section--cf {
+      border: 2px dashed var(--aem-cf);
+      margin: 6px; border-radius: 4px;
+    }
+    .aem-section--core { border-color: #9ca3af; }
+    .aem-section.dimmed { opacity: .38; }
+
+    .aem-chrome {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 10px; font-size: .625rem; font-weight: 600;
+    }
+    .aem-chrome--xf  { background: var(--aem-xf); color: #fff; }
+    .aem-chrome--cf  { background: var(--aem-cf); color: #fff; }
+    .aem-chrome--core { background: var(--aem-core); color: #fff; }
+    .aem-chrome--teaser {
+      background: #3b5bdb; color: #fff;
+      font-size: .5625rem; padding: 3px 8px;
+    }
+    .aem-chrome-icon  { font-size: .875rem; flex-shrink: 0; }
+    .aem-chrome-label { font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    .aem-chrome-path  {
+      color: rgba(255,255,255,.7); font-size: .5625rem;
+      font-family: 'JetBrains Mono', monospace;
+      flex: 1; min-width: 0; overflow: hidden;
+      white-space: nowrap; text-overflow: ellipsis;
+    }
+    .aem-chrome-count {
+      background: rgba(255,255,255,.28); color: #fff;
+      padding: 2px 7px; border-radius: 10px;
+      font-size: .5rem; font-weight: 800;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .aem-chrome-actions { display: flex; gap: 3px; flex-shrink: 0; }
+    .aem-edit-btn {
+      padding: 2px 7px; border-radius: 3px;
+      background: rgba(255,255,255,.22); color: #fff;
+      border: none; font-size: .5rem; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+    }
+    .aem-edit-btn:hover { background: rgba(255,255,255,.38); }
+
+    .handle {
+      position: absolute; width: 8px; height: 8px;
+      background: var(--aem-xf); border: 1.5px solid #fff;
+      border-radius: 1px; z-index: 2;
+    }
+    .h-nw { top: -1px; left: -1px; }
+    .h-ne { top: -1px; right: -1px; }
+    .h-se { bottom: -1px; right: -1px; }
+    .h-sw { bottom: -1px; left: -1px; }
+
+    .aem-body { padding: 10px; }
+
+    /* AEM Nav */
+    .aem-nav-bar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 7px 12px; background: #fff;
+      border: 1px solid #e5e7eb; border-radius: 4px;
+    }
+    .aem-nav-logo {
+      display: flex; align-items: center; gap: 5px;
+      font-weight: 800; font-size: .875rem;
+    }
+    .logo-mark { color: var(--adobe-red); }
+    .aem-nav-links { display: flex; gap: 14px; flex: 1; }
+    .aem-nav-links span {
+      font-size: .75rem; font-weight: 500; color: #4b5563;
+    }
+    .aem-nav-cta {
+      padding: 4px 12px; border-radius: 4px;
+      background: var(--adobe-red); color: #fff;
+      font-size: .6875rem; font-weight: 700;
+    }
+
+    /* AEM Hero */
+    .aem-hero-body { display: flex; flex-direction: column; gap: 7px; padding: 10px; }
+
+    .aem-cf-fields {
+      padding: 8px; background: var(--aem-cf-bg);
+      border-radius: 4px;
+    }
+    .aem-cf-row {
+      display: flex; align-items: baseline; gap: 8px;
+      padding: 3px 0; border-bottom: 1px solid rgba(217,119,6,.12);
+    }
+    .aem-cf-row:last-child { border-bottom: none; }
+    .aem-cf-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .5625rem; font-weight: 700; color: var(--aem-cf);
+      width: 78px; flex-shrink: 0;
+    }
+    .aem-cf-val { font-size: .6875rem; color: #374151; line-height: 1.4; }
+
+    .aem-comp-inline { margin-top: 5px; }
+    .aem-comp-chrome {
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 8px; border-radius: 2px 2px 0 0;
+      background: #4b5563; color: #fff;
+      font-size: .5rem; font-weight: 700;
+    }
+    .aem-comp-chrome-path { color: rgba(255,255,255,.6); font-family: 'JetBrains Mono', monospace; font-size: .475rem; }
+    .aem-img-placeholder {
+      background: #f0f2f8; border: 1px solid #e5e7eb;
+      border-radius: 0 0 2px 2px; padding: 6px;
+    }
+    .aem-img-placeholder svg { width: 100%; height: 54px; }
+    .aem-cta-row {
+      display: flex; gap: 7px; padding: 7px;
+      background: #f9fafb; border: 1px solid #e5e7eb;
+      border-radius: 0 0 2px 2px;
+    }
+    .aem-btn-primary {
+      padding: 4px 12px; border-radius: 4px;
+      background: var(--adobe-red); color: #fff;
+      font-size: .6875rem; font-weight: 700;
+    }
+    .aem-btn-secondary {
+      padding: 4px 12px; border-radius: 4px;
+      background: transparent; color: var(--adobe-red);
+      border: 1px solid var(--adobe-red);
+      font-size: .6875rem; font-weight: 700;
+    }
+
+    /* AEM Features */
+    .aem-features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 7px; padding: 10px;
+    }
+    .aem-teaser {
+      background: #fff; border: 1px solid #e5e7eb;
+      border-radius: 4px; overflow: hidden;
+    }
+    .aem-teaser-body { padding: 9px; }
+    .aem-teaser-icon { font-size: 1.25rem; margin-bottom: 5px; }
+    .aem-teaser-title { font-size: .6875rem; font-weight: 700; color: #111827; margin-bottom: 3px; }
+    .aem-teaser-desc { font-size: .5625rem; color: #6b7280; line-height: 1.4; }
+
+    /* AEM Promo */
+    .aem-promo-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 14px 12px;
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
+      color: #fff; border-radius: 3px;
+    }
+    .aem-promo-eyebrow {
+      font-size: .5625rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 4px;
+    }
+    .aem-promo-title { font-size: .75rem; font-weight: 700; max-width: 260px; line-height: 1.35; }
+    .aem-promo-cta {
+      padding: 5px 13px; border-radius: 4px;
+      background: #fff; color: #1e1b4b;
+      font-size: .6875rem; font-weight: 700; white-space: nowrap;
+    }
+
+    /* AEM Footer */
+    .aem-footer-inner { background: #f9fafb; padding: 12px; }
+    .aem-footer-cols {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    }
+    .aem-footer-heading {
+      font-size: .625rem; font-weight: 700; color: #374151;
+      text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px;
+    }
+    .aem-footer-links { font-size: .5625rem; color: #9ca3af; line-height: 1.9; }
+
+    /* ── RIGHT PANEL: EDS After ── */
+    .panel-after {
+      background: var(--eds-bg);
+      color: var(--fg);
+      border: 1px solid var(--eds-border);
+      border-radius: var(--panel-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 32px rgba(0,0,0,.45);
+      position: relative;
+    }
+
+    /* Progress bar */
+    .migration-progress {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 12;
+      height: 3px; background: rgba(255,255,255,.05);
+      opacity: 0; transition: opacity .3s;
+    }
+    .migration-progress.active { opacity: 1; }
+    .migration-progress-bar {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--adobe-blue) 0%, var(--eds-green) 100%);
+      transition: width 1.8s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* EDS sections — hidden until migrated */
+    .eds-section {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity .4s ease, transform .4s ease;
+      border-bottom: 1px solid var(--eds-border);
+    }
+    .eds-section:last-child { border-bottom: none; }
+    .eds-section.visible { opacity: 1; transform: translateY(0); }
+
+    .eds-block-hdr {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      padding: 7px 12px;
+      background: rgba(255,255,255,.025);
+      border-bottom: 1px solid var(--eds-border);
+    }
+    .eds-block-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .6875rem; font-weight: 600; color: #e2e8f0;
+    }
+    .eds-block-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .5rem; color: rgba(255,255,255,.28); flex: 1;
+    }
+    .eds-badge {
+      padding: 2px 8px; border-radius: 10px;
+      font-size: .5rem; font-weight: 700; white-space: nowrap;
+    }
+    .badge-green  { background: rgba(34,197,94,.12);  color: #4ade80; border: 1px solid rgba(34,197,94,.25); }
+    .badge-blue   { background: rgba(59,130,246,.12); color: #60a5fa; border: 1px solid rgba(59,130,246,.25); }
+    .badge-amber  { background: rgba(245,158,11,.12); color: #fbbf24; border: 1px solid rgba(245,158,11,.25); }
+    .badge-purple { background: rgba(168,85,247,.12); color: #c084fc; border: 1px solid rgba(168,85,247,.25); }
+
+    /* EDS Nav */
+    .eds-nav-wrap { padding: 10px 12px; }
+    .eds-nav-bar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 7px 12px; background: var(--eds-card);
+      border: 1px solid var(--eds-border); border-radius: 6px;
+    }
+    .eds-nav-logo { font-weight: 800; font-size: .875rem; }
+    .eds-nav-links { display: flex; gap: 14px; flex: 1; }
+    .eds-nav-links a { font-size: .75rem; font-weight: 500; color: var(--muted); }
+    .eds-nav-cta {
+      padding: 4px 12px; border-radius: 4px;
+      background: var(--adobe-red); color: #fff;
+      font-size: .6875rem; font-weight: 700;
+    }
+
+    /* EDS Hero */
+    .eds-hero-wrap { padding: 12px; }
+    .eds-aue-block {
+      margin-bottom: 9px; padding: 5px 9px;
+      background: rgba(59,130,246,.07);
+      border: 1px solid rgba(59,130,246,.18);
+      border-radius: 5px;
+    }
+    .eds-aue-block code {
+      font-size: .5rem; color: #93c5fd; display: block; line-height: 1.7;
+    }
+    .eds-hero-inner {
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 12px; align-items: start;
+    }
+    .eds-hero-text { display: flex; flex-direction: column; gap: 5px; }
+    .eds-prop-row { display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap; }
+    .eds-prop-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .45rem; font-weight: 700; white-space: nowrap;
+      padding: 1px 5px; border-radius: 3px;
+      background: rgba(59,130,246,.14); color: #60a5fa;
+      border: 1px solid rgba(59,130,246,.2);
+      flex-shrink: 0; align-self: center;
+    }
+    .eds-eyebrow {
+      font-size: .625rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--adobe-blue);
+    }
+    .eds-h1 { font-size: .8125rem; font-weight: 800; line-height: 1.3; }
+    .eds-desc { font-size: .6875rem; color: var(--muted); line-height: 1.5; }
+    .eds-hero-ctas { display: flex; gap: 7px; margin-top: 4px; }
+    .eds-cta-primary {
+      padding: 5px 12px; border-radius: 4px;
+      background: var(--adobe-red); color: #fff;
+      font-size: .625rem; font-weight: 700;
+    }
+    .eds-cta-secondary {
+      padding: 5px 12px; border-radius: 4px;
+      background: transparent; color: var(--adobe-red);
+      border: 1px solid var(--adobe-red);
+      font-size: .625rem; font-weight: 700;
+    }
+    .eds-hero-img svg { border-radius: 7px; width: 90px; height: auto; }
+    .eds-gql-hint {
+      margin-top: 8px; padding: 5px 9px;
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--eds-border); border-radius: 4px;
+    }
+    .eds-gql-hint code { font-size: .475rem; color: rgba(255,255,255,.38); line-height: 1.6; }
+    .gql-kw { color: #c084fc; }
+    .gql-str { color: #86efac; }
+    .gql-field { color: #93c5fd; }
+
+    /* EDS Cards */
+    .eds-cards-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px; padding: 12px;
+    }
+    .eds-card {
+      background: var(--eds-card); border: 1px solid var(--eds-border);
+      border-radius: 7px; padding: 11px;
+    }
+    .eds-card-icon { font-size: 1.125rem; margin-bottom: 5px; }
+    .eds-card-title { font-size: .6875rem; font-weight: 700; margin-bottom: 3px; }
+    .eds-card-desc { font-size: .5625rem; color: var(--muted); line-height: 1.5; }
+
+    /* EDS Banner */
+    .eds-banner-wrap { padding: 12px; }
+    .eds-banner-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 14px 16px;
+      background: linear-gradient(135deg, #0c1445, #1a2563);
+      border-radius: 7px; border: 1px solid rgba(59,130,246,.18);
+    }
+    .eds-banner-eyebrow {
+      font-size: .5625rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 4px;
+    }
+    .eds-banner-title { font-size: .75rem; font-weight: 700; max-width: 280px; }
+
+    /* EDS Footer */
+    .eds-footer-inner { padding: 12px; background: var(--eds-card); }
+    .eds-footer-cols {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    }
+    .eds-footer-heading {
+      font-size: .5625rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted); margin-bottom: 5px;
+    }
+    .eds-footer-links { font-size: .5rem; color: rgba(255,255,255,.3); line-height: 2; }
+
+    /* ── Locked Overlay ── */
+    .panel-locked {
+      position: absolute; inset: 0;
+      background: rgba(7,7,15,.84); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10; transition: opacity .55s ease;
+    }
+    .panel-locked.unlocking { opacity: 0; pointer-events: none; }
+    .locked-inner {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 16px;
+      text-align: center; padding: 48px 36px;
+    }
+    .locked-glyph { font-size: 2.25rem; line-height: 1; }
+    .locked-label {
+      font-size: .875rem; font-weight: 500; color: var(--muted);
+      max-width: 200px; line-height: 1.55;
+    }
+    .btn-modernize {
+      padding: 13px 34px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--adobe-blue) 0%, #7c3aed 100%);
+      color: #fff; border: none;
+      font-size: .9375rem; font-weight: 800; letter-spacing: -.01em;
+      box-shadow: 0 4px 28px rgba(20,115,230,.4);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-modernize:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 36px rgba(20,115,230,.55);
+    }
+    .btn-modernize:active { transform: translateY(0); }
+
+    /* ── Migration Footer (success + reset) ── */
+    .migration-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 20px; padding: 14px 22px;
+      background: rgba(34,197,94,.06);
+      border: 1px solid rgba(34,197,94,.18);
+      border-radius: 8px;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .4s ease, transform .4s ease;
+    }
+    .migration-footer.visible { opacity: 1; transform: translateY(0); }
+    .migration-success {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .875rem; font-weight: 600; color: #4ade80;
+    }
+    .success-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(34,197,94,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; flex-shrink: 0;
+    }
+    .btn-reset {
+      padding: 7px 16px; border-radius: 6px;
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      color: var(--muted); font-size: .75rem; font-weight: 600;
+      transition: background .15s, color .15s;
+    }
+    .btn-reset:hover { background: rgba(255,255,255,.1); color: var(--fg); }
+
+    /* ── Key Differences ── */
+    .key-diffs {
+      padding: 64px 32px;
+      border-top: 1px solid var(--border);
+      background: #050509;
+    }
+    .key-diffs-inner { max-width: 1440px; margin: 0 auto; }
+    .section-title {
+      font-size: clamp(1.25rem, 3vw, 1.625rem);
+      font-weight: 800; letter-spacing: -.025em;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      font-size: .875rem; color: var(--muted); margin-bottom: 32px; max-width: 560px;
+    }
+    .diffs-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+    }
+    .diff-card {
+      background: rgba(255,255,255,.028);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .diff-card-hdr {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 16px 18px; border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.018);
+    }
+    .diff-icon {
+      width: 30px; height: 30px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; font-size: .875rem;
+    }
+    .diff-icon--xf { background: rgba(20,115,230,.14); color: #60a5fa; }
+    .diff-icon--cf { background: rgba(217,119,6,.14);  color: #fbbf24; }
+    .diff-icon--da { background: rgba(34,197,94,.14);  color: #4ade80; }
+    .diff-card-hdr h3 {
+      font-size: .8125rem; font-weight: 700;
+      line-height: 1.35; padding-top: 4px;
+    }
+    .diff-compare {
+      display: grid; grid-template-columns: 1fr 1fr;
+      flex: 1;
+    }
+    .diff-before, .diff-after {
+      padding: 12px 14px;
+      font-size: .625rem; line-height: 1.75;
+    }
+    .diff-before {
+      border-right: 1px solid var(--border);
+      background: rgba(239,68,68,.025);
+    }
+    .diff-after { background: rgba(34,197,94,.025); }
+    .diff-col-label {
+      font-size: .5rem; font-weight: 800; letter-spacing: .12em;
+      text-transform: uppercase; margin-bottom: 8px;
+      padding-bottom: 4px; border-bottom: 1px solid var(--border);
+    }
+    .diff-before .diff-col-label { color: #f87171; }
+    .diff-after  .diff-col-label { color: #4ade80; }
+    .diff-before ul, .diff-after ul {
+      list-style: none; display: flex; flex-direction: column; gap: 3px;
+    }
+    .diff-before li { color: var(--muted); }
+    .diff-after  li { color: var(--muted); }
+    .diff-before li::before { content: '✕ '; color: #f87171; font-size: .475rem; }
+    .diff-after  li::before { content: '✓ '; color: #4ade80; font-size: .475rem; }
+    .diff-before code, .diff-after code {
+      background: rgba(255,255,255,.07); padding: 0 3px;
+      border-radius: 2px; font-size: .5625rem;
+    }
+    .diff-step {
+      padding: 9px 14px; border-top: 1px solid var(--border);
+      background: rgba(255,255,255,.015);
+      font-size: .5625rem; color: var(--muted); line-height: 1.6;
+    }
+    .step-lbl {
+      display: block; font-weight: 800; font-size: .5rem;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--adobe-blue); margin-bottom: 3px;
+    }
+
+    /* ── Footer Callout ── */
+    .footer-callout {
+      padding: 64px 32px;
+      background: linear-gradient(155deg, #09091a, #07070f);
+      border-top: 1px solid var(--border);
+    }
+    .footer-callout-inner {
+      max-width: 720px; margin: 0 auto;
+      text-align: center; display: flex; flex-direction: column;
+      align-items: center; gap: 20px;
+    }
+    .callout-icon {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: rgba(20,115,230,.1); border: 1px solid rgba(20,115,230,.22);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .callout-quote {
+      font-size: clamp(.9375rem, 2vw, 1.125rem);
+      font-weight: 600; line-height: 1.65;
+      font-style: italic; color: var(--fg);
+      quotes: "\201C" "\201D";
+    }
+    .callout-quote::before { content: open-quote; color: var(--adobe-blue); }
+    .callout-quote::after  { content: close-quote; color: var(--adobe-blue); }
+    .callout-body {
+      font-size: .875rem; color: var(--muted); line-height: 1.75;
+      max-width: 580px;
+    }
+
+    /* ── Page Footer ── */
+    .page-footer {
+      padding: 22px 32px;
+      background: #040407;
+      border-top: 1px solid var(--border);
+    }
+    .page-footer-inner {
+      max-width: 1440px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 14px;
+    }
+    .footer-disclaimer { font-size: .6875rem; color: rgba(255,255,255,.22); }
+    .footer-nav { display: flex; gap: 18px; flex-wrap: wrap; }
+    .footer-nav a {
+      font-size: .6875rem; font-weight: 500; color: var(--muted);
+      transition: color .15s;
+    }
+    .footer-nav a:hover { color: var(--fg); }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .panels-row { grid-template-columns: 1fr; }
+      .panels-labels { grid-template-columns: 1fr; }
+      .sep-col { display: none; }
+      .diffs-grid { grid-template-columns: 1fr; }
+      .aem-features-grid { grid-template-columns: 1fr 1fr; }
+      .eds-cards-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .page-hero { padding: 36px 20px 28px; }
+      .demo-arena { padding: 28px 16px; }
+      .key-diffs { padding: 40px 16px; }
+      .footer-callout { padding: 48px 16px; }
+      .aem-features-grid, .eds-cards-grid { grid-template-columns: 1fr; }
+      .diff-compare { grid-template-columns: 1fr; }
+      .diff-before { border-right: none; border-bottom: 1px solid var(--border); }
+      .aem-footer-cols, .eds-footer-cols { grid-template-columns: 1fr; }
+      .page-nav-inner { padding: 0 16px; }
+      .nav-links-group { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Page Nav ─────────────────────────────────────────────────── -->
+<nav class="page-nav">
+  <div class="page-nav-inner">
+    <div class="nav-brand">
+      <svg class="nav-icon" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect width="28" height="28" rx="5" fill="#EB1000"/>
+        <path d="M7 21L14 7L21 21H17.5L14 13.5L10.5 21H7Z" fill="white"/>
+      </svg>
+      EDS Migration Demo
+    </div>
+    <nav class="nav-links-group" aria-label="Demo pages">
+      <a href="index.html">Index</a>
+      <a href="bigdemo.html">Platform Demo</a>
+      <a href="newoffers.html">Offers</a>
+      <a href="cf-spa.html">CF + SPA</a>
+    </nav>
+    <div class="nav-ue-badge">
+      <span class="badge-dot"></span>
+      AEM UE Connected
+    </div>
+  </div>
+</nav>
+
+<!-- ── Page Hero ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-inner">
+    <div class="hero-eyebrow">Migration Guide &middot; AEM to EDS</div>
+    <h1 class="hero-title">
+      Experience Fragments &rarr; <span class="hi">EDS Blocks</span>
+    </h1>
+    <p class="hero-sub">
+      An interactive walkthrough of migrating a traditional AEM page — heavy with Experience Fragments and Core Components — to a lean Edge Delivery Services equivalent. Click <strong>Modernize &rarr;</strong> to see the transformation happen.
+    </p>
+  </div>
+</header>
+
+<!-- ── Demo Arena ────────────────────────────────────────────────── -->
+<section class="demo-arena" aria-label="Before/after migration demo">
+  <div class="arena-inner">
+
+    <!-- Panel column headers -->
+    <div class="panels-labels">
+      <div class="panel-label-col">
+        <span class="panel-badge panel-badge--before">Before</span>
+        <span class="panel-title">AEM + Experience Fragments</span>
+        <span class="panel-subtitle">Author mode &middot; 105 components total</span>
+      </div>
+      <div class="sep-col" aria-hidden="true">
+        <span class="sep-arrow">&rarr;</span>
+      </div>
+      <div class="panel-label-col plabel-after">
+        <span class="panel-badge panel-badge--after">After</span>
+        <span class="panel-title">EDS Blocks + CF + DA</span>
+        <span class="panel-subtitle">Edge-rendered &middot; authored in Word / DA</span>
+      </div>
+    </div>
+
+    <div class="panels-row">
+
+      <!-- ═══════════════════════════════════════════════════════════
+           LEFT PANEL: AEM Before
+      ════════════════════════════════════════════════════════════════ -->
+      <div class="panel panel-before" aria-label="AEM page in author mode">
+
+        <!-- 1 · Nav XF -->
+        <div class="aem-section aem-section--xf" id="before-nav">
+          <div class="aem-chrome aem-chrome--xf">
+            <span class="aem-chrome-icon" aria-hidden="true">&#11041;</span>
+            <span class="aem-chrome-label">&lt;Experience Fragment&gt;</span>
+            <span class="aem-chrome-path">/content/experience-fragments/site/en/nav/master</span>
+            <span class="aem-chrome-count">47 components</span>
+            <div class="aem-chrome-actions">
+              <button class="aem-edit-btn" tabindex="-1">Edit</button>
+              <button class="aem-edit-btn" tabindex="-1">Open XF</button>
+            </div>
+          </div>
+          <div class="aem-body">
+            <div class="aem-nav-bar">
+              <div class="aem-nav-logo">
+                <span class="logo-mark">&#9670;</span> SiteCore
+              </div>
+              <div class="aem-nav-links">
+                <span>Products</span><span>Solutions</span>
+                <span>Pricing</span><span>Resources</span>
+              </div>
+              <span class="aem-nav-cta">Get started</span>
+            </div>
+          </div>
+          <span class="handle h-nw" aria-hidden="true"></span>
+          <span class="handle h-ne" aria-hidden="true"></span>
+          <span class="handle h-se" aria-hidden="true"></span>
+          <span class="handle h-sw" aria-hidden="true"></span>
+        </div>
+
+        <!-- 2 · Hero XF -->
+        <div class="aem-section aem-section--xf" id="before-hero">
+          <div class="aem-chrome aem-chrome--xf">
+            <span class="aem-chrome-icon" aria-hidden="true">&#11041;</span>
+            <span class="aem-chrome-label">&lt;Experience Fragment&gt;</span>
+            <span class="aem-chrome-path">/content/experience-fragments/site/en/hero-home/master</span>
+            <span class="aem-chrome-count">12 components</span>
+            <div class="aem-chrome-actions">
+              <button class="aem-edit-btn" tabindex="-1">Edit</button>
+              <button class="aem-edit-btn" tabindex="-1">Open XF</button>
+            </div>
+          </div>
+          <div class="aem-hero-body">
+            <!-- Nested CF -->
+            <div class="aem-section aem-section--cf">
+              <div class="aem-chrome aem-chrome--cf">
+                <span class="aem-chrome-icon" aria-hidden="true">&#10808;</span>
+                <span class="aem-chrome-label">&lt;Content Fragment&gt;</span>
+                <span class="aem-chrome-path">/content/dam/site/fragments/hero</span>
+              </div>
+              <div class="aem-cf-fields">
+                <div class="aem-cf-row">
+                  <span class="aem-cf-key">eyebrow</span>
+                  <span class="aem-cf-val">Transform your digital experience</span>
+                </div>
+                <div class="aem-cf-row">
+                  <span class="aem-cf-key">title</span>
+                  <span class="aem-cf-val">Build faster with AEM Edge Delivery</span>
+                </div>
+                <div class="aem-cf-row">
+                  <span class="aem-cf-key">description</span>
+                  <span class="aem-cf-val">Achieve perfect Lighthouse scores while keeping the AEM authoring experience your team already knows.</span>
+                </div>
+              </div>
+            </div>
+            <!-- Image component -->
+            <div class="aem-comp-inline">
+              <div class="aem-comp-chrome">
+                <span>&lt;Image&gt;</span>
+                <span class="aem-comp-chrome-path">dam/site/images/hero.jpg</span>
+              </div>
+              <div class="aem-img-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 240 60" fill="none">
+                  <rect width="240" height="60" fill="#e8eaf0"/>
+                  <path d="M30 50L60 22L84 38L116 12L150 38L174 22L210 50H30Z" fill="#c8ccd8"/>
+                  <circle cx="55" cy="18" r="7" fill="#c8ccd8"/>
+                </svg>
+              </div>
+            </div>
+            <!-- CTA component -->
+            <div class="aem-comp-inline">
+              <div class="aem-comp-chrome"><span>&lt;CTA&gt;</span></div>
+              <div class="aem-cta-row">
+                <span class="aem-btn-primary">Start free trial</span>
+                <span class="aem-btn-secondary">Watch demo</span>
+              </div>
+            </div>
+          </div>
+          <span class="handle h-nw" aria-hidden="true"></span>
+          <span class="handle h-ne" aria-hidden="true"></span>
+          <span class="handle h-se" aria-hidden="true"></span>
+          <span class="handle h-sw" aria-hidden="true"></span>
+        </div>
+
+        <!-- 3 · Features Grid (Core Components) -->
+        <div class="aem-section aem-section--core" id="before-features">
+          <div class="aem-chrome aem-chrome--core">
+            <span class="aem-chrome-icon" aria-hidden="true">&#8862;</span>
+            <span class="aem-chrome-label">Layout Container</span>
+            <span class="aem-chrome-path">/content/site/en/home/jcr:content/root/container/features</span>
+            <span class="aem-chrome-count">8 components</span>
+          </div>
+          <div class="aem-features-grid">
+            <div class="aem-teaser">
+              <div class="aem-chrome aem-chrome--teaser">
+                <span>&lt;Teaser&gt;</span>
+              </div>
+              <div class="aem-teaser-body">
+                <div class="aem-teaser-icon" aria-hidden="true">&#9889;</div>
+                <div class="aem-teaser-title">Lightning Fast</div>
+                <div class="aem-teaser-desc">100 Lighthouse score out of the box with EDS CDN caching.</div>
+              </div>
+            </div>
+            <div class="aem-teaser">
+              <div class="aem-chrome aem-chrome--teaser">
+                <span>&lt;Teaser&gt;</span>
+              </div>
+              <div class="aem-teaser-body">
+                <div class="aem-teaser-icon" aria-hidden="true">&#9998;</div>
+                <div class="aem-teaser-title">Author in Word</div>
+                <div class="aem-teaser-desc">Editors use familiar Word and SharePoint to create content.</div>
+              </div>
+            </div>
+            <div class="aem-teaser">
+              <div class="aem-chrome aem-chrome--teaser">
+                <span>&lt;Teaser&gt;</span>
+              </div>
+              <div class="aem-teaser-body">
+                <div class="aem-teaser-icon" aria-hidden="true">&#8635;</div>
+                <div class="aem-teaser-title">Live Preview</div>
+                <div class="aem-teaser-desc">Real-time UE editing — no publish workflow required.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 · Promo Banner XF -->
+        <div class="aem-section aem-section--xf" id="before-promo">
+          <div class="aem-chrome aem-chrome--xf">
+            <span class="aem-chrome-icon" aria-hidden="true">&#11041;</span>
+            <span class="aem-chrome-label">&lt;Experience Fragment&gt;</span>
+            <span class="aem-chrome-path">/content/experience-fragments/site/en/promo-q3/master</span>
+            <span class="aem-chrome-count">15 components</span>
+            <div class="aem-chrome-actions">
+              <button class="aem-edit-btn" tabindex="-1">Edit</button>
+              <button class="aem-edit-btn" tabindex="-1">Open XF</button>
+            </div>
+          </div>
+          <div class="aem-body">
+            <div class="aem-promo-inner">
+              <div>
+                <div class="aem-promo-eyebrow">Limited Time &middot; Q3 Offer</div>
+                <div class="aem-promo-title">Get 3 months free on any Enterprise plan</div>
+              </div>
+              <span class="aem-promo-cta">Claim offer</span>
+            </div>
+          </div>
+          <span class="handle h-nw" aria-hidden="true"></span>
+          <span class="handle h-ne" aria-hidden="true"></span>
+          <span class="handle h-se" aria-hidden="true"></span>
+          <span class="handle h-sw" aria-hidden="true"></span>
+        </div>
+
+        <!-- 5 · Footer XF -->
+        <div class="aem-section aem-section--xf" id="before-footer">
+          <div class="aem-chrome aem-chrome--xf">
+            <span class="aem-chrome-icon" aria-hidden="true">&#11041;</span>
+            <span class="aem-chrome-label">&lt;Experience Fragment&gt;</span>
+            <span class="aem-chrome-path">/content/experience-fragments/site/en/footer/master</span>
+            <span class="aem-chrome-count">23 components</span>
+            <div class="aem-chrome-actions">
+              <button class="aem-edit-btn" tabindex="-1">Edit</button>
+              <button class="aem-edit-btn" tabindex="-1">Open XF</button>
+            </div>
+          </div>
+          <div class="aem-footer-inner">
+            <div class="aem-footer-cols">
+              <div>
+                <div class="aem-footer-heading">Product</div>
+                <div class="aem-footer-links">Features<br>Pricing<br>Security<br>Roadmap</div>
+              </div>
+              <div>
+                <div class="aem-footer-heading">Company</div>
+                <div class="aem-footer-links">About<br>Blog<br>Careers<br>Press</div>
+              </div>
+              <div>
+                <div class="aem-footer-heading">Support</div>
+                <div class="aem-footer-links">Docs<br>Status<br>Community<br>Contact</div>
+              </div>
+            </div>
+          </div>
+          <span class="handle h-nw" aria-hidden="true"></span>
+          <span class="handle h-ne" aria-hidden="true"></span>
+          <span class="handle h-se" aria-hidden="true"></span>
+          <span class="handle h-sw" aria-hidden="true"></span>
+        </div>
+
+      </div><!-- /panel-before -->
+
+      <!-- ═══════════════════════════════════════════════════════════
+           RIGHT PANEL: EDS After
+      ════════════════════════════════════════════════════════════════ -->
+      <div class="panel-after" id="panelAfter" aria-label="EDS equivalent page">
+
+        <!-- Progress bar (absolute, z-index 12) -->
+        <div class="migration-progress" id="migrationProgress" aria-hidden="true">
+          <div class="migration-progress-bar" id="migrationProgressBar"></div>
+        </div>
+
+        <!-- 1 · nav block -->
+        <div class="eds-section" id="after-nav">
+          <div class="eds-block-hdr">
+            <span class="eds-block-name">nav block</span>
+            <span class="eds-block-path">blocks/nav/nav.js</span>
+            <span class="eds-badge badge-green">1 JS file &middot; 1 CSS file</span>
+          </div>
+          <div class="eds-nav-wrap">
+            <nav class="eds-nav-bar">
+              <div class="eds-nav-logo">&#9670; SiteCore</div>
+              <div class="eds-nav-links">
+                <a>Products</a><a>Solutions</a>
+                <a>Pricing</a><a>Resources</a>
+              </div>
+              <a class="eds-nav-cta">Get started</a>
+            </nav>
+          </div>
+        </div>
+
+        <!-- 2 · hero block (CF-backed, UE instrumented) -->
+        <div class="eds-section" id="after-hero">
+          <div class="eds-block-hdr">
+            <span class="eds-block-name">hero block</span>
+            <span class="eds-block-path">blocks/hero/hero.js</span>
+            <span class="eds-badge badge-blue">CF-backed &middot; UE editable</span>
+          </div>
+          <div class="eds-hero-wrap">
+            <div class="eds-aue-block" aria-label="UE instrumentation">
+              <code>data-aue-resource="urn:aemconnection:/content/dam/site/fragments/hero"</code>
+              <code>data-aue-type="component" data-aue-label="Hero"</code>
+            </div>
+            <div class="eds-hero-inner"
+                 data-aue-resource="urn:aemconnection:/content/dam/site/fragments/hero"
+                 data-aue-type="component"
+                 data-aue-label="Hero">
+              <div class="eds-hero-text">
+                <div class="eds-prop-row">
+                  <span class="eds-prop-chip" title="data-aue-prop">eyebrow</span>
+                  <span class="eds-eyebrow" data-aue-prop="eyebrow" data-aue-type="text">
+                    Transform your digital experience
+                  </span>
+                </div>
+                <div class="eds-prop-row">
+                  <span class="eds-prop-chip" title="data-aue-prop">title</span>
+                  <h2 class="eds-h1" data-aue-prop="title" data-aue-type="text">
+                    Build faster with AEM Edge Delivery
+                  </h2>
+                </div>
+                <div class="eds-prop-row">
+                  <span class="eds-prop-chip" title="data-aue-prop">description</span>
+                  <p class="eds-desc" data-aue-prop="description" data-aue-type="text">
+                    Achieve perfect Lighthouse scores while keeping the authoring experience your team knows.
+                  </p>
+                </div>
+                <div class="eds-hero-ctas">
+                  <a class="eds-cta-primary">Start free trial</a>
+                  <a class="eds-cta-secondary">Watch demo</a>
+                </div>
+              </div>
+              <div class="eds-hero-img" aria-hidden="true">
+                <svg viewBox="0 0 120 80" fill="none">
+                  <rect width="120" height="80" rx="8" fill="#161b22"/>
+                  <path d="M12 68L34 36L52 52L76 20L108 68H12Z" fill="#1e2d50"/>
+                  <circle cx="30" cy="26" r="9" fill="#1e2d50"/>
+                  <rect x="88" y="24" width="24" height="16" rx="4" fill="#1e2d50"/>
+                </svg>
+              </div>
+            </div>
+            <div class="eds-gql-hint" aria-label="GraphQL query hint">
+              <code>
+                <span class="gql-kw">query</span> heroByPath(<span class="gql-str">"/content/dam/site/fragments/hero"</span>) {<br>
+                &nbsp;&nbsp;<span class="gql-field">eyebrow</span> &nbsp;<span class="gql-field">title</span> &nbsp;<span class="gql-field">description</span><br>
+                }
+              </code>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 · cards block -->
+        <div class="eds-section" id="after-cards">
+          <div class="eds-block-hdr">
+            <span class="eds-block-name">cards block</span>
+            <span class="eds-block-path">blocks/cards/cards.js</span>
+            <span class="eds-badge badge-amber">Authored in Word / DA &middot; no backend</span>
+          </div>
+          <div class="eds-cards-grid">
+            <div class="eds-card">
+              <div class="eds-card-icon" aria-hidden="true">&#9889;</div>
+              <div class="eds-card-title">Lightning Fast</div>
+              <div class="eds-card-desc">100 Lighthouse score out of the box with EDS CDN caching.</div>
+            </div>
+            <div class="eds-card">
+              <div class="eds-card-icon" aria-hidden="true">&#9998;</div>
+              <div class="eds-card-title">Author in Word</div>
+              <div class="eds-card-desc">Editors use familiar Word and SharePoint to manage content.</div>
+            </div>
+            <div class="eds-card">
+              <div class="eds-card-icon" aria-hidden="true">&#8635;</div>
+              <div class="eds-card-title">Live Preview</div>
+              <div class="eds-card-desc">Real-time Universal Editor editing — no publish workflow.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 · banner block -->
+        <div class="eds-section" id="after-banner">
+          <div class="eds-block-hdr">
+            <span class="eds-block-name">banner block</span>
+            <span class="eds-block-path">blocks/banner/banner.js</span>
+            <span class="eds-badge badge-green">40 fewer components</span>
+          </div>
+          <div class="eds-banner-wrap">
+            <div class="eds-banner-inner">
+              <div>
+                <div class="eds-banner-eyebrow">Limited Time &middot; Q3 Offer</div>
+                <div class="eds-banner-title">Get 3 months free on any Enterprise plan</div>
+              </div>
+              <a class="eds-cta-primary">Claim offer</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 · footer block -->
+        <div class="eds-section" id="after-footer">
+          <div class="eds-block-hdr">
+            <span class="eds-block-name">footer block</span>
+            <span class="eds-block-path">blocks/footer/footer.js</span>
+            <span class="eds-badge badge-purple">Edge cached &middot; no AEM render</span>
+          </div>
+          <div class="eds-footer-inner">
+            <div class="eds-footer-cols">
+              <div>
+                <div class="eds-footer-heading">Product</div>
+                <div class="eds-footer-links">Features<br>Pricing<br>Security<br>Roadmap</div>
+              </div>
+              <div>
+                <div class="eds-footer-heading">Company</div>
+                <div class="eds-footer-links">About<br>Blog<br>Careers<br>Press</div>
+              </div>
+              <div>
+                <div class="eds-footer-heading">Support</div>
+                <div class="eds-footer-links">Docs<br>Status<br>Community<br>Contact</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locked overlay -->
+        <div class="panel-locked" id="panelLocked">
+          <div class="locked-inner">
+            <div class="locked-glyph" aria-hidden="true">&#128274;</div>
+            <p class="locked-label">EDS equivalent not yet revealed</p>
+            <button class="btn-modernize" id="btnModernize" onclick="startMigration()">
+              Modernize &rarr;
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /panel-after -->
+    </div><!-- /panels-row -->
+
+    <!-- Migration footer (success + reset) -->
+    <div class="migration-footer" id="migrationFooter" aria-live="polite" aria-atomic="true">
+      <div class="migration-success" id="migrationSuccess">
+        <span class="success-check" aria-hidden="true">&#10003;</span>
+        Migration complete &middot; 5 blocks &middot; 2 CFs &middot; 1 DA page
+      </div>
+      <button class="btn-reset" onclick="resetMigration()">&#8635; Reset demo</button>
+    </div>
+
+  </div><!-- /arena-inner -->
+</section>
+
+<!-- ── Key Differences ───────────────────────────────────────────── -->
+<section class="key-diffs" aria-labelledby="diffs-heading">
+  <div class="key-diffs-inner">
+    <h2 class="section-title" id="diffs-heading">Key differences explained</h2>
+    <p class="section-sub">Three patterns cover 95% of AEM-to-EDS migrations. Each can be done independently.</p>
+    <div class="diffs-grid">
+
+      <!-- Col 1: XF → Block -->
+      <div class="diff-card">
+        <div class="diff-card-hdr">
+          <div class="diff-icon diff-icon--xf" aria-hidden="true">&#11041;</div>
+          <h3>Experience Fragments &rarr; Blocks</h3>
+        </div>
+        <div class="diff-compare">
+          <div class="diff-before">
+            <div class="diff-col-label">XF (before)</div>
+            <ul>
+              <li>Stored in <code>/content/experience-fragments/</code></li>
+              <li>Server-rendered by AEM Sling/HTL</li>
+              <li>Tightly coupled to component hierarchy</li>
+              <li>47+ component tree for a simple nav</li>
+              <li>Requires full AEM publish stack</li>
+            </ul>
+          </div>
+          <div class="diff-after">
+            <div class="diff-col-label">Block (after)</div>
+            <ul>
+              <li>HTML table in Word or DA document</li>
+              <li>Decorated by JS in the browser</li>
+              <li>One JS + one CSS file per block</li>
+              <li>Zero AEM render dependency</li>
+              <li>Cached at edge &mdash; sub-100ms TTFB</li>
+            </ul>
+          </div>
+        </div>
+        <div class="diff-step">
+          <span class="step-lbl">Migration path</span>
+          Export XF HTML &rarr; paste into Word &rarr; create block table &rarr; commit block JS/CSS
+        </div>
+      </div>
+
+      <!-- Col 2: CF headless -->
+      <div class="diff-card">
+        <div class="diff-card-hdr">
+          <div class="diff-icon diff-icon--cf" aria-hidden="true">&#10808;</div>
+          <h3>Content Fragments stay (but get simpler)</h3>
+        </div>
+        <div class="diff-compare">
+          <div class="diff-before">
+            <div class="diff-col-label">CF via page (before)</div>
+            <ul>
+              <li>CF referenced inside AEM page tree</li>
+              <li>Resolved at Sling render time</li>
+              <li>HTL templates embed CF data inline</li>
+              <li>No direct API access from browser</li>
+              <li>UE edits require AEM page context</li>
+            </ul>
+          </div>
+          <div class="diff-after">
+            <div class="diff-col-label">CF via GraphQL (after)</div>
+            <ul>
+              <li>Same CF, same data model &mdash; no migration</li>
+              <li>Block fetches via <code>/api/graphql</code></li>
+              <li>CF becomes truly headless</li>
+              <li>UE edits via <code>data-aue-*</code> attributes</li>
+              <li>Works in any framework or none</li>
+            </ul>
+          </div>
+        </div>
+        <div class="diff-step">
+          <span class="step-lbl">Migration path</span>
+          Keep CF as-is &rarr; switch block to <code>fetch(/graphql)</code> &rarr; add <code>data-aue-*</code> attributes
+        </div>
+      </div>
+
+      <!-- Col 3: Structured Content (DA) -->
+      <div class="diff-card">
+        <div class="diff-card-hdr">
+          <div class="diff-icon diff-icon--da" aria-hidden="true">&#9679;</div>
+          <h3>Structured Content (new)</h3>
+        </div>
+        <div class="diff-compare">
+          <div class="diff-before">
+            <div class="diff-col-label">XF promos (before)</div>
+            <ul>
+              <li>Promo banner stored as XF in AEM</li>
+              <li>15 components for a 2-field banner</li>
+              <li>Marketers need AEM author access</li>
+              <li>Full publish workflow for every edit</li>
+              <li>AEM infrastructure required at delivery</li>
+            </ul>
+          </div>
+          <div class="diff-after">
+            <div class="diff-col-label">DA Structured Content (after)</div>
+            <ul>
+              <li>Schema-driven form in Document Authoring</li>
+              <li>JSON delivered via Worker API</li>
+              <li>Marketers edit in browser &mdash; no AEM login</li>
+              <li>Live in seconds, no publish step</li>
+              <li>Zero AEM dependency for delivery</li>
+            </ul>
+          </div>
+        </div>
+        <div class="diff-step">
+          <span class="step-lbl">Migration path</span>
+          Define DA schema &rarr; create Worker &rarr; replace XF reference with <code>fetch(worker/promo)</code>
+        </div>
+      </div>
+
+    </div><!-- /diffs-grid -->
+  </div>
+</section>
+
+<!-- ── Footer Callout ────────────────────────────────────────────── -->
+<section class="footer-callout" aria-labelledby="callout-heading">
+  <div class="footer-callout-inner">
+    <div class="callout-icon" aria-hidden="true">&#8635;</div>
+    <p class="callout-quote" id="callout-heading">
+      This migration can be done incrementally &mdash; one component at a time, one page at a time. You don&rsquo;t need to migrate everything at once.
+    </p>
+    <p class="callout-body">
+      Start with your footer XF (fewest dependencies), then tackle individual teasers and promo banners. Each block you migrate independently reduces AEM infrastructure load and improves real-user page performance &mdash; you see measurable gains from the very first block.
+    </p>
+  </div>
+</section>
+
+<!-- ── Page Footer ───────────────────────────────────────────────── -->
+<footer class="page-footer">
+  <div class="page-footer-inner">
+    <span class="footer-disclaimer">Demo page &mdash; content is illustrative. Not for production use. AEM instance: author-p138879-e1741192.</span>
+    <nav class="footer-nav" aria-label="Sibling demo pages">
+      <a href="index.html">Index</a>
+      <a href="bigdemo.html">Platform Demo</a>
+      <a href="newoffers.html">Offers Demo</a>
+      <a href="cf-spa.html">CF + SPA</a>
+      <a href="ue-setup.html">UE Setup</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    'use strict';
+
+    var migrating = false;
+    var migrated  = false;
+
+    window.startMigration = function () {
+      if (migrating || migrated) return;
+      migrating = true;
+
+      var locked      = document.getElementById('panelLocked');
+      var progress    = document.getElementById('migrationProgress');
+      var bar         = document.getElementById('migrationProgressBar');
+      var sections    = document.querySelectorAll('.eds-section');
+      var beforeSecs  = document.querySelectorAll('.aem-section');
+      var footer      = document.getElementById('migrationFooter');
+
+      // 1. Fade locked overlay out
+      locked.classList.add('unlocking');
+
+      // 2. Show and fill progress bar
+      progress.classList.add('active');
+      // Double rAF ensures the transition fires after the display/opacity change
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          bar.style.width = '100%';
+        });
+      });
+
+      // 3. Stagger EDS sections in (start after overlay begins fading)
+      sections.forEach(function (sec, i) {
+        setTimeout(function () {
+          sec.classList.add('visible');
+        }, 350 + i * 160);
+      });
+
+      // 4. After last section is visible: show success footer, dim before panel
+      var finalDelay = 350 + (sections.length - 1) * 160 + 450;
+      setTimeout(function () {
+        beforeSecs.forEach(function (sec) { sec.classList.add('dimmed'); });
+        footer.classList.add('visible');
+        migrating = false;
+        migrated  = true;
+      }, finalDelay);
+    };
+
+    window.resetMigration = function () {
+      if (migrating) return;
+
+      var locked     = document.getElementById('panelLocked');
+      var progress   = document.getElementById('migrationProgress');
+      var bar        = document.getElementById('migrationProgressBar');
+      var sections   = document.querySelectorAll('.eds-section');
+      var beforeSecs = document.querySelectorAll('.aem-section');
+      var footer     = document.getElementById('migrationFooter');
+
+      migrated = false;
+
+      // Hide EDS sections and success footer
+      sections.forEach(function (sec) { sec.classList.remove('visible'); });
+      beforeSecs.forEach(function (sec) { sec.classList.remove('dimmed'); });
+      footer.classList.remove('visible');
+
+      // Reset progress bar (opacity 0 → safe to snap width back)
+      progress.classList.remove('active');
+      // Disable transition temporarily so width resets instantly
+      bar.style.transition = 'none';
+      bar.style.width = '0%';
+      // Re-enable transition after next paint
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          bar.style.transition = '';
+        });
+      });
+
+      // Fade locked overlay back in
+      locked.classList.remove('unlocking');
+    };
+  }());
+</script>
+</body>
+</html>
