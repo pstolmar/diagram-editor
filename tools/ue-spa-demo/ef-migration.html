@@ -352,6 +352,7 @@
 
     /* EDS sections — hidden until migrated */
     .eds-section {
+      position: relative;
       opacity: 0; transform: translateY(22px);
       transition: opacity .4s ease, transform .4s ease;
       border-bottom: 1px solid var(--eds-border);
@@ -683,6 +684,80 @@
     }
     .footer-nav a:hover { color: var(--fg); }
 
+    /* ── Left panel: Offer Banner XF new elements ── */
+    .aem-live-copies { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:4px 10px 6px; background:rgba(33,150,243,.08); font-size:.7rem; }
+    .aem-lc-icon { color:#2196F3; }
+    .aem-lc-label { color:#64748b; font-weight:600; }
+    .aem-lc-badge { background:#1565C0; color:#fff; border-radius:3px; padding:1px 6px; font-size:.65rem; font-weight:700; }
+    .aem-lc-note { color:#94a3b8; font-size:.65rem; }
+    .aem-offer-layout { padding:0 8px 8px; display:flex; flex-direction:column; gap:4px; }
+    .aem-comp-inline--custom { border:1.5px solid rgba(255,152,0,.4); }
+    .aem-comp-chrome--custom { background:rgba(255,152,0,.12); }
+    .aem-custom-badge { background:#FF6F00; color:#fff; border-radius:3px; padding:1px 5px; font-size:.6rem; font-weight:700; text-transform:uppercase; margin-right:4px; }
+    .aem-price-ticker { padding:8px 10px; background:rgba(255,152,0,.06); }
+    .aem-ticker-label { font-size:.65rem; color:#94a3b8; margin-bottom:4px; }
+    .aem-ticker-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+    .aem-ticker-value { font-size:1.1rem; font-weight:700; font-variant-numeric:tabular-nums; }
+    .aem-ticker-stale { color:#FF9800; }
+    .aem-ticker-stale-badge { display:flex; align-items:center; gap:3px; font-size:.65rem; color:#FF6F00; background:rgba(255,111,0,.1); border-radius:3px; padding:2px 6px; }
+    .aem-ticker-meta { font-size:.6rem; color:#64748b; font-family:monospace; line-height:1.6; }
+    .aem-img-placeholder--offer { background:#1a2744; }
+
+    /* ── Right panel: Offer Banner block new elements ── */
+    .eds-offer-wrap { display:flex; flex-direction:column; gap:10px; padding:12px; }
+    .eds-offer-card { background:#0d1b2e; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,.08); }
+    .eds-offer-media svg { width:100%; display:block; }
+    .eds-offer-body { padding:12px 14px; }
+    .eds-offer-eyebrow { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#64b5f6; }
+    .eds-offer-title { font-size:1rem; font-weight:700; color:#e2e8f0; margin:4px 0 8px; }
+    .eds-live-price { background:rgba(100,181,246,.08); border:1px solid rgba(100,181,246,.2); border-radius:6px; padding:8px 10px; margin-bottom:8px; }
+    .eds-price-label { font-size:.65rem; color:#94a3b8; margin-bottom:3px; }
+    .eds-price-row { display:flex; align-items:center; gap:8px; }
+    .eds-price-value { font-size:1.1rem; font-weight:700; font-variant-numeric:tabular-nums; color:#4ade80; }
+    .eds-price-live-badge { font-size:.65rem; color:#4ade80; display:flex; align-items:center; gap:3px; }
+    .eds-price-worker { font-size:.6rem; color:#64748b; margin-top:3px; }
+    .eds-offer-ctas { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .eds-worker-callout { background:#0f1f38; border:1px solid rgba(56,189,248,.2); border-radius:6px; padding:10px 12px; }
+    .eds-worker-title { font-size:.7rem; font-weight:700; color:#38bdf8; margin-bottom:6px; }
+    .eds-worker-flow { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+    .eds-worker-node { background:#1e3a5f; color:#94a3b8; border-radius:4px; padding:2px 8px; font-size:.7rem; font-weight:600; }
+    .eds-worker-node--highlight { background:#1565C0; color:#fff; }
+    .eds-worker-arrow { color:#475569; font-size:.8rem; }
+    .eds-worker-code { background:#030712; border-radius:4px; padding:5px 8px; font-size:.65rem; font-family:monospace; color:#86efac; margin-bottom:6px; overflow-x:auto; }
+    .eds-worker-note { font-size:.68rem; color:#64748b; line-height:1.5; }
+    .eds-lc-section { background:#0a1628; border-radius:6px; padding:10px 12px; }
+    .eds-lc-title { font-size:.7rem; font-weight:700; color:#94a3b8; margin-bottom:6px; }
+    .eds-lc-grid { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+    .eds-lc-item { background:#1e2d50; color:#64b5f6; border-radius:3px; padding:2px 8px; font-size:.68rem; font-weight:600; }
+    .eds-lc-item--master { background:#1565C0; color:#fff; }
+    .eds-lc-note { font-size:.65rem; color:#475569; line-height:1.5; }
+
+    /* ── Section flash + reveal overlay animation ── */
+    @keyframes section-flash {
+      0%   { box-shadow: 0 0 0 0 rgba(251,191,36,0); background-color: inherit; }
+      25%  { box-shadow: 0 0 0 4px rgba(251,191,36,.8); background-color: rgba(251,191,36,.08); }
+      50%  { box-shadow: 0 0 0 0 rgba(251,191,36,0); background-color: inherit; }
+      75%  { box-shadow: 0 0 0 4px rgba(251,191,36,.8); background-color: rgba(251,191,36,.08); }
+      100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); background-color: inherit; }
+    }
+    .section-flashing { animation: section-flash 1s ease-in-out; }
+
+    .eds-reveal-overlay {
+      position: absolute; inset: 0; z-index: 8;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(10,14,26,.85);
+      border-radius: inherit;
+      opacity: 1; transition: opacity .5s ease;
+      pointer-events: none;
+    }
+    .eds-reveal-overlay.fadeout { opacity: 0; }
+    .eds-reveal-chip {
+      background: #1473e6; color: #fff;
+      border-radius: 6px; padding: 10px 18px;
+      font-size: .8rem; font-weight: 700;
+      text-align: center; line-height: 1.4;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 960px) {
       .panels-row { grid-template-columns: 1fr; }
@@ -787,13 +862,13 @@
           <div class="aem-body">
             <div class="aem-nav-bar">
               <div class="aem-nav-logo">
-                <span class="logo-mark">&#9670;</span> SiteCore
+                <span class="logo-mark">&#9670;</span> WKND
               </div>
               <div class="aem-nav-links">
-                <span>Products</span><span>Solutions</span>
-                <span>Pricing</span><span>Resources</span>
+                <span>Gear</span><span>Adventures</span>
+                <span>Stories</span><span>Shop</span>
               </div>
-              <span class="aem-nav-cta">Get started</span>
+              <span class="aem-nav-cta">Shop now</span>
             </div>
           </div>
           <span class="handle h-nw" aria-hidden="true"></span>
@@ -825,15 +900,15 @@
               <div class="aem-cf-fields">
                 <div class="aem-cf-row">
                   <span class="aem-cf-key">eyebrow</span>
-                  <span class="aem-cf-val">Transform your digital experience</span>
+                  <span class="aem-cf-val">New Season &middot; 2026</span>
                 </div>
                 <div class="aem-cf-row">
                   <span class="aem-cf-key">title</span>
-                  <span class="aem-cf-val">Build faster with AEM Edge Delivery</span>
+                  <span class="aem-cf-val">Adventure Starts Here</span>
                 </div>
                 <div class="aem-cf-row">
                   <span class="aem-cf-key">description</span>
-                  <span class="aem-cf-val">Achieve perfect Lighthouse scores while keeping the AEM authoring experience your team already knows.</span>
+                  <span class="aem-cf-val">Discover WKND's 2026 outdoor collection &mdash; built for trails, peaks, and everything in between. Gear tested by athletes, loved by adventurers.</span>
                 </div>
               </div>
             </div>
@@ -908,25 +983,102 @@
           </div>
         </div>
 
-        <!-- 4 · Promo Banner XF -->
+        <!-- 4 · Offer Banner XF (with Live Copies + Custom Component) -->
         <div class="aem-section aem-section--xf" id="before-promo">
           <div class="aem-chrome aem-chrome--xf">
             <span class="aem-chrome-icon" aria-hidden="true">&#11041;</span>
             <span class="aem-chrome-label">&lt;Experience Fragment&gt;</span>
-            <span class="aem-chrome-path">/content/experience-fragments/site/en/promo-q3/master</span>
-            <span class="aem-chrome-count">15 components</span>
+            <span class="aem-chrome-path">/content/experience-fragments/wknd/en/offer-banner/master</span>
+            <span class="aem-chrome-count">24 components</span>
             <div class="aem-chrome-actions">
               <button class="aem-edit-btn" tabindex="-1">Edit</button>
               <button class="aem-edit-btn" tabindex="-1">Open XF</button>
             </div>
           </div>
+          <!-- Live copy badge -->
+          <div class="aem-live-copies">
+            <span class="aem-lc-icon">&#128279;</span>
+            <span class="aem-lc-label">Live copies:</span>
+            <span class="aem-lc-badge">en-GB</span>
+            <span class="aem-lc-badge">de</span>
+            <span class="aem-lc-badge">fr</span>
+            <span class="aem-lc-note">Inherit from master &middot; manual sync required</span>
+          </div>
           <div class="aem-body">
-            <div class="aem-promo-inner">
-              <div>
-                <div class="aem-promo-eyebrow">Limited Time &middot; Q3 Offer</div>
-                <div class="aem-promo-title">Get 3 months free on any Enterprise plan</div>
+            <!-- Layout Container -->
+            <div class="aem-comp-inline">
+              <div class="aem-comp-chrome">
+                <span>&lt;Layout Container&gt;</span>
+                <span class="aem-comp-chrome-path">parsys/layout-container</span>
               </div>
-              <span class="aem-promo-cta">Claim offer</span>
+              <div class="aem-offer-layout">
+                <!-- Image component -->
+                <div class="aem-comp-inline" style="margin-bottom:8px">
+                  <div class="aem-comp-chrome" style="font-size:.65rem">
+                    <span>&lt;Image&gt;</span>
+                    <span class="aem-comp-chrome-path">dam/wknd/products/gear-2026.jpg</span>
+                  </div>
+                  <div class="aem-img-placeholder aem-img-placeholder--offer" aria-hidden="true">
+                    <svg viewBox="0 0 240 60" fill="none">
+                      <rect width="240" height="60" fill="#1a2744"/>
+                      <path d="M20 50L60 18L95 35L130 10L170 35L200 18L230 50H20Z" fill="#243458"/>
+                      <circle cx="55" cy="14" r="7" fill="#243458"/>
+                      <text x="120" y="36" fill="#3d5a8a" text-anchor="middle" font-size="9" font-family="monospace">gear-2026.jpg</text>
+                    </svg>
+                  </div>
+                </div>
+                <!-- CF for offer copy -->
+                <div class="aem-section aem-section--cf" style="margin-bottom:8px">
+                  <div class="aem-chrome aem-chrome--cf">
+                    <span class="aem-chrome-icon" aria-hidden="true">&#10808;</span>
+                    <span class="aem-chrome-label">&lt;Content Fragment&gt;</span>
+                    <span class="aem-chrome-path">/content/dam/wknd/offers/summer-gear-2026</span>
+                  </div>
+                  <div class="aem-cf-fields">
+                    <div class="aem-cf-row">
+                      <span class="aem-cf-key">eyebrow</span>
+                      <span class="aem-cf-val">Summer Clearance &middot; Up to 40% off</span>
+                    </div>
+                    <div class="aem-cf-row">
+                      <span class="aem-cf-key">title</span>
+                      <span class="aem-cf-val">Gear Up for Your Next Adventure</span>
+                    </div>
+                    <div class="aem-cf-row">
+                      <span class="aem-cf-key">expiry</span>
+                      <span class="aem-cf-val">2026-08-31</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Custom Java component: PriceTicker -->
+                <div class="aem-comp-inline aem-comp-inline--custom" style="margin-bottom:8px">
+                  <div class="aem-comp-chrome aem-comp-chrome--custom">
+                    <span class="aem-custom-badge">Custom</span>
+                    <span>&lt;PriceTickerComponent&gt;</span>
+                    <span class="aem-comp-chrome-path">/apps/wknd/components/price-ticker</span>
+                  </div>
+                  <div class="aem-price-ticker">
+                    <div class="aem-ticker-label">Gold Spot Price (USD/oz)</div>
+                    <div class="aem-ticker-row">
+                      <div class="aem-ticker-value aem-ticker-stale">$3,218.40</div>
+                      <div class="aem-ticker-stale-badge">
+                        <span>&#9888;</span> Cached at publish &middot; stale
+                      </div>
+                    </div>
+                    <div class="aem-ticker-meta">
+                      Java: com.wknd.core.models.PriceTickerModel<br>
+                      OSGi: WkndPricingService &rarr; api.wknd.com/v2/spot
+                    </div>
+                  </div>
+                </div>
+                <!-- CTA -->
+                <div class="aem-comp-inline">
+                  <div class="aem-comp-chrome" style="font-size:.65rem"><span>&lt;CTA&gt;</span></div>
+                  <div class="aem-cta-row">
+                    <span class="aem-btn-primary">Shop the sale</span>
+                    <span class="aem-btn-secondary">View all offers</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <span class="handle h-nw" aria-hidden="true"></span>
@@ -990,12 +1142,12 @@
           </div>
           <div class="eds-nav-wrap">
             <nav class="eds-nav-bar">
-              <div class="eds-nav-logo">&#9670; SiteCore</div>
+              <div class="eds-nav-logo">&#9670; WKND</div>
               <div class="eds-nav-links">
-                <a>Products</a><a>Solutions</a>
-                <a>Pricing</a><a>Resources</a>
+                <a>Gear</a><a>Adventures</a>
+                <a>Stories</a><a>Shop</a>
               </div>
-              <a class="eds-nav-cta">Get started</a>
+              <a class="eds-nav-cta">Shop now</a>
             </nav>
           </div>
         </div>
@@ -1020,24 +1172,24 @@
                 <div class="eds-prop-row">
                   <span class="eds-prop-chip" title="data-aue-prop">eyebrow</span>
                   <span class="eds-eyebrow" data-aue-prop="eyebrow" data-aue-type="text">
-                    Transform your digital experience
+                    New Season &middot; 2026
                   </span>
                 </div>
                 <div class="eds-prop-row">
                   <span class="eds-prop-chip" title="data-aue-prop">title</span>
                   <h2 class="eds-h1" data-aue-prop="title" data-aue-type="text">
-                    Build faster with AEM Edge Delivery
+                    Adventure Starts Here
                   </h2>
                 </div>
                 <div class="eds-prop-row">
                   <span class="eds-prop-chip" title="data-aue-prop">description</span>
                   <p class="eds-desc" data-aue-prop="description" data-aue-type="text">
-                    Achieve perfect Lighthouse scores while keeping the authoring experience your team knows.
+                    Discover WKND's 2026 outdoor collection &mdash; built for trails, peaks, and everything in between.
                   </p>
                 </div>
                 <div class="eds-hero-ctas">
-                  <a class="eds-cta-primary">Start free trial</a>
-                  <a class="eds-cta-secondary">Watch demo</a>
+                  <a class="eds-cta-primary">Explore gear</a>
+                  <a class="eds-cta-secondary">Plan a trip</a>
                 </div>
               </div>
               <div class="eds-hero-img" aria-hidden="true">
@@ -1085,20 +1237,75 @@
           </div>
         </div>
 
-        <!-- 4 · banner block -->
+        <!-- 4 · offer-banner block (CF + Worker-backed live price) -->
         <div class="eds-section" id="after-banner">
           <div class="eds-block-hdr">
-            <span class="eds-block-name">banner block</span>
-            <span class="eds-block-path">blocks/banner/banner.js</span>
-            <span class="eds-badge badge-green">40 fewer components</span>
+            <span class="eds-block-name">offer-banner block</span>
+            <span class="eds-block-path">blocks/offer-banner/offer-banner.js</span>
+            <span class="eds-badge badge-blue">Live price via Worker &middot; CF-backed &middot; UE editable</span>
           </div>
-          <div class="eds-banner-wrap">
-            <div class="eds-banner-inner">
-              <div>
-                <div class="eds-banner-eyebrow">Limited Time &middot; Q3 Offer</div>
-                <div class="eds-banner-title">Get 3 months free on any Enterprise plan</div>
+          <div class="eds-offer-wrap">
+            <!-- Offer card -->
+            <div class="eds-offer-card"
+                 data-aue-resource="urn:aem:/content/dam/wknd/offers/summer-gear-2026/jcr:content/data/master"
+                 data-aue-type="component"
+                 data-aue-label="Offer Banner">
+              <div class="eds-offer-media" aria-hidden="true">
+                <svg viewBox="0 0 200 80" fill="none">
+                  <rect width="200" height="80" rx="6" fill="#0d1b2e"/>
+                  <path d="M10 70L40 32L70 50L100 18L140 50L170 28L195 70H10Z" fill="#1a2f4e"/>
+                  <circle cx="38" cy="24" r="8" fill="#1a2f4e"/>
+                </svg>
               </div>
-              <a class="eds-cta-primary">Claim offer</a>
+              <div class="eds-offer-body">
+                <div class="eds-prop-row">
+                  <span class="eds-prop-chip">eyebrow</span>
+                  <span class="eds-offer-eyebrow" data-aue-prop="eyebrow" data-aue-type="text">Summer Clearance &middot; Up to 40% off</span>
+                </div>
+                <div class="eds-prop-row">
+                  <span class="eds-prop-chip">title</span>
+                  <div class="eds-offer-title" data-aue-prop="title" data-aue-type="text">Gear Up for Your Next Adventure</div>
+                </div>
+                <!-- Live price widget -->
+                <div class="eds-live-price" id="edsPriceWidget">
+                  <div class="eds-price-label">Gold Spot (USD/oz)</div>
+                  <div class="eds-price-row">
+                    <span class="eds-price-value" id="edsPriceValue">$3,218.40</span>
+                    <span class="eds-price-live-badge">&#9679; Live</span>
+                  </div>
+                  <div class="eds-price-worker">via <code>wknd-pricing.workers.dev</code> &middot; 30s TTL</div>
+                </div>
+                <div class="eds-offer-ctas">
+                  <a class="eds-cta-primary" data-aue-prop="ctaLabel" data-aue-type="text">Shop the sale</a>
+                  <a class="eds-cta-secondary">View all offers</a>
+                </div>
+              </div>
+            </div>
+            <!-- Worker architecture callout -->
+            <div class="eds-worker-callout">
+              <div class="eds-worker-title">&#9889; Worker Pattern (real architecture)</div>
+              <div class="eds-worker-flow">
+                <span class="eds-worker-node">Block JS</span>
+                <span class="eds-worker-arrow">&rarr;</span>
+                <span class="eds-worker-node eds-worker-node--highlight">Cloudflare Worker</span>
+                <span class="eds-worker-arrow">&rarr;</span>
+                <span class="eds-worker-node">Pricing API</span>
+              </div>
+              <div class="eds-worker-code">
+                <code>fetch('https://wknd-pricing.workers.dev/spot?commodity=GOLD')</code>
+              </div>
+              <div class="eds-worker-note">Same API as the Java OSGi service. Zero AEM in the delivery path. Price updates in the browser every 30s &mdash; no page publish required.</div>
+            </div>
+            <!-- Live copies → locale variants -->
+            <div class="eds-lc-section">
+              <div class="eds-lc-title">Live Copies &rarr; DA Locale Variants</div>
+              <div class="eds-lc-grid">
+                <div class="eds-lc-item eds-lc-item--master">en (master)</div>
+                <div class="eds-lc-item">en-GB</div>
+                <div class="eds-lc-item">de</div>
+                <div class="eds-lc-item">fr</div>
+              </div>
+              <div class="eds-lc-note">In DA, locale variants are separate documents in locale-named folders. No &ldquo;live copy sync&rdquo; needed &mdash; the content schema is the same, translators work in the DA UI.</div>
             </div>
           </div>
         </div>
@@ -1254,12 +1461,13 @@
               <li>Marketers edit in browser &mdash; no AEM login</li>
               <li>Live in seconds, no publish step</li>
               <li>Zero AEM dependency for delivery</li>
+              <li>Custom components with backends &rarr; Cloudflare Worker + block <code>fetch()</code></li>
             </ul>
           </div>
         </div>
         <div class="diff-step">
           <span class="step-lbl">Migration path</span>
-          Define DA schema &rarr; create Worker &rarr; replace XF reference with <code>fetch(worker/promo)</code>
+          Define DA schema &rarr; create Worker for backend data &rarr; replace XF reference with block
         </div>
       </div>
 
@@ -1285,11 +1493,10 @@
   <div class="page-footer-inner">
     <span class="footer-disclaimer">Demo page &mdash; content is illustrative. Not for production use. AEM instance: author-p138879-e1741192.</span>
     <nav class="footer-nav" aria-label="Sibling demo pages">
-      <a href="index.html">Index</a>
-      <a href="bigdemo.html">Platform Demo</a>
-      <a href="newoffers.html">Offers Demo</a>
-      <a href="cf-spa.html">CF + SPA</a>
-      <a href="ue-setup.html">UE Setup</a>
+      <a href="angular-index.html">Angular Demos</a>
+      <a href="blocks-migration-index.html">Migration Suite</a>
+      <a href="blocks-migration.html">Core Components</a>
+      <a href="block-authoring.html">Block Authoring</a>
     </nav>
   </div>
 </footer>
@@ -1300,49 +1507,103 @@
 
     var migrating = false;
     var migrated  = false;
+    var _timers   = [];
+
+    var STEPS = [
+      { before: 'before-nav',      after: 'after-nav',     msg: '47 components\n→ 1 JS file' },
+      { before: 'before-hero',     after: 'after-hero',     msg: '12 components\n→ CF + GraphQL' },
+      { before: 'before-features', after: 'after-cards',    msg: '8 teasers\n→ cards block' },
+      { before: 'before-promo',    after: 'after-banner',   msg: '24 components\n→ block + Worker' },
+      { before: 'before-footer',   after: 'after-footer',   msg: '23 components\n→ footer block' },
+    ];
+
+    function schedule(fn, delay) {
+      var id = setTimeout(fn, delay);
+      _timers.push(id);
+      return id;
+    }
 
     window.startMigration = function () {
       if (migrating || migrated) return;
       migrating = true;
 
-      var locked      = document.getElementById('panelLocked');
-      var progress    = document.getElementById('migrationProgress');
-      var bar         = document.getElementById('migrationProgressBar');
-      var sections    = document.querySelectorAll('.eds-section');
-      var beforeSecs  = document.querySelectorAll('.aem-section');
-      var footer      = document.getElementById('migrationFooter');
+      var locked     = document.getElementById('panelLocked');
+      var progress   = document.getElementById('migrationProgress');
+      var bar        = document.getElementById('migrationProgressBar');
+      var beforeSecs = document.querySelectorAll('.aem-section');
+      var footer     = document.getElementById('migrationFooter');
 
-      // 1. Fade locked overlay out
+      // 1. Fade locked overlay out immediately
       locked.classList.add('unlocking');
 
-      // 2. Show and fill progress bar
+      // 2. Show progress bar
       progress.classList.add('active');
-      // Double rAF ensures the transition fires after the display/opacity change
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          bar.style.width = '100%';
-        });
+
+      // 3. Per-step animation (1800ms apart)
+      STEPS.forEach(function (step, i) {
+        var base = i * 1800;
+
+        // Flash the before section twice
+        schedule(function () {
+          var beforeEl = document.getElementById(step.before);
+          if (beforeEl) {
+            beforeEl.classList.add('section-flashing');
+            schedule(function () {
+              beforeEl.classList.remove('section-flashing');
+            }, 1100);
+          }
+        }, base);
+
+        // Advance progress bar
+        schedule(function () {
+          bar.style.width = ((i + 1) / STEPS.length * 100) + '%';
+        }, base + 1200);
+
+        // Reveal after section with overlay chip
+        schedule(function () {
+          var afterEl = document.getElementById(step.after);
+          if (!afterEl) return;
+
+          // Build reveal overlay
+          var overlay = document.createElement('div');
+          overlay.className = 'eds-reveal-overlay';
+          var chip = document.createElement('div');
+          chip.className = 'eds-reveal-chip';
+          chip.innerHTML = step.msg.replace(/\n/g, '<br>');
+          overlay.appendChild(chip);
+          afterEl.appendChild(overlay);
+
+          // Show the section
+          afterEl.classList.add('visible');
+
+          // Fade out overlay after 1.8s
+          schedule(function () {
+            overlay.classList.add('fadeout');
+            // Remove element after transition
+            schedule(function () {
+              if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 600);
+          }, 1800);
+        }, base + 1300);
       });
 
-      // 3. Stagger EDS sections in (start after overlay begins fading)
-      sections.forEach(function (sec, i) {
-        setTimeout(function () {
-          sec.classList.add('visible');
-        }, 350 + i * 160);
-      });
-
-      // 4. After last section is visible: show success footer, dim before panel
-      var finalDelay = 350 + (sections.length - 1) * 160 + 450;
-      setTimeout(function () {
+      // 4. After all steps complete: dim before, show success footer
+      var doneDelay = STEPS.length * 1800 + 800;
+      schedule(function () {
         beforeSecs.forEach(function (sec) { sec.classList.add('dimmed'); });
         footer.classList.add('visible');
         migrating = false;
         migrated  = true;
-      }, finalDelay);
+      }, doneDelay);
     };
 
     window.resetMigration = function () {
-      if (migrating) return;
+      // Cancel all pending timers first
+      _timers.forEach(clearTimeout);
+      _timers = [];
+
+      migrating = false;
+      migrated  = false;
 
       var locked     = document.getElementById('panelLocked');
       var progress   = document.getElementById('migrationProgress');
@@ -1351,19 +1612,26 @@
       var beforeSecs = document.querySelectorAll('.aem-section');
       var footer     = document.getElementById('migrationFooter');
 
-      migrated = false;
+      // Remove any lingering overlay elements
+      document.querySelectorAll('.eds-reveal-overlay').forEach(function (el) {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      });
 
       // Hide EDS sections and success footer
-      sections.forEach(function (sec) { sec.classList.remove('visible'); });
-      beforeSecs.forEach(function (sec) { sec.classList.remove('dimmed'); });
+      sections.forEach(function (sec) {
+        sec.classList.remove('visible');
+        sec.classList.remove('section-flashing');
+      });
+      beforeSecs.forEach(function (sec) {
+        sec.classList.remove('dimmed');
+        sec.classList.remove('section-flashing');
+      });
       footer.classList.remove('visible');
 
       // Reset progress bar (opacity 0 → safe to snap width back)
       progress.classList.remove('active');
-      // Disable transition temporarily so width resets instantly
       bar.style.transition = 'none';
       bar.style.width = '0%';
-      // Re-enable transition after next paint
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
           bar.style.transition = '';
@@ -1373,6 +1641,24 @@
       // Fade locked overlay back in
       locked.classList.remove('unlocking');
     };
+
+    // ── Live price widget ──
+    function simulateGoldPrice() {
+      var base  = 3218.40;
+      var seed  = Date.now();
+      var noise = (Math.sin(seed * 0.00001) * 12) + (Math.random() * 6 - 3);
+      return (base + noise).toFixed(2);
+    }
+
+    function initPriceWidget() {
+      var el = document.getElementById('edsPriceValue');
+      if (!el) return;
+      function update() { el.textContent = '$' + simulateGoldPrice(); }
+      update();
+      setInterval(update, 30000);
+    }
+
+    initPriceWidget();
   }());
 </script>
 </body>

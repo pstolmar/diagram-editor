@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>AEM → EDS Modernization · Demo Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #DD0031;
+      --red-dark: #b71c1c;
+      --blue: #1976D2;
+      --surface: #fff;
+      --bg: #fafafa;
+      --text: #212121;
+      --text-2: #616161;
+      --text-3: #9e9e9e;
+      --divider: #e0e0e0;
+      --shadow-1: 0 2px 1px rgba(0,0,0,.09), 0 1px 1px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+      --shadow-2: 0 3px 3px rgba(0,0,0,.12), 0 3px 4px rgba(0,0,0,.07), 0 1px 8px rgba(0,0,0,.08);
+      --shadow-hover: 0 8px 10px rgba(0,0,0,.14), 0 3px 14px rgba(0,0,0,.12), 0 5px 5px rgba(0,0,0,.1);
+    }
+
+    body {
+      font-family: 'Roboto', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Toolbar ───────────────────────────────────────────────────────────── */
+    mat-toolbar {
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      height: 64px;
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,.22), 0 4px 5px rgba(0,0,0,.14);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 0;
+    }
+    .tb-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.0625rem;
+      font-weight: 500;
+      white-space: nowrap;
+      text-decoration: none;
+      color: #fff;
+    }
+    .tb-brand .tb-diamond { font-size: 1.1rem; line-height: 1; }
+    .tb-div {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,.3);
+      margin: 0 16px;
+    }
+    .tb-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .tb-nav a {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: .875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.88);
+      text-decoration: none;
+      letter-spacing: .01em;
+      transition: background .15s;
+    }
+    .tb-nav a:hover { background: rgba(255,255,255,.15); color: #fff; }
+    .tb-nav a.active { background: rgba(0,0,0,.2); color: #fff; }
+    .tb-space { flex: 1; }
+    .aem-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      cursor: default;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,.2);
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #a5d6a7;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(145deg, #0a0e1a 0%, #0d1a2e 50%, #1a1f2e 100%);
+      padding: 60px 24px 64px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: rgba(255,255,255,.4);
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: clamp(1.9rem, 4.5vw, 3rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -.025em;
+      margin-bottom: 16px;
+    }
+    .hero-title span { color: #FF6B6B; }
+    .hero-arrow {
+      color: rgba(255,255,255,.45);
+      font-weight: 300;
+      letter-spacing: .02em;
+    }
+    .hero-subtitle {
+      font-size: 1rem;
+      color: rgba(255,255,255,.58);
+      max-width: 680px;
+      margin: 0 auto 32px;
+      font-weight: 300;
+      line-height: 1.65;
+    }
+    .chips {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(100,180,255,.4);
+      background: rgba(100,180,255,.1);
+      color: #90CAF9;
+      font-size: .8125rem;
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+    .chip .material-icons { font-size: 15px; }
+
+    /* ── Layout ────────────────────────────────────────────────────────────── */
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .section { padding: 52px 0; }
+    .section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .section-desc {
+      font-size: .9375rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin-bottom: 28px;
+      max-width: 760px;
+    }
+    .divider { height: 1px; background: var(--divider); }
+
+    /* ── Migration path cards (3-col) ──────────────────────────────────────── */
+    .card-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .demo-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-radius: 4px;
+      box-shadow: var(--shadow-1);
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      transition: box-shadow .2s, transform .2s;
+      border-top: 3px solid transparent;
+    }
+    .demo-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-3px);
+    }
+    .demo-card.accent-orange { border-top-color: transparent; }
+    .demo-card.accent-orange:hover { border-top-color: #F57C00; }
+    .demo-card.accent-orange:hover .card-icon { background: #F57C00; color: #fff; }
+
+    .demo-card.accent-blue { border-top-color: transparent; }
+    .demo-card.accent-blue:hover { border-top-color: var(--blue); }
+    .demo-card.accent-blue:hover .card-icon { background: var(--blue); color: #fff; }
+
+    .demo-card.accent-green { border-top-color: transparent; }
+    .demo-card.accent-green:hover { border-top-color: #388E3C; }
+    .demo-card.accent-green:hover .card-icon { background: #388E3C; color: #fff; }
+
+    .demo-card.accent-red:hover { border-top-color: var(--red); }
+    .demo-card.accent-red:hover .card-icon { background: var(--red); color: #fff; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px 20px 0;
+    }
+    .card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background .2s, color .2s;
+    }
+    .card-icon.orange { background: #FFF3E0; color: #F57C00; }
+    .card-icon.blue   { background: #E3F2FD; color: var(--blue); }
+    .card-icon.green  { background: #E8F5E9; color: #388E3C; }
+    .card-icon.red    { background: #FCE4EC; color: var(--red); }
+    .card-icon.purple { background: #F3E5F5; color: #7B1FA2; }
+    .card-icon .material-icons { font-size: 22px; }
+
+    .card-head-text { flex: 1; min-width: 0; }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+    .card-subhead {
+      font-size: .8rem;
+      color: var(--text-3);
+      font-style: italic;
+      margin-bottom: 2px;
+    }
+    .card-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: .6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .badge-orange { background: #FFF3E0; color: #E65100; }
+    .badge-blue   { background: #E3F2FD; color: #1565C0; }
+    .badge-green  { background: #E8F5E9; color: #2E7D32; }
+    .badge-red    { background: #FCE4EC; color: #880E4F; }
+    .badge-purple { background: #F3E5F5; color: #6A1B9A; }
+
+    .card-body { padding: 14px 20px 12px; flex: 1; }
+    .card-desc {
+      font-size: .875rem;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+    .card-arrow {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px 18px;
+      gap: 6px;
+      font-size: .8125rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-top: auto;
+    }
+    .card-arrow .material-icons { font-size: 18px; }
+    .card-arrow.orange { color: #F57C00; }
+    .card-arrow.blue   { color: var(--blue); }
+    .card-arrow.green  { color: #388E3C; }
+    .card-arrow.red    { color: var(--red); }
+    .card-arrow.purple { color: #7B1FA2; }
+
+    /* ── Secondary card grid (2-col) ───────────────────────────────────────── */
+    .card-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .demo-card.secondary {
+      opacity: .92;
+    }
+    .demo-card.secondary .card-title { font-size: .9375rem; }
+    .demo-card.secondary .card-icon {
+      width: 38px;
+      height: 38px;
+    }
+    .demo-card.secondary .card-icon .material-icons { font-size: 19px; }
+
+    /* ── Timeline ──────────────────────────────────────────────────────────── */
+    .timeline-section { background: #fff; padding: 52px 0; border-top: 1px solid var(--divider); }
+
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin: 32px 0 0;
+      position: relative;
+    }
+    .tl-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+    .tl-connector {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      padding-top: 22px; /* align with center of circle */
+    }
+    .tl-line {
+      height: 2px;
+      width: 36px;
+      background: linear-gradient(to right, var(--red), rgba(221,0,49,.25));
+    }
+    .tl-circle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      font-size: .9375rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(221,0,49,.35);
+      margin-bottom: 14px;
+    }
+    .tl-content { text-align: center; padding: 0 8px; }
+    .tl-step-title {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .tl-step-desc {
+      font-size: .78rem;
+      color: var(--text-2);
+      line-height: 1.55;
+    }
+
+    /* ── Backend comparison section ────────────────────────────────────────── */
+    .backend-section { background: var(--bg); padding: 52px 0; border-top: 1px solid var(--divider); }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 28px;
+    }
+    .col-panel {
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: var(--shadow-2);
+    }
+    .col-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .col-panel-header .material-icons { font-size: 18px; }
+    .col-panel-header.old { background: #3e2723; color: #BCAAA4; }
+    .col-panel-header.new { background: #1b2838; color: #90CAF9; }
+    .col-panel-body { padding: 20px 24px 24px; }
+    .col-panel.old .col-panel-body { background: #2d1f1a; }
+    .col-panel.new .col-panel-body { background: #131b26; }
+    pre.flow-code {
+      font-family: 'Roboto Mono', 'Courier New', monospace;
+      font-size: .78rem;
+      line-height: 1.75;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .col-panel.old pre.flow-code { color: #BCAAA4; }
+    .col-panel.new pre.flow-code { color: #90CAF9; }
+    .flow-dim { opacity: .55; }
+    .flow-key { color: #EF9A9A; font-weight: 500; }
+    .flow-key-new { color: #80DEEA; font-weight: 500; }
+    .flow-accent { color: #FFE082; }
+    .flow-good { color: #A5D6A7; }
+
+    .callout-warning {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      border-left: 3px solid #F57C00;
+      background: rgba(255,152,0,.1);
+      font-size: .8125rem;
+      line-height: 1.6;
+      color: #E65100;
+    }
+    .callout-good {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      border-left: 3px solid #388E3C;
+      background: rgba(76,175,80,.1);
+      font-size: .8125rem;
+      line-height: 1.6;
+      color: #2E7D32;
+    }
+
+    .migration-prompt-card {
+      margin-top: 28px;
+      background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+      border-radius: 6px;
+      padding: 24px 28px;
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-2);
+    }
+    .migration-prompt-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      flex-shrink: 0;
+    }
+    .migration-prompt-icon .material-icons { font-size: 24px; color: #fff; }
+    .migration-prompt-text { flex: 1; }
+    .migration-prompt-title {
+      font-size: .9375rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .migration-prompt-desc {
+      font-size: .875rem;
+      color: rgba(255,255,255,.78);
+      line-height: 1.65;
+    }
+    .migration-prompt-desc em {
+      font-style: normal;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    footer {
+      background: #212121;
+      color: rgba(255,255,255,.5);
+      text-align: center;
+      padding: 24px;
+      font-size: .8125rem;
+      line-height: 1.8;
+    }
+    footer a { color: rgba(255,255,255,.7); text-decoration: none; }
+    footer a:hover { color: #fff; }
+
+    /* ── Animations ────────────────────────────────────────────────────────── */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .55; transform: scale(.85); }
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .card-grid-3 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .timeline { flex-direction: column; align-items: stretch; gap: 0; }
+      .tl-node { flex-direction: row; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+      .tl-connector { display: none; }
+      .tl-circle { margin-bottom: 0; flex-shrink: 0; }
+      .tl-content { text-align: left; padding: 2px 0 0; }
+      .hero-title { font-size: 1.85rem; }
+      .tb-nav { display: none; }
+      .aem-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ Toolbar ══════════════════════════════════════════════════════════════ -->
+<mat-toolbar>
+  <a href="blocks-migration-index.html" class="tb-brand">
+    <span class="tb-diamond">◆</span>
+    AEM Modernization · Demo Suite
+  </a>
+  <span class="tb-div"></span>
+  <nav class="tb-nav">
+    <a href="blocks-migration-index.html" class="active">Migration Suite</a>
+    <a href="angular-index.html">Angular Demos</a>
+    <a href="block-authoring.html">Block Authoring</a>
+  </nav>
+  <span class="tb-space"></span>
+  <span class="aem-badge">
+    <span class="badge-dot"></span>
+    AEM Cloud · p138879
+  </span>
+</mat-toolbar>
+
+<!-- ══ Hero ═════════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <p class="hero-eyebrow">Adobe Experience Manager · Edge Delivery Services · Migration</p>
+  <h1 class="hero-title">
+    <span>AEM</span> <span class="hero-arrow">→</span> <span>EDS</span> Modernization
+  </h1>
+  <p class="hero-subtitle">
+    A complete migration story: Experience Fragments, Core Components, custom backends —
+    rebuilt as EDS Blocks, Content Fragments, and serverless Workers.
+  </p>
+  <div class="chips">
+    <span class="chip"><span class="material-icons">trending_up</span>Incremental migration</span>
+    <span class="chip"><span class="material-icons">cloud_off</span>Zero infrastructure</span>
+  </div>
+</header>
+
+<!-- ══ Migration paths ══════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <p class="section-label">Migration paths</p>
+    <h2 class="section-title">Three entry points into the same story</h2>
+    <p class="section-desc">Start with whichever piece of your AEM architecture you most want to retire. Each path is independent — you can run them in parallel across teams.</p>
+
+    <div class="card-grid-3">
+
+      <!-- Card A — XF Story -->
+      <a href="ef-migration.html" class="demo-card accent-orange">
+        <div class="card-header">
+          <div class="card-icon orange"><span class="material-icons">auto_fix_high</span></div>
+          <div class="card-head-text">
+            <div class="card-title">Experience Fragments → Blocks</div>
+            <div class="card-subhead">What replaces 105-component trees</div>
+            <span class="card-badge badge-orange">The XF Story</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Offer banners with live copies, real-time backend data, layout components — all reconstructed as a single EDS block with a serverless data feed. Watch the migration animation live.</p>
+        </div>
+        <div class="card-arrow orange">
+          <span class="material-icons">arrow_forward</span>
+          See interactive demo →
+        </div>
+      </a>
+
+      <!-- Card B — Core Components -->
+      <a href="blocks-migration.html" class="demo-card accent-blue">
+        <div class="card-header">
+          <div class="card-icon blue"><span class="material-icons">transform</span></div>
+          <div class="card-head-text">
+            <div class="card-title">HTL + Sling → decorate()</div>
+            <div class="card-subhead">The code you write instead</div>
+            <span class="card-badge badge-blue">Core Components → Blocks</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Side-by-side: HTL template + Sling model + dialog XML vs a 40-line JS decorator. UE instrumentation in both worlds. See exactly what you delete and what you keep.</p>
+        </div>
+        <div class="card-arrow blue">
+          <span class="material-icons">arrow_forward</span>
+          Compare code →
+        </div>
+      </a>
+
+      <!-- Card C — Block Authoring -->
+      <a href="block-authoring.html" class="demo-card accent-green">
+        <div class="card-header">
+          <div class="card-icon green"><span class="material-icons">construction</span></div>
+          <div class="card-head-text">
+            <div class="card-title">Block Authoring Guide</div>
+            <div class="card-subhead">Zero to UE-editable</div>
+            <span class="card-badge badge-green">Build from Scratch</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">The <code>decorate()</code> contract, Word table → DOM mapping, both UE instrumentation approaches, Core Component conversion recipe, and every common pitfall.</p>
+        </div>
+        <div class="card-arrow green">
+          <span class="material-icons">arrow_forward</span>
+          Read the guide →
+        </div>
+      </a>
+
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ Migration timeline ════════════════════════════════════════════════════ -->
+<section class="timeline-section">
+  <div class="wrap">
+    <p class="section-label">Migration is not a big bang</p>
+    <h2 class="section-title">It's a series of small wins.</h2>
+    <p class="section-desc">Each step delivers value independently. Teams can tackle different steps in parallel. Nothing requires a cutover day.</p>
+
+    <div class="timeline" role="list">
+
+      <div class="tl-node" role="listitem">
+        <div class="tl-circle">1</div>
+        <div class="tl-content">
+          <div class="tl-step-title">Audit</div>
+          <div class="tl-step-desc">List all XFs, Core Components, custom components. Map them to EDS equivalents. Identify which have backend data dependencies.</div>
+        </div>
+      </div>
+
+      <div class="tl-connector"><div class="tl-line"></div></div>
+
+      <div class="tl-node" role="listitem">
+        <div class="tl-circle">2</div>
+        <div class="tl-content">
+          <div class="tl-step-title">Start with the footer</div>
+          <div class="tl-step-desc">Lowest dependency, immediate CDN caching win. One JS + CSS file replaces a 23-component XF.</div>
+        </div>
+      </div>
+
+      <div class="tl-connector"><div class="tl-line"></div></div>
+
+      <div class="tl-node" role="listitem">
+        <div class="tl-circle">3</div>
+        <div class="tl-content">
+          <div class="tl-step-title">Migrate static XFs</div>
+          <div class="tl-step-desc">Nav, promo banners, page headers. No backend data. Word table → block in an afternoon.</div>
+        </div>
+      </div>
+
+      <div class="tl-connector"><div class="tl-line"></div></div>
+
+      <div class="tl-node" role="listitem">
+        <div class="tl-circle">4</div>
+        <div class="tl-content">
+          <div class="tl-step-title">Tackle data-driven components</div>
+          <div class="tl-step-desc">Replace Java OSGi services with serverless Workers. Block calls Worker, Worker calls the real API.</div>
+        </div>
+      </div>
+
+      <div class="tl-connector"><div class="tl-line"></div></div>
+
+      <div class="tl-node" role="listitem">
+        <div class="tl-circle">5</div>
+        <div class="tl-content">
+          <div class="tl-step-title">Move Content Fragments</div>
+          <div class="tl-step-desc">Already headless. Switch from Sling include to GraphQL fetch. Add <code>data-aue-*</code> for UE.</div>
+        </div>
+      </div>
+
+      <div class="tl-connector"><div class="tl-line"></div></div>
+
+      <div class="tl-node" role="listitem">
+        <div class="tl-circle">6</div>
+        <div class="tl-content">
+          <div class="tl-step-title">Retire AEM publish</div>
+          <div class="tl-step-desc">Once delivery is edge-cached blocks, the AEM publish tier is no longer on the critical path — only used for authoring.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ Backend story ═════════════════════════════════════════════════════════ -->
+<section class="backend-section">
+  <div class="wrap">
+    <p class="section-label">The real customer concern</p>
+    <h2 class="section-title">Custom Java Components with Backend Data</h2>
+    <p class="section-desc">"Our most important component calls our internal pricing/inventory/personalization API from Java. How do we migrate that?"</p>
+
+    <div class="two-col">
+
+      <!-- Left: AEM -->
+      <div class="col-panel old">
+        <div class="col-panel-header old">
+          <span class="material-icons">history</span>
+          How it worked in AEM
+        </div>
+        <div class="col-panel-body">
+<pre class="flow-code"><span class="flow-key">AEM Author</span>
+  <span class="flow-dim">└─</span> <span class="flow-accent">Sling Model (@Model)</span>
+      <span class="flow-dim">└─</span> <span class="flow-accent">OSGi Service</span>
+          <span class="flow-dim">└─</span> HTTP call <span class="flow-dim">→</span> api.company.com/v2/price
+              <span class="flow-dim">└─</span> JCR cache (5 min TTL)
+  <span class="flow-dim">→</span> HTL renders price at publish time
+  <span class="flow-dim">→</span> Page cached in Dispatcher
+  <span class="flow-dim">→</span> Price is stale (publish + dispatcher)</pre>
+          <div class="callout-warning">
+            Price shown is often 2–3 Dispatcher TTL periods stale. Flush = AEM publish + Dispatcher flush = IT ticket.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: EDS -->
+      <div class="col-panel new">
+        <div class="col-panel-header new">
+          <span class="material-icons">bolt</span>
+          How it works in EDS
+        </div>
+        <div class="col-panel-body">
+<pre class="flow-code"><span class="flow-key-new">Browser (block decorate() fn)</span>
+  <span class="flow-dim">└─</span> <span class="flow-good">fetch('/api/worker/price')</span>
+      <span class="flow-dim">└─</span> <span class="flow-good">Cloudflare Worker (or AWS Lambda)</span>
+          <span class="flow-dim">└─</span> HTTP call <span class="flow-dim">→</span> api.company.com/v2/price
+              <span class="flow-dim">└─</span> Edge cache (30s TTL, automatic)
+  <span class="flow-dim">→</span> Price updates every 30s in browser
+  <span class="flow-dim">→</span> No AEM in the delivery path
+  <span class="flow-dim">→</span> Flush = Worker re-deploy (&lt; 30s globally)</pre>
+          <div class="callout-good">
+            Same API, fresher data, zero AEM infrastructure in the critical path.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="migration-prompt-card">
+      <div class="migration-prompt-icon">
+        <span class="material-icons">lightbulb</span>
+      </div>
+      <div class="migration-prompt-text">
+        <div class="migration-prompt-title">The migration question to ask for every custom component</div>
+        <p class="migration-prompt-desc">
+          When you have a custom AEM component with a backend dependency, the migration question is:
+          <em>What Worker will replace this service call?</em>
+          The block code is trivial — the interesting part is the Worker. The Java OSGi service
+          becomes a serverless function. The Dispatcher cache becomes edge cache. The IT ticket
+          becomes a <em>30-second deploy</em>.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ SPA content (lower prominence) ══════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <p class="section-label">Also in this demo suite</p>
+    <h2 class="section-title">SPA Editor migration</h2>
+    <p class="section-desc">If your site is built as a React or Angular SPA, there's a separate track for you.</p>
+
+    <div class="card-grid-2">
+
+      <a href="angular-spa-editor.html" class="demo-card secondary accent-red">
+        <div class="card-header">
+          <div class="card-icon red"><span class="material-icons">swap_horiz</span></div>
+          <div class="card-head-text">
+            <div class="card-title">SPA Editor → Universal Editor</div>
+            <span class="card-badge badge-red">SPA Migration</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">If your site is built as a React or Angular SPA with <code>MapTo()</code> and <code>@adobe/aem-react-editable-components</code>, this is your migration guide. Side-by-side: what you eliminate, what you keep, the 3-step migration.</p>
+        </div>
+        <div class="card-arrow red">
+          <span class="material-icons">arrow_forward</span>
+          See migration guide →
+        </div>
+      </a>
+
+      <a href="angular-index.html" class="demo-card secondary accent-red">
+        <div class="card-header">
+          <div class="card-icon purple"><span class="material-icons">change_history</span></div>
+          <div class="card-head-text">
+            <div class="card-title">Angular + UE Demo Suite</div>
+            <span class="card-badge badge-purple">Demo Suite</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">The full Angular demo suite: CF-backed components, real-time data, content governance, regulatory lock zones, and the SPA Editor migration story — all in one place.</p>
+        </div>
+        <div class="card-arrow purple">
+          <span class="material-icons">arrow_forward</span>
+          Explore Angular demos →
+        </div>
+      </a>
+
+    </div>
+  </section>
+</div>
+
+<!-- ══ Footer ═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <div>
+    AEM → EDS Modernization Demo Suite &nbsp;·&nbsp;
+    AEM Cloud Service p138879-e1741192
+  </div>
+  <div style="margin-top:6px;">
+    <a href="angular-index.html">Angular Demos</a> &nbsp;·&nbsp;
+    <a href="blocks-migration.html">Core Components → Blocks</a> &nbsp;·&nbsp;
+    <a href="ef-migration.html">XF Migration</a> &nbsp;·&nbsp;
+    <a href="block-authoring.html">Block Authoring Guide</a>
+  </div>
+  <div style="margin-top:10px;font-size:.72rem;opacity:.6;">
+    This page is for demonstration purposes only. Not affiliated with any financial institution or software vendor.
+  </div>
+</footer>
+
+</body>
+</html>
