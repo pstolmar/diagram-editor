@@ -1,20 +1,28 @@
 # Content Packages
 
-## Creating demo Content Fragments on RDE
+## home-hero Content Fragment
 
-**Do not use vault packages to create Content Fragments.** Manually-built vault packages produce malformed JCR nodes that the CF REST API cannot read (`name is null`, etc.).
+**`ui.content.home-hero-cf-1.0.zip`** — Creates `/content/dam/ue-demo/fragments/home-hero`
+with `contentFragment=true`, the `home-hero` CF model reference, and pre-filled field values
+for the Angular + UE demo.
 
-### Correct approach
+```bash
+aio aem rde install tools/content/ui.content.home-hero-cf-1.0.zip -s author
+```
 
-1. In AEM Author Assets UI, copy an existing working fragment (e.g. `offers-home-hero`) to the new path
-2. Open the copy in the CF editor and update the field values
-3. Quick Publish to Publish so GraphQL can serve it
+After install, open `/content/dam/ue-demo/fragments/home-hero` in AEM Author Assets UI
+and **Quick Publish** to replicate to Publish.
 
-### angular-hero
+### If the package fails (wrong cq:model path)
 
-- **Path:** `/content/dam/ue-demo/fragments/angular-hero`
-- **Model:** `home-hero`
-- Created by copying `offers-home-hero` in AEM Author Assets UI
+The `cq:model` in the package points to `/conf/glass-facades/settings/dam/cfm/models/home-hero`.
+If your AEM conf uses a different path, use the setup script instead — it auto-detects the model
+from any existing sibling fragment:
+
+```bash
+chmod +x tools/setup-cf.sh
+./tools/setup-cf.sh https://author-p138879-e1741192.adobeaemcloud.com
+```
 
 ---
 
@@ -33,10 +41,10 @@
 
 ```bash
 # Step 1 — Install content page to Author
-aio aem rde:install tools/content/ui.content.core-showcase-1.0.zip --target author
+aio aem rde install tools/content/ui.content.core-showcase-1.0.zip --target author
 
 # Step 2 — Install CSS clientlib to BOTH Author and Publish
-aio aem rde:install tools/content/ui.apps.core-showcase-theme-1.0.zip
+aio aem rde install tools/content/ui.apps.core-showcase-theme-1.0.zip
 
 # Step 3 — Add clientlib to page (if not auto-loaded by template)
 # Open the page in AEM Author → Page Properties → Advanced → Client Libraries

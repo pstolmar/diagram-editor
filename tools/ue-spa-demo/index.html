@@ -775,6 +775,22 @@
               <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/content/ui.apps.core-showcase-theme-1.0.zip" download>↓ Download</a>
             </div>
 
+            <div class="dl-pkg">
+              <div class="dl-pkg-info">
+                <code class="dl-fname">ui.content.home-hero-cf-1.0.zip</code>
+                <span class="dl-desc">home-hero Content Fragment for UE editing demo — Author</span>
+              </div>
+              <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/content/ui.content.home-hero-cf-1.0.zip" download>↓ Download</a>
+            </div>
+
+            <div class="dl-pkg">
+              <div class="dl-pkg-info">
+                <code class="dl-fname">setup-cf.sh</code>
+                <span class="dl-desc">Alt: shell script that creates the CF via Sling POST — auto-detects model path</span>
+              </div>
+              <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/setup-cf.sh" download>↓ Download</a>
+            </div>
+
           </div>
         </div>
 
@@ -808,19 +824,25 @@
               <span class="cmd-desc">CSS clientlib — Author + Publish</span>
             </div>
 
+            <div class="cmd-item">
+              <code class="cmd-code">aio aem rde install ~/Downloads/ui.content.home-hero-cf-1.0.zip -s author</code>
+              <span class="cmd-desc">home-hero CF — Author (then Quick Publish in Assets UI)</span>
+            </div>
+
           </div>
         </div>
 
-        <!-- Step 3 — CF -->
+        <!-- Step 3 — CF fallback -->
         <div class="step-group">
-          <div class="step-hd"><span class="step-num">3</span> Seed a Content Fragment</div>
+          <div class="step-hd"><span class="step-num">3</span> If the CF package fails</div>
           <p style="font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.65;">
-            In <strong style="color:rgba(255,255,255,.75)">AEM Author → Assets UI</strong>, copy an existing fragment
-            (e.g. <code style="font-size:.78rem;color:#a5d6a7">offers-home-hero</code>) to
-            <code style="font-size:.78rem;color:#a5d6a7">/content/dam/ue-demo/fragments/angular-hero</code>,
-            open the copy in the CF editor, update the fields, and Quick Publish.
-            <em style="display:block;margin-top:6px;opacity:.55">Do not use vault packages for Content Fragments — AEM's CF node structure requires the CF editor to set required properties.</em>
+            The CF package uses <code style="font-size:.78rem;color:#a5d6a7">/conf/glass-facades/settings/dam/cfm/models/home-hero</code>
+            as the model path. If your AEM conf differs, use the script instead — it auto-detects the right path from any sibling fragment:
           </p>
+          <div class="cmd-item" style="margin-top:8px">
+            <code class="cmd-code">chmod +x ~/Downloads/setup-cf.sh &amp;&amp; ~/Downloads/setup-cf.sh https://author-&lt;env&gt;.adobeaemcloud.com</code>
+            <span class="cmd-desc">Requires <code style="color:#a5d6a7">aio login</code> first</span>
+          </div>
         </div>
       </div>
 
