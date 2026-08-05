@@ -1,20 +1,736 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="urn:adobe:aue:system:aem"
-      content="aem:https://author-p138879-e1741192.adobeaemcloud.com"
-    />
-    <title>Universal Editor SPA Demo</title>
-    <link rel="stylesheet" href="./styles.css" />
-    <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
-  </head>
-  <body>
-    <main id="app" aria-live="polite">
-      <section class="loading">Loading demo...</section>
-    </main>
-    <script type="module" src="./app.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <title>AEM Edge Delivery · Demo Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #DD0031; --blue: #1976D2; --surface: #fff; --bg: #fafafa;
+      --green: #388e3c; --amber: #f57c00; --yellow: #f9a825;
+      --text: #212121; --text-2: #757575; --text-3: #9e9e9e;
+      --shadow-1: 0 2px 1px rgba(0,0,0,.09),0 1px 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.1);
+      --shadow-2: 0 3px 3px rgba(0,0,0,.12),0 3px 4px rgba(0,0,0,.07),0 1px 8px rgba(0,0,0,.08);
+      --shadow-3: 0 6px 6px rgba(0,0,0,.16),0 10px 20px rgba(0,0,0,.1);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Roboto', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Toolbar ─────────────────────────────────────────────────────────── */
+    mat-toolbar {
+      display: flex; align-items: center; padding: 0 24px; height: 64px;
+      background: var(--red); color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,.22),0 4px 5px rgba(0,0,0,.14);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .tb-brand { display: flex; align-items: center; gap: 10px; font-size: 1.125rem; font-weight: 500; white-space: nowrap; text-decoration: none; color: #fff; }
+    .tb-div { width: 1px; height: 28px; background: rgba(255,255,255,.28); margin: 0 10px; }
+    .tb-nav { display: flex; gap: 2px; }
+    .mat-btn {
+      background: none; border: none; cursor: pointer; color: rgba(255,255,255,.82);
+      font-size: .875rem; font-weight: 500; font-family: inherit;
+      padding: 0 14px; height: 36px; border-radius: 4px;
+      transition: background .15s, color .15s; letter-spacing: .04em; text-transform: uppercase;
+      text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .mat-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .tb-space { flex: 1; }
+    .tb-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 16px; background: rgba(0,0,0,.22); color: rgba(255,255,255,.9);
+      font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+    }
+
+    /* ── Page wrap ───────────────────────────────────────────────────────── */
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Section headers ─────────────────────────────────────────────────── */
+    .sec-label {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--red); margin-bottom: 10px;
+    }
+    .sec-title {
+      font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; color: var(--text);
+      line-height: 1.15; letter-spacing: -.01em; margin-bottom: 12px;
+    }
+    .sec-title-light { color: #fff; }
+    .sec-sub {
+      font-size: 1.0625rem; line-height: 1.7; color: var(--text-2); max-width: 680px; margin-bottom: 40px;
+    }
+
+    /* ── Hero ────────────────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0a0e1a 0%, #1a1034 50%, #0d1b2e 100%);
+      min-height: 100vh; display: flex; align-items: center; padding: 80px 0;
+    }
+    .hero-inner { width: 100%; }
+    .hero-eyebrow {
+      display: inline-block; padding: 5px 14px; border-radius: 16px;
+      background: rgba(221,0,49,.18); border: 1px solid rgba(221,0,49,.32);
+      color: #ff6b8a; font-size: .72rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; margin-bottom: 28px;
+    }
+    .hero-title {
+      font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; color: #fff;
+      line-height: 1.08; letter-spacing: -.02em; margin-bottom: 28px;
+    }
+    .hero-title-accent {
+      background: linear-gradient(90deg, #DD0031 0%, #ff6b35 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.25rem; line-height: 1.68; color: rgba(255,255,255,.72);
+      max-width: 640px; margin-bottom: 40px;
+    }
+    .hero-chips { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 44px; }
+    .perf-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 20px; font-size: .8125rem; font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .perf-chip.green { background: rgba(56,142,60,.18); border: 1px solid rgba(56,142,60,.38); color: #81c784; }
+    .perf-chip.blue  { background: rgba(25,118,210,.18); border: 1px solid rgba(25,118,210,.38); color: #64b5f6; }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-raised {
+      display: inline-flex; align-items: center; gap: 8px; padding: 0 28px; height: 48px;
+      border-radius: 4px; background: var(--red); color: #fff; border: none; cursor: pointer;
+      font-family: inherit; font-size: .9375rem; font-weight: 500;
+      letter-spacing: .04em; text-transform: uppercase; text-decoration: none;
+      box-shadow: 0 3px 1px rgba(0,0,0,.2),0 2px 2px rgba(0,0,0,.14),0 1px 5px rgba(0,0,0,.12);
+      transition: box-shadow .2s;
+    }
+    .btn-raised:hover { box-shadow: 0 5px 5px rgba(0,0,0,.2),0 3px 14px rgba(0,0,0,.12); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px; padding: 0 28px; height: 48px;
+      border-radius: 4px; background: transparent; color: rgba(255,255,255,.86);
+      border: 1px solid rgba(255,255,255,.38); cursor: pointer;
+      font-family: inherit; font-size: .9375rem; font-weight: 500;
+      letter-spacing: .04em; text-transform: uppercase; text-decoration: none;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.6); }
+
+    /* ── Metrics section ─────────────────────────────────────────────────── */
+    .metrics-section { padding: 80px 0; background: #fff; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .metric-card {
+      background: var(--surface); border-radius: 4px;
+      box-shadow: var(--shadow-2); padding: 28px 32px; overflow: hidden; position: relative;
+    }
+    .metric-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .metric-card.red-top::before { background: var(--red); }
+    .metric-card.green-top::before { background: var(--green); }
+    .metric-label {
+      font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-2); margin-bottom: 20px;
+    }
+    .metric-compare { display: flex; align-items: center; gap: 24px; }
+    .metric-side { flex: 1; }
+    .metric-tag {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .metric-tag.before { color: #b71c1c; }
+    .metric-tag.after  { color: #1b5e20; }
+    .metric-ring {
+      width: 72px; height: 72px; border-radius: 50%; border: 5px solid;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 6px;
+      font-size: 1.125rem; font-weight: 700;
+    }
+    .metric-ring.red    { border-color: #ef5350; color: #ef5350; }
+    .metric-ring.orange { border-color: #ffa726; color: #ffa726; }
+    .metric-ring.green  { border-color: #66bb6a; color: #66bb6a; }
+    .metric-val { font-size: 1.625rem; font-weight: 300; letter-spacing: -.025em; color: var(--text); }
+    .metric-val.red    { color: #c62828; }
+    .metric-val.orange { color: #e65100; }
+    .metric-val.green  { color: #2e7d32; }
+    .metric-arrow { font-size: 1.75rem; color: #e0e0e0; align-self: center; }
+    .metric-delta {
+      margin-top: 16px; padding: 7px 14px; border-radius: 16px;
+      display: inline-block; font-size: .8125rem; font-weight: 700;
+      background: rgba(56,142,60,.1); color: #2e7d32;
+    }
+    .metrics-footnote {
+      margin-top: 24px; font-size: .75rem; color: var(--text-3); font-style: italic; text-align: center;
+    }
+
+    /* ── Why Now ─────────────────────────────────────────────────────────── */
+    .why-section {
+      padding: 80px 0;
+      background: linear-gradient(160deg, #0a0e1a 0%, #1a1034 100%);
+    }
+    .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .why-card {
+      border-radius: 4px; padding: 28px; position: relative;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      transition: transform .18s, box-shadow .18s;
+    }
+    .why-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.32); }
+    .why-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 4px 4px 0 0;
+    }
+    .why-card.orange::before { background: #ffa726; }
+    .why-card.yellow::before { background: #ffd54f; }
+    .why-card.blue::before   { background: #42a5f5; }
+    .why-icon {
+      width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; margin-bottom: 18px;
+    }
+    .why-card.orange .why-icon { background: rgba(255,167,38,.15); }
+    .why-card.yellow .why-icon { background: rgba(255,213,79,.12); }
+    .why-card.blue   .why-icon { background: rgba(66,165,245,.15); }
+    .why-card.orange .why-icon .material-icons { color: #ffa726; }
+    .why-card.yellow .why-icon .material-icons { color: #ffd54f; }
+    .why-card.blue   .why-icon .material-icons { color: #64b5f6; }
+    .why-card-title { font-size: 1.0625rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .why-card-body { font-size: .9375rem; line-height: 1.7; color: rgba(255,255,255,.65); }
+    .why-card-body code {
+      font-size: .8125rem; background: rgba(255,255,255,.08);
+      padding: 1px 5px; border-radius: 3px; color: rgba(255,255,255,.82);
+    }
+
+    /* ── How section ─────────────────────────────────────────────────────── */
+    .how-section { padding: 80px 0; background: var(--bg); }
+    .steps-wrap { position: relative; }
+    .steps-list { display: flex; flex-direction: column; gap: 0; }
+    .step-card {
+      display: flex; gap: 28px; align-items: flex-start; padding: 24px 28px;
+      background: #fff; border-radius: 4px; box-shadow: var(--shadow-1);
+      margin-bottom: 4px; border-left: 3px solid transparent;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .step-card:hover { border-left-color: var(--red); box-shadow: var(--shadow-2); }
+    .step-num {
+      flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+      background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+    .step-sub { font-size: .875rem; line-height: 1.65; color: var(--text-2); }
+    .myth-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+    .myth-card {
+      background: #fff; border-radius: 4px; box-shadow: var(--shadow-1); padding: 18px 20px;
+    }
+    .myth-before {
+      font-size: .8125rem; color: #b71c1c; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 6px;
+    }
+    .myth-after {
+      font-size: .8125rem; color: #2e7d32; display: flex; align-items: flex-start; gap: 6px;
+    }
+    .myth-icon { font-size: 1rem; line-height: 1.4; flex-shrink: 0; }
+
+    /* ── Demos section ───────────────────────────────────────────────────── */
+    .demos-section { padding: 80px 0; background: #fff; }
+    .demo-tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .track-col {
+      background: var(--bg); border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-1);
+    }
+    .track-hdr {
+      padding: 18px 24px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .track-hdr-red  { background: linear-gradient(135deg, #b71c1c 0%, #dd0031 100%); }
+    .track-hdr-blue { background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); }
+    .track-title { font-size: .9375rem; font-weight: 700; color: #fff; flex: 1; }
+    .track-chip {
+      padding: 3px 10px; border-radius: 10px; font-size: .68rem; font-weight: 700;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .track-chip.red  { background: rgba(0,0,0,.25); color: rgba(255,255,255,.9); }
+    .track-chip.blue { background: rgba(0,0,0,.25); color: rgba(255,255,255,.9); }
+    .demo-list { padding: 8px 0; }
+    .demo-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 14px 24px; border-bottom: 1px solid #f0f0f0;
+      text-decoration: none; transition: background .12s;
+    }
+    .demo-item:last-child { border-bottom: none; }
+    .demo-item:hover { background: rgba(221,0,49,.04); }
+    .demo-item-icon {
+      width: 36px; height: 36px; border-radius: 4px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(221,0,49,.08);
+    }
+    .demo-item-icon .material-icons { color: var(--red); font-size: 1.125rem; }
+    .demo-item-blue .demo-item-icon { background: rgba(25,118,210,.08); }
+    .demo-item-blue .demo-item-icon .material-icons { color: var(--blue); }
+    .demo-item-body { flex: 1; }
+    .demo-item-title { font-size: .9375rem; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .demo-item-desc { font-size: .8125rem; color: var(--text-2); line-height: 1.55; }
+    .demo-item-arrow { color: var(--text-3); align-self: center; font-size: 1.125rem !important; }
+
+    /* ── Setup section ───────────────────────────────────────────────────── */
+    .setup-section {
+      padding: 56px 0;
+      background: linear-gradient(160deg, #0d1b2e 0%, #0a0e1a 100%);
+    }
+    .setup-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; }
+    .setup-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 16px; }
+    .setup-intro { font-size: .875rem; color: rgba(255,255,255,.62); line-height: 1.65; margin-bottom: 20px; }
+    .cmd-list { display: flex; flex-direction: column; gap: 8px; }
+    .cmd-item {
+      background: rgba(255,255,255,.06); border-radius: 4px;
+      padding: 10px 14px; border-left: 2px solid var(--red);
+    }
+    .cmd-code {
+      font-family: 'Roboto Mono', 'Consolas', monospace;
+      font-size: .78rem; color: #a5d6a7; display: block; margin-bottom: 4px;
+      word-break: break-all;
+    }
+    .cmd-desc { font-size: .75rem; color: rgba(255,255,255,.45); }
+    .guide-list { display: flex; flex-direction: column; gap: 8px; }
+    .guide-link {
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      background: rgba(255,255,255,.06); border-radius: 4px; border: 1px solid rgba(255,255,255,.08);
+      text-decoration: none; color: rgba(255,255,255,.82); font-size: .875rem; font-weight: 500;
+      transition: background .15s, border-color .15s;
+    }
+    .guide-link:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+    .guide-link .material-icons { color: rgba(255,255,255,.4); font-size: 1rem; }
+
+    /* ── Page footer ─────────────────────────────────────────────────────── */
+    .page-footer {
+      background: #0a0e1a; border-top: 1px solid rgba(255,255,255,.07);
+      padding: 20px 0; text-align: center;
+      font-size: .75rem; color: rgba(255,255,255,.32); letter-spacing: .02em;
+    }
+
+    /* ── Utility ─────────────────────────────────────────────────────────── */
+    .mt-40 { margin-top: 40px; }
+    .mt-56 { margin-top: 56px; }
+    @keyframes live-pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:.3; transform:scale(.8); }
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .metrics-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: 1fr; }
+      .demo-tracks { grid-template-columns: 1fr; }
+      .setup-grid { grid-template-columns: 1fr; }
+      .myth-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .tb-nav { display: none; }
+      .hero { padding: 60px 0; }
+      .hero-title { font-size: 2.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
+<mat-toolbar>
+  <a class="tb-brand" href="#top">
+    <span>◆</span>
+    <span>AEM Edge Delivery · Demo Hub</span>
+  </a>
+  <div class="tb-div"></div>
+  <nav class="tb-nav">
+    <a class="mat-btn" href="#why-eds">Why EDS</a>
+    <a class="mat-btn" href="#demos">Demos</a>
+    <a class="mat-btn" href="#why-now">Migration</a>
+    <a class="mat-btn" href="#how">Authoring</a>
+  </nav>
+  <div class="tb-space"></div>
+  <span class="tb-badge">
+    <span style="width:6px;height:6px;border-radius:50%;background:#a5d6a7;animation:live-pulse 2s ease-in-out infinite;display:inline-block;"></span>
+    Live RDE
+  </span>
+</mat-toolbar>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+<section id="top" class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-eyebrow">Adobe AEM Edge Delivery Services</div>
+    <h1 class="hero-title">
+      Your AEM Site.<br>
+      <span class="hero-title-accent">10× Faster.</span>
+    </h1>
+    <p class="hero-sub">
+      Same authors. Same Content Fragments. Same Universal Editor.<br>
+      Delivered from CDN edge — not from AEM Publish.
+    </p>
+    <div class="hero-chips">
+      <span class="perf-chip green">⚡ 100 Lighthouse</span>
+      <span class="perf-chip green">🚀 &lt;100ms TTFB</span>
+      <span class="perf-chip blue">✓ Zero server render</span>
+    </div>
+    <div class="hero-actions">
+      <a class="btn-raised" href="#demos">See it working →</a>
+      <a class="btn-ghost" href="#why-now">Why migrate?</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── The numbers that matter ──────────────────────────────────────────── -->
+<section id="why-eds" class="metrics-section">
+  <div class="wrap">
+    <div class="sec-label">Performance</div>
+    <h2 class="sec-title">The Gap is Real</h2>
+    <p class="sec-sub">These are not A/B estimates. The delta between a typical AEM Sites stack and an EDS site is structural — it comes from where rendering happens.</p>
+
+    <div class="metrics-grid">
+
+      <!-- Lighthouse Score -->
+      <div class="metric-card red-top">
+        <div class="metric-label">Lighthouse Score</div>
+        <div class="metric-compare">
+          <div class="metric-side">
+            <div class="metric-tag before">AEM Sites (before)</div>
+            <div class="metric-ring red">52</div>
+          </div>
+          <div class="metric-arrow">→</div>
+          <div class="metric-side">
+            <div class="metric-tag after">EDS (after)</div>
+            <div class="metric-ring green">97</div>
+          </div>
+        </div>
+        <div class="metric-delta">+45 points</div>
+      </div>
+
+      <!-- LCP -->
+      <div class="metric-card red-top">
+        <div class="metric-label">Largest Contentful Paint</div>
+        <div class="metric-compare">
+          <div class="metric-side">
+            <div class="metric-tag before">AEM Sites (before)</div>
+            <div class="metric-ring red">4.1s</div>
+          </div>
+          <div class="metric-arrow">→</div>
+          <div class="metric-side">
+            <div class="metric-tag after">EDS (after)</div>
+            <div class="metric-ring green">0.9s</div>
+          </div>
+        </div>
+        <div class="metric-delta">4.6× faster</div>
+      </div>
+
+      <!-- TTFB -->
+      <div class="metric-card green-top">
+        <div class="metric-label">Time to First Byte</div>
+        <div class="metric-compare">
+          <div class="metric-side">
+            <div class="metric-tag before">AEM Sites (before)</div>
+            <div class="metric-ring orange">890ms</div>
+          </div>
+          <div class="metric-arrow">→</div>
+          <div class="metric-side">
+            <div class="metric-tag after">EDS (after)</div>
+            <div class="metric-ring green">65ms</div>
+          </div>
+        </div>
+        <div class="metric-delta">13.7× faster</div>
+      </div>
+
+      <!-- JS sent -->
+      <div class="metric-card green-top">
+        <div class="metric-label">JavaScript Sent to Browser</div>
+        <div class="metric-compare">
+          <div class="metric-side">
+            <div class="metric-tag before">AEM Sites (before)</div>
+            <div class="metric-ring red">~450KB</div>
+          </div>
+          <div class="metric-arrow">→</div>
+          <div class="metric-side">
+            <div class="metric-tag after">EDS (after)</div>
+            <div class="metric-ring green">~45KB</div>
+          </div>
+        </div>
+        <div class="metric-delta">90% less JS</div>
+      </div>
+
+    </div>
+    <p class="metrics-footnote">Representative values based on real-world AEM Sites vs EDS benchmarks. Your results will vary.</p>
+  </div>
+</section>
+
+<!-- ── Why Now ───────────────────────────────────────────────────────────── -->
+<section id="why-now" class="why-section">
+  <div class="wrap">
+    <div class="sec-label" style="color:#ff6b8a;">The Moment</div>
+    <h2 class="sec-title sec-title-light">This Is the Migration Window</h2>
+    <p class="sec-sub" style="color:rgba(255,255,255,.62);">Three platform-level changes make 2025–2026 the right time to move. Waiting is a choice, but it's not a free one.</p>
+
+    <div class="why-grid">
+
+      <div class="why-card orange">
+        <div class="why-icon"><span class="material-icons">warning</span></div>
+        <div class="why-card-title">SPA Editor is Deprecated</div>
+        <div class="why-card-body">Adobe officially deprecated AEM SPA Editor in 2024. If your site is built on <code>MapTo()</code> and <code>@adobe/aem-react-editable-components</code>, you're on a dead-end path. Universal Editor is the replacement — and it works with EDS.</div>
+      </div>
+
+      <div class="why-card yellow">
+        <div class="why-icon"><span class="material-icons">schedule</span></div>
+        <div class="why-card-title">Core Components → Maintenance Mode</div>
+        <div class="why-card-body">AEM Core Components are entering maintenance mode. New feature investment is in EDS blocks. Sites built on Core Components will continue to work — but the momentum is elsewhere.</div>
+      </div>
+
+      <div class="why-card blue">
+        <div class="why-icon"><span class="material-icons">trending_up</span></div>
+        <div class="why-card-title">Your Competitors Are Already There</div>
+        <div class="why-card-body">EDS customers regularly report 95+ Lighthouse scores and sub-second LCP. Slow pages mean lower conversion, worse SEO, higher bounce rate. The performance gap is visible to customers.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── How ───────────────────────────────────────────────────────────────── -->
+<section id="how" class="how-section">
+  <div class="wrap">
+    <div class="sec-label">The Path</div>
+    <h2 class="sec-title">You Don't Have to Migrate Everything at Once</h2>
+    <p class="sec-sub">EDS migration is additive. Each step ships independently. You never flip a big-bang switch — you run edge delivery alongside AEM Sites until the balance tips.</p>
+
+    <div class="steps-list">
+
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Audit &nbsp;<span style="font-weight:400;color:var(--text-3);font-size:.875rem;">(1 day)</span></div>
+          <div class="step-sub">List your XFs, Core Components, and custom components. Map each to an EDS block equivalent. Identify which ones hit backend APIs.</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Start with the footer &nbsp;<span style="font-weight:400;color:var(--text-3);font-size:.875rem;">(1 afternoon)</span></div>
+          <div class="step-sub">Your footer XF has the fewest dependencies. One JS + CSS file replaces 23 components. First CDN cache hit: instant.</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Migrate static XFs &nbsp;<span style="font-weight:400;color:var(--text-3);font-size:.875rem;">(1–2 weeks)</span></div>
+          <div class="step-sub">Nav, promo banners, page headers. No backend data. Word table → block in an afternoon. Each one reduces AEM Publish load.</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Data-driven components &nbsp;<span style="font-weight:400;color:var(--text-3);font-size:.875rem;">(varies)</span></div>
+          <div class="step-sub">Custom components calling backends become Cloudflare Workers + block <code style="font-size:.8125rem;background:#f5f5f5;padding:1px 5px;border-radius:3px;">fetch()</code>. Same API, live data in the browser, no AEM in the path.</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Flip the switch</div>
+          <div class="step-sub">Once delivery is edge-cached blocks, AEM Publish is no longer in your critical path. Authors still use the same tools — UE or Word/DA.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Myth busters -->
+    <div class="myth-grid">
+
+      <div class="myth-card">
+        <div class="myth-before"><span class="myth-icon">❌</span><span>"We'd have to retrain our authors"</span></div>
+        <div class="myth-after"><span class="myth-icon">✓</span><span>Authors use the same Universal Editor, or Word/SharePoint they already know.</span></div>
+      </div>
+
+      <div class="myth-card">
+        <div class="myth-before"><span class="myth-icon">❌</span><span>"We'd lose our Content Fragments"</span></div>
+        <div class="myth-after"><span class="myth-icon">✓</span><span>CFs survive unchanged — same data model, now served headlessly via GraphQL.</span></div>
+      </div>
+
+      <div class="myth-card">
+        <div class="myth-before"><span class="myth-icon">❌</span><span>"Our custom components are too complex"</span></div>
+        <div class="myth-after"><span class="myth-icon">✓</span><span>Complex Java OSGi services become small serverless Workers. The block code is trivial.</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Demo Suite ────────────────────────────────────────────────────────── -->
+<section id="demos" class="demos-section">
+  <div class="wrap">
+    <div class="sec-label">Demos</div>
+    <h2 class="sec-title">See It, Touch It, Break It</h2>
+    <p class="sec-sub">Every demo below runs against a real AEM Cloud Service RDE — real Content Fragments, real Universal Editor, real architecture.</p>
+
+    <div class="demo-tracks">
+
+      <!-- Track 1: Finance App -->
+      <div class="track-col">
+        <div class="track-hdr track-hdr-red">
+          <div class="track-title">◆ Angular + AEM</div>
+          <span class="track-chip red">Angular Elements</span>
+        </div>
+        <div class="demo-list">
+
+          <a class="demo-item" href="./angular-finance.html">
+            <div class="demo-item-icon"><span class="material-icons">show_chart</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">Investment Dashboard</div>
+              <div class="demo-item-desc">Live USGS earthquake feed, commodity simulation, AEM CF hero, DA structured content</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+          <a class="demo-item" href="./angular-governance.html">
+            <div class="demo-item-icon"><span class="material-icons">lock</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">Content Governance</div>
+              <div class="demo-item-desc">Locked regulatory sections, editable marketing zones, JCR ACL story</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+          <a class="demo-item" href="./angular-spa-editor.html">
+            <div class="demo-item-icon"><span class="material-icons">compare_arrows</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">UE Migration Path</div>
+              <div class="demo-item-desc">SPA Editor vs Universal Editor — what you eliminate, what you keep</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+          <a class="demo-item" href="./angular.html">
+            <div class="demo-item-icon"><span class="material-icons">code</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">Angular + UE Basics</div>
+              <div class="demo-item-desc">The minimal pattern: CF + GraphQL + UE instrumentation</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Track 2: Migration Story -->
+      <div class="track-col">
+        <div class="track-hdr track-hdr-blue">
+          <div class="track-title">⇢ Migration Suite</div>
+          <span class="track-chip blue">Core → Blocks</span>
+        </div>
+        <div class="demo-list">
+
+          <a class="demo-item demo-item-blue" href="./ef-migration.html">
+            <div class="demo-item-icon"><span class="material-icons">auto_fix_high</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">XF → EDS Blocks Demo</div>
+              <div class="demo-item-desc">Click 'Modernize →' to watch 105 AEM components transform to 5 EDS blocks with live price data</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+          <a class="demo-item demo-item-blue" href="./core-components-comparison.html">
+            <div class="demo-item-icon"><span class="material-icons">compare</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">Real Page Comparison</div>
+              <div class="demo-item-desc">Actual AEM Core Components page vs EDS equivalent, side-by-side with CWV metrics</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+          <a class="demo-item demo-item-blue" href="./blocks-migration.html">
+            <div class="demo-item-icon"><span class="material-icons">transform</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">Core Components → Blocks</div>
+              <div class="demo-item-desc">HTL + Sling model + dialog XML vs a 40-line JS decorator</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+          <a class="demo-item demo-item-blue" href="./block-authoring.html">
+            <div class="demo-item-icon"><span class="material-icons">edit_note</span></div>
+            <div class="demo-item-body">
+              <div class="demo-item-title">Block Authoring Guide</div>
+              <div class="demo-item-desc">Build a block from scratch, make it UE-editable</div>
+            </div>
+            <span class="material-icons demo-item-arrow">chevron_right</span>
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Setup & Reference ─────────────────────────────────────────────────── -->
+<section class="setup-section">
+  <div class="wrap">
+    <div class="setup-grid">
+
+      <!-- Quick start commands -->
+      <div>
+        <div class="setup-title">Quick Start</div>
+        <p class="setup-intro">Everything you need to run this demo on your own AEM Cloud Service RDE:</p>
+        <div class="cmd-list">
+
+          <div class="cmd-item">
+            <code class="cmd-code">aio aem rde install tools/cors/ui.config-ue-cors-1.0.zip -s author</code>
+            <span class="cmd-desc">UE CORS package</span>
+          </div>
+
+          <div class="cmd-item">
+            <code class="cmd-code">aio aem rde install tools/cors/ui.config-ue-bearer-1.0.zip -s author</code>
+            <span class="cmd-desc">Bearer auth package</span>
+          </div>
+
+          <div class="cmd-item">
+            <code class="cmd-code">aio aem rde install tools/cors/ui.config-clickjacking-publish-1.0.zip -s publish</code>
+            <span class="cmd-desc">Iframe embedding (Publish)</span>
+          </div>
+
+          <div class="cmd-item">
+            <code class="cmd-code">Copy CF → /content/dam/ue-demo/fragments/angular-hero in Assets UI</code>
+            <span class="cmd-desc">Seed content — do this in AEM Author Assets UI, not via vault packages</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- More guides -->
+      <div>
+        <div class="setup-title">More Guides</div>
+        <p class="setup-intro">Index pages and setup docs for each demo track:</p>
+        <div class="guide-list">
+
+          <a class="guide-link" href="./angular-index.html">
+            <span class="material-icons">open_in_new</span>
+            Angular + UE Index
+          </a>
+
+          <a class="guide-link" href="./blocks-migration-index.html">
+            <span class="material-icons">open_in_new</span>
+            Migration Suite Index
+          </a>
+
+          <a class="guide-link" href="./angular-setup.html">
+            <span class="material-icons">open_in_new</span>
+            Setup &amp; Troubleshooting
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Page footer ───────────────────────────────────────────────────────── -->
+<footer class="page-footer">
+  AEM Edge Delivery Services · Demo Suite · For demonstration purposes only · Not affiliated with any financial institution.
+</footer>
+
+</body>
 </html>

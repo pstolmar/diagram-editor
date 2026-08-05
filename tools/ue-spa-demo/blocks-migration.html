@@ -368,6 +368,24 @@
       .coverage-grid  { grid-template-columns:1fr 1fr; }
       .res-grid       { grid-template-columns:1fr; }
     }
+    .breadcrumb-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 24px;
+      background: rgba(0,0,0,.25);
+      font-size: .75rem;
+      color: rgba(255,255,255,.5);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .breadcrumb-link {
+      color: rgba(255,255,255,.65);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .breadcrumb-link:hover { color: #fff; }
+    .breadcrumb-sep { opacity: .4; }
+    .breadcrumb-current { color: rgba(255,255,255,.85); }
   </style>
 </head>
 <body>
@@ -390,11 +408,17 @@
     <a class="tb-btn" href="#ue-bridge">UE Editing</a>
     <a class="tb-btn" href="#migration">Migration</a>
     <a class="tb-btn" href="#coverage">Coverage</a>
+    <a class="tb-btn" href="index.html" style="opacity:.65;border-left:1px solid rgba(255,255,255,.2);margin-left:4px;padding-left:12px">Hub</a>
   </nav>
   <span class="tb-chip tb-chip-dep">Core Components: 2012–2023</span>
   &nbsp;
   <span class="tb-chip tb-chip-new"><span class="chip-dot chip-dot-new"></span>EDS Blocks: Now</span>
 </header>
+<div class="breadcrumb-bar">
+  <a href="index.html" class="breadcrumb-link">← Demo Hub</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">Core Components → Blocks</span>
+</div>
 
 <!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
 <section class="hero">

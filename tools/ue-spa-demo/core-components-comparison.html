@@ -513,6 +513,24 @@
       .explainer-grid { grid-template-columns: 1fr; }
       .hero-band .wrap { flex-direction: column; align-items: flex-start; }
     }
+    .breadcrumb-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 24px;
+      background: rgba(0,0,0,.25);
+      font-size: .75rem;
+      color: rgba(255,255,255,.5);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .breadcrumb-link {
+      color: rgba(255,255,255,.65);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .breadcrumb-link:hover { color: #fff; }
+    .breadcrumb-sep { opacity: .4; }
+    .breadcrumb-current { color: rgba(255,255,255,.85); }
   </style>
 </head>
 <body>
@@ -527,6 +545,7 @@
     <a class="mat-btn active" href="#">EDS vs AEM</a>
     <a class="mat-btn" href="blocks-migration-index.html">Migration Suite</a>
     <a class="mat-btn" href="block-authoring.html">Block Authoring</a>
+    <a class="mat-btn" href="index.html" style="opacity:.65;border-left:1px solid rgba(255,255,255,.2);margin-left:4px;padding-left:12px">Hub</a>
   </nav>
   <span class="tb-space"></span>
   <div style="display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:16px;background:rgba(255,255,255,.14);font-size:.75rem;font-weight:700;letter-spacing:.04em;">
@@ -534,6 +553,11 @@
     WKND Demo
   </div>
 </mat-toolbar>
+<div class="breadcrumb-bar">
+  <a href="index.html" class="breadcrumb-link">← Demo Hub</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">Real Page Comparison</span>
+</div>
 
 <!-- ── Hero band ──────────────────────────────────────────────────────────── -->
 <div class="hero-band">

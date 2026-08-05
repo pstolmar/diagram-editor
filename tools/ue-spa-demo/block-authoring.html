@@ -94,6 +94,24 @@
     footer a { color: #1473e6; text-decoration: none; font-size: 0.88rem; margin: 0 0.8rem; }
     footer a:hover { text-decoration: underline; }
     footer p { color: #555; font-size: 0.78rem; margin: 0; }
+    .breadcrumb-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 24px;
+      background: rgba(0,0,0,.25);
+      font-size: .75rem;
+      color: rgba(255,255,255,.5);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .breadcrumb-link {
+      color: rgba(255,255,255,.65);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .breadcrumb-link:hover { color: #fff; }
+    .breadcrumb-sep { opacity: .4; }
+    .breadcrumb-current { color: rgba(255,255,255,.85); }
   </style>
 </head>
 <body>
@@ -102,6 +120,11 @@
   <h1>EDS Block Authoring · <span>From Zero to UE-Editable</span></h1>
   <p>Anatomy of a block, the <code>decorate()</code> contract, UE instrumentation, and converting Core Components</p>
 </header>
+<div class="breadcrumb-bar">
+  <a href="index.html" class="breadcrumb-link">← Demo Hub</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">Block Authoring Guide</span>
+</div>
 
 <main>
 
