@@ -296,6 +296,54 @@
     .guide-link:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
     .guide-link .material-icons { color: rgba(255,255,255,.4); font-size: 1rem; }
 
+    /* ── Setup steps + download cards ───────────────────────────────────── */
+    .prereq-note {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 4px; padding: 12px 14px; margin-bottom: 24px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    }
+    .step-badge {
+      background: rgba(255,255,255,.12); border-radius: 3px;
+      font-size: .68rem; font-weight: 700; padding: 2px 7px; letter-spacing: .06em;
+      color: rgba(255,255,255,.55); text-transform: uppercase; flex-shrink: 0;
+    }
+    .prereq-label { font-size: .8rem; color: rgba(255,255,255,.6); flex: 1; min-width: 180px; }
+    .prereq-code {
+      font-family: 'Roboto Mono', monospace; font-size: .74rem; color: #a5d6a7;
+      background: rgba(0,0,0,.3); padding: 7px 10px; border-radius: 3px;
+      display: block; width: 100%; word-break: break-all; margin-top: 4px;
+    }
+    .step-group { margin-bottom: 24px; }
+    .step-hd {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .875rem; font-weight: 700; color: #fff; margin-bottom: 12px;
+    }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--red); color: #fff; font-size: .73rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .dl-pkg-list { display: flex; flex-direction: column; gap: 6px; }
+    .dl-pkg {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.05); border-radius: 4px; padding: 9px 12px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .dl-pkg-info { flex: 1; min-width: 0; }
+    .dl-fname {
+      font-family: 'Roboto Mono', monospace; font-size: .72rem;
+      color: rgba(255,255,255,.82); display: block;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .dl-desc { font-size: .7rem; color: rgba(255,255,255,.4); display: block; margin-top: 2px; }
+    .dl-btn {
+      flex-shrink: 0; padding: 5px 12px; border-radius: 3px;
+      border: 1px solid rgba(221,0,49,.5); background: rgba(221,0,49,.15);
+      color: #ff8a80; font-size: .73rem; font-weight: 600; text-decoration: none;
+      white-space: nowrap; transition: background .15s, border-color .15s;
+    }
+    .dl-btn:hover { background: rgba(221,0,49,.3); border-color: var(--red); color: #fff; }
+
     /* ── Page footer ─────────────────────────────────────────────────────── */
     .page-footer {
       background: #0a0e1a; border-top: 1px solid rgba(255,255,255,.07);
@@ -670,36 +718,113 @@
   <div class="wrap">
     <div class="setup-grid">
 
-      <!-- Quick start commands -->
+      <!-- Try it yourself — left column -->
       <div>
-        <div class="setup-title">Quick Start</div>
-        <p class="setup-intro">Everything you need to run this demo on your own AEM Cloud Service RDE:</p>
-        <div class="cmd-list">
+        <div class="setup-title">Try It Yourself</div>
+        <p class="setup-intro">Deploy the full demo to your own AEM Cloud Service RDE in under 5 minutes — no repo clone needed.</p>
 
-          <div class="cmd-item">
-            <code class="cmd-code">aio aem rde install tools/cors/ui.config-ue-cors-1.0.zip -s author</code>
-            <span class="cmd-desc">UE CORS package</span>
+        <!-- Prereq -->
+        <div class="prereq-note">
+          <span class="step-badge">prereq</span>
+          <span class="prereq-label">aio CLI installed &amp; authenticated to your AEM Cloud org</span>
+          <code class="prereq-code">npm i -g @adobe/aio-cli &amp;&amp; aio login &amp;&amp; aio aem rde setup</code>
+        </div>
+
+        <!-- Step 1 — Download -->
+        <div class="step-group">
+          <div class="step-hd"><span class="step-num">1</span> Download the packages</div>
+          <div class="dl-pkg-list">
+
+            <div class="dl-pkg">
+              <div class="dl-pkg-info">
+                <code class="dl-fname">ui.config-ue-cors-1.0.zip</code>
+                <span class="dl-desc">Universal Editor CORS config — Author</span>
+              </div>
+              <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/cors/ui.config-ue-cors-1.0.zip" download>↓ Download</a>
+            </div>
+
+            <div class="dl-pkg">
+              <div class="dl-pkg-info">
+                <code class="dl-fname">ui.config-ue-bearer-1.0.zip</code>
+                <span class="dl-desc">Bearer token auth for UE — Author</span>
+              </div>
+              <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/cors/ui.config-ue-bearer-1.0.zip" download>↓ Download</a>
+            </div>
+
+            <div class="dl-pkg">
+              <div class="dl-pkg-info">
+                <code class="dl-fname">ui.config-clickjacking-publish-1.0.zip</code>
+                <span class="dl-desc">Remove X-Frame-Options so page embeds in iframes — Publish</span>
+              </div>
+              <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/cors/ui.config-clickjacking-publish-1.0.zip" download>↓ Download</a>
+            </div>
+
+            <div class="dl-pkg">
+              <div class="dl-pkg-info">
+                <code class="dl-fname">ui.content.core-showcase-1.0.zip</code>
+                <span class="dl-desc">Demo page with Core Components + XF — Author content</span>
+              </div>
+              <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/content/ui.content.core-showcase-1.0.zip" download>↓ Download</a>
+            </div>
+
+            <div class="dl-pkg">
+              <div class="dl-pkg-info">
+                <code class="dl-fname">ui.apps.core-showcase-theme-1.0.zip</code>
+                <span class="dl-desc">Minimal CSS clientlib so Core Components render — Author + Publish</span>
+              </div>
+              <a class="dl-btn" href="https://raw.githubusercontent.com/pstolmar/diagram-editor/edge/tools/content/ui.apps.core-showcase-theme-1.0.zip" download>↓ Download</a>
+            </div>
+
           </div>
+        </div>
 
-          <div class="cmd-item">
-            <code class="cmd-code">aio aem rde install tools/cors/ui.config-ue-bearer-1.0.zip -s author</code>
-            <span class="cmd-desc">Bearer auth package</span>
+        <!-- Step 2 — Install -->
+        <div class="step-group">
+          <div class="step-hd"><span class="step-num">2</span> Install to your RDE</div>
+          <div class="cmd-list">
+
+            <div class="cmd-item">
+              <code class="cmd-code">aio aem rde install ~/Downloads/ui.config-ue-cors-1.0.zip -s author</code>
+              <span class="cmd-desc">UE CORS — Author</span>
+            </div>
+
+            <div class="cmd-item">
+              <code class="cmd-code">aio aem rde install ~/Downloads/ui.config-ue-bearer-1.0.zip -s author</code>
+              <span class="cmd-desc">Bearer auth — Author</span>
+            </div>
+
+            <div class="cmd-item">
+              <code class="cmd-code">aio aem rde install ~/Downloads/ui.config-clickjacking-publish-1.0.zip -s publish</code>
+              <span class="cmd-desc">Iframe embedding — Publish</span>
+            </div>
+
+            <div class="cmd-item">
+              <code class="cmd-code">aio aem rde install ~/Downloads/ui.content.core-showcase-1.0.zip -s author</code>
+              <span class="cmd-desc">Demo page — Author (then publish via Author UI)</span>
+            </div>
+
+            <div class="cmd-item">
+              <code class="cmd-code">aio aem rde install ~/Downloads/ui.apps.core-showcase-theme-1.0.zip</code>
+              <span class="cmd-desc">CSS clientlib — Author + Publish</span>
+            </div>
+
           </div>
+        </div>
 
-          <div class="cmd-item">
-            <code class="cmd-code">aio aem rde install tools/cors/ui.config-clickjacking-publish-1.0.zip -s publish</code>
-            <span class="cmd-desc">Iframe embedding (Publish)</span>
-          </div>
-
-          <div class="cmd-item">
-            <code class="cmd-code">Copy CF → /content/dam/ue-demo/fragments/angular-hero in Assets UI</code>
-            <span class="cmd-desc">Seed content — do this in AEM Author Assets UI, not via vault packages</span>
-          </div>
-
+        <!-- Step 3 — CF -->
+        <div class="step-group">
+          <div class="step-hd"><span class="step-num">3</span> Seed a Content Fragment</div>
+          <p style="font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.65;">
+            In <strong style="color:rgba(255,255,255,.75)">AEM Author → Assets UI</strong>, copy an existing fragment
+            (e.g. <code style="font-size:.78rem;color:#a5d6a7">offers-home-hero</code>) to
+            <code style="font-size:.78rem;color:#a5d6a7">/content/dam/ue-demo/fragments/angular-hero</code>,
+            open the copy in the CF editor, update the fields, and Quick Publish.
+            <em style="display:block;margin-top:6px;opacity:.55">Do not use vault packages for Content Fragments — AEM's CF node structure requires the CF editor to set required properties.</em>
+          </p>
         </div>
       </div>
 
-      <!-- More guides -->
+      <!-- Right column: More guides -->
       <div>
         <div class="setup-title">More Guides</div>
         <p class="setup-intro">Index pages and setup docs for each demo track:</p>
