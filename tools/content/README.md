@@ -29,28 +29,21 @@
 - **ui.apps.core-showcase-theme-1.0.zip** — Minimal CSS clientlib for clean Core Components
   rendering on RDE Publish (no external dependencies, category: `glass-facades-demo.theme`)
 
-### Deploy commands (RDE: p138879-e1741192)
+### Install commands (RDE: p138879-e1741192)
 
 ```bash
-# Step 1 — Deploy content page to Author (will auto-replicate structure)
-aio aem rde:deploy tools/content/ui.content.core-showcase-1.0.zip --target author
+# Step 1 — Install content page to Author
+aio aem rde:install tools/content/ui.content.core-showcase-1.0.zip --target author
 
-# Step 2 — Deploy CSS clientlib to BOTH Author and Publish
-aio aem rde:deploy tools/content/ui.apps.core-showcase-theme-1.0.zip
+# Step 2 — Install CSS clientlib to BOTH Author and Publish
+aio aem rde:install tools/content/ui.apps.core-showcase-theme-1.0.zip
 
-# Step 3 — Open Author and manually publish the page
-# OR use the Replication API:
-curl -u admin:admin \
-  -X POST "https://author-p138879-e1741192.adobeaemcloud.com/bin/replicate.json" \
-  -d "path=/content/glass-facades/en/offers/core-showcase" \
-  -d "cmd=Activate"
-
-# Step 4 — Add clientlib to page (if not auto-loaded by template)
+# Step 3 — Add clientlib to page (if not auto-loaded by template)
 # Open the page in AEM Author → Page Properties → Advanced → Client Libraries
 # Add: glass-facades-demo.theme
 # OR in CRXDE add to jcr_content node: cq:clientlibs = [glass-facades-demo.theme]
 
-# View on Publish:
+# View on Publish (after manually publishing the page in Author):
 # https://publish-p138879-e1741192.adobeaemcloud.com/content/glass-facades/en/offers/core-showcase.html
 ```
 
@@ -58,4 +51,4 @@ curl -u admin:admin \
 
 If the page renders as a blank white page, the `sling:resourceType` needs to match the
 glass-facades site's actual page component. Use CRXDE to check the existing glass-facades
-pages for their `sling:resourceType`, then update `jcr_content/.content.xml` and redeploy.
+pages for their `sling:resourceType`, then update `jcr_content/.content.xml` and reinstall.
