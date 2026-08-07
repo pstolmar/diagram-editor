@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEM → EDS Preview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fff;
+      --color-surface: #f8f8f8;
+      --color-border: #e0e0e0;
+      --color-text: #1a1a1a;
+      --color-text-muted: #666;
+      --color-accent: #0066cc;
+      --color-accent-hover: #004a99;
+      --color-active-bg: rgba(0,102,204,0.04);
+      --color-success: #1a7a1a;
+      --color-error: #cc0000;
+      --color-hero: #e8f0fe;
+      --color-columns: #e8fce8;
+      --color-teaser: #fef8e8;
+      --color-list: #fce8f8;
+      --color-carousel: #e8fef8;
+      --color-buttons: #f8e8fe;
+      --color-plain: #f0f0f0;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Menlo', 'Monaco', 'Consolas', monospace;
+      --radius: 4px;
+      --header-h: 56px;
+    }
+
+    body {
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--color-text);
+      background: var(--color-bg);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    #header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+      background: #fff;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+    }
+
+    #header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    #header .badge {
+      font-size: 10px;
+      background: var(--color-accent);
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    #url-input {
+      flex: 1;
+      min-width: 0;
+      font: inherit;
+      font-size: 13px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 7px 10px;
+      background: #fff;
+      color: var(--color-text);
+    }
+
+    #url-input:focus { outline: 2px solid var(--color-accent); outline-offset: -1px; }
+
+    button {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--radius);
+      border: none;
+      padding: 7px 14px;
+      white-space: nowrap;
+      transition: background 0.1s;
+    }
+
+    .btn-primary { background: var(--color-accent); color: #fff; }
+    .btn-primary:hover { background: var(--color-accent-hover); }
+    .btn-primary:disabled { background: #999; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-accent);
+      border: 1px solid var(--color-border);
+    }
+    .btn-secondary:hover { background: var(--color-surface); }
+    .btn-secondary.active {
+      background: var(--color-accent);
+      color: #fff;
+      border-color: var(--color-accent);
+    }
+
+    .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ccc;
+      border-top-color: var(--color-accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner.active { display: inline-block; }
+
+    /* ── Error bar ── */
+    #error-bar {
+      display: none;
+      background: #fff0f0;
+      border-left: 3px solid var(--color-error);
+      color: #7a0000;
+      padding: 10px 20px;
+      font-size: 13px;
+    }
+    #error-bar.visible { display: block; }
+
+    /* ── Empty state ── */
+    #empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      text-align: center;
+      color: var(--color-text-muted);
+      gap: 10px;
+    }
+
+    #empty-state h2 { font-size: 18px; font-weight: 600; color: var(--color-text); }
+    #empty-state p { max-width: 440px; font-size: 13px; line-height: 1.6; }
+
+    .paste-fallback {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .paste-fallback textarea {
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 10px;
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    /* ── Main content ── */
+    #content { display: none; }
+    #content.visible { display: block; }
+
+    /* mapper + info panel */
+    #mapper-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    #mapper {
+      flex: 1;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .panel-col {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-col-header {
+      padding: 9px 14px;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+    }
+
+    .panel-scroll {
+      overflow-y: auto;
+      max-height: 520px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── Section cards ── */
+    .section-card {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: default;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease, outline 0.12s, background 0.12s;
+    }
+
+    .section-card.animate-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-card.active {
+      outline: 2px solid var(--color-accent);
+      background: var(--color-active-bg);
+    }
+
+    .section-card-header {
+      padding: 5px 10px;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-num { font-weight: 700; color: var(--color-text-muted); }
+
+    .block-badge {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-hero     { background: var(--color-hero);     color: #1a3a7a; }
+    .badge-columns  { background: var(--color-columns);  color: #1a5a1a; }
+    .badge-teaser   { background: var(--color-teaser);   color: #5a3a00; }
+    .badge-list     { background: var(--color-list);     color: #5a1a5a; }
+    .badge-carousel { background: var(--color-carousel); color: #1a5a4a; }
+    .badge-buttons  { background: var(--color-buttons);  color: #4a1a5a; }
+    .badge-plain    { background: var(--color-plain);    color: var(--color-text-muted); }
+
+    .section-aem-content {
+      padding: 10px;
+      font-size: 11px;
+      line-height: 1.5;
+      max-height: 160px;
+      overflow: hidden;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .section-aem-content img {
+      max-width: 100%;
+      height: auto;
+      max-height: 80px;
+      object-fit: cover;
+    }
+
+    .section-eds-pre {
+      margin: 0;
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.6;
+      max-height: 160px;
+      overflow: auto;
+      background: #fff;
+      color: var(--color-text);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── Info panel ── */
+    #info-panel {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+      align-self: flex-start;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    #info-panel-header {
+      padding: 9px 14px;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+    }
+
+    #info-panel-body {
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+    }
+
+    .info-empty { font-style: italic; }
+
+    .info-row { margin-bottom: 10px; }
+
+    .info-label {
+      font-weight: 700;
+      color: var(--color-text);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .info-note {
+      background: var(--color-surface);
+      border-left: 3px solid var(--color-accent);
+      padding: 6px 8px;
+      font-size: 11px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin-top: 6px;
+    }
+
+    /* ── View tabs ── */
+    #tabs-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px 0;
+      border-top: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
+
+    .tabs-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      align-self: center;
+    }
+
+    .tabs-group { display: flex; gap: 4px; }
+
+    /* ── Iframe area ── */
+    #iframe-area { padding: 12px 16px 32px; }
+
+    .iframe-wrapper {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+
+    .iframe-wrapper iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      display: block;
+      transform-origin: top left;
+    }
+
+    /* transparent overlay to block navigation / pointer events */
+    .iframe-blocker {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div id="header">
+  <h1>AEM → EDS Preview</h1>
+  <span class="badge">visual</span>
+  <input type="url" id="url-input" placeholder="https://publish-pNNN.adobeaemcloud.com/content/..." autocomplete="off">
+  <button class="btn-primary" id="fetch-btn">Fetch</button>
+  <span class="spinner" id="spinner"></span>
+</div>
+
+<!-- ── App ── -->
+<div id="app">
+
+  <div id="error-bar"></div>
+
+  <!-- Empty / paste-fallback state -->
+  <div id="empty-state">
+    <h2>AEM to EDS Visual Mapper</h2>
+    <p>Enter an AEM Publish URL above and click Fetch, or paste HTML below to see a side-by-side migration preview.</p>
+    <div class="paste-fallback">
+      <textarea id="paste-input" placeholder="Paste AEM page HTML here…"></textarea>
+      <button class="btn-primary" id="analyze-btn">Analyze HTML</button>
+    </div>
+  </div>
+
+  <!-- Main content (shown after analysis) -->
+  <div id="content">
+
+    <!-- Side-by-side mapper + sticky info panel -->
+    <div id="mapper-row">
+      <div id="mapper">
+        <div class="panel-col">
+          <div class="panel-col-header">AEM Original</div>
+          <div class="panel-scroll" id="left-panel"></div>
+        </div>
+        <div class="panel-col">
+          <div class="panel-col-header">EDS Blocks</div>
+          <div class="panel-scroll" id="right-panel"></div>
+        </div>
+      </div>
+
+      <div id="info-panel">
+        <div id="info-panel-header">Section Info</div>
+        <div id="info-panel-body">
+          <span class="info-empty">Hover a section to see details.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- View tabs + viewport toggle -->
+    <div id="tabs-row">
+      <span class="tabs-label">View:</span>
+      <div class="tabs-group" id="view-tabs">
+        <button class="btn-secondary active" data-tab="preview">Preview</button>
+        <button class="btn-secondary" data-tab="modernized">Modernized</button>
+      </div>
+      <span class="tabs-label" style="margin-left:16px">Viewport:</span>
+      <div class="tabs-group" id="viewport-btns">
+        <button class="btn-secondary active" data-vp="desktop">Desktop</button>
+        <button class="btn-secondary" data-vp="tablet">Tablet</button>
+        <button class="btn-secondary" data-vp="mobile">Mobile</button>
+      </div>
+    </div>
+
+    <!-- Iframes -->
+    <div id="iframe-area">
+      <div class="iframe-wrapper" id="iframe-wrapper">
+        <iframe id="iframe-preview" title="AEM Original Preview" sandbox="allow-same-origin"></iframe>
+        <iframe id="iframe-modernized" title="EDS Modernized Preview" sandbox="allow-same-origin" style="display:none"></iframe>
+        <div class="iframe-blocker"></div>
+      </div>
+    </div>
+
+  </div><!-- /#content -->
+</div><!-- /#app -->
+
+<script type="module">
+import { analyzeHTML, toEDSPage } from './convert.js';
+
+// ---------------------------------------------------------------------------
+// Stub CSS injected into the Modernized iframe
+// ---------------------------------------------------------------------------
+
+const STUB_CSS = `
+body { font-family: 'Adobe Clean', adobe-clean, Arial, sans-serif; margin: 0; color: #1a1a1a; }
+.hero { background: linear-gradient(135deg, #1473e6 0%, #0d66d0 100%); color: white; padding: 80px 40px; }
+.hero > div { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto; align-items: center; }
+.hero img { width: 100%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.hero h1, .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+.hero a { display: inline-block; background: white; color: #1473e6; padding: 12px 28px; border-radius: 24px; font-weight: 700; text-decoration: none; margin-top: 16px; }
+.columns > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; max-width: 1200px; margin: 40px auto; padding: 0 40px; }
+.teaser { max-width: 1200px; margin: 40px auto; padding: 0 40px; background: #f8f9fa; border-radius: 12px; }
+.teaser > div { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; padding: 40px; align-items: center; }
+.teaser img { width: 100%; border-radius: 8px; }
+main > div { padding: 24px 40px; max-width: 1200px; margin: 0 auto; }
+img { max-width: 100%; }
+`;
+
+// ---------------------------------------------------------------------------
+// Element refs
+// ---------------------------------------------------------------------------
+
+const urlInput    = document.getElementById('url-input');
+const fetchBtn    = document.getElementById('fetch-btn');
+const spinner     = document.getElementById('spinner');
+const errorBar    = document.getElementById('error-bar');
+const emptyState  = document.getElementById('empty-state');
+const pasteInput  = document.getElementById('paste-input');
+const analyzeBtn  = document.getElementById('analyze-btn');
+const content     = document.getElementById('content');
+const leftPanel   = document.getElementById('left-panel');
+const rightPanel  = document.getElementById('right-panel');
+const infoPanelBody = document.getElementById('info-panel-body');
+const viewTabs    = document.getElementById('view-tabs');
+const vpBtns      = document.getElementById('viewport-btns');
+const iframePreview    = document.getElementById('iframe-preview');
+const iframeModernized = document.getElementById('iframe-modernized');
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+
+let sections   = [];
+let activeTab  = 'preview';
+let scrollLock = false;
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function showError(msg) {
+  errorBar.textContent = msg;
+  errorBar.classList.add('visible');
+}
+
+function clearError() {
+  errorBar.textContent = '';
+  errorBar.classList.remove('visible');
+}
+
+function setLoading(on) {
+  spinner.classList.toggle('active', on);
+  fetchBtn.disabled  = on;
+  analyzeBtn.disabled = on;
+}
+
+function stripScripts(html) {
+  return html.replace(/<script[\s\S]*?<\/script>/gi, '');
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+const KNOWN_BLOCKS = ['hero', 'columns', 'teaser', 'list', 'carousel', 'buttons'];
+
+function badgeClass(blockName) {
+  return KNOWN_BLOCKS.includes(blockName) ? `badge-${blockName}` : 'badge-plain';
+}
+
+// ---------------------------------------------------------------------------
+// Info panel content
+// ---------------------------------------------------------------------------
+
+function buildInfoHTML(section) {
+  const bn   = section.classification.blockName || '(plain)';
+  const conf = Math.round(section.classification.confidence * 100);
+  const comps = section.aemComponents.length
+    ? section.aemComponents.join(', ')
+    : 'none detected';
+
+  const authorNote = bn !== '(plain)'
+    ? `In EDS, this becomes a <strong>${escapeHtml(bn)}</strong> table in your Word/Google Doc.`
+    : 'This section renders as plain content — no block table needed.';
+
+  const techNote = bn !== '(plain)'
+    ? `<div style="margin-top:8px;font-size:11px;color:var(--color-text-muted)">Block files: <code>blocks/${escapeHtml(bn)}/${escapeHtml(bn)}.js</code> + <code>.css</code></div>`
+    : '';
+
+  const cfNote = section.aemComponents.includes('xf')
+    ? `<div class="info-note" style="margin-top:8px">This section contains an Experience Fragment. Consider mapping it to a Content Fragment in AEM.</div>`
+    : '';
+
+  return `
+    <div class="info-row">
+      <div class="info-label">Block</div>
+      <span class="block-badge ${badgeClass(bn === '(plain)' ? null : bn)}">${escapeHtml(bn)}</span>
+      &nbsp;<span style="font-size:11px;color:var(--color-text-muted)">${conf}% confidence</span>
+    </div>
+    <div class="info-row">
+      <div class="info-label">AEM Components</div>
+      ${escapeHtml(comps)}
+    </div>
+    <div class="info-row">
+      <div class="info-label">Pattern</div>
+      ${escapeHtml(section.classification.reason)}
+    </div>
+    <div class="info-note">${authorNote}</div>
+    ${techNote}${cfNote}
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// Hover correlation
+// ---------------------------------------------------------------------------
+
+function highlight(n) {
+  if (n === null || n === undefined) return;
+  const key = String(n);
+  document.querySelectorAll('[data-section]').forEach((el) => {
+    el.classList.toggle('active', el.dataset.section === key);
+  });
+  const sec = sections.find((s) => s.index === Number(n));
+  if (sec) infoPanelBody.innerHTML = buildInfoHTML(sec);
+}
+
+function attachHover(panelEl) {
+  panelEl.addEventListener('mouseenter', (e) => {
+    const card = e.target.closest('[data-section]');
+    if (card) highlight(card.dataset.section);
+  }, true);
+}
+
+// ---------------------------------------------------------------------------
+// Scroll sync
+// ---------------------------------------------------------------------------
+
+function syncScroll(source, target) {
+  if (scrollLock) return;
+  scrollLock = true;
+  const srcMax = source.scrollHeight - source.clientHeight;
+  const tgtMax = target.scrollHeight - target.clientHeight;
+  if (srcMax > 0) target.scrollTop = source.scrollTop * (tgtMax / srcMax);
+  scrollLock = false;
+}
+
+// ---------------------------------------------------------------------------
+// Render mapper
+// ---------------------------------------------------------------------------
+
+function renderMapper(secs) {
+  leftPanel.innerHTML  = '';
+  rightPanel.innerHTML = '';
+
+  secs.forEach((section, i) => {
+    const bn     = section.classification.blockName || 'plain';
+    const bclass = badgeClass(section.classification.blockName);
+    const header = `
+      <div class="section-card-header">
+        <span class="section-num">#${section.index + 1}</span>
+        <span class="block-badge ${bclass}">${escapeHtml(bn)}</span>
+      </div>`;
+
+    // Left: AEM original (sanitized)
+    const leftCard = document.createElement('div');
+    leftCard.className = 'section-card';
+    leftCard.dataset.section = section.index;
+    leftCard.innerHTML = header + '<div class="section-aem-content"></div>';
+    leftCard.querySelector('.section-aem-content').innerHTML = stripScripts(section.aemHtml || '');
+    leftPanel.appendChild(leftCard);
+
+    // Right: EDS block HTML as <pre>
+    const rightCard = document.createElement('div');
+    rightCard.className = 'section-card';
+    rightCard.dataset.section = section.index;
+    rightCard.innerHTML = header + `<pre class="section-eds-pre">${escapeHtml(section.blockHtml)}</pre>`;
+    rightPanel.appendChild(rightCard);
+
+    // Staggered animate-in
+    const delay = i * 60;
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        leftCard.classList.add('animate-in');
+        rightCard.classList.add('animate-in');
+      }, delay);
+    });
+  });
+
+  leftPanel.addEventListener('scroll',  () => syncScroll(leftPanel, rightPanel));
+  rightPanel.addEventListener('scroll', () => syncScroll(rightPanel, leftPanel));
+  attachHover(leftPanel);
+  attachHover(rightPanel);
+}
+
+// ---------------------------------------------------------------------------
+// Iframes
+// ---------------------------------------------------------------------------
+
+function setActiveTab(tab) {
+  activeTab = tab;
+  viewTabs.querySelectorAll('button').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  iframePreview.style.display    = tab === 'preview'    ? '' : 'none';
+  iframeModernized.style.display = tab === 'modernized' ? '' : 'none';
+}
+
+function applyViewport(vp) {
+  vpBtns.querySelectorAll('button').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.vp === vp);
+  });
+  const frame = activeTab === 'preview' ? iframePreview : iframeModernized;
+  if (vp === 'desktop') {
+    frame.style.width           = '100%';
+    frame.style.transform       = 'scale(1)';
+    frame.style.height          = '600px';
+    frame.style.transformOrigin = 'top left';
+  } else if (vp === 'tablet') {
+    frame.style.width           = '768px';
+    frame.style.transform       = 'scale(0.85)';
+    frame.style.transformOrigin = 'top left';
+    frame.style.height          = '706px';  // 600 / 0.85
+  } else if (vp === 'mobile') {
+    frame.style.width           = '390px';
+    frame.style.transform       = 'scale(0.5)';
+    frame.style.transformOrigin = 'top left';
+    frame.style.height          = '1200px'; // 600 / 0.5
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Analysis runner
+// ---------------------------------------------------------------------------
+
+async function runAnalysis(html, sourceUrl) {
+  clearError();
+  let analysis;
+  try {
+    analysis = await analyzeHTML(html, sourceUrl);
+  } catch (e) {
+    showError(`Analysis failed: ${e.message}`);
+    setLoading(false);
+    return;
+  }
+
+  if (!analysis.sections.length) {
+    showError('No AEM sections found — this may not be an AEM Core Components page. Try pasting the inner <body> HTML only.');
+    setLoading(false);
+    return;
+  }
+
+  sections = analysis.sections;
+  const edsHtml = toEDSPage(analysis);
+  const modernized = edsHtml.replace('<head>', `<head><style>${STUB_CSS}</style>`);
+
+  // Show content panel
+  emptyState.style.display = 'none';
+  content.classList.add('visible');
+
+  renderMapper(sections);
+
+  // Load iframes — set srcdoc after a frame so browser doesn't block
+  requestAnimationFrame(() => {
+    iframePreview.srcdoc    = html;
+    iframeModernized.srcdoc = modernized;
+  });
+
+  setActiveTab('preview');
+  applyViewport('desktop');
+  setLoading(false);
+}
+
+// ---------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------
+
+fetchBtn.addEventListener('click', async () => {
+  const url = urlInput.value.trim();
+  if (!url) { showError('Enter a URL first.'); return; }
+  setLoading(true);
+  clearError();
+  try {
+    const resp = await fetch(url, { mode: 'cors' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const html = await resp.text();
+    pasteInput.value = html;
+    await runAnalysis(html, url);
+  } catch (e) {
+    showError(
+      `Fetch failed (${e.message}). CORS may be blocking — `
+      + 'paste the page HTML manually in the textarea below.',
+    );
+    setLoading(false);
+  }
+});
+
+analyzeBtn.addEventListener('click', () => {
+  const html = pasteInput.value.trim();
+  if (!html) { showError('Paste HTML into the textarea first.'); return; }
+  setLoading(true);
+  const sourceUrl = urlInput.value.trim() || '';
+  requestAnimationFrame(() => {
+    runAnalysis(html, sourceUrl).catch((e) => { showError(e.message); setLoading(false); });
+  });
+});
+
+urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchBtn.click(); });
+
+viewTabs.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-tab]');
+  if (btn) setActiveTab(btn.dataset.tab);
+});
+
+vpBtns.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-vp]');
+  if (btn) applyViewport(btn.dataset.vp);
+});
+</script>
+</body>
+</html>
