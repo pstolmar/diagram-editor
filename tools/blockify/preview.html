@@ -397,7 +397,7 @@
       position: absolute;
       inset: 0;
       z-index: 10;
-      cursor: not-allowed;
+      cursor: default;
     }
   </style>
 </head>
@@ -479,7 +479,7 @@
 </div><!-- /#app -->
 
 <script type="module">
-import { analyzeHTML, toEDSPage } from './convert.js';
+import { analyzeHTML } from './convert.js';
 
 // ---------------------------------------------------------------------------
 // Stub CSS injected into the Modernized iframe
@@ -549,8 +549,22 @@ function setLoading(on) {
   analyzeBtn.disabled = on;
 }
 
-function stripScripts(html) {
-  return html.replace(/<script[\s\S]*?<\/script>/gi, '');
+function sanitizeAemHtml(html) {
+  // Strip scripts + external stylesheets, then inject a layout-neutralizing reset
+  // so AEM absolute-positioned / floated elements don't overlap in the card preview.
+  const stripped = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<link[^>]+rel=["']stylesheet["'][^>]*>/gi, '');
+  const reset = `<style>
+    *{box-sizing:border-box!important;transform:none!important}
+    .aem-Grid,.aem-GridColumn,.responsivegrid,
+    .cmp-container,.cmp-container>*{
+      position:static!important;float:none!important;
+      width:auto!important;display:block!important;padding:2px!important}
+    img{max-width:100%!important;height:auto!important}
+    a{pointer-events:none}
+  </style>`;
+  return reset + stripped;
 }
 
 function escapeHtml(s) {
@@ -665,7 +679,7 @@ function renderMapper(secs) {
     leftCard.className = 'section-card';
     leftCard.dataset.section = section.index;
     leftCard.innerHTML = header + '<div class="section-aem-content"></div>';
-    leftCard.querySelector('.section-aem-content').innerHTML = stripScripts(section.aemHtml || '');
+    leftCard.querySelector('.section-aem-content').innerHTML = sanitizeAemHtml(section.aemHtml || '');
     leftPanel.appendChild(leftCard);
 
     // Right: EDS block HTML as <pre>
@@ -752,8 +766,14 @@ async function runAnalysis(html, sourceUrl) {
   }
 
   sections = analysis.sections;
-  const edsHtml = toEDSPage(analysis);
-  const modernized = edsHtml.replace('<head>', `<head><style>${STUB_CSS}</style>`);
+  // Build a standalone modernized doc — do NOT use toEDSPage() because EDS CSS hides
+  // body until scripts.js runs, leaving the iframe blank without script execution.
+  const blockParts = sections.map((s) => `<div>${s.blockHtml}</div>`).join('\n');
+  const modernized = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EDS Modernized</title>
+<style>body{margin:0}${STUB_CSS}</style>
+</head><body><main>\n${blockParts}\n</main></body></html>`;
 
   // Show content panel
   emptyState.style.display = 'none';
@@ -789,8 +809,8 @@ fetchBtn.addEventListener('click', async () => {
     await runAnalysis(html, url);
   } catch (e) {
     showError(
-      `Fetch failed (${e.message}). CORS may be blocking — `
-      + 'paste the page HTML manually in the textarea below.',
+      `Fetch failed (${e.message}). AEM Publish may be missing CORS headers for this origin. `
+      + 'Re-deploy the CORS config: bash tools/fix-publish.sh — or paste the page HTML below.',
     );
     setLoading(false);
   }
