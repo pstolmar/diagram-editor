@@ -60,3 +60,60 @@ aio aem rde install tools/content/ui.apps.core-showcase-theme-1.0.zip
 If the page renders as a blank white page, the `sling:resourceType` needs to match the
 glass-facades site's actual page component. Use CRXDE to check the existing glass-facades
 pages for their `sling:resourceType`, then update `jcr_content/.content.xml` and reinstall.
+
+---
+
+## Fix: Empty Navigation on Publish
+
+**`ui.content.glass-facades-nav-fix-1.0.zip`** — Patches the `fr_fr` header XF navigation so
+it renders nav links on Publish.
+
+**Root cause**: Core Components Navigation/LanguageNavigation inside an Experience Fragment use
+the XF page (`/content/experience-fragments/glass-facades/fr_fr/site/header/master`) as their
+`currentPage` context. `getAbsoluteParent(2)` on that path resolves to the XF root, not the
+glass-facades site root — so the component finds no site pages and renders an empty `<nav>`.
+
+**Fix**: Explicitly sets `navigationRoot="/content/glass-facades/fr"` on both the `navigation`
+and `languagenavigation` component nodes in the XF via `mode="merge"` (adds the property without
+touching any other node content).
+
+```bash
+# Deploy to RDE Publish (the XF is replicated; patch must reach Publish)
+aio aem rde install tools/content/ui.content.glass-facades-nav-fix-1.0.zip
+
+# Then hard-refresh:
+# https://publish-p138879-e1741192.adobeaemcloud.com/content/glass-facades/fr/live-copy-page-demo.html
+```
+
+**Targets** (with `mode="merge"`):
+- `.../fr_fr/site/header/master/jcr:content/root/navigation`
+- `.../fr_fr/site/header/master/jcr:content/root/languagenavigation`
+
+> If the navigation is nested inside a container node (e.g. `jcr:content/root/container/navigation`)
+> rather than a direct child of `root`, this package creates two harmless stray nodes and the nav
+> stays broken. Install a v1.1 package targeting the container path.
+
+---
+
+## AEM Sites Console: Convert to Blocks Action
+
+**`ui.apps.sites-convert-action-1.0.zip`** — Adds a **Convert to Blocks** button to the AEM Sites
+console toolbar. When one or more pages are selected, clicking the button opens:
+
+```
+https://edge--diagram-editor--pstolmar.aem.live/tools/blockify/?page={selected-page-path}
+```
+
+**Implementation**: a `cq:ClientLibraryFolder` at `/apps/glass-facades/clientlibs/sites-convert-action`
+with category `cq.gui.sites.admin` (loaded by the Sites console). The JS listens for
+`foundation-selections-change` and injects a `coral-actionbar-item` into `coral-actionbar-primary`
+on the first selection.
+
+```bash
+# Deploy to Author (the Sites console is Author-only)
+aio aem rde install tools/content/ui.apps.sites-convert-action-1.0.zip --target author
+
+# Open the Sites console to verify:
+# https://author-p138879-e1741192.adobeaemcloud.com/sites.html/content/glass-facades
+# Select any page — a "Convert to Blocks" button should appear in the top action bar.
+```
