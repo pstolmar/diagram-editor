@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CF → DA Live Converter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #1d2127;
+      background: #f4f5f7;
+      margin: 0;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin: 0 0 24px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      max-width: 860px;
+    }
+
+    .card h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #6b7280;
+      margin: 0 0 14px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      align-items: center;
+    }
+
+    button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    #btn-convert {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    #btn-convert:hover:not(:disabled) { background: #1d4ed8; }
+
+    #btn-copy {
+      background: #f1f5f9;
+      color: #374151;
+      border: 1px solid #cbd5e1;
+    }
+
+    #btn-copy:hover:not(:disabled) { background: #e2e8f0; }
+
+    #status {
+      font-size: 13px;
+      color: #6b7280;
+      flex: 1;
+    }
+
+    .status-ok    { color: #16a34a; }
+    .status-error { color: #dc2626; }
+    .status-warn  { color: #d97706; }
+
+    #output-section { display: none; }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+    }
+
+    .url-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 5px;
+      padding: 8px 12px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .url-row a {
+      color: #15803d;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .url-label {
+      font-weight: 600;
+      color: #166534;
+      white-space: nowrap;
+    }
+
+    .cors-notice {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 5px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #92400e;
+      margin-bottom: 12px;
+    }
+
+    .cors-notice strong { color: #78350f; }
+
+    .step-log {
+      font-size: 12px;
+      color: #64748b;
+      margin: 10px 0 0;
+    }
+
+    .step-log div { padding: 2px 0; }
+    .step-log .ok   { color: #16a34a; }
+    .step-log .fail { color: #dc2626; }
+    .step-log .warn { color: #d97706; }
+  </style>
+</head>
+<body>
+
+<h1>CF &#8594; DA Live Converter</h1>
+<p class="subtitle">Fetch an AEM Content Fragment, convert it to EDS block-table HTML, and upload to DA Live.</p>
+
+<div class="card">
+  <h2>Source</h2>
+  <div class="grid-2">
+    <div class="full">
+      <label for="cf-path">Content Fragment path</label>
+      <input type="text" id="cf-path"
+        value="/content/dam/ue-demo/fragments/home-hero"
+        placeholder="/content/dam/…/fragment-name">
+      <div class="hint">AEM DAM path — no .json extension</div>
+    </div>
+    <div>
+      <label for="author-url">AEM Author URL</label>
+      <input type="text" id="author-url"
+        value="https://author-p138879-e1741192.adobeaemcloud.com"
+        placeholder="https://author-p…-e….adobeaemcloud.com">
+    </div>
+    <div>
+      <label for="aem-token">AEM Bearer token</label>
+      <input type="text" id="aem-token" placeholder="eyJ… (from aio auth:token)">
+      <div class="hint">Required to fetch CF data from Author</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Destination — DA Live</h2>
+  <div class="grid-2">
+    <div>
+      <label for="da-org">DA Live org</label>
+      <input type="text" id="da-org" value="pstolmar">
+    </div>
+    <div>
+      <label for="da-repo">DA Live repo</label>
+      <input type="text" id="da-repo" value="diagram-editor">
+    </div>
+    <div class="full">
+      <label for="da-token">DA Live token</label>
+      <input type="text" id="da-token" placeholder="Leave blank to use AEM token as fallback">
+      <div class="hint">
+        Optional separate DA Live API token.
+        See <a href="https://da.live" target="_blank">da.live</a> &#8594; Account &#8594; API token.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button id="btn-convert">Convert &amp; Upload</button>
+  <button id="btn-copy" style="display:none">Copy HTML</button>
+  <span id="status"></span>
+</div>
+
+<div id="output-section" class="card" style="margin-top:20px">
+  <h2>Generated HTML</h2>
+
+  <div class="cors-notice">
+    <strong>Note on CORS:</strong> Direct browser calls to the DA Live API and AEM Author
+    will fail if those origins have not whitelisted this page. If the upload step fails with
+    a network error, copy the HTML below and use the shell script or paste it directly into
+    <a href="https://da.live" target="_blank">da.live</a>. The generated HTML is always reliable
+    regardless of API success.
+  </div>
+
+  <pre id="html-output"></pre>
+
+  <div id="step-log" class="step-log"></div>
+
+  <div id="url-da" class="url-row" style="display:none">
+    <span class="url-label">DA Live source:</span>
+    <a id="link-da" href="#" target="_blank"></a>
+  </div>
+  <div id="url-preview" class="url-row" style="display:none">
+    <span class="url-label">EDS preview:</span>
+    <a id="link-preview" href="#" target="_blank"></a>
+  </div>
+  <div id="url-live" class="url-row" style="display:none">
+    <span class="url-label">EDS live:</span>
+    <a id="link-live" href="#" target="_blank"></a>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function setStatus(msg, cls = '') {
+    const el = $('status');
+    el.textContent = msg;
+    el.className = cls;
+  }
+
+  function log(msg, cls = '') {
+    const div = document.createElement('div');
+    div.textContent = msg;
+    if (cls) div.className = cls;
+    $('step-log').appendChild(div);
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Read a CF field from the parsed JSON response ──────────────────────────
+  function readField(data, field) {
+    const elements = (data.properties || {}).elements || {};
+    const entry = elements[field] || {};
+    const val = entry.value;
+    if (Array.isArray(val)) return val.join(' ');
+    return val != null ? String(val) : '';
+  }
+
+  // ── Build EDS block-table HTML ─────────────────────────────────────────────
+  function buildHtml(title, eyebrow, description, ctaLabel, contentReference) {
+    const imgCell = contentReference
+      ? `<img src="${escapeHtml(contentReference)}">`
+      : '';
+    const ctaHtml = ctaLabel
+      ? `<a href="#">${escapeHtml(ctaLabel)}</a>`
+      : '';
+    // description may contain HTML — insert as-is inside the <td>
+    return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>${escapeHtml(title || 'Hero')}</title></head>
+<body>
+<main>
+  <div>
+    <div>
+      <table>
+        <tr><th colspan="2">Hero</th></tr>
+        <tr>
+          <td>${imgCell}</td>
+          <td>
+            <h2>${escapeHtml(title)}</h2>
+            <p>${escapeHtml(eyebrow)}</p>
+            ${description}
+            ${ctaHtml}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</main>
+</body>
+</html>`;
+  }
+
+  // ── Main convert handler ───────────────────────────────────────────────────
+  $('btn-convert').addEventListener('click', async () => {
+    const cfPath     = $('cf-path').value.trim();
+    const authorUrl  = $('author-url').value.trim().replace(/\/$/, '');
+    const aemToken   = $('aem-token').value.trim();
+    const daOrg      = $('da-org').value.trim();
+    const daRepo     = $('da-repo').value.trim();
+    const daToken    = $('da-token').value.trim() || aemToken;
+
+    if (!cfPath)    { setStatus('Enter a CF path.', 'status-error'); return; }
+    if (!authorUrl) { setStatus('Enter the Author URL.', 'status-error'); return; }
+    if (!aemToken)  { setStatus('Enter an AEM bearer token.', 'status-error'); return; }
+
+    // Derive DA Live path
+    const daPath = cfPath.replace(/^\/content\/dam\//, '');
+
+    $('btn-convert').disabled = true;
+    $('btn-copy').style.display = 'none';
+    $('step-log').innerHTML = '';
+    $('output-section').style.display = 'none';
+    setStatus('Running…');
+
+    // ── Step 1: Fetch CF ───────────────────────────────────────────────────
+    log(`[1/5] GET ${authorUrl}/api/assets${cfPath}.json`);
+    let cfData;
+    try {
+      const resp = await fetch(`${authorUrl}/api/assets${cfPath}.json`, {
+        headers: { Authorization: `Bearer ${aemToken}` },
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      cfData = await resp.json();
+      log(`      ✓ Fetched CF JSON`, 'ok');
+    } catch (err) {
+      log(`      ✗ ${err.message} — CORS or auth issue. Check browser console.`, 'fail');
+      setStatus('Step 1 failed — see log', 'status-error');
+      $('btn-convert').disabled = false;
+      return;
+    }
+
+    // ── Step 2: Parse fields ───────────────────────────────────────────────
+    log('[2/5] Parsing CF fields …');
+    const eyebrow        = readField(cfData, 'eyebrow');
+    const title          = readField(cfData, 'title');
+    const description    = readField(cfData, 'description');
+    const ctaLabel       = readField(cfData, 'ctaLabel');
+    const contentRef     = readField(cfData, 'contentReference');
+    log(`      title: ${title || '(empty)'}`, title ? 'ok' : 'warn');
+
+    // ── Step 3: Build HTML ─────────────────────────────────────────────────
+    log('[3/5] Rendering block-table HTML …');
+    const htmlDoc = buildHtml(title, eyebrow, description, ctaLabel, contentRef);
+    $('html-output').textContent = htmlDoc;
+    $('output-section').style.display = 'block';
+    $('btn-copy').style.display = '';
+    log(`      DA Live path: ${daPath}`, 'ok');
+
+    // ── Step 4: POST to DA Live ────────────────────────────────────────────
+    const daUrl = `https://admin.da.live/source/${daOrg}/${daRepo}/${daPath}.html`;
+    log(`[4/5] PUT ${daUrl}`);
+    try {
+      const resp = await fetch(daUrl, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${daToken}`,
+          'Content-Type': 'text/html; charset=utf-8',
+        },
+        body: htmlDoc,
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      log(`      ✓ DA Live upload OK (${resp.status})`, 'ok');
+    } catch (err) {
+      log(`      ✗ DA Live upload failed: ${err.message}`, 'warn');
+      log('      → CORS likely blocked this. Copy the HTML below and upload manually.', 'warn');
+    }
+
+    // Show DA Live link regardless
+    $('link-da').href = `https://da.live/edit#/${daOrg}/${daRepo}/${daPath}`;
+    $('link-da').textContent = `https://da.live/edit#/${daOrg}/${daRepo}/${daPath}`;
+    $('url-da').style.display = 'flex';
+
+    // ── Step 5: Franklin preview + publish ────────────────────────────────
+    const previewUrl = `https://admin.hlx.page/preview/${daOrg}/${daRepo}/main/${daPath}`;
+    const liveUrl    = `https://admin.hlx.page/live/${daOrg}/${daRepo}/main/${daPath}`;
+
+    log(`[5/5] POST ${previewUrl}`);
+    try {
+      const resp = await fetch(previewUrl, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${aemToken}` },
+      });
+      log(`      Preview: HTTP ${resp.status}${resp.ok ? ' ✓' : ''}`, resp.ok ? 'ok' : 'warn');
+    } catch (err) {
+      log(`      Preview POST failed: ${err.message}`, 'warn');
+    }
+
+    log(`      POST ${liveUrl}`);
+    try {
+      const resp = await fetch(liveUrl, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${aemToken}` },
+      });
+      log(`      Publish: HTTP ${resp.status}${resp.ok ? ' ✓' : ''}`, resp.ok ? 'ok' : 'warn');
+    } catch (err) {
+      log(`      Publish POST failed: ${err.message}`, 'warn');
+    }
+
+    // ── Final URLs ─────────────────────────────────────────────────────────
+    const previewPageUrl = `https://main--${daRepo}--${daOrg}.hlx.page/${daPath}`;
+    const livePageUrl    = `https://main--${daRepo}--${daOrg}.hlx.live/${daPath}`;
+
+    $('link-preview').href = $('link-preview').textContent = previewPageUrl;
+    $('link-live').href    = $('link-live').textContent    = livePageUrl;
+    $('url-preview').style.display = 'flex';
+    $('url-live').style.display    = 'flex';
+
+    setStatus('Done.', 'status-ok');
+    $('btn-convert').disabled = false;
+  });
+
+  // ── Copy HTML ──────────────────────────────────────────────────────────────
+  $('btn-copy').addEventListener('click', async () => {
+    const text = $('html-output').textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      $('btn-copy').textContent = 'Copied!';
+      setTimeout(() => { $('btn-copy').textContent = 'Copy HTML'; }, 1800);
+    } catch {
+      $('btn-copy').textContent = 'Select manually';
+    }
+  });
+</script>
+</body>
+</html>
