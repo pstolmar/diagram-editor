@@ -2125,9 +2125,10 @@
   const darkDotPanel = 4;
 
   function updateDots(activeIndex) {
+    const onDark = activeIndex === darkDotPanel;
     dots.forEach((dot, i) => {
       dot.classList.toggle('active', i === activeIndex);
-      dot.classList.toggle('dot-dark', i === darkDotPanel);
+      dot.classList.toggle('dot-dark', onDark);
     });
   }
 
