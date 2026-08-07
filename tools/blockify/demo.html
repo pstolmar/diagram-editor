@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEM Core Components → EDS: The Migration Story</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1473e6;
+      --blue-dark: #0d66d0;
+      --red: #e34850;
+      --green: #2d9d78;
+      --orange: #f29423;
+      --purple: #7e4dd2;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--font);
+      font-size: 18px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      height: 100%;
+    }
+
+    /* -----------------------------------------------------------------------
+       PROGRESS DOTS
+    ----------------------------------------------------------------------- */
+    .progress-dots {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      border: 2px solid rgba(255,255,255,0.5);
+    }
+
+    .dot.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      transform: scale(1.3);
+    }
+
+    .dot-dark {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .dot-dark.active {
+      background: #fff;
+      border-color: #fff;
+    }
+
+    /* -----------------------------------------------------------------------
+       PANELS
+    ----------------------------------------------------------------------- */
+    .panel {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .panel-label {
+      position: absolute;
+      top: 24px;
+      left: 40px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.45;
+    }
+
+    /* -----------------------------------------------------------------------
+       PANEL 1 — THE STARTING POINT
+    ----------------------------------------------------------------------- */
+    #panel-1 {
+      background: #fff;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .p1-page {
+      padding: 48px 40px 48px 60px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-right: 1px solid #e8e8e8;
+    }
+
+    /* Faux AEM Nav */
+    .cmp-navigation {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fff;
+      margin-bottom: 0;
+    }
+
+    .cmp-navigation__logo {
+      width: 120px;
+      height: 32px;
+      background: linear-gradient(135deg, #e34850 0%, #f29423 100%);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    .cmp-navigation__links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .cmp-navigation__links a {
+      color: #333;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* Faux AEM Hero */
+    .cmp-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      padding: 36px 24px;
+      background: linear-gradient(135deg, #f0f4ff 0%, #fff8f0 100%);
+      margin-bottom: 0;
+    }
+
+    .cmp-image__placeholder {
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, #b3c7f5 0%, #d4eaff 50%, #c8e6c9 100%);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 40px;
+      gap: 8px;
+    }
+
+    .cmp-image__placeholder span {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: rgba(20,60,120,0.5);
+    }
+
+    .cmp-hero__content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .cmp-title h1 {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.25;
+    }
+
+    .cmp-text p {
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .cmp-button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .cmp-button a {
+      display: inline-block;
+      padding: 10px 22px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .cmp-button--primary a {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .cmp-button--secondary a {
+      background: transparent;
+      color: var(--blue);
+      border-color: var(--blue);
+    }
+
+    /* Faux teaser section */
+    .cmp-teaser-section {
+      padding: 28px 24px;
+      background: #fafafa;
+    }
+
+    .cmp-teaser-section h2 {
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
+    .cmp-teaser-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .cmp-teaser {
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .cmp-teaser__image {
+      height: 80px;
+      background: linear-gradient(135deg, #e8f0fe 0%, #fce8ff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .cmp-teaser__content {
+      padding: 12px;
+    }
+
+    .cmp-teaser__title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .cmp-teaser__description {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* Bottom text section */
+    .cmp-text-section {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .cmp-text-section p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    /* Right sidebar: architecture */
+    .p1-arch {
+      background: #1a1a2e;
+      color: #e8e8ff;
+      padding: 48px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .p1-arch h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .arch-node {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .arch-node__icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+    }
+
+    .arch-node__name {
+      font-weight: 600;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .arch-node__sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      display: block;
+    }
+
+    .arch-arrow {
+      text-align: center;
+      color: rgba(255,255,255,0.25);
+      font-size: 16px;
+      margin: -2px 0;
+    }
+
+    .component-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .component-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-family: 'Menlo', 'Monaco', monospace;
+      color: #a8c0ff;
+    }
+
+    .component-pill__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+
+    .infra-cost {
+      background: rgba(227,72,80,0.15);
+      border: 1px solid rgba(227,72,80,0.3);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .infra-cost h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #e34850;
+      margin-bottom: 8px;
+    }
+
+    .infra-cost-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .infra-cost-row:last-child { border-bottom: none; }
+
+    .infra-cost-row strong {
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* -----------------------------------------------------------------------
+       PANEL 2 — THE CONVERSION
+    ----------------------------------------------------------------------- */
+    #panel-2 {
+      background: #f4f6ff;
+    }
+
+    .p2-inner {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 0;
+      align-items: center;
+      height: 100%;
+      padding: 60px 40px 40px;
+    }
+
+    .p2-header {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .p2-header h2 {
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .p2-header .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* DevTools-like DOM tree */
+    .dom-tree {
+      background: #1e1e2e;
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'Menlo', 'Monaco', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: #cdd6f4;
+      overflow: hidden;
+      height: 420px;
+      position: relative;
+    }
+
+    .dom-tree .dt-tag { color: #89dceb; }
+    .dom-tree .dt-class { color: #a6e3a1; }
+    .dom-tree .dt-attr { color: #fab387; }
+    .dom-tree .dt-text { color: #cdd6f4; opacity: 0.6; font-style: italic; }
+
+    .dt-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      white-space: nowrap;
+      transition: opacity 0.5s, transform 0.5s;
+    }
+
+    .dt-indent { display: inline-block; width: 18px; }
+
+    .dt-row.collapsing {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    /* EDS Block table (right side) */
+    .eds-blocks {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.6s 0.4s, transform 0.6s 0.4s;
+    }
+
+    .eds-blocks.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .eds-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .eds-table th {
+      background: #1473e6;
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .eds-table td {
+      background: #fff;
+      border: 1px solid #dde8ff;
+      padding: 8px 12px;
+      vertical-align: top;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    .eds-table td .img-ph {
+      width: 60px;
+      height: 40px;
+      background: linear-gradient(135deg, #b3c7f5, #d4eaff);
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .table-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    /* Arrow in center */
+    .p2-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .p2-arrow-line {
+      width: 2px;
+      height: 40px;
+      background: linear-gradient(to bottom, transparent, var(--blue));
+    }
+
+    .p2-arrow-head {
+      font-size: 28px;
+      color: var(--blue);
+      line-height: 1;
+    }
+
+    .p2-arrow-line-bottom {
+      width: 2px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--blue), transparent);
+    }
+
+    /* Bottom bar: new arch + counter */
+    .p2-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1a1a2e;
+      color: #e8e8ff;
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .p2-arch-new {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .arch-pill {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #a8c0ff;
+    }
+
+    .arch-pill.github { color: #f5a97f; }
+    .arch-pill.cdn { color: #a6e3a1; }
+    .arch-pill.browser { color: #89dceb; }
+
+    .arch-divider {
+      color: rgba(255,255,255,0.2);
+      font-size: 18px;
+    }
+
+    .zero-servers {
+      background: rgba(45,157,120,0.2);
+      border: 1px solid var(--green);
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .p2-timer {
+      text-align: right;
+    }
+
+    .p2-timer__count {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .p2-timer__label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* -----------------------------------------------------------------------
+       PANEL 3 — EDS-NATIVE BLOCKS
+    ----------------------------------------------------------------------- */
+    #panel-3 {
+      background: #fff;
+      overflow-y: auto;
+      display: block;
+      padding: 60px 60px 40px;
+    }
+
+    .p3-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .p3-header h2 {
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .p3-header p {
+      font-size: 16px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    /* Stagger animation base */
+    .p3-block {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .p3-block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Pull Quote */
+    .pull-quote-block {
+      background: linear-gradient(135deg, #f0f4ff 0%, #fff8f0 100%);
+      border-left: 4px solid var(--blue);
+      padding: 32px 48px 32px 56px;
+      position: relative;
+      margin-bottom: 32px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .pull-quote-block::before {
+      content: '\201C';
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      font-size: 96px;
+      line-height: 1;
+      color: var(--blue);
+      opacity: 0.25;
+      font-family: Georgia, serif;
+    }
+
+    .pull-quote-block blockquote {
+      font-size: clamp(1.1rem, 2vw, 1.5rem);
+      font-style: italic;
+      font-weight: 500;
+      color: #1a1a2e;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .pull-quote-block cite {
+      font-size: 14px;
+      color: #666;
+      font-style: normal;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pull-quote-block cite::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2px;
+      background: var(--blue);
+    }
+
+    /* 3D Cards Block */
+    .cards-3d-block {
+      background: #0f0f1a;
+      border-radius: 12px;
+      padding: 36px 32px;
+      margin-bottom: 32px;
+    }
+
+    .cards-3d-block h3 {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .cards-3d-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      perspective: 800px;
+    }
+
+    .card-3d {
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(160deg, #1e1e3a 0%, #12122a 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+    }
+
+    .card-3d:hover {
+      transform: rotateY(-5deg) rotateX(2deg) translateZ(10px);
+      box-shadow: 12px 16px 40px rgba(0,0,0,0.5), 0 0 20px rgba(20,115,230,0.2);
+    }
+
+    .card-3d__header {
+      padding: 24px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-3d__icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .card-3d__icon--blue { background: rgba(20,115,230,0.25); }
+    .card-3d__icon--green { background: rgba(45,157,120,0.25); }
+    .card-3d__icon--orange { background: rgba(242,148,35,0.25); }
+
+    .card-3d__title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card-3d__body {
+      padding: 0 20px 24px;
+    }
+
+    .card-3d__stat {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .card-3d__label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .card-3d__bar {
+      margin-top: 14px;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .card-3d__bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--blue), #66b2ff);
+    }
+
+    /* Data Table Block */
+    .data-table-block {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .data-table-block table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .data-table-block thead tr {
+      background: #f8f9ff;
+    }
+
+    .data-table-block th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      border-bottom: 2px solid #e8e8e8;
+    }
+
+    .data-table-block th.col-eds {
+      color: var(--green);
+    }
+
+    .data-table-block td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+    }
+
+    .data-table-block tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table-block td.col-eds {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .data-table-block td.col-classic {
+      color: #e34850;
+    }
+
+    .metric-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(45,157,120,0.1);
+      color: var(--green);
+    }
+
+    /* -----------------------------------------------------------------------
+       PANEL 4 — AI TOOLS
+    ----------------------------------------------------------------------- */
+    #panel-4 {
+      background: #f8f9ff;
+    }
+
+    .p4-inner {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 60px 40px 24px;
+      overflow: hidden;
+    }
+
+    .p4-header {
+      text-align: center;
+      margin-bottom: 28px;
+      flex-shrink: 0;
+    }
+
+    .p4-header h2 {
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .p4-header p {
+      font-size: 15px;
+      color: #666;
+      margin-top: 6px;
+    }
+
+    .p4-tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .p4-tool-panel {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e0e8ff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 16px rgba(20,115,230,0.08);
+      /* Slide in animation */
+      opacity: 0;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .p4-tool-panel.from-left { transform: translateX(-60px); }
+    .p4-tool-panel.from-center { transform: translateY(40px); }
+    .p4-tool-panel.from-right { transform: translateX(60px); }
+
+    .p4-tool-panel.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .p4-tool-panel.from-left { transition-delay: 0s; }
+    .p4-tool-panel.from-center { transition-delay: 0.15s; }
+    .p4-tool-panel.from-right { transition-delay: 0.3s; }
+
+    .p4-tool-header {
+      background: linear-gradient(135deg, var(--blue) 0%, #0d52c1 100%);
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .p4-tool-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .p4-tool-header .tool-icon {
+      font-size: 18px;
+    }
+
+    .p4-tool-body {
+      padding: 14px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Generate Variations */
+    .gv-prompt {
+      background: #f4f6ff;
+      border: 1px solid #c8d8ff;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #333;
+    }
+
+    .gv-prompt strong {
+      color: var(--blue);
+      display: block;
+      margin-bottom: 3px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .gv-variation {
+      border: 1.5px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+
+    .gv-variation.selected {
+      border-color: var(--blue);
+      background: #f0f6ff;
+    }
+
+    .gv-variation__title {
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 3px;
+      font-size: 12px;
+    }
+
+    .gv-variation__desc {
+      color: #666;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .gv-variation__use {
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--blue);
+      cursor: pointer;
+    }
+
+    .gv-badge {
+      font-size: 10px;
+      color: #888;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    /* Quick Edit */
+    .qe-canvas {
+      flex: 1;
+      background: #f8f9ff;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .qe-mini-nav {
+      background: #1a1a2e;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+    }
+
+    .qe-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .qe-content {
+      padding: 12px;
+      flex: 1;
+    }
+
+    .qe-hero-mock {
+      background: linear-gradient(135deg, #e8f0fe, #fff8f0);
+      border-radius: 6px;
+      padding: 12px;
+      position: relative;
+    }
+
+    .qe-selected-region {
+      border: 2px dashed var(--blue);
+      border-radius: 4px;
+      padding: 8px;
+      position: relative;
+    }
+
+    .qe-toolbar {
+      position: absolute;
+      top: -32px;
+      left: 0;
+      background: #1a1a2e;
+      border-radius: 5px;
+      display: flex;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .qe-tool-btn {
+      padding: 5px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+    }
+
+    .qe-tool-btn:last-child { border-right: none; }
+    .qe-tool-btn.active { color: #fff; background: var(--blue); }
+
+    .qe-h1 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.3;
+    }
+
+    .qe-sub {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .qe-buttons {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .qe-btn {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .qe-btn--primary { background: var(--blue); color: #fff; }
+    .qe-btn--secondary { background: transparent; border: 1px solid var(--blue); color: var(--blue); }
+
+    /* Experimentation */
+    .exp-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .exp-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin: 4px 0 12px;
+    }
+
+    .exp-variant {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .exp-variant__label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .exp-variant__bar-track {
+      flex: 1;
+      height: 10px;
+      background: #e8e8e8;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .exp-variant__bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 1s ease;
+    }
+
+    .exp-variant__bar-fill--a { background: #888; }
+    .exp-variant__bar-fill--b { background: var(--green); }
+
+    .exp-variant__pct {
+      font-size: 12px;
+      font-weight: 700;
+      width: 36px;
+      text-align: right;
+    }
+
+    .exp-chart-label {
+      font-size: 10px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .exp-bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 56px;
+    }
+
+    .exp-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      gap: 3px;
+    }
+
+    .exp-bar__fill {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+    }
+
+    .exp-bar__fill--a { background: #ccc; }
+    .exp-bar__fill--b { background: var(--green); }
+
+    .exp-bar__x {
+      font-size: 9px;
+      color: #888;
+      white-space: nowrap;
+    }
+
+    .exp-powered {
+      font-size: 10px;
+      color: #aaa;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    /* -----------------------------------------------------------------------
+       PANEL 5 — EXPERIENCE WORKSPACE
+    ----------------------------------------------------------------------- */
+    #panel-5 {
+      background: #0a0a1e;
+      color: #e8e8ff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .p5-toolbar {
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    .p5-tab {
+      padding: 0 20px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+
+    .p5-tab.active {
+      color: #fff;
+      border-bottom-color: var(--blue);
+    }
+
+    .p5-body {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .p5-canvas {
+      padding: 28px 32px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .p5-canvas-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 20px;
+    }
+
+    .p5-tiles {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      flex: 1;
+    }
+
+    .p5-tile {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .p5-tile:hover {
+      transform: translateY(-2px);
+      border-color: rgba(20,115,230,0.5);
+    }
+
+    .p5-tile__thumb {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      min-height: 70px;
+    }
+
+    .p5-tile__label {
+      background: rgba(255,255,255,0.05);
+      padding: 6px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .p5-overlay {
+      position: absolute;
+      bottom: 32px;
+      left: 32px;
+      right: 316px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .p5-overlay-headline {
+      font-size: clamp(1rem, 2vw, 1.6rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.3;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+    }
+
+    .p5-overlay-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 6px;
+    }
+
+    /* Sidebar: AI Recommendations */
+    .p5-sidebar {
+      border-left: 1px solid rgba(255,255,255,0.08);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    .p5-sidebar h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .ai-rec {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    /* Glow animation for AI rec cards */
+    @keyframes recGlow {
+      0%, 100% { box-shadow: 0 0 0 rgba(20,115,230,0); border-color: rgba(255,255,255,0.08); }
+      50% { box-shadow: 0 0 20px rgba(20,115,230,0.25); border-color: rgba(20,115,230,0.35); }
+    }
+
+    @keyframes recFadeIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .ai-rec.animating {
+      animation: recFadeIn 0.5s ease forwards, recGlow 3s ease-in-out infinite;
+    }
+
+    .ai-rec__icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .ai-rec__title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .ai-rec__metric {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .ai-rec__desc {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.4;
+    }
+
+    .ai-rec__badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 8px;
+      background: rgba(20,115,230,0.15);
+      border: 1px solid rgba(20,115,230,0.3);
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--blue);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* -----------------------------------------------------------------------
+       SHARED SECTION HEADER STYLE
+    ----------------------------------------------------------------------- */
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--blue);
+      background: rgba(20,115,230,0.08);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+
+    /* -----------------------------------------------------------------------
+       SCROLLBAR HIDE (cosmetic)
+    ----------------------------------------------------------------------- */
+    html::-webkit-scrollbar { display: none; }
+    html { scrollbar-width: none; }
+  </style>
+</head>
+<body>
+
+<!-- Progress dots -->
+<nav class="progress-dots" id="progress-dots" aria-label="Section navigation">
+  <button class="dot active" data-panel="0" aria-label="Panel 1: The Starting Point"></button>
+  <button class="dot" data-panel="1" aria-label="Panel 2: The Conversion"></button>
+  <button class="dot" data-panel="2" aria-label="Panel 3: EDS-Native Blocks"></button>
+  <button class="dot" data-panel="3" aria-label="Panel 4: AI-Assisted Tools"></button>
+  <button class="dot dot-dark" data-panel="4" aria-label="Panel 5: Experience Workspace"></button>
+</nav>
+
+<!-- =========================================================================
+     PANEL 1 — THE STARTING POINT
+========================================================================== -->
+<section class="panel" id="panel-1" data-panel="0">
+  <div class="panel-label" style="color:#888;">Act 1 of 5</div>
+
+  <!-- Left: Faux AEM page -->
+  <div class="p1-page">
+    <div style="margin-bottom:6px;">
+      <span class="section-eyebrow">The Starting Point</span>
+    </div>
+    <h1 style="font-size:clamp(1.4rem,2.5vw,2rem);font-weight:700;color:#1a1a2e;margin-bottom:20px;">
+      Your AEM Core Components page — today
+    </h1>
+
+    <!-- Nav bar -->
+    <nav class="cmp-navigation">
+      <div class="cmp-navigation__logo">ACME Corp</div>
+      <ul class="cmp-navigation__links">
+        <li><a href="#">Products</a></li>
+        <li><a href="#">Solutions</a></li>
+        <li><a href="#">Resources</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero (2-col) -->
+    <div class="cmp-hero">
+      <div class="cmp-image">
+        <div class="cmp-image__placeholder">
+          📷
+          <span>Hero Image</span>
+        </div>
+      </div>
+      <div class="cmp-hero__content">
+        <div class="cmp-title">
+          <h1>Transform Your Digital Experience with Confidence</h1>
+        </div>
+        <div class="cmp-text">
+          <p>Deliver blazing-fast, accessible, and beautifully authored experiences across every channel — powered by the world's leading CMS platform.</p>
+        </div>
+        <div class="cmp-button-group">
+          <div class="cmp-button cmp-button--primary">
+            <a href="#">Get Started Free</a>
+          </div>
+          <div class="cmp-button cmp-button--secondary">
+            <a href="#">Watch Demo</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teasers (3-col) -->
+    <div class="cmp-teaser-section">
+      <h2>Explore Solutions</h2>
+      <div class="cmp-teaser-grid">
+        <div class="cmp-teaser">
+          <div class="cmp-teaser__image">⚡</div>
+          <div class="cmp-teaser__content">
+            <div class="cmp-teaser__title">Edge Performance</div>
+            <div class="cmp-teaser__description">100/100 Lighthouse scores with zero infrastructure management.</div>
+          </div>
+        </div>
+        <div class="cmp-teaser">
+          <div class="cmp-teaser__image">✍️</div>
+          <div class="cmp-teaser__content">
+            <div class="cmp-teaser__title">Author in Word</div>
+            <div class="cmp-teaser__description">Teams already know Microsoft Word and Google Docs — no retraining needed.</div>
+          </div>
+        </div>
+        <div class="cmp-teaser">
+          <div class="cmp-teaser__image">🎯</div>
+          <div class="cmp-teaser__content">
+            <div class="cmp-teaser__title">Built-in Experimentation</div>
+            <div class="cmp-teaser__description">A/B tests and personalization with Real Use Monitoring, no plugins.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text + CTA bottom -->
+    <div class="cmp-text-section">
+      <p>Ready to see what's possible? Our team can migrate your site in days, not months.</p>
+      <div class="cmp-button cmp-button--primary">
+        <a href="#">Talk to an Expert</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Architecture sidebar -->
+  <div class="p1-arch">
+    <h2>What this runs on</h2>
+
+    <div class="arch-diagram">
+      <div class="arch-node">
+        <div class="arch-node__icon">✍️</div>
+        <div>
+          <div class="arch-node__name">AEM Author</div>
+          <div class="arch-node__sub">Content creation + workflow</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">
+        <div class="arch-node__icon">🔄</div>
+        <div>
+          <div class="arch-node__name">Replication / Publisher</div>
+          <div class="arch-node__sub">Content activation pipeline</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">
+        <div class="arch-node__icon">🛡️</div>
+        <div>
+          <div class="arch-node__name">Dispatcher (Apache)</div>
+          <div class="arch-node__sub">Cache layer + security rules</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">
+        <div class="arch-node__icon">☁️</div>
+        <div>
+          <div class="arch-node__name">CDN</div>
+          <div class="arch-node__sub">Edge distribution</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:10px;">Components on this page</div>
+      <div class="component-list">
+        <div class="component-pill"><span class="component-pill__dot"></span>cmp-navigation</div>
+        <div class="component-pill"><span class="component-pill__dot"></span>cmp-hero</div>
+        <div class="component-pill"><span class="component-pill__dot"></span>cmp-image</div>
+        <div class="component-pill"><span class="component-pill__dot"></span>cmp-title</div>
+        <div class="component-pill"><span class="component-pill__dot"></span>cmp-teaser × 3</div>
+        <div class="component-pill"><span class="component-pill__dot"></span>cmp-button</div>
+      </div>
+    </div>
+
+    <div class="infra-cost">
+      <h3>Infrastructure Complexity</h3>
+      <div class="infra-cost-row"><span>Servers to manage</span><strong>Author + Pub + Disp</strong></div>
+      <div class="infra-cost-row"><span>Deployment pipeline</span><strong>Cloud Manager CI/CD</strong></div>
+      <div class="infra-cost-row"><span>Avg. page load (LCP)</span><strong>~3.2 s</strong></div>
+      <div class="infra-cost-row"><span>Lighthouse mobile</span><strong>62 / 100</strong></div>
+      <div class="infra-cost-row"><span>Author time / page</span><strong>~45 min</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PANEL 2 — THE CONVERSION
+========================================================================== -->
+<section class="panel" id="panel-2" data-panel="1">
+  <div class="panel-label" style="color:#555;">Act 2 of 5</div>
+
+  <div class="p2-header">
+    <span class="section-eyebrow">The Conversion</span>
+    <h2>Watching your Core Components become EDS blocks</h2>
+    <p class="subtitle">Every component maps to a simple, readable table. One pass. No data loss.</p>
+  </div>
+
+  <div class="p2-inner">
+    <!-- DOM Tree (left) -->
+    <div>
+      <div class="table-label" style="margin-bottom:10px;color:#888;">AEM Page DOM</div>
+      <div class="dom-tree" id="dom-tree">
+        <div class="dt-row" id="dt-body"><span class="dt-tag">&lt;body&gt;</span></div>
+        <div class="dt-row" id="dt-main"><span class="dt-indent"></span><span class="dt-tag">&lt;main&gt;</span></div>
+
+        <div class="dt-row group-hero" id="dt-hero-nav"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-navigation"</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-hero" id="dt-hero-sec"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-hero"</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-hero" id="dt-hero-img"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-image"</span><span class="dt-tag">&gt;</span><span class="dt-text">img src="hero.jpg"</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-hero" id="dt-hero-title"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-title"</span><span class="dt-tag">&gt;</span><span class="dt-text">Transform Your...</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-hero" id="dt-hero-text"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-text"</span><span class="dt-tag">&gt;</span><span class="dt-text">Deliver blazing...</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-hero" id="dt-hero-btn"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-button"</span><span class="dt-tag">&gt;</span><span class="dt-text">Get Started Free</span><span class="dt-tag">&gt;</span></div>
+
+        <div class="dt-row group-teasers" id="dt-teasers"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="aem-Grid"</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-teasers" id="dt-t1"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-teaser"</span><span class="dt-tag">&gt;</span><span class="dt-text">Edge Performance</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-teasers" id="dt-t2"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-teaser"</span><span class="dt-tag">&gt;</span><span class="dt-text">Author in Word</span><span class="dt-tag">&gt;</span></div>
+        <div class="dt-row group-teasers" id="dt-t3"><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-indent"></span><span class="dt-tag">&lt;div </span><span class="dt-class">class</span><span class="dt-attr">="cmp-teaser"</span><span class="dt-tag">&gt;</span><span class="dt-text">Experimentation</span><span class="dt-tag">&gt;</span></div>
+
+        <div class="dt-row" id="dt-main-close"><span class="dt-indent"></span><span class="dt-tag">&lt;/main&gt;</span></div>
+        <div class="dt-row" id="dt-body-close"><span class="dt-tag">&lt;/body&gt;</span></div>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="p2-arrow">
+      <div class="p2-arrow-line"></div>
+      <div class="p2-arrow-head">→</div>
+      <div class="p2-arrow-line-bottom"></div>
+    </div>
+
+    <!-- EDS Blocks (right) -->
+    <div>
+      <div class="table-label" style="margin-bottom:10px;color:#888;">EDS Word-Doc Tables</div>
+      <div class="eds-blocks" id="eds-blocks">
+
+        <div>
+          <div class="table-label" style="margin-bottom:6px;">hero block</div>
+          <table class="eds-table">
+            <thead>
+              <tr>
+                <th colspan="2">hero</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="img-ph"></span></td>
+                <td>
+                  <strong>Transform Your Digital Experience</strong><br>
+                  <span style="font-size:11px;color:#666;">Deliver blazing-fast experiences...</span><br>
+                  <a href="#" style="color:var(--blue);font-size:11px;">Get Started Free</a>
+                  &nbsp;
+                  <a href="#" style="color:var(--blue);font-size:11px;">Watch Demo</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="table-label" style="margin-bottom:6px;">cards block</div>
+          <table class="eds-table">
+            <thead>
+              <tr>
+                <th colspan="2">cards</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>⚡ Edge Performance</td>
+                <td style="font-size:11px;color:#666;">100/100 Lighthouse scores...</td>
+              </tr>
+              <tr>
+                <td>✍️ Author in Word</td>
+                <td style="font-size:11px;color:#666;">Teams already know Word...</td>
+              </tr>
+              <tr>
+                <td>🎯 Experimentation</td>
+                <td style="font-size:11px;color:#666;">A/B tests with RUM...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="p2-bottom">
+    <div class="p2-arch-new">
+      <span style="font-size:12px;color:rgba(255,255,255,0.4);margin-right:4px;">New stack:</span>
+      <span class="arch-pill github">GitHub</span>
+      <span class="arch-divider">→</span>
+      <span class="arch-pill cdn">Fastly CDN</span>
+      <span class="arch-divider">→</span>
+      <span class="arch-pill browser">Browser</span>
+      <span style="margin-left:16px;" class="zero-servers">0 servers maintained</span>
+    </div>
+    <div class="p2-timer">
+      <div class="p2-timer__count" id="p2-counter">0.0s</div>
+      <div class="p2-timer__label">migration time</div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PANEL 3 — EDS-NATIVE BLOCKS
+========================================================================== -->
+<section class="panel" id="panel-3" data-panel="2">
+  <div class="panel-label" style="color:#888;">Act 3 of 5</div>
+
+  <div class="p3-header">
+    <span class="section-eyebrow">EDS-Native Blocks</span>
+    <h2>New capabilities — built in hours, not weeks</h2>
+    <p>From pull quotes to interactive data tables — authored in Word, rendered at the edge.</p>
+  </div>
+
+  <!-- Block 1: Pull Quote -->
+  <div class="p3-block" id="p3b-1">
+    <div class="pull-quote-block">
+      <blockquote>
+        "We reduced our time-to-publish from 45 minutes to under 4 minutes — and our Lighthouse score went from 62 to 98 overnight."
+      </blockquote>
+      <cite>Sarah Chen, VP of Digital Experience, ACME Corp</cite>
+    </div>
+  </div>
+
+  <!-- Block 2: 3D Cards -->
+  <div class="p3-block" id="p3b-2">
+    <div class="cards-3d-block">
+      <h3>Performance at a Glance</h3>
+      <div class="cards-3d-grid">
+        <div class="card-3d">
+          <div class="card-3d__header">
+            <div class="card-3d__icon card-3d__icon--blue">⚡</div>
+            <div class="card-3d__title">Lighthouse Score</div>
+          </div>
+          <div class="card-3d__body">
+            <div class="card-3d__stat">98</div>
+            <div class="card-3d__label">mobile performance</div>
+            <div class="card-3d__bar"><div class="card-3d__bar-fill" style="width:98%"></div></div>
+          </div>
+        </div>
+        <div class="card-3d">
+          <div class="card-3d__header">
+            <div class="card-3d__icon card-3d__icon--green">🚀</div>
+            <div class="card-3d__title">Page Load (LCP)</div>
+          </div>
+          <div class="card-3d__body">
+            <div class="card-3d__stat">0.8s</div>
+            <div class="card-3d__label">was 3.2 s on Classic</div>
+            <div class="card-3d__bar"><div class="card-3d__bar-fill" style="width:25%;background:linear-gradient(90deg,var(--green),#7dd3b5)"></div></div>
+          </div>
+        </div>
+        <div class="card-3d">
+          <div class="card-3d__header">
+            <div class="card-3d__icon card-3d__icon--orange">📝</div>
+            <div class="card-3d__title">Author Time</div>
+          </div>
+          <div class="card-3d__body">
+            <div class="card-3d__stat">4 min</div>
+            <div class="card-3d__label">per page, down from 45 min</div>
+            <div class="card-3d__bar"><div class="card-3d__bar-fill" style="width:9%;background:linear-gradient(90deg,var(--orange),#ffd280)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block 3: Data Table -->
+  <div class="p3-block" id="p3b-3">
+    <div class="data-table-block">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th class="col-classic">AEM Classic</th>
+            <th class="col-eds">AEM Edge Delivery</th>
+            <th>Improvement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Page load time (LCP)</td>
+            <td class="col-classic">3.2 s</td>
+            <td class="col-eds">0.8 s</td>
+            <td><span class="metric-tag">4× faster</span></td>
+          </tr>
+          <tr>
+            <td>Time to Interactive</td>
+            <td class="col-classic">5.8 s</td>
+            <td class="col-eds">1.2 s</td>
+            <td><span class="metric-tag">5× faster</span></td>
+          </tr>
+          <tr>
+            <td>Author time per page</td>
+            <td class="col-classic">45 min</td>
+            <td class="col-eds">4 min</td>
+            <td><span class="metric-tag">11× faster</span></td>
+          </tr>
+          <tr>
+            <td>Infrastructure servers</td>
+            <td class="col-classic">Author + Pub + Disp</td>
+            <td class="col-eds">0 (serverless)</td>
+            <td><span class="metric-tag">100% reduction</span></td>
+          </tr>
+          <tr>
+            <td>Lighthouse mobile score</td>
+            <td class="col-classic">62 / 100</td>
+            <td class="col-eds">98 / 100</td>
+            <td><span class="metric-tag">+58 points</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PANEL 4 — AI-ASSISTED CONTENT TOOLS
+========================================================================== -->
+<section class="panel" id="panel-4" data-panel="3">
+  <div class="panel-label" style="color:#555;">Act 4 of 5</div>
+
+  <div class="p4-inner">
+    <div class="p4-header">
+      <span class="section-eyebrow">AI-Assisted Content Tools</span>
+      <h2>Generate, edit, and experiment — at the speed of thought</h2>
+      <p>Adobe's AI layer integrates directly into the authoring workflow.</p>
+    </div>
+
+    <div class="p4-tools">
+
+      <!-- Left: Generate Variations -->
+      <div class="p4-tool-panel from-left" id="p4-gv">
+        <div class="p4-tool-header">
+          <span class="tool-icon">✨</span>
+          <h3>Generate Variations</h3>
+        </div>
+        <div class="p4-tool-body">
+          <div class="gv-prompt">
+            <strong>Prompt</strong>
+            Write a hero headline for a financial services audience — confident, modern, action-oriented.
+          </div>
+
+          <div class="gv-variation">
+            <div class="gv-variation__title">Unlock Your Financial Future Today</div>
+            <div class="gv-variation__desc">Empowering language with clear forward momentum and audience specificity.</div>
+            <div class="gv-variation__use">Use this →</div>
+          </div>
+
+          <div class="gv-variation selected">
+            <div class="gv-variation__title">Smart Banking Starts Here</div>
+            <div class="gv-variation__desc">Concise, confidence-building opener — highest predicted click-through for FS.</div>
+            <div class="gv-variation__use">✓ Selected</div>
+          </div>
+
+          <div class="gv-variation">
+            <div class="gv-variation__title">Your Money, Your Way — Simplified</div>
+            <div class="gv-variation__desc">Autonomy framing appeals to self-directed investors and millennial segment.</div>
+            <div class="gv-variation__use">Use this →</div>
+          </div>
+
+          <div class="gv-badge">✦ Powered by Adobe Firefly Services</div>
+        </div>
+      </div>
+
+      <!-- Center: Quick Edit -->
+      <div class="p4-tool-panel from-center" id="p4-qe">
+        <div class="p4-tool-header">
+          <span class="tool-icon">✏️</span>
+          <h3>Universal Editor — Quick Edit</h3>
+        </div>
+        <div class="p4-tool-body">
+          <div class="qe-canvas">
+            <div class="qe-mini-nav">
+              <div class="qe-dot" style="background:#e34850;"></div>
+              <div class="qe-dot" style="background:#f29423;"></div>
+              <div class="qe-dot" style="background:#2d9d78;"></div>
+              <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.3);">acme.com · Universal Editor</span>
+            </div>
+            <div class="qe-content">
+              <div class="qe-hero-mock">
+                <div class="qe-selected-region">
+                  <div class="qe-toolbar">
+                    <div class="qe-tool-btn active">Edit</div>
+                    <div class="qe-tool-btn">AI Rewrite</div>
+                    <div class="qe-tool-btn">Translate</div>
+                    <div class="qe-tool-btn">Preview</div>
+                  </div>
+                  <div class="qe-h1">Smart Banking Starts Here</div>
+                  <div class="qe-sub">Empowering you to manage wealth, plan ahead, and bank with confidence.</div>
+                  <div class="qe-buttons">
+                    <div class="qe-btn qe-btn--primary">Open Account</div>
+                    <div class="qe-btn qe-btn--secondary">Learn More</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                <div style="height:48px;background:linear-gradient(135deg,#e8f0fe,#fce8ff);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;">Card 1</div>
+                <div style="height:48px;background:linear-gradient(135deg,#e8ffe8,#f0f0f0);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;">Card 2</div>
+                <div style="height:48px;background:linear-gradient(135deg,#fff8e8,#ffe8f0);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;">Card 3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Experimentation -->
+      <div class="p4-tool-panel from-right" id="p4-exp">
+        <div class="p4-tool-header">
+          <span class="tool-icon">📊</span>
+          <h3>EDS Experimentation</h3>
+        </div>
+        <div class="p4-tool-body">
+          <div class="exp-header">Active Experiment</div>
+          <div class="exp-name">hero-headline-test · Live</div>
+
+          <div class="exp-variant">
+            <div class="exp-variant__label">Variant A</div>
+            <div class="exp-variant__bar-track">
+              <div class="exp-variant__bar-fill exp-variant__bar-fill--a" style="width:52%"></div>
+            </div>
+            <div class="exp-variant__pct" style="color:#888;">52%</div>
+          </div>
+          <div style="font-size:11px;color:#aaa;margin:-6px 0 10px 88px;">Unlock Your Financial Future Today</div>
+
+          <div class="exp-variant">
+            <div class="exp-variant__label">Variant B</div>
+            <div class="exp-variant__bar-track">
+              <div class="exp-variant__bar-fill exp-variant__bar-fill--b" style="width:48%"></div>
+            </div>
+            <div class="exp-variant__pct" style="color:var(--green);">48%</div>
+          </div>
+          <div style="font-size:11px;color:#aaa;margin:-6px 0 14px 88px;">Smart Banking Starts Here</div>
+
+          <div class="exp-chart-label">Conversion rate by variant (trailing 7d)</div>
+          <div class="exp-bar-chart">
+            <div class="exp-bar">
+              <div class="exp-bar__fill exp-bar__fill--a" style="height:30px;"></div>
+              <div class="exp-bar__x">A (ctrl)</div>
+            </div>
+            <div class="exp-bar">
+              <div class="exp-bar__fill exp-bar__fill--b" style="height:44px;"></div>
+              <div class="exp-bar__x">B</div>
+            </div>
+            <div style="flex:3;"></div>
+          </div>
+
+          <div style="margin-top:10px;padding:8px 10px;background:#f0fff8;border:1px solid #c0ead5;border-radius:6px;font-size:11px;color:#1a5a3a;">
+            <strong>Variant B trending +18% CTR</strong> — statistical significance: 87%. Recommend promoting at 95%.
+          </div>
+
+          <div class="exp-powered">⚡ Powered by EDS Experimentation + RUM</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================================
+     PANEL 5 — EXPERIENCE WORKSPACE
+========================================================================== -->
+<section class="panel" id="panel-5" data-panel="4">
+  <div class="panel-label" style="color:rgba(255,255,255,0.25);">Act 5 of 5</div>
+
+  <!-- Toolbar -->
+  <div class="p5-toolbar">
+    <div class="p5-tab active">Workspace</div>
+    <div class="p5-tab">Insights</div>
+    <div class="p5-tab">Campaigns</div>
+    <div class="p5-tab">Personalization</div>
+    <div class="p5-tab">AI Studio</div>
+  </div>
+
+  <!-- Body: canvas + sidebar -->
+  <div class="p5-body">
+
+    <!-- Main canvas -->
+    <div class="p5-canvas">
+      <div class="p5-canvas-title">My Experience Library — acme.com</div>
+
+      <div class="p5-tiles">
+        <div class="p5-tile" style="background:linear-gradient(135deg,#1a2a4e,#0d1a32);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#1e3a7a22,#2a5cc822);">🏠</div>
+          <div class="p5-tile__label">Homepage · hero-test active</div>
+        </div>
+        <div class="p5-tile" style="background:linear-gradient(135deg,#1a3a2a,#0d2a1a);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#1e7a3a22,#2ac85c22);">💳</div>
+          <div class="p5-tile__label">Products · credit-cards</div>
+        </div>
+        <div class="p5-tile" style="background:linear-gradient(135deg,#3a1a2e,#2a0d22);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#7a1e5a22,#c82aaa22);">📊</div>
+          <div class="p5-tile__label">Investments overview</div>
+        </div>
+        <div class="p5-tile" style="background:linear-gradient(135deg,#3a2a1a,#2a1a0d);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#7a5a1e22,#c8aa2a22);">🎯</div>
+          <div class="p5-tile__label">Campaign: Q3 Savings</div>
+        </div>
+        <div class="p5-tile" style="background:linear-gradient(135deg,#1a1a3a,#0d0d2e);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#1e1e7a22,#2a2ac822);">📱</div>
+          <div class="p5-tile__label">Mobile banking hub</div>
+        </div>
+        <div class="p5-tile" style="background:linear-gradient(135deg,#2a1a1a,#1a0d0d);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#7a1e1e22,#c82a2a22);">🏦</div>
+          <div class="p5-tile__label">Branch locator page</div>
+        </div>
+        <div class="p5-tile" style="background:linear-gradient(135deg,#1a2e2a,#0d221e);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#1e6a5a22,#2aaaaa22);">📈</div>
+          <div class="p5-tile__label">Market insights feed</div>
+        </div>
+        <div class="p5-tile" style="background:linear-gradient(135deg,#2e2a1a,#221e0d);">
+          <div class="p5-tile__thumb" style="background:linear-gradient(135deg,#6a6a1e22,#aaaa2a22);">🤝</div>
+          <div class="p5-tile__label">Partner landing page</div>
+        </div>
+      </div>
+
+      <!-- Overlay headline -->
+      <div class="p5-overlay">
+        <div class="p5-overlay-headline">From Core Components to Experience Workspace<br>in one afternoon</div>
+        <div class="p5-overlay-sub">Powered by Adobe Edge Delivery Services</div>
+      </div>
+    </div>
+
+    <!-- Sidebar: AI Recommendations -->
+    <div class="p5-sidebar">
+      <h3>🤖 AI Recommendations</h3>
+
+      <div class="ai-rec" id="ai-rec-1">
+        <div class="ai-rec__icon">📈</div>
+        <div class="ai-rec__title">Hero image A/B test</div>
+        <div class="ai-rec__metric">+23% CTR uplift predicted</div>
+        <div class="ai-rec__desc">Firefly-generated lifestyle imagery outperforming stock on FS segment.</div>
+        <div class="ai-rec__badge">High confidence</div>
+      </div>
+
+      <div class="ai-rec" id="ai-rec-2">
+        <div class="ai-rec__icon">✍️</div>
+        <div class="ai-rec__title">CTA copy variant</div>
+        <div class="ai-rec__metric">Finance audience · +11% CVR</div>
+        <div class="ai-rec__desc">"Open Account" outperforms "Get Started" for intent-high visitors over 35.</div>
+        <div class="ai-rec__badge">Targeting: Finance</div>
+      </div>
+
+      <div class="ai-rec" id="ai-rec-3">
+        <div class="ai-rec__icon">📱</div>
+        <div class="ai-rec__title">Mobile layout optimization</div>
+        <div class="ai-rec__metric">−2.1s LCP improvement</div>
+        <div class="ai-rec__desc">Lazy-loading hero video on 4G reduces bounce rate by an estimated 14%.</div>
+        <div class="ai-rec__badge">Performance</div>
+      </div>
+
+      <div style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:11px;color:rgba(255,255,255,0.2);line-height:1.5;">
+          Recommendations powered by Adobe Sensei GenAI — trained on 2.3T engagement signals across the Adobe Experience Cloud network.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  // -------------------------------------------------------------------------
+  // Progress dots
+  // -------------------------------------------------------------------------
+  const panels = Array.from(document.querySelectorAll('.panel'));
+  const dots = Array.from(document.querySelectorAll('.dot'));
+  const darkDotPanel = 4;
+
+  function updateDots(activeIndex) {
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === activeIndex);
+      dot.classList.toggle('dot-dark', i === darkDotPanel);
+    });
+  }
+
+  dots.forEach((dot) => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.dataset.panel, 10);
+      panels[idx].scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Track which panel is in view
+  const panelObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          const idx = panels.indexOf(entry.target);
+          updateDots(idx);
+          triggerPanel(idx, entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  panels.forEach((p) => panelObserver.observe(p));
+
+  // -------------------------------------------------------------------------
+  // Panel triggers (run once each)
+  // -------------------------------------------------------------------------
+  const triggered = new Set();
+
+  function triggerPanel(idx, el) {
+    if (triggered.has(idx)) return;
+    triggered.add(idx);
+
+    if (idx === 1) triggerPanel2();
+    if (idx === 2) triggerPanel3();
+    if (idx === 3) triggerPanel4();
+    if (idx === 4) triggerPanel5();
+  }
+
+  // -------------------------------------------------------------------------
+  // Panel 2: DOM collapse → EDS tables appear
+  // -------------------------------------------------------------------------
+  function triggerPanel2() {
+    const heroRows = document.querySelectorAll('.group-hero');
+    const teaserRows = document.querySelectorAll('.group-teasers');
+    const edsBlocks = document.getElementById('eds-blocks');
+    const counter = document.getElementById('p2-counter');
+
+    // Stagger the collapse of DOM rows
+    let delay = 100;
+    heroRows.forEach((row, i) => {
+      setTimeout(() => row.classList.add('collapsing'), delay + i * 80);
+    });
+    delay += heroRows.length * 80 + 100;
+
+    teaserRows.forEach((row, i) => {
+      setTimeout(() => row.classList.add('collapsing'), delay + i * 80);
+    });
+
+    // Show EDS blocks after collapse
+    const showDelay = delay + teaserRows.length * 80 + 200;
+    setTimeout(() => {
+      edsBlocks.classList.add('visible');
+    }, showDelay);
+
+    // Count-up timer: 0.0s → 4.3s over ~2s
+    let elapsed = 0;
+    const target = 4.3;
+    const duration = 2000;
+    const stepMs = 50;
+    const steps = duration / stepMs;
+    const increment = target / steps;
+    const interval = setInterval(() => {
+      elapsed = Math.min(elapsed + increment, target);
+      counter.textContent = elapsed.toFixed(1) + 's';
+      if (elapsed >= target) clearInterval(interval);
+    }, stepMs);
+  }
+
+  // -------------------------------------------------------------------------
+  // Panel 3: Staggered block reveal
+  // -------------------------------------------------------------------------
+  function triggerPanel3() {
+    const blocks = document.querySelectorAll('.p3-block');
+    blocks.forEach((block, i) => {
+      setTimeout(() => block.classList.add('visible'), i * 200);
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // Panel 4: Tool panels slide in
+  // -------------------------------------------------------------------------
+  function triggerPanel4() {
+    const panels4 = [
+      document.getElementById('p4-gv'),
+      document.getElementById('p4-qe'),
+      document.getElementById('p4-exp'),
+    ];
+    panels4.forEach((p, i) => {
+      setTimeout(() => p && p.classList.add('visible'), i * 180);
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // Panel 5: AI recs fill in one by one with glow
+  // -------------------------------------------------------------------------
+  function triggerPanel5() {
+    const recs = [
+      document.getElementById('ai-rec-1'),
+      document.getElementById('ai-rec-2'),
+      document.getElementById('ai-rec-3'),
+    ];
+    recs.forEach((rec, i) => {
+      setTimeout(() => {
+        if (!rec) return;
+        rec.style.animationDelay = '0s';
+        rec.classList.add('animating');
+      }, 400 + i * 500);
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
