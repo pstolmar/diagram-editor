@@ -37,7 +37,7 @@ Run the conversion inline using Node:
 
 ```bash
 node --input-type=module <<'EOF'
-import { analyzeHTML } from '/Users/pstolmar/dev/eds/diagram-editor/tools/blockify/convert.js';
+import { analyzeHTML } from './tools/blockify/convert.js';
 
 const html = `PASTE_OR_LOAD_HTML_HERE`;
 const analysis = await analyzeHTML(html, 'SOURCE_URL_HERE');
@@ -87,7 +87,7 @@ Write these files:
 Run node to generate it:
 ```bash
 node --input-type=module <<'EOF'
-import { analyzeHTML, toEDSPage } from '/Users/pstolmar/dev/eds/diagram-editor/tools/blockify/convert.js';
+import { analyzeHTML, toEDSPage } from './tools/blockify/convert.js';
 import { writeFileSync, mkdirSync } from 'fs';
 
 const html = `HTML_HERE`;
@@ -108,7 +108,7 @@ For each unique block name in `analysis.sections` where `blockName !== null`:
 
 ```bash
 node --input-type=module <<'EOF'
-import { toBlockStub } from '/Users/pstolmar/dev/eds/diagram-editor/tools/blockify/convert.js';
+import { toBlockStub } from './tools/blockify/convert.js';
 import { writeFileSync, mkdirSync } from 'fs';
 
 const blockName = 'BLOCK_NAME';
@@ -150,7 +150,7 @@ When the user says `approve <blockname>` or runs `/blockify` with an approve fla
 ```bash
 node --input-type=module <<'EOF'
 import { readFileSync, writeFileSync } from 'fs';
-import { toComponentDefinitionEntry } from '/Users/pstolmar/dev/eds/diagram-editor/tools/blockify/convert.js';
+import { toComponentDefinitionEntry } from './tools/blockify/convert.js';
 
 const path = 'component-definition.json';
 const def = JSON.parse(readFileSync(path, 'utf8'));

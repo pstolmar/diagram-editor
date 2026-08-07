@@ -627,7 +627,7 @@ fetchBtn.addEventListener('click', async () => {
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const html = await resp.text();
     htmlInput.value = html;
-    runAnalysis(html, url);
+    runAnalysis(html, url).catch((e) => { showError(e.message); setLoading(false); });
   } catch (e) {
     showError(
       `Fetch failed (${e.message}). This is usually a CORS restriction. `
@@ -644,7 +644,9 @@ analyzeBtn.addEventListener('click', () => {
   setLoading(true);
   const sourceUrl = urlInput.value.trim() || '';
   // Defer to allow spinner to render before the async work starts
-  requestAnimationFrame(() => runAnalysis(html, sourceUrl));
+  requestAnimationFrame(() => {
+    runAnalysis(html, sourceUrl).catch((e) => { showError(e.message); setLoading(false); });
+  });
 });
 
 clearBtn.addEventListener('click', () => {
