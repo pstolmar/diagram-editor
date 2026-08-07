@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEM → EDS Blockify</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fff;
+      --color-surface: #f8f8f8;
+      --color-border: #e0e0e0;
+      --color-text: #1a1a1a;
+      --color-text-muted: #666;
+      --color-accent: #0066cc;
+      --color-accent-hover: #004a99;
+      --color-success: #1a7a1a;
+      --color-warning: #8a5200;
+      --color-error: #cc0000;
+      --color-hero: #e8f0fe;
+      --color-columns: #e8fce8;
+      --color-teaser: #fef8e8;
+      --color-list: #fce8f8;
+      --color-carousel: #e8fef8;
+      --color-buttons: #f8e8fe;
+      --color-plain: #f0f0f0;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Menlo', 'Monaco', 'Consolas', monospace;
+      --radius: 4px;
+    }
+
+    body {
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--color-text);
+      background: var(--color-bg);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    header .badge {
+      font-size: 11px;
+      background: var(--color-accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Input panel */
+    .input-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 700px) {
+      .input-panel { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      background: var(--color-surface);
+    }
+
+    .panel-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .url-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="url"], textarea {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--color-text);
+      resize: vertical;
+    }
+
+    input[type="url"]:focus, textarea:focus {
+      outline: 2px solid var(--color-accent);
+      outline-offset: -1px;
+    }
+
+    textarea { min-height: 120px; font-family: var(--font-mono); font-size: 12px; }
+
+    button {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--radius);
+      border: none;
+      padding: 8px 16px;
+      white-space: nowrap;
+      transition: background 0.1s;
+    }
+
+    .btn-primary {
+      background: var(--color-accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--color-accent-hover); }
+    .btn-primary:disabled { background: #999; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-accent);
+      border: 1px solid var(--color-border);
+    }
+    .btn-secondary:hover { background: #f0f0f0; }
+
+    .note {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 8px;
+    }
+
+    /* Results */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .results-header h2 { font-size: 16px; }
+
+    .meta-row {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* Classification table */
+    .table-wrap { overflow-x: auto; margin-bottom: 24px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 2px solid var(--color-border);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .block-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-hero     { background: var(--color-hero);     color: #1a3a7a; }
+    .badge-columns  { background: var(--color-columns);  color: #1a5a1a; }
+    .badge-teaser   { background: var(--color-teaser);   color: #5a3a00; }
+    .badge-list     { background: var(--color-list);     color: #5a1a5a; }
+    .badge-carousel { background: var(--color-carousel); color: #1a5a4a; }
+    .badge-buttons  { background: var(--color-buttons);  color: #4a1a5a; }
+    .badge-plain    { background: var(--color-plain);    color: var(--color-text-muted); }
+
+    .confidence-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .confidence-bar-track {
+      width: 60px;
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .confidence-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--color-accent);
+    }
+
+    /* Block previews */
+    .block-previews { display: flex; flex-direction: column; gap: 16px; }
+
+    .block-preview {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .block-preview-header {
+      padding: 8px 14px;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .block-preview-header strong { font-weight: 600; }
+
+    .block-preview pre {
+      margin: 0;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+      background: #fff;
+      color: var(--color-text);
+    }
+
+    /* Sandbox section */
+    .sandbox-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .sandbox-section h3 { font-size: 15px; margin-bottom: 12px; }
+
+    .cli-box {
+      background: #1a1a1a;
+      color: #e8e8e8;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    .cli-box .comment { color: #888; }
+    .cli-box .cmd     { color: #7ec8e3; }
+
+    .copy-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      border-left: 3px solid;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .alert-warning {
+      background: #fffbe6;
+      border-color: var(--color-warning);
+      color: #5a3a00;
+    }
+
+    .alert-error {
+      background: #fff0f0;
+      border-color: var(--color-error);
+      color: #7a0000;
+    }
+
+    .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ccc;
+      border-top-color: var(--color-accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spinner.active { display: inline-block; }
+
+    #error-msg { display: none; }
+    #error-msg.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>AEM → EDS Blockify</h1>
+  <span class="badge">tools</span>
+</header>
+
+<div class="main">
+
+  <div class="input-panel">
+    <!-- URL input -->
+    <div class="panel">
+      <div class="panel-header">Fetch from URL</div>
+      <div class="panel-body">
+        <div class="url-row">
+          <input type="url" id="url-input" placeholder="https://publish-pNNN-eNNN.adobeaemcloud.com/content/..." autocomplete="off">
+          <button class="btn-primary" id="fetch-btn">Fetch</button>
+        </div>
+        <p class="note">AEM Publish URL. CORS may block — use paste if fetch fails.</p>
+      </div>
+    </div>
+
+    <!-- Paste area -->
+    <div class="panel">
+      <div class="panel-header">Paste HTML</div>
+      <div class="panel-body">
+        <textarea id="html-input" placeholder="Paste AEM page HTML here (Cmd+U in browser → copy all)&#10;&#10;Supports: .cmp-title, .cmp-text, .cmp-image, .cmp-button, .cmp-teaser, .cmp-list, .cmp-carousel, .aem-Grid sections"></textarea>
+        <div style="margin-top: 8px;">
+          <button class="btn-primary" id="analyze-btn">Analyze</button>
+          <button class="btn-secondary" id="clear-btn" style="margin-left: 8px;">Clear</button>
+          <span class="spinner" id="spinner"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-msg" class="alert alert-error"></div>
+
+  <!-- Results -->
+  <div id="results">
+
+    <div class="results-header">
+      <h2>Analysis Results</h2>
+      <button class="btn-secondary" id="reset-btn">Start over</button>
+    </div>
+
+    <div class="meta-row" id="meta-row"></div>
+
+    <div class="table-wrap">
+      <table id="class-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>AEM Components</th>
+            <th>Pattern</th>
+            <th>EDS Block</th>
+            <th>Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="class-tbody"></tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:14px; margin-bottom: 12px; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Block HTML Previews</h3>
+    <div class="block-previews" id="block-previews"></div>
+
+    <div class="sandbox-section">
+      <h3>Generate Sandbox Files</h3>
+      <p style="font-size:13px; color: var(--color-text-muted); margin-bottom: 12px;">
+        Run this in your terminal from the repo root to write all sandbox files:
+      </p>
+      <div class="cli-box" id="cli-box"></div>
+      <div class="copy-row">
+        <button class="btn-secondary" id="copy-cli-btn">Copy command</button>
+        <span id="copy-confirm" style="font-size:12px; color: var(--color-success); display:none;">Copied!</span>
+      </div>
+      <p class="note" style="margin-top: 10px;">
+        After running, the sandbox lives at <code>tools/sandbox/&lt;date&gt;-&lt;slug&gt;/</code>.
+        Promote individual blocks with: <code>node tools/blockify/approve.js &lt;blockname&gt; &lt;sandbox-path&gt;</code>
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="module">
+import {
+  analyzeHTML,
+  toEDSPage,
+  toBlockStub,
+  slugFromSource,
+} from './convert.js';
+
+// ---------------------------------------------------------------------------
+// Elements
+// ---------------------------------------------------------------------------
+const urlInput = document.getElementById('url-input');
+const htmlInput = document.getElementById('html-input');
+const fetchBtn = document.getElementById('fetch-btn');
+const analyzeBtn = document.getElementById('analyze-btn');
+const clearBtn = document.getElementById('clear-btn');
+const resetBtn = document.getElementById('reset-btn');
+const spinner = document.getElementById('spinner');
+const errorMsg = document.getElementById('error-msg');
+const results = document.getElementById('results');
+const metaRow = document.getElementById('meta-row');
+const classTbody = document.getElementById('class-tbody');
+const blockPreviews = document.getElementById('block-previews');
+const cliBox = document.getElementById('cli-box');
+const copyCliBtn = document.getElementById('copy-cli-btn');
+const copyConfirm = document.getElementById('copy-confirm');
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.classList.add('visible');
+}
+
+function clearError() {
+  errorMsg.textContent = '';
+  errorMsg.classList.remove('visible');
+}
+
+function setLoading(on) {
+  spinner.classList.toggle('active', on);
+  fetchBtn.disabled = on;
+  analyzeBtn.disabled = on;
+}
+
+function badgeClass(blockName) {
+  if (!blockName || blockName === '(plain)') return 'badge-plain';
+  return `badge-${blockName}` in document.documentElement.style
+    ? `badge-${blockName}`
+    : (['hero','columns','teaser','list','carousel','buttons'].includes(blockName)
+        ? `badge-${blockName}` : 'badge-plain');
+}
+
+function confidenceBar(pct) {
+  const num = parseInt(pct, 10);
+  const color = num >= 85 ? '#2a7a2a' : num >= 65 ? '#7a7a00' : '#cc5500';
+  return `<span class="confidence-bar">
+    <span class="confidence-bar-track"><span class="confidence-bar-fill" style="width:${num}%;background:${color}"></span></span>
+    ${pct}
+  </span>`;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function todaySlug() {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ---------------------------------------------------------------------------
+// Run analysis
+// ---------------------------------------------------------------------------
+
+async function runAnalysis(html, sourceUrl) {
+  clearError();
+  let analysis;
+  try {
+    analysis = await analyzeHTML(html, sourceUrl);
+  } catch (e) {
+    showError(`Analysis failed: ${e.message}`);
+    setLoading(false);
+    return;
+  }
+
+  if (!analysis.sections.length) {
+    showError('No AEM sections detected. This may not be an AEM Core Components page. Try pasting the inner <body> HTML only.');
+    setLoading(false);
+    return;
+  }
+
+  renderResults(analysis, sourceUrl);
+  setLoading(false);
+}
+
+function renderResults(analysis, sourceUrl) {
+  const { sections, classificationTable, pageTitle } = analysis;
+
+  // Meta row
+  const slug = slugFromSource(sourceUrl);
+  metaRow.textContent = `Page: "${pageTitle}" · ${sections.length} section(s) detected · slug: ${slug || '(unknown)'}`;
+
+  // Classification table
+  classTbody.innerHTML = '';
+  classificationTable.forEach((row) => {
+    const bn = row.blockName;
+    const bclass = badgeClass(bn === '(plain)' ? null : bn);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.section}</td>
+      <td>${escapeHtml(row.components)}</td>
+      <td style="color:var(--color-text-muted);font-size:12px">${escapeHtml(row.detectedType)}</td>
+      <td><span class="block-badge ${bclass}">${escapeHtml(bn)}</span></td>
+      <td>${confidenceBar(row.confidence)}</td>
+    `;
+    classTbody.appendChild(tr);
+  });
+
+  // Block previews
+  blockPreviews.innerHTML = '';
+  sections.forEach((sec) => {
+    const bn = sec.classification.blockName || 'plain';
+    const bclass = badgeClass(sec.classification.blockName);
+    const preview = document.createElement('div');
+    preview.className = 'block-preview';
+    preview.innerHTML = `
+      <div class="block-preview-header">
+        <span>Section ${sec.index + 1} &mdash; <strong>${escapeHtml(bn)}</strong></span>
+        <span class="block-badge ${bclass}">${escapeHtml(bn)}</span>
+      </div>
+      <pre>${escapeHtml(sec.blockHtml)}</pre>
+    `;
+    blockPreviews.appendChild(preview);
+  });
+
+  // CLI command
+  const date = todaySlug();
+  const sandboxSlug = slug || 'page';
+  const sandboxDir = `tools/sandbox/${date}-${sandboxSlug}`;
+
+  // Build a minimal inline script for the CLI box
+  const blockNames = [...new Set(
+    sections
+      .filter((s) => s.classification.blockName)
+      .map((s) => s.classification.blockName)
+  )];
+
+  const edsPage = toEDSPage(analysis);
+  const escapedPage = edsPage.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+
+  const stubsCode = blockNames.map((bn) => `
+  {
+    const { js, css } = toBlockStub('${bn}');
+    const bd = path.join(dir, 'blocks', '${bn}');
+    fs.mkdirSync(bd, { recursive: true });
+    fs.writeFileSync(path.join(bd, '${bn}.js'), js);
+    fs.writeFileSync(path.join(bd, '${bn}.css'), css);
+    console.log('  wrote blocks/${bn}/');
+  }`).join('');
+
+  const cliScript = `node --input-type=module <<'BLOCKIFY'
+import { toBlockStub } from './tools/blockify/convert.js';
+import fs from 'fs';
+import path from 'path';
+
+const dir = '${sandboxDir}';
+fs.mkdirSync(dir, { recursive: true });
+
+// Write index.html
+fs.writeFileSync(path.join(dir, 'index.html'), \`${escapedPage}\`);
+console.log('wrote', dir + '/index.html');
+${stubsCode}
+console.log('\\nSandbox ready:', dir);
+console.log('Approve a block: node tools/blockify/approve.js <blockname> ' + dir);
+BLOCKIFY`;
+
+  cliBox.innerHTML = `<span class="comment"># Run from repo root:</span>\n<span class="cmd">${escapeHtml(cliScript)}</span>`;
+  cliBox._rawText = cliScript;
+
+  results.classList.add('visible');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---------------------------------------------------------------------------
+// Event handlers
+// ---------------------------------------------------------------------------
+
+fetchBtn.addEventListener('click', async () => {
+  const url = urlInput.value.trim();
+  if (!url) { showError('Enter a URL first.'); return; }
+  setLoading(true);
+  clearError();
+  try {
+    const resp = await fetch(url, { mode: 'cors' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const html = await resp.text();
+    htmlInput.value = html;
+    runAnalysis(html, url);
+  } catch (e) {
+    showError(
+      `Fetch failed (${e.message}). This is usually a CORS restriction. `
+      + 'In your browser, open the URL, then press Cmd+U (Mac) / Ctrl+U (Win) '
+      + 'to view source, select all (Cmd+A), copy, and paste into the textarea.',
+    );
+    setLoading(false);
+  }
+});
+
+analyzeBtn.addEventListener('click', () => {
+  const html = htmlInput.value.trim();
+  if (!html) { showError('Paste HTML into the textarea first.'); return; }
+  setLoading(true);
+  const sourceUrl = urlInput.value.trim() || '';
+  // Defer to allow spinner to render before the async work starts
+  requestAnimationFrame(() => runAnalysis(html, sourceUrl));
+});
+
+clearBtn.addEventListener('click', () => {
+  htmlInput.value = '';
+  urlInput.value = '';
+  clearError();
+});
+
+resetBtn.addEventListener('click', () => {
+  results.classList.remove('visible');
+  clearError();
+  htmlInput.value = '';
+  urlInput.value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+copyCliBtn.addEventListener('click', async () => {
+  const text = cliBox._rawText || cliBox.textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    copyConfirm.style.display = 'inline';
+    setTimeout(() => { copyConfirm.style.display = 'none'; }, 2000);
+  } catch {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    copyConfirm.style.display = 'inline';
+    setTimeout(() => { copyConfirm.style.display = 'none'; }, 2000);
+  }
+});
+
+// Allow Enter in URL input to trigger fetch
+urlInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') fetchBtn.click();
+});
+</script>
+</body>
+</html>
