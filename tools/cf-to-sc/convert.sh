@@ -103,7 +103,8 @@ CONTENT_REF="$(read_field contentReference)"
 
 echo "      eyebrow          : ${EYEBROW:-(empty)}"
 echo "      title            : ${TITLE:-(empty)}"
-echo "      description      : ${DESCRIPTION:0:60}${#DESCRIPTION>60 && echo '…' || true}"
+_desc_preview="${DESCRIPTION:0:60}"; [ "${#DESCRIPTION}" -gt 60 ] && _desc_preview="${_desc_preview}..."
+echo "      description      : ${_desc_preview}"
 echo "      ctaLabel         : ${CTA_LABEL:-(empty)}"
 echo "      contentReference : ${CONTENT_REF:-(empty)}"
 
