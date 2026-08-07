@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EDS Backend Planner</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fff;
+      --color-surface: #f8f8f8;
+      --color-border: #e0e0e0;
+      --color-text: #1a1a1a;
+      --color-text-muted: #666;
+      --color-accent: #0066cc;
+      --color-accent-hover: #004a99;
+      --color-success: #1a7a1a;
+      --color-warning: #8a5200;
+      --color-error: #cc0000;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Menlo', 'Monaco', 'Consolas', monospace;
+      --radius: 4px;
+    }
+
+    body {
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--color-text);
+      background: var(--color-bg);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 { font-size: 18px; font-weight: 600; }
+
+    header .badge {
+      font-size: 11px;
+      background: var(--color-accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      background: var(--color-surface);
+    }
+
+    .panel-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label {
+      display: inline-block;
+      background: var(--color-accent);
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    .panel-sub {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--color-text-muted);
+      font-size: 11px;
+    }
+
+    .panel-body { padding: 14px; }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .option-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    @media (max-width: 680px) {
+      .option-grid, .option-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: #fff;
+      transition: border-color 0.1s, background 0.1s;
+      user-select: none;
+    }
+
+    .option:hover { border-color: var(--color-accent); }
+
+    .option input[type="radio"],
+    .option input[type="checkbox"] {
+      margin-top: 2px;
+      flex-shrink: 0;
+      accent-color: var(--color-accent);
+    }
+
+    .option.selected {
+      border-color: var(--color-accent);
+      background: #f0f6ff;
+    }
+
+    .option-text { line-height: 1.4; }
+    .option-title { font-weight: 600; font-size: 13px; }
+    .option-desc { font-size: 11px; color: var(--color-text-muted); margin-top: 2px; }
+
+    button {
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--radius);
+      border: none;
+      padding: 10px 24px;
+      transition: background 0.1s;
+    }
+
+    .btn-primary { background: var(--color-accent); color: #fff; }
+    .btn-primary:hover { background: var(--color-accent-hover); }
+
+    .btn-copy {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      background: transparent;
+      color: var(--color-accent);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .btn-copy:hover { background: #f0f0f0; }
+
+    .generate-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .error-msg { font-size: 13px; color: var(--color-error); }
+
+    #output { display: none; }
+    #output.visible { display: block; }
+
+    .output-section { margin-bottom: 28px; }
+
+    .output-heading {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Dark code blocks */
+    .code-block {
+      background: #1a1a1a;
+      color: #e8e8e8;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.75;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .code-block .c  { color: #888; }
+    .code-block .kw { color: #7ec8e3; }
+    .code-block .st { color: #98c379; }
+    .code-block .hl { color: #e5c07b; }
+
+    /* ASCII diagram */
+    .diagram-block {
+      background: #111827;
+      color: #a5d6a7;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* AI Prompt */
+    .prompt-block {
+      background: #0f172a;
+      color: #cbd5e1;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      font-family: var(--font);
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    /* Compatibility notes */
+    .compat-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+    .compat-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      border-left: 3px solid;
+      font-size: 13px;
+    }
+
+    .compat-item.warn  { background: #fffbe6; border-color: var(--color-warning); color: #5a3a00; }
+    .compat-item.ok    { background: #f0fff4; border-color: #2a7a2a; color: #1a4a1a; }
+    .compat-item.info  { background: #f0f6ff; border-color: var(--color-accent); color: #003a80; }
+
+    .compat-icon { flex-shrink: 0; margin-top: 1px; }
+
+    .divider { border: none; border-top: 1px solid var(--color-border); margin: 28px 0; }
+
+    .copy-row { display: flex; align-items: center; gap: 8px; }
+
+    .copy-confirm {
+      font-size: 11px;
+      color: var(--color-success);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .copy-confirm.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>EDS Backend Planner</h1>
+  <span class="badge">tools</span>
+</header>
+
+<div class="main">
+
+  <div class="form-grid">
+
+    <!-- Section A: Deployment model -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="section-label">A</span>
+        Deployment Model
+        <span class="panel-sub">(pick one)</span>
+      </div>
+      <div class="panel-body">
+        <div class="option-grid">
+          <label class="option">
+            <input type="radio" name="model" value="eds-pure">
+            <div class="option-text">
+              <div class="option-title">Pure EDS</div>
+              <div class="option-desc">GitHub + CDN only. No AEM Author. Fully static content from Docs or DA Live.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="radio" name="model" value="crosswalk">
+            <div class="option-text">
+              <div class="option-title">EDS + AEM Author</div>
+              <div class="option-desc">XWalk / WYSIWYG authoring via Universal Editor. AEM Cloud Service still in the loop.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="radio" name="model" value="hybrid">
+            <div class="option-text">
+              <div class="option-title">Hybrid</div>
+              <div class="option-desc">EDS pages + legacy AEM subpaths coexist behind a shared domain. CDN routes by path.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section B: Dynamic content needs -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="section-label">B</span>
+        Dynamic Content Needs
+        <span class="panel-sub">(select all that apply)</span>
+      </div>
+      <div class="panel-body">
+        <div class="option-grid-2">
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="ew-personalization">
+            <div class="option-text">
+              <div class="option-title">Edge Workers: A/B &amp; Personalization</div>
+              <div class="option-desc">Personalization rules and A/B test routing at the CDN edge (Akamai EW).</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="ew-geo">
+            <div class="option-text">
+              <div class="option-title">Edge Workers: Geo / Language Redirects</div>
+              <div class="option-desc">Country-based routing, language selection, and redirect logic at the edge.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="ew-headers">
+            <div class="option-text">
+              <div class="option-title">Edge Workers: Custom Headers</div>
+              <div class="option-desc">Inject security headers (CSP, HSTS, etc.) or custom response headers at the edge.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="ab-backend">
+            <div class="option-text">
+              <div class="option-title">App Builder Microservice</div>
+              <div class="option-desc">Custom REST API via Adobe I/O Runtime (serverless functions, proxies, integrations).</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="ab-state">
+            <div class="option-text">
+              <div class="option-title">App Builder + aio-lib-state</div>
+              <div class="option-desc">Persistent key-value store for form submissions, counters, session state.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="ab-events">
+            <div class="option-text">
+              <div class="option-title">App Builder + aio-lib-events</div>
+              <div class="option-desc">Event-driven triggers and webhooks for CIF, publish pipelines, and integrations.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="ab-commerce">
+            <div class="option-text">
+              <div class="option-title">Commerce Integration Framework</div>
+              <div class="option-desc">Product catalog, cart, and checkout APIs via App Builder + CIF connector.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="forms">
+            <div class="option-text">
+              <div class="option-title">AEM Forms / EDS Forms</div>
+              <div class="option-desc">Headless form submissions via AEM Forms or the EDS spreadsheet forms pattern.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="cf-api">
+            <div class="option-text">
+              <div class="option-title">Content Fragments API</div>
+              <div class="option-desc">Existing CFs served via AEM Assets REST API or CF Delivery API to EDS pages.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="dynamic" value="da-live">
+            <div class="option-text">
+              <div class="option-title">Document Authoring (DA Live)</div>
+              <div class="option-desc">Structured content authoring in DA Live with publish-to-GitHub workflow.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section C: Tooling compat -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="section-label">C</span>
+        Quick Edit / Tooling Compatibility
+        <span class="panel-sub">(select all that apply)</span>
+      </div>
+      <div class="panel-body">
+        <div class="option-grid-2">
+          <label class="option">
+            <input type="checkbox" name="compat" value="quick-edit">
+            <div class="option-text">
+              <div class="option-title">Quick Edit (Universal Editor)</div>
+              <div class="option-desc">Enable in-context WYSIWYG editing. Requires EDS page metadata fields + UE service.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="compat" value="ew-compat">
+            <div class="option-text">
+              <div class="option-title">Edge Worker Compatible</div>
+              <div class="option-desc">Keep &lt;head&gt; clean, avoid document.write and synchronous render-blocking scripts.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="compat" value="experimentation">
+            <div class="option-text">
+              <div class="option-title">EDS Native Experimentation</div>
+              <div class="option-desc">A/B testing via experiment metadata + /experiments/ path convention and plugin.</div>
+            </div>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="compat" value="rum">
+            <div class="option-text">
+              <div class="option-title">Real User Monitoring (RUM)</div>
+              <div class="option-desc">EDS RUM endpoint integration with configurable sampling rate.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.form-grid -->
+
+  <div class="generate-row">
+    <button class="btn-primary" id="generate-btn">Generate Plan</button>
+    <span class="error-msg" id="error-msg"></span>
+  </div>
+
+  <!-- Output -->
+  <div id="output">
+    <hr class="divider">
+
+    <div class="output-section">
+      <div class="output-heading">
+        <span>1. Architecture Diagram</span>
+        <div class="copy-row">
+          <button class="btn-copy" data-target="diagram-block" data-confirm="confirm-diagram">Copy</button>
+          <span class="copy-confirm" id="confirm-diagram">Copied!</span>
+        </div>
+      </div>
+      <div class="diagram-block" id="diagram-block"></div>
+    </div>
+
+    <div class="output-section">
+      <div class="output-heading">
+        <span>2. Setup Commands</span>
+        <div class="copy-row">
+          <button class="btn-copy" data-target="commands-block" data-confirm="confirm-commands">Copy</button>
+          <span class="copy-confirm" id="confirm-commands">Copied!</span>
+        </div>
+      </div>
+      <div class="code-block" id="commands-block"></div>
+    </div>
+
+    <div class="output-section">
+      <div class="output-heading">
+        <span>3. Prompt for AI Assistant</span>
+        <div class="copy-row">
+          <button class="btn-copy" data-target="prompt-block" data-confirm="confirm-prompt">Copy</button>
+          <span class="copy-confirm" id="confirm-prompt">Copied!</span>
+        </div>
+      </div>
+      <div class="prompt-block" id="prompt-block"></div>
+    </div>
+
+    <div class="output-section">
+      <div class="output-heading">4. Compatibility Notes</div>
+      <ul class="compat-list" id="compat-list"></ul>
+    </div>
+  </div>
+
+</div><!-- /.main -->
+
+<script>
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function getModel()   { return document.querySelector('input[name="model"]:checked')?.value || null; }
+function getDynamic() { return new Set([...document.querySelectorAll('input[name="dynamic"]:checked')].map((el) => el.value)); }
+function getCompat()  { return new Set([...document.querySelectorAll('input[name="compat"]:checked')].map((el) => el.value)); }
+
+// Highlight selected options
+document.addEventListener('change', (e) => {
+  const input = e.target;
+  if (!input.matches('input[type="radio"], input[type="checkbox"]')) return;
+  const label = input.closest('.option');
+  if (!label) return;
+  if (input.type === 'radio') {
+    document.querySelectorAll(`input[name="${input.name}"]`).forEach((r) => r.closest('.option')?.classList.remove('selected'));
+  }
+  label.classList.toggle('selected', input.checked);
+});
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ─── Diagram ────────────────────────────────────────────────────────────────
+
+function buildDiagram(model, dynamic, compat) {
+  const hasEW = dynamic.has('ew-personalization') || dynamic.has('ew-geo') || dynamic.has('ew-headers');
+  const hasAB = dynamic.has('ab-backend') || dynamic.has('ab-state') || dynamic.has('ab-events') || dynamic.has('ab-commerce');
+  const lines = [];
+
+  lines.push('Browser');
+  lines.push('  └─→ Fastly CDN  (Edge Network)');
+
+  if (hasEW) {
+    const features = [];
+    if (dynamic.has('ew-personalization')) features.push('A/B + personalization');
+    if (dynamic.has('ew-geo'))             features.push('geo/language redirect');
+    if (dynamic.has('ew-headers'))         features.push('security headers');
+    lines.push(`        └─→ Edge Worker  [${features.join(' · ')}]`);
+    lines.push('              │');
+    lines.push('              └─→ origin ↓');
+    lines.push('');
+  }
+
+  const i = hasEW ? '                    ' : '        ';
+  const origins = {
+    'eds-pure':  ['└─→ GitHub Pages  (EDS static delivery)'],
+    'crosswalk': [
+      '├─→ GitHub Pages  (EDS rendered pages)',
+      '└─→ AEM Author    (WYSIWYG / Universal Editor → publish → GitHub)',
+    ],
+    'hybrid': [
+      '├─→ GitHub Pages  (EDS pages at /)',
+      '└─→ AEM Publish   (legacy paths at /content/*)',
+    ],
+  };
+  (origins[model] || []).forEach((l) => lines.push(i + l));
+
+  if (hasAB) {
+    lines.push('');
+    lines.push('EDS Page  (client JavaScript)');
+    lines.push('  └─→ App Builder  (Adobe I/O Runtime)');
+    if (dynamic.has('ab-backend'))  lines.push('        ├─→ Custom microservice / proxy logic');
+    if (dynamic.has('ab-state'))    lines.push('        ├─→ aio-lib-state  (persistent K/V store)');
+    if (dynamic.has('ab-events'))   lines.push('        ├─→ aio-lib-events  (event bus / webhooks)');
+    if (dynamic.has('ab-commerce')) lines.push('        └─→ Commerce Integration Framework  (catalog, cart, checkout)');
+  }
+
+  if (dynamic.has('cf-api')) {
+    lines.push('');
+    lines.push('EDS Page  (client JavaScript)');
+    lines.push('  └─→ AEM Assets REST API  (/api/assets/content/dam/...)');
+    lines.push('        └─→ Content Fragments  (structured JSON)');
+  }
+
+  if (dynamic.has('forms')) {
+    lines.push('');
+    lines.push('EDS Forms Block  (submit event)');
+    lines.push('  └─→ AEM Forms endpoint  (form submission handler)');
+  }
+
+  if (dynamic.has('da-live')) {
+    lines.push('');
+    lines.push('Authoring workflow:');
+    lines.push('  Author (DA Live) → publish → GitHub repo → CDN cache invalidation');
+  }
+
+  if (compat.has('experimentation')) {
+    lines.push('');
+    lines.push('Experimentation:');
+    lines.push('  /page  ←→  /experiments/<experiment-name>/challenger-N');
+    lines.push('  (EDS experimentation plugin routes variants client-side)');
+  }
+
+  if (compat.has('rum')) {
+    lines.push('');
+    lines.push('RUM:');
+    lines.push('  EDS aem.js → /.rum/ endpoint  (sampled: CWV, clicks, errors)');
+  }
+
+  return lines.join('\n');
+}
+
+// ─── Commands ───────────────────────────────────────────────────────────────
+
+function c(s)  { return `<span class="c">${esc(s)}</span>`; }
+function kw(s) { return `<span class="kw">${esc(s)}</span>`; }
+function st(s) { return `<span class="st">${esc(s)}</span>`; }
+function hl(s) { return `<span class="hl">${esc(s)}</span>`; }
+
+function buildCommands(model, dynamic, compat) {
+  const parts = [];
+
+  if (model === 'crosswalk') {
+    parts.push([
+      hl('# ── XWalk / WYSIWYG (EDS + AEM Author) ─────────────────────'),
+      c('# Merge component model JSON files after editing models/:'),
+      kw('npm run build:json'),
+      '',
+      c('# Repo root must contain:'),
+      c('#   component-models.json  component-definition.json  component-filters.json'),
+      c('# AEM Author: Sites > Create > Page > select EDS template'),
+      c('# Publishing a page triggers GitHub sync and CDN purge (~30 s)'),
+    ].join('\n'));
+  }
+
+  if (model === 'hybrid') {
+    parts.push([
+      hl('# ── Hybrid CDN Routing (EDS + legacy AEM) ───────────────────'),
+      c('# Fastly VCL example — add path-based routing:'),
+      kw('if (req.url ~ "^/content/") {'),
+      kw('  set req.backend = F_aem_publish;'),
+      kw('} else {'),
+      kw('  set req.backend = F_eds_github;'),
+      kw('}'),
+      '',
+      c('# CORS config on AEM Publish (required for EDS XHR calls):'),
+      c('# origins: ["https://*.hlx.live","https://*.hlx.page","http://localhost:3000"]'),
+    ].join('\n'));
+  }
+
+  const ewKeys = ['ew-personalization', 'ew-geo', 'ew-headers'].filter((k) => dynamic.has(k));
+  if (ewKeys.length) {
+    const labels = { 'ew-personalization': 'A/B + personalization', 'ew-geo': 'geo/language redirect', 'ew-headers': 'security headers' };
+    parts.push([
+      hl(`# ── Edge Workers: ${ewKeys.map((k) => labels[k]).join(', ')} ──`),
+      kw('npm install -g @adobe/aio-cli'),
+      kw('aio plugins:install @adobe/aio-cli-plugin-edge-workers'),
+      '',
+      kw('aio auth:login'),
+      kw('aio app use --workspace Stage'),
+      '',
+      c('# Create and deploy an Edge Worker:'),
+      kw('aio ew create --name my-eds-ew'),
+      kw('aio ew upload --bundlePath ./bundle.tar.gz --ewId <ewId>'),
+      kw('aio ew activate --ewId <ewId> --versionId <versionId>'),
+      '',
+      c('# Docs: https://techdocs.akamai.com/edgeworkers/docs/welcome-to-edgeworkers'),
+    ].join('\n'));
+  }
+
+  const abKeys = ['ab-backend', 'ab-state', 'ab-events', 'ab-commerce'].filter((k) => dynamic.has(k));
+  if (abKeys.length) {
+    const lines = [
+      hl('# ── App Builder (Adobe I/O Runtime) ─────────────────────────'),
+      kw('npm install -g @adobe/aio-cli'),
+      kw('aio app init my-eds-app --template=dx/excshell'),
+      kw('cd my-eds-app'),
+      '',
+    ];
+    if (dynamic.has('ab-state'))    lines.push(kw('npm install @adobe/aio-lib-state'));
+    if (dynamic.has('ab-events'))   lines.push(kw('npm install @adobe/aio-lib-events'));
+    if (dynamic.has('ab-commerce')) lines.push(kw('npm install @adobe/aio-lib-commerce'));
+    lines.push('');
+    lines.push(kw('aio app deploy --workspace Stage'));
+    lines.push(kw('aio app deploy --workspace Production'));
+
+    if (dynamic.has('ab-state')) {
+      lines.push('');
+      lines.push(c('# aio-lib-state usage inside an action:'));
+      lines.push(kw("import State from '@adobe/aio-lib-state';"));
+      lines.push(kw('const state = await State.init();'));
+      lines.push(kw("await state.put('key', { value: 'data' }, { ttl: 86400 });"));
+      lines.push(kw("const entry = await state.get('key');"));
+    }
+    if (dynamic.has('ab-events')) {
+      lines.push('');
+      lines.push(c('# aio-lib-events — register a webhook consumer:'));
+      lines.push(kw("import Events from '@adobe/aio-lib-events';"));
+      lines.push(kw('const eventsClient = await Events.init(orgId, apiKey, accessToken);'));
+      lines.push(kw("await eventsClient.createWebhookRegistration(consumerOrgId, credentialId, 'my-hook', config);"));
+    }
+    lines.push('');
+    lines.push(c('# Docs: https://developer.adobe.com/app-builder/docs/'));
+    parts.push(lines.join('\n'));
+  }
+
+  if (dynamic.has('cf-api')) {
+    parts.push([
+      hl('# ── Content Fragments API ────────────────────────────────────'),
+      c('# Fetch a CF from EDS client JS (replace with your Publish hostname):'),
+      kw("const resp = await fetch("),
+      kw("  'https://publish-pNNN-eNNN.adobeaemcloud.com/api/assets/content/dam/my-site/fragments/hero.json',"),
+      kw("  { headers: { 'Accept': 'application/json' } }"),
+      kw(');'),
+      kw('const cf = await resp.json();'),
+      '',
+      c('# Or use the CF Delivery / GraphQL endpoint:'),
+      kw("const resp = await fetch('https://publish-pNNN-eNNN.adobeaemcloud.com/graphql/execute.json/my-site/hero-by-slug;slug=welcome');"),
+      '',
+      c('# AEM Cloud Manager → Environments → Publish → CORS config:'),
+      c('# origins: ["https://*.hlx.live","https://*.hlx.page","http://localhost:3000"]'),
+    ].join('\n'));
+  }
+
+  if (dynamic.has('forms')) {
+    parts.push([
+      hl('# ── AEM Forms / EDS Forms ────────────────────────────────────'),
+      c('# Option A — spreadsheet-driven forms (EDS native):'),
+      c('# Create a Google Sheet or SharePoint doc with field definitions,'),
+      c('# then reference it in a forms block on the page:'),
+      st('<div class="form">'),
+      st('  <div><div><a href="/forms/contact-us">Contact Form</a></div></div>'),
+      st('</div>'),
+      '',
+      c('# Option B — AEM Forms as a Cloud Service (headless):'),
+      kw("const resp = await fetch('/api/forms/contact-us.json');"),
+      c('# Docs: https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/forms/'),
+    ].join('\n'));
+  }
+
+  if (dynamic.has('da-live')) {
+    parts.push([
+      hl('# ── Document Authoring (DA Live) ────────────────────────────'),
+      kw('npm install -g @da-live/cli'),
+      '',
+      c('# Link your GitHub repo to DA Live:'),
+      kw('da link --repo https://github.com/your-org/your-repo'),
+      '',
+      c('# Create and publish a document:'),
+      kw('da new /content/mysite/page-slug'),
+      kw('da publish /content/mysite/page-slug'),
+      '',
+      c('# DA Live editor: https://da.live'),
+    ].join('\n'));
+  }
+
+  if (compat.has('experimentation')) {
+    parts.push([
+      hl('# ── EDS Native Experimentation ───────────────────────────────'),
+      c('# 1. Add experiment metadata to the control page:'),
+      st('<meta name="experiment" content="hero-cta-test">'),
+      '',
+      c('# 2. Create challenger variant pages at:'),
+      c('#    /experiments/hero-cta-test/challenger-1'),
+      c('#    /experiments/hero-cta-test/challenger-2  (optional)'),
+      '',
+      c('# 3. Load the experimentation plugin in scripts.js:'),
+      kw("import { loadScript } from './aem.js';"),
+      kw("await loadScript('https://www.hlx.live/plugins/experimentation/src/index.js');"),
+      '',
+      c('# Docs: https://www.hlx.live/developer/plugins/experimentation'),
+    ].join('\n'));
+  }
+
+  if (compat.has('rum')) {
+    parts.push([
+      hl('# ── Real User Monitoring (RUM) ───────────────────────────────'),
+      c('# RUM is built into EDS aem.js — no extra install needed.'),
+      c('# Set sampling rate via page metadata (1-in-N page views):'),
+      st('<meta name="rum-sampling-rate" content="10">'),
+      '',
+      c('# Fire custom RUM events from block JS:'),
+      kw("import { sampleRUM } from '../../scripts/aem.js';"),
+      kw("sampleRUM('click', { source: '.hero a', target: '/get-started' });"),
+      '',
+      c('# View telemetry: https://www.hlx.live/tools/rum/explorer'),
+    ].join('\n'));
+  }
+
+  if (compat.has('quick-edit')) {
+    parts.push([
+      hl('# ── Quick Edit / Universal Editor ───────────────────────────'),
+      c('# Every editable page needs a UE connection meta tag in its <head>:'),
+      st('<meta name="urn:auecon:aemconnection"'),
+      st('      content="aem:https://author-pNNN-eNNN.adobeaemcloud.com">'),
+      '',
+      c('# Block containers need data-aue-* attributes (editor-support.js adds these):'),
+      c('#   data-aue-type="component"   data-aue-model="my-block"'),
+      c('#   data-aue-resource="urn:aemconnection:/content/..."'),
+      '',
+      c('# Rebuild component models after any model/ changes:'),
+      kw('npm run build:json'),
+      '',
+      c('# Docs: https://experienceleague.adobe.com/docs/experience-manager-cloud-service/'),
+      c('#       content/edge-delivery/wysiwyg-authoring/authoring.html'),
+    ].join('\n'));
+  }
+
+  return parts.length
+    ? parts.join('\n\n')
+    : c('# No setup steps required for the current selection.');
+}
+
+// ─── AI Prompt ──────────────────────────────────────────────────────────────
+
+function buildPrompt(model, dynamic, compat) {
+  const modelLabels = {
+    'eds-pure':  'Pure EDS (GitHub + Fastly CDN, no AEM Author)',
+    'crosswalk': 'EDS + AEM Author WYSIWYG (XWalk / Universal Editor)',
+    'hybrid':    'Hybrid: EDS pages + legacy AEM subpaths behind a shared domain',
+  };
+
+  const dynamicLabels = {
+    'ew-personalization': 'Edge Worker A/B testing and personalization',
+    'ew-geo':             'Edge Worker geo/language redirects',
+    'ew-headers':         'Edge Worker custom security response headers',
+    'ab-backend':         'App Builder custom microservice (REST API)',
+    'ab-state':           'App Builder + aio-lib-state (persistent K/V store)',
+    'ab-events':          'App Builder + aio-lib-events (event-driven webhooks)',
+    'ab-commerce':        'App Builder + Commerce Integration Framework',
+    'forms':              'AEM Forms / EDS Forms (headless form submissions)',
+    'cf-api':             'Content Fragments API (AEM Assets REST or GraphQL)',
+    'da-live':            'Document Authoring (DA Live) for content management',
+  };
+
+  const compatLabels = {
+    'quick-edit':      'Universal Editor / Quick Edit in-context authoring',
+    'ew-compat':       'Edge Worker compatibility (clean <head>, no document.write)',
+    'experimentation': 'EDS native Experimentation plugin',
+    'rum':             'Real User Monitoring (RUM) with configurable sampling',
+  };
+
+  const dynamicList = [...dynamic].map((k) => `  - ${dynamicLabels[k] || k}`).join('\n') || '  (none selected)';
+  const compatList  = [...compat].map((k) => `  - ${compatLabels[k] || k}`).join('\n') || '  (none selected)';
+
+  const deliverables = [];
+  if (dynamic.has('ew-personalization') || dynamic.has('ew-geo') || dynamic.has('ew-headers')) {
+    deliverables.push('A complete Edge Worker main.js with the selected logic wired up');
+  }
+  if (dynamic.has('ab-backend') || dynamic.has('ab-state') || dynamic.has('ab-events') || dynamic.has('ab-commerce')) {
+    deliverables.push('An App Builder action scaffold with the selected aio-lib integrations');
+  }
+  if (dynamic.has('cf-api')) {
+    deliverables.push('A JavaScript helper module for fetching and caching Content Fragments from AEM');
+  }
+  if (dynamic.has('forms')) {
+    deliverables.push('A forms block (blocks/form/) handling validation, submission, and error states');
+  }
+  if (compat.has('experimentation')) {
+    deliverables.push('An experimentation setup: control page metadata, challenger page stubs, plugin bootstrap');
+  }
+  if (compat.has('rum')) {
+    deliverables.push('RUM integration with custom event tracking for key user interactions');
+  }
+  deliverables.push('A step-by-step migration checklist from AEM to EDS for this architecture');
+  deliverables.push('CDN / infrastructure configuration snippets (Fastly VCL, aio CLI commands)');
+
+  return `I am migrating an enterprise AEM site to Adobe Edge Delivery Services (EDS).
+
+Architecture:
+  Deployment model:  ${modelLabels[model] || model}
+  Dynamic content:
+${dynamicList}
+  Tooling compatibility:
+${compatList}
+
+Please generate a complete implementation plan including:
+${deliverables.map((d, i) => `  ${i + 1}. ${d}`).join('\n')}
+
+Constraints:
+  - All EDS blocks must export a default async decorate(block) function
+  - No build step — static assets only, no webpack/vite in the page
+  - CSS and JS per block auto-loaded via aem.js loadBlock()
+  - CORS on AEM Publish must allow hlx.live, hlx.page, and localhost:3000
+  - Secrets (API keys, tokens) must never be committed — use App Builder .env
+    or AEM Cloud Service OSGi config vars`;
+}
+
+// ─── Compatibility Notes ─────────────────────────────────────────────────────
+
+function buildCompatNotes(model, dynamic, compat) {
+  const notes = [];
+
+  if (model === 'eds-pure') {
+    notes.push({ type: 'ok', icon: '✓', text: 'Pure EDS is the lowest-ops option. No AEM infrastructure to maintain. Authors use Docs, SharePoint, or DA Live.' });
+  }
+  if (model === 'crosswalk') {
+    notes.push({ type: 'info', icon: 'i', text: 'XWalk requires AEM Cloud Service with the EDS GitHub connector installed. Publish from AEM Author triggers an async GitHub commit and CDN purge — propagation is ~30 s.' });
+  }
+  if (model === 'hybrid') {
+    notes.push({ type: 'warn', icon: '!', text: 'Hybrid routing adds CDN complexity. Ensure /content/* paths are never cached by the EDS CDN layer. Set separate cache rules for the legacy AEM Publish origin.' });
+    if (dynamic.has('cf-api')) {
+      notes.push({ type: 'warn', icon: '!', text: 'Hybrid + CF API: CORS preflight requests from EDS pages to AEM Publish may be stripped by CDN routing before CORS headers are applied. Verify header injection order in your VCL.' });
+    }
+  }
+
+  if (compat.has('quick-edit') && !dynamic.has('da-live') && model === 'eds-pure') {
+    notes.push({ type: 'warn', icon: '!', text: 'Quick Edit / Universal Editor works with DA Live or AEM Author (XWalk) but not raw GitHub markdown commits. Ensure pages are authored through DA Live or AEM Author.' });
+  }
+
+  const hasEWOption = dynamic.has('ew-personalization') || dynamic.has('ew-geo') || dynamic.has('ew-headers');
+  if (hasEWOption && !compat.has('ew-compat')) {
+    notes.push({ type: 'warn', icon: '!', text: 'You selected Edge Workers but did not flag EW compatibility. Ensure pages have a clean <head> — no document.write and no synchronous render-blocking scripts — or Edge Worker response patching may produce invalid HTML.' });
+  }
+
+  if (compat.has('experimentation') && dynamic.has('ew-personalization')) {
+    notes.push({ type: 'warn', icon: '!', text: 'EDS Experimentation and Edge Worker A/B testing can conflict. Both attempt to serve different content for the same URL. Use one targeting mechanism per page, or gate the Edge Worker to exclude /experiments/* paths.' });
+  }
+
+  if (compat.has('experimentation') && model === 'hybrid') {
+    notes.push({ type: 'warn', icon: '!', text: 'Hybrid + Experimentation: the /experiments/* path must be served by EDS (GitHub), not the legacy AEM origin. Verify your CDN routing rule does not forward /experiments/ to the AEM Publish backend.' });
+  }
+
+  if (dynamic.has('ab-backend') || dynamic.has('ab-state') || dynamic.has('ab-events') || dynamic.has('ab-commerce')) {
+    notes.push({ type: 'info', icon: 'i', text: 'App Builder actions are called directly from client JS. Set CORS_ORIGINS in each action\'s .env to allow hlx.live, hlx.page, and localhost:3000, or all preflight requests will fail.' });
+  }
+
+  if (dynamic.has('cf-api')) {
+    notes.push({ type: 'info', icon: 'i', text: 'Content Fragments API: deploy the CORS OSGi config to AEM Publish before going live. Without it, all CF fetches from EDS pages will fail silently in production due to blocked preflight responses.' });
+  }
+
+  if (dynamic.has('da-live') && model === 'crosswalk') {
+    notes.push({ type: 'warn', icon: '!', text: 'DA Live + XWalk: choose one authoring model per path. Mixing DA Live and AEM Author for the same content tree causes write conflicts. Use DA Live for marketing pages and AEM Author only for structured XWalk components.' });
+  }
+
+  if (compat.has('rum')) {
+    notes.push({ type: 'info', icon: 'i', text: 'RUM: a sampling rate of 1-in-10 (rate=10) is the default. For very high-traffic pages, consider 1-in-100 (rate=100) to reduce telemetry volume. The RUM endpoint is built into EDS aem.js — no CDN configuration required.' });
+  }
+
+  if (!notes.length) {
+    notes.push({ type: 'ok', icon: '✓', text: 'No conflicts detected for the current selection.' });
+  }
+
+  return notes;
+}
+
+// ─── Render ──────────────────────────────────────────────────────────────────
+
+function renderOutput(diagram, commandsHtml, prompt, notes) {
+  document.getElementById('diagram-block').textContent = diagram;
+  document.getElementById('commands-block').innerHTML = commandsHtml;
+  document.getElementById('prompt-block').textContent = prompt;
+
+  const list = document.getElementById('compat-list');
+  list.innerHTML = '';
+  notes.forEach(({ type, icon, text }) => {
+    const li = document.createElement('li');
+    li.className = `compat-item ${type}`;
+    li.innerHTML = `<span class="compat-icon">${esc(icon)}</span><span>${esc(text)}</span>`;
+    list.appendChild(li);
+  });
+
+  const output = document.getElementById('output');
+  output.classList.add('visible');
+  output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── Copy buttons ────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.btn-copy').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const el = document.getElementById(btn.dataset.target);
+    const text = el.textContent;
+    navigator.clipboard.writeText(text).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    });
+    const confirm = document.getElementById(btn.dataset.confirm);
+    if (confirm) {
+      confirm.classList.add('show');
+      setTimeout(() => confirm.classList.remove('show'), 2000);
+    }
+  });
+});
+
+// ─── Generate ────────────────────────────────────────────────────────────────
+
+document.getElementById('generate-btn').addEventListener('click', () => {
+  const errorEl = document.getElementById('error-msg');
+  const model = getModel();
+  if (!model) {
+    errorEl.textContent = 'Select a deployment model (Section A) first.';
+    return;
+  }
+  errorEl.textContent = '';
+
+  const dynamic = getDynamic();
+  const compat  = getCompat();
+
+  const diagram      = buildDiagram(model, dynamic, compat);
+  const commandsHtml = buildCommands(model, dynamic, compat);
+  const prompt       = buildPrompt(model, dynamic, compat);
+  const notes        = buildCompatNotes(model, dynamic, compat);
+
+  renderOutput(diagram, commandsHtml, prompt, notes);
+});
+</script>
+</body>
+</html>

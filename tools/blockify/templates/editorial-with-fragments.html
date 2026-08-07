@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+  EDS PAGE TEMPLATE: editorial-with-fragments.html
+  ─────────────────────────────────────────────────
+  A rich editorial "product announcement" page demonstrating EDS best practices:
+
+    • Native Fragment blocks to reuse shared authored content
+    • pullquote block for pull quotes
+    • cards block (3-up: image + title + description + CTA)
+    • columns block (2-column layout)
+    • metadata block for page properties, OG tags, and experimentation
+
+  AUTHORING NOTES
+  ───────────────
+  In EDS, blocks are div tables:
+    <div class="block-name">   ← the block
+      <div>                    ← a row
+        <div>content</div>     ← a cell
+        <div>content</div>     ← another cell
+      </div>
+    </div>
+
+  Section breaks (horizontal rules in Docs) become separate <div> wrappers
+  inside <main>. Each top-level <div> in <main> is one section.
+
+  The <header> and <footer> are intentionally empty — EDS auto-populates
+  them by loading the /nav and /footer fragment pages.
+-->
+<html lang="en">
+<head>
+  <title>Introducing Adobe Edge Delivery Services 2.0</title>
+  <meta name="description" content="Discover how Adobe Edge Delivery Services 2.0 delivers sub-100ms page loads, document-based authoring, and infinite scale — without servers to manage.">
+  <meta name="og:image" content="/media/eds2-announcement-og.jpg">
+  <link rel="canonical" href="https://www.example.com/announcements/edge-delivery-services-2">
+</head>
+<body>
+
+<header></header>
+
+<main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 1 — Shared navigation CTA (Fragment)
+       ═══════════════════════════════════════════════════════
+       The fragment block fetches and inlines the page at the
+       given path. Use this for shared headers, nav strips,
+       or announcement banners authored in one place.
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <!-- fragment: path to the shared page to inline -->
+    <div class="fragment">
+      <div>
+        <div>/fragments/shared-nav-cta</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 2 — Hero / editorial intro
+       ═══════════════════════════════════════════════════════
+       Plain prose content (headings + paragraphs + CTA link)
+       above the fold. No custom block needed — EDS renders
+       these as styled defaults.
+
+       The <strong> wrapper around a link signals "primary CTA"
+       to the EDS button decorator in scripts.js.
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <h1>Edge Delivery Services 2.0 is here</h1>
+    <p>
+      Today we are announcing the next generation of Adobe Edge Delivery Services —
+      a delivery platform that serves enterprise web experiences from 300 global edge
+      nodes with consistent 100 ms Time to First Byte, perfect Core Web Vitals, and
+      zero infrastructure for your team to manage.
+    </p>
+    <p>
+      <strong><a href="/request-demo">Request an early access demo</a></strong>
+      <a href="/docs/edge-delivery-services">Read the documentation</a>
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 3 — Pull quote
+       ═══════════════════════════════════════════════════════
+       The pullquote block renders a large blockquote with an
+       optional attribution line. Single-row, single-cell.
+
+       Implemented in blocks/pullquote/pullquote.js + .css
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <!-- pullquote: row 1 = quote text, row 2 = attribution -->
+    <div class="pullquote">
+      <div>
+        <div>
+          We cut our median page load time from 4.2 seconds to 310 milliseconds
+          the day we moved to Edge Delivery. Our CMS team went from gating every
+          publish to shipping dozens of updates a day without a single deploy.
+        </div>
+      </div>
+      <div>
+        <div>— Sarah Chen, VP Digital Experience, Northstar Financial</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 4 — Feature cards (3-up)
+       ═══════════════════════════════════════════════════════
+       The cards block renders each row as one card.
+       Row layout: cell 1 = image, cell 2 = text content.
+
+       CTA links inside cards: use <em> for secondary,
+       <strong> for primary button treatment (scripts.js
+       applies the button class automatically).
+
+       Implemented in blocks/cards/cards.js + .css
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <h2>What's new in 2.0</h2>
+
+    <!-- cards: each <div> = one card row; two cells per row = image | text -->
+    <div class="cards">
+
+      <!-- Card 1: Instant authoring -->
+      <div>
+        <div>
+          <picture>
+            <source media="(min-width: 600px)" srcset="/media/card-authoring-large.jpg">
+            <img src="/media/card-authoring.jpg" alt="Author editing a page in DA Live" loading="lazy" width="400" height="300">
+          </picture>
+        </div>
+        <div>
+          <h3>Instant authoring with DA Live</h3>
+          <p>
+            Author directly in DA Live's browser editor or in Microsoft Word and
+            Google Docs. Changes publish to the live site in under five seconds —
+            no export, no sync job, no waiting.
+          </p>
+          <p><a href="/features/authoring">Explore DA Live authoring</a></p>
+        </div>
+      </div>
+
+      <!-- Card 2: Universal Editor -->
+      <div>
+        <div>
+          <picture>
+            <source media="(min-width: 600px)" srcset="/media/card-ue-large.jpg">
+            <img src="/media/card-ue.jpg" alt="Universal Editor showing in-context block editing" loading="lazy" width="400" height="300">
+          </picture>
+        </div>
+        <div>
+          <h3>WYSIWYG with Universal Editor</h3>
+          <p>
+            Non-technical authors get full in-context editing powered by the
+            Universal Editor. Click any block on the live page and edit it inline —
+            no CMS training required.
+          </p>
+          <p><a href="/features/universal-editor">See the Universal Editor</a></p>
+        </div>
+      </div>
+
+      <!-- Card 3: Core Web Vitals -->
+      <div>
+        <div>
+          <picture>
+            <source media="(min-width: 600px)" srcset="/media/card-perf-large.jpg">
+            <img src="/media/card-perf.jpg" alt="Lighthouse score showing 100 across all metrics" loading="lazy" width="400" height="300">
+          </picture>
+        </div>
+        <div>
+          <h3>Perfect Core Web Vitals by default</h3>
+          <p>
+            Every EDS page ships with lazy-loaded images, critical CSS inlined,
+            and zero render-blocking scripts. A 100 Lighthouse score is the floor,
+            not a goal to optimise toward.
+          </p>
+          <p><a href="/performance">View performance benchmarks</a></p>
+        </div>
+      </div>
+
+    </div><!-- /.cards -->
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 5 — Two-column editorial
+       ═══════════════════════════════════════════════════════
+       The columns block renders each cell in the row as an
+       equal-width column. Nest any rich content inside each
+       cell — headings, paragraphs, lists, images.
+
+       Implemented in blocks/columns/columns.js + .css
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <!-- columns: one row, two cells = two equal columns -->
+    <div class="columns">
+      <div>
+
+        <!-- Column 1: migration path -->
+        <div>
+          <h2>Migrate in weeks, not quarters</h2>
+          <p>
+            The blockify toolset converts your existing AEM Core Components HTML
+            into EDS block HTML in a single paste operation. Each section is
+            classified, mapped to the closest EDS block, and output as a working
+            scaffold you can edit and ship immediately.
+          </p>
+          <p>
+            Most teams complete a full site migration in four to six weeks,
+            including performance testing and content author training.
+          </p>
+          <ul>
+            <li>Automated AEM component analysis</li>
+            <li>Block scaffold generation with confidence scoring</li>
+            <li>Sandbox previews before committing to the repo</li>
+          </ul>
+        </div>
+
+        <!-- Column 2: developer experience -->
+        <div>
+          <h2>A development model that gets out of your way</h2>
+          <p>
+            Every EDS block is a plain JavaScript module that receives a DOM
+            element and transforms it. No framework. No virtual DOM. No build
+            pipeline required.
+          </p>
+          <p>
+            Blocks auto-load their CSS sibling only when the block appears on
+            the page, so no unused code is ever shipped to users.
+          </p>
+          <ul>
+            <li>Start with <code>aem up</code> — no Docker, no Maven</li>
+            <li>Hot reload from GitHub on every save</li>
+            <li>Deploy by merging a pull request</li>
+          </ul>
+        </div>
+
+      </div>
+    </div><!-- /.columns -->
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 6 — Metadata
+       ═══════════════════════════════════════════════════════
+       The metadata block sets page properties consumed by
+       EDS during rendering. Field names are case-insensitive.
+
+       title        — overrides <title> for the live page
+       description  — meta description
+       og:image     — Open Graph share image
+       template     — loads /styles/editorial.css if present
+       experiment   — activates the EDS Experimentation plugin
+                      (challenger pages at /experiments/<name>/challenger-N)
+
+       This block must be the LAST element inside <main>.
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="metadata">
+      <div><div>title</div>           <div>Introducing Adobe Edge Delivery Services 2.0</div></div>
+      <div><div>description</div>     <div>Discover how Adobe Edge Delivery Services 2.0 delivers sub-100ms page loads, document-based authoring, and infinite scale — without servers to manage.</div></div>
+      <div><div>og:image</div>        <div>/media/eds2-announcement-og.jpg</div></div>
+      <div><div>template</div>        <div>editorial</div></div>
+      <!--
+        experiment: tells the EDS Experimentation plugin to split traffic
+        between this page (control) and the challenger variants at:
+          /experiments/eds2-hero-variant/challenger-1
+          /experiments/eds2-hero-variant/challenger-2
+        Plugin bootstrap: loadScript('https://www.hlx.live/plugins/experimentation/src/index.js')
+      -->
+      <div><div>experiment</div>      <div>eds2-hero-variant</div></div>
+    </div>
+  </div>
+
+</main>
+
+<footer></footer>
+
+</body>
+</html>

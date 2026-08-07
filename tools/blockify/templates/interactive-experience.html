@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!--
+  EDS PAGE TEMPLATE: interactive-experience.html
+  ───────────────────────────────────────────────
+  An advanced template demonstrating a wider set of EDS capabilities:
+
+    • Hero with mobile/desktop <picture> variants (media queries)
+    • embed block for external video (YouTube)
+    • table block for data comparison
+    • accordion block for FAQs
+    • visualization block stub (custom D3 / Chart.js block scaffold)
+    • Fragment block for a shared footer CTA
+    • metadata block with RUM sampling rate
+
+  AUTHORING NOTES
+  ───────────────
+  Block div-table structure (same for all blocks):
+    <div class="block-name">
+      <div>          ← row
+        <div>...</div>   ← cell 1
+        <div>...</div>   ← cell 2 (optional)
+      </div>
+    </div>
+
+  Variants / modifiers are added as additional class names:
+    <div class="table striped">  ← table block with "striped" modifier
+
+  The <header> and <footer> are auto-populated by EDS.
+  The metadata block must be the last child of <main>.
+-->
+<html lang="en">
+<head>
+  <title>EDS Performance Showcase: Real-World Benchmarks</title>
+  <meta name="description" content="See how Adobe Edge Delivery Services compares to legacy AEM and common CMS platforms across Core Web Vitals, Time to First Byte, and developer velocity benchmarks.">
+  <meta name="og:image" content="/media/perf-showcase-og.jpg">
+  <link rel="canonical" href="https://www.example.com/resources/eds-performance-showcase">
+</head>
+<body>
+
+<header></header>
+
+<main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 1 — Hero with responsive image variants
+       ═══════════════════════════════════════════════════════
+       <picture> elements give the browser a choice of sources.
+       EDS's createOptimizedPicture() helper (aem.js) rewrites
+       these at runtime to serve WebP and correct dimensions,
+       but the static HTML below is valid and works without JS.
+
+       media="(min-width: 600px)"  → desktop source (wider)
+       fallback <img>              → mobile source (default)
+
+       The loading="lazy" and width/height attributes prevent
+       Cumulative Layout Shift (CLS) — required for LCP score.
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <picture>
+      <!-- Desktop: 1440 × 600 crop -->
+      <source
+        media="(min-width: 600px)"
+        srcset="/media/hero-perf-desktop.jpg"
+        width="1440"
+        height="600">
+      <!-- Mobile: 768 × 512 crop, portrait emphasis -->
+      <img
+        src="/media/hero-perf-mobile.jpg"
+        alt="Dashboard showing Core Web Vitals all scoring green for an EDS site"
+        loading="eager"
+        width="768"
+        height="512">
+    </picture>
+
+    <h1>Real-world performance benchmarks</h1>
+    <p>
+      We measured 14 enterprise sites before and after migrating from legacy AEM
+      to Adobe Edge Delivery Services. Every site hit green Core Web Vitals within
+      48 hours of going live.
+    </p>
+    <p>
+      <strong><a href="/contact">Talk to a solutions engineer</a></strong>
+      <a href="#benchmarks">Jump to the data</a>
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 2 — Embedded video
+       ═══════════════════════════════════════════════════════
+       The embed block detects the link hostname and renders
+       the appropriate embed (YouTube, Vimeo, etc.).
+
+       Single-row, single-cell: the plain URL is the content.
+       The block JS rewrites it to an iframe or facade player.
+
+       Implemented in blocks/embed/embed.js + .css
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <h2>Watch: migrating ACME Corp in 3 weeks</h2>
+    <p>A real walkthrough of how the ACME Corp team moved 4,200 pages from AEM 6.5 to EDS.</p>
+
+    <!-- embed: single cell containing the video URL -->
+    <div class="embed">
+      <div>
+        <div>
+          <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+            https://www.youtube.com/watch?v=dQw4w9WgXcQ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 3 — Comparison table
+       ═══════════════════════════════════════════════════════
+       The table block renders a styled data table.
+       Row 1 = header row (bold cells or th treatment handled
+       by table.js based on position).
+
+       Modifier class "striped" adds alternating row colors.
+       Modifier class "comparison" adds column highlight for
+       the "recommended" column (handled in table.js).
+
+       Implemented in blocks/table/table.js + .css
+  ══════════════════════════════════════════════════════════ -->
+  <div id="benchmarks">
+    <h2>Platform comparison</h2>
+    <p>Median values across 14 production sites measured with field data (CrUX) over 28 days.</p>
+
+    <!-- table striped: the "striped" modifier adds zebra rows -->
+    <div class="table striped">
+
+      <!-- Header row -->
+      <div>
+        <div>Metric</div>
+        <div>AEM 6.5 (legacy)</div>
+        <div>AEM Cloud Service</div>
+        <div>Adobe EDS</div>
+      </div>
+
+      <!-- Data rows -->
+      <div>
+        <div>Largest Contentful Paint (LCP)</div>
+        <div>4.8 s</div>
+        <div>3.2 s</div>
+        <div>0.9 s</div>
+      </div>
+      <div>
+        <div>Interaction to Next Paint (INP)</div>
+        <div>380 ms</div>
+        <div>220 ms</div>
+        <div>65 ms</div>
+      </div>
+      <div>
+        <div>Cumulative Layout Shift (CLS)</div>
+        <div>0.24</div>
+        <div>0.12</div>
+        <div>0.02</div>
+      </div>
+      <div>
+        <div>Time to First Byte (TTFB)</div>
+        <div>1,800 ms</div>
+        <div>620 ms</div>
+        <div>80 ms</div>
+      </div>
+      <div>
+        <div>Lighthouse Performance Score</div>
+        <div>42</div>
+        <div>67</div>
+        <div>99</div>
+      </div>
+      <div>
+        <div>Median deploy time (content publish)</div>
+        <div>8 min</div>
+        <div>3 min</div>
+        <div>5 s</div>
+      </div>
+      <div>
+        <div>Monthly infrastructure cost (est.)</div>
+        <div>$12,000</div>
+        <div>$8,500</div>
+        <div>$0 (CDN included)</div>
+      </div>
+
+    </div><!-- /.table -->
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 4 — Visualization block (custom stub)
+       ═══════════════════════════════════════════════════════
+       This is a custom block stub. The div-table below passes
+       structured data to the block's decorate() function.
+
+       The block JS reads the table, extracts the data, and
+       replaces the inner HTML with a D3 or Chart.js chart.
+
+       TO IMPLEMENT:
+         blocks/visualization/visualization.js  — decorate()
+         blocks/visualization/visualization.css — layout
+
+       Row 1 = chart config (type, label columns, value columns)
+       Rows 2-N = data rows
+
+       See blocks/csv-chart/ in this repo for a reference
+       implementation using a similar pattern.
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <h2>LCP improvement over time</h2>
+    <p>Week-by-week LCP for a representative site during the 90-day post-migration period.</p>
+
+    <!--
+      visualization block stub — decorate with D3 or Chart.js
+      in blocks/visualization/visualization.js
+
+      Row 1: chart metadata (type | x-label | y-label)
+      Row 2+: data (x value | y value)
+    -->
+    <div class="visualization">
+      <!-- Config row: chart type | x-axis label | y-axis label -->
+      <div>
+        <div>line</div>
+        <div>Week</div>
+        <div>LCP (seconds)</div>
+      </div>
+      <!-- Data rows: x | y -->
+      <div><div>Week -4 (pre-migration)</div><div>4.8</div></div>
+      <div><div>Week -3</div><div>4.9</div></div>
+      <div><div>Week -2</div><div>5.1</div></div>
+      <div><div>Week -1</div><div>4.7</div></div>
+      <div><div>Week 0 (launch)</div><div>1.2</div></div>
+      <div><div>Week 1</div><div>0.9</div></div>
+      <div><div>Week 2</div><div>0.95</div></div>
+      <div><div>Week 4</div><div>0.88</div></div>
+      <div><div>Week 8</div><div>0.85</div></div>
+      <div><div>Week 12</div><div>0.82</div></div>
+    </div><!-- /.visualization -->
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 5 — Accordion (FAQ)
+       ═══════════════════════════════════════════════════════
+       The accordion block renders each row as a collapsible
+       panel. Cell 1 = heading/question, cell 2 = body/answer.
+
+       The block JS adds aria-expanded, aria-controls, and
+       keyboard navigation. All panels closed by default; the
+       first can be open via a "first-open" modifier class.
+
+       Implemented in blocks/accordion/accordion.js + .css
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <h2>Frequently asked questions</h2>
+
+    <!-- accordion: each row = one FAQ panel (question | answer) -->
+    <div class="accordion">
+
+      <div>
+        <div>Do I need AEM Cloud Service to use Edge Delivery Services?</div>
+        <div>
+          <p>
+            No. The simplest EDS setup is GitHub + Fastly CDN with no AEM Author involved.
+            Authors write content in Google Docs or Microsoft SharePoint, and a GitHub App
+            syncs changes to the repo automatically. AEM Cloud Service is optional and only
+            required when you want WYSIWYG authoring via the Universal Editor (XWalk mode).
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div>Can I migrate only part of my site to EDS?</div>
+        <div>
+          <p>
+            Yes — this is called the hybrid model. You configure your CDN to route specific
+            paths (e.g., <code>/content/legacy/*</code>) to your existing AEM Publish instance
+            while all other paths are served by EDS. The two origins share a single domain and
+            CDN cache layer.
+          </p>
+          <p>
+            Most teams start with marketing pages (home, product, campaign) and migrate
+            transactional or application areas last.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div>What happens to my existing Content Fragments?</div>
+        <div>
+          <p>
+            Content Fragments remain in AEM and are served to EDS pages via the AEM Assets
+            REST API or the CF Delivery (GraphQL) API. Your existing CF models and content
+            do not change. EDS blocks fetch the CFs at runtime, so updates to CF content
+            propagate to the live page as soon as AEM Publish replicates them.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div>How do I handle form submissions without AEM Forms?</div>
+        <div>
+          <p>
+            EDS supports a spreadsheet-driven forms pattern where a Google Sheet or
+            SharePoint document defines the form fields. Submissions are written back to
+            the same sheet and can trigger email notifications via Power Automate or
+            Google Apps Script.
+          </p>
+          <p>
+            For more complex scenarios (CRM integration, multi-step flows), use an
+            App Builder microservice as the form submission endpoint.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div>Is server-side personalization possible on EDS?</div>
+        <div>
+          <p>
+            Yes, via Akamai Edge Workers. You can inspect request headers (geolocation,
+            device type, cookie segments) and serve different HTML variants before the
+            response reaches the browser. For lighter-weight A/B testing, the EDS native
+            Experimentation plugin routes variants client-side using the
+            <code>experiment</code> page metadata field — no edge infrastructure required.
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /.accordion -->
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 6 — Shared footer CTA (Fragment)
+       ═══════════════════════════════════════════════════════
+       Reuse a single authored "get started" CTA across every
+       page without duplicating content. Update the fragment
+       page once and all pages that reference it get the change
+       on the next CDN purge.
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="fragment">
+      <div>
+        <div>/fragments/shared-footer-cta</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 7 — Metadata
+       ═══════════════════════════════════════════════════════
+       rum-sampling-rate: 10 → capture 1-in-10 page views.
+       Reduce to 100 for very high-traffic pages to keep
+       telemetry volume manageable.
+
+       This block must be the LAST child of <main>.
+  ══════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="metadata">
+      <div><div>title</div>             <div>EDS Performance Showcase: Real-World Benchmarks</div></div>
+      <div><div>description</div>       <div>See how Adobe Edge Delivery Services compares to legacy AEM and common CMS platforms across Core Web Vitals, TTFB, and developer velocity benchmarks.</div></div>
+      <div><div>og:image</div>          <div>/media/perf-showcase-og.jpg</div></div>
+      <div><div>template</div>          <div>interactive</div></div>
+      <!--
+        rum-sampling-rate: 10 → record 1-in-10 page views in the RUM endpoint.
+        The EDS aem.js sampleRUM() function reads this value at page load.
+        View telemetry at https://www.hlx.live/tools/rum/explorer
+      -->
+      <div><div>rum-sampling-rate</div> <div>10</div></div>
+    </div>
+  </div>
+
+</main>
+
+<footer></footer>
+
+</body>
+</html>
