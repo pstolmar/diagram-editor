@@ -513,6 +513,7 @@ export function analyzeDocument(doc, sourceUrl = '') {
       aemComponents: componentTypes,
       classification,
       blockHtml,
+      aemHtml: el.outerHTML,
       isPlain: classification.blockName === null,
     });
 
