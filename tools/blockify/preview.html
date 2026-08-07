@@ -524,9 +524,10 @@ const iframeModernized = document.getElementById('iframe-modernized');
 // State
 // ---------------------------------------------------------------------------
 
-let sections   = [];
-let activeTab  = 'preview';
-let scrollLock = false;
+let sections    = [];
+let activeTab   = 'preview';
+let activeVp    = 'desktop';
+let scrollLock  = false;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -701,9 +702,12 @@ function setActiveTab(tab) {
   });
   iframePreview.style.display    = tab === 'preview'    ? '' : 'none';
   iframeModernized.style.display = tab === 'modernized' ? '' : 'none';
+  // Reapply viewport so the newly visible iframe gets the same scale
+  applyViewport(activeVp);
 }
 
 function applyViewport(vp) {
+  activeVp = vp;
   vpBtns.querySelectorAll('button').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.vp === vp);
   });
