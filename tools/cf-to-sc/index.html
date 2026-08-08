@@ -424,8 +424,8 @@
     $('url-da').style.display = 'flex';
 
     // ── Step 5: Franklin preview + publish ────────────────────────────────
-    const previewUrl = `https://admin.hlx.page/preview/${daOrg}/${daRepo}/main/${daPath}`;
-    const liveUrl    = `https://admin.hlx.page/live/${daOrg}/${daRepo}/main/${daPath}`;
+    const previewUrl = `https://admin.aem.page/preview/${daOrg}/${daRepo}/main/${daPath}`;
+    const liveUrl    = `https://admin.aem.page/live/${daOrg}/${daRepo}/main/${daPath}`;
 
     log(`[5/5] POST ${previewUrl}`);
     try {
@@ -450,8 +450,8 @@
     }
 
     // ── Final URLs ─────────────────────────────────────────────────────────
-    const previewPageUrl = `https://main--${daRepo}--${daOrg}.hlx.page/${daPath}`;
-    const livePageUrl    = `https://main--${daRepo}--${daOrg}.hlx.live/${daPath}`;
+    const previewPageUrl = `https://main--${daRepo}--${daOrg}.aem.page/${daPath}`;
+    const livePageUrl    = `https://main--${daRepo}--${daOrg}.aem.live/${daPath}`;
 
     $('link-preview').href = $('link-preview').textContent = previewPageUrl;
     $('link-live').href    = $('link-live').textContent    = livePageUrl;

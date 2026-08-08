@@ -123,7 +123,7 @@ Escalation is **silent** (no interactive prompt), but always visible in terminal
 | `--linear` | Default. Pre-annotate all steps before execution. |
 | `--reactive` | Signal-driven escalation. Default tier = Codex+bash. |
 | `--miser N` | 0–11 cost-avoidance level. |
-| `--deploy` | After successful job: `git add -A && git commit && git push`, then trigger AEM code sync via Admin API (`https://admin.hlx.page/code/<org>/<repo>/main`). Runs `--validate` afterward if set. |
+| `--deploy` | After successful job: `git add -A && git commit && git push`, then trigger AEM code sync via Admin API (`https://admin.aem.page/code/<org>/<repo>/main`). Runs `--validate` afterward if set. |
 | `--validate` | After `--deploy`: run default Playwright critical-path smoke tests. |
 | `--validate "cmd"` | After `--deploy`: run `cmd` instead of Playwright. |
 | `--yolo` / `--danger` | Skip screenshots and video capture only. Lint, smoke tests, and REPORT.md are never skipped. |

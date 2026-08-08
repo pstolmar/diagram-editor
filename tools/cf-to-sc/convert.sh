@@ -187,8 +187,8 @@ fi
 
 # ── Step 5: Franklin preview + publish ───────────────────────────────────────
 
-HLX_PREVIEW_URL="https://admin.hlx.page/preview/${DA_ORG}/${DA_REPO}/main/${DA_PATH}"
-HLX_LIVE_URL="https://admin.hlx.page/live/${DA_ORG}/${DA_REPO}/main/${DA_PATH}"
+HLX_PREVIEW_URL="https://admin.aem.page/preview/${DA_ORG}/${DA_REPO}/main/${DA_PATH}"
+HLX_LIVE_URL="https://admin.aem.page/live/${DA_ORG}/${DA_REPO}/main/${DA_PATH}"
 
 echo "[5/5] Triggering Franklin preview …"
 echo "      POST $HLX_PREVIEW_URL"
@@ -227,6 +227,6 @@ echo "════════════════════════�
 echo " Conversion complete"
 echo "───────────────────────────────────────────────────────────────────────"
 echo " DA Live source : $DA_SOURCE_URL"
-echo " EDS preview    : https://main--${DA_REPO}--${DA_ORG}.hlx.page/${DA_PATH}"
-echo " EDS live       : https://main--${DA_REPO}--${DA_ORG}.hlx.live/${DA_PATH}"
+echo " EDS preview    : https://main--${DA_REPO}--${DA_ORG}.aem.page/${DA_PATH}"
+echo " EDS live       : https://main--${DA_REPO}--${DA_ORG}.aem.live/${DA_PATH}"
 echo "═══════════════════════════════════════════════════════════════════════"

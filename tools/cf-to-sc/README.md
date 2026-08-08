@@ -116,19 +116,19 @@ After uploading to DA Live, two POST requests trigger Franklin's preview and
 live publish pipelines:
 
 ```
-POST https://admin.hlx.page/preview/{org}/{repo}/main/{path}
-POST https://admin.hlx.page/live/{org}/{repo}/main/{path}
+POST https://admin.aem.page/preview/{org}/{repo}/main/{path}
+POST https://admin.aem.page/live/{org}/{repo}/main/{path}
 ```
 
 These convert the DA Live HTML into EDS-optimised HTML on the CDN.
 
 The resulting pages are served at:
-- **Preview:** `https://main--{repo}--{org}.hlx.page/{path}`
-- **Live:**    `https://main--{repo}--{org}.hlx.live/{path}`
+- **Preview:** `https://main--{repo}--{org}.aem.page/{path}`
+- **Live:**    `https://main--{repo}--{org}.aem.live/{path}`
 
 For this project:
-- Preview: `https://main--diagram-editor--pstolmar.hlx.page/ue-demo/fragments/home-hero`
-- Live:    `https://main--diagram-editor--pstolmar.hlx.live/ue-demo/fragments/home-hero`
+- Preview: `https://main--diagram-editor--pstolmar.aem.page/ue-demo/fragments/home-hero`
+- Live:    `https://main--diagram-editor--pstolmar.aem.live/ue-demo/fragments/home-hero`
 
 ---
 

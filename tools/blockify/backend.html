@@ -827,7 +827,7 @@ function buildCommands(model, dynamic, compat) {
       kw('}'),
       '',
       c('# CORS config on AEM Publish (required for EDS XHR calls):'),
-      c('# origins: ["https://*.hlx.live","https://*.hlx.page","http://localhost:3000"]'),
+      c('# origins: ["https://*.aem.live","https://*.aem.page","http://localhost:3000"]'),
     ].join('\n'));
   }
 
@@ -901,7 +901,7 @@ function buildCommands(model, dynamic, compat) {
       kw("const resp = await fetch('https://publish-pNNN-eNNN.adobeaemcloud.com/graphql/execute.json/my-site/hero-by-slug;slug=welcome');"),
       '',
       c('# AEM Cloud Manager → Environments → Publish → CORS config:'),
-      c('# origins: ["https://*.hlx.live","https://*.hlx.page","http://localhost:3000"]'),
+      c('# origins: ["https://*.aem.live","https://*.aem.page","http://localhost:3000"]'),
     ].join('\n'));
   }
 
@@ -949,9 +949,9 @@ function buildCommands(model, dynamic, compat) {
       '',
       c('# 3. Load the experimentation plugin in scripts.js:'),
       kw("import { loadScript } from './aem.js';"),
-      kw("await loadScript('https://www.hlx.live/plugins/experimentation/src/index.js');"),
+      kw("await loadScript('https://www.aem.live/plugins/experimentation/src/index.js');"),
       '',
-      c('# Docs: https://www.hlx.live/developer/plugins/experimentation'),
+      c('# Docs: https://www.aem.live/developer/plugins/experimentation'),
     ].join('\n'));
   }
 
@@ -966,7 +966,7 @@ function buildCommands(model, dynamic, compat) {
       kw("import { sampleRUM } from '../../scripts/aem.js';"),
       kw("sampleRUM('click', { source: '.hero a', target: '/get-started' });"),
       '',
-      c('# View telemetry: https://www.hlx.live/tools/rum/explorer'),
+      c('# View telemetry: https://www.aem.live/tools/rum/explorer'),
     ].join('\n'));
   }
 
@@ -1064,7 +1064,7 @@ Constraints:
   - All EDS blocks must export a default async decorate(block) function
   - No build step — static assets only, no webpack/vite in the page
   - CSS and JS per block auto-loaded via aem.js loadBlock()
-  - CORS on AEM Publish must allow hlx.live, hlx.page, and localhost:3000
+  - CORS on AEM Publish must allow aem.live, aem.page, and localhost:3000
   - Secrets (API keys, tokens) must never be committed — use App Builder .env
     or AEM Cloud Service OSGi config vars`;
 }
@@ -1105,7 +1105,7 @@ function buildCompatNotes(model, dynamic, compat) {
   }
 
   if (dynamic.has('ab-backend') || dynamic.has('ab-state') || dynamic.has('ab-events') || dynamic.has('ab-commerce')) {
-    notes.push({ type: 'info', icon: 'i', text: 'App Builder actions are called directly from client JS. Set CORS_ORIGINS in each action\'s .env to allow hlx.live, hlx.page, and localhost:3000, or all preflight requests will fail.' });
+    notes.push({ type: 'info', icon: 'i', text: 'App Builder actions are called directly from client JS. Set CORS_ORIGINS in each action\'s .env to allow aem.live, aem.page, and localhost:3000, or all preflight requests will fail.' });
   }
 
   if (dynamic.has('cf-api')) {
