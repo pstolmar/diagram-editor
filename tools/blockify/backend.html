@@ -1249,7 +1249,7 @@ function showGuideStep(step) {
 
   // Show "See My Plan" only when all 5 questions have been answered
   document.getElementById('guide-submit').style.display =
-    Object.keys(guideAnswers).length === TOTAL_STEPS ? '' : 'none';
+    Object.keys(guideAnswers).length === TOTAL_STEPS ? 'block' : 'none';
 }
 
 document.querySelectorAll('.guide-answer').forEach((btn) => {
@@ -1267,7 +1267,7 @@ document.querySelectorAll('.guide-answer').forEach((btn) => {
       setTimeout(() => showGuideStep(guideStep + 1), 180);
     } else {
       // Last question answered — reveal the submit button
-      document.getElementById('guide-submit').style.display = '';
+      document.getElementById('guide-submit').style.display = 'block';
     }
   });
 });
