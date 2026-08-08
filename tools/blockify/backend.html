@@ -273,6 +273,120 @@
       transition: opacity 0.2s;
     }
     .copy-confirm.show { opacity: 1; }
+
+    /* ── Mode Toggle ──────────────────────────────────────────────── */
+
+    .mode-toggle {
+      display: flex;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 11px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      background: #fff;
+      color: var(--color-text);
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      border-radius: 0;
+    }
+
+    .mode-btn + .mode-btn {
+      border-left: 1px solid var(--color-border);
+    }
+
+    .mode-btn.active {
+      background: var(--color-accent);
+      color: #fff;
+    }
+
+    .mode-btn:hover:not(.active) {
+      background: var(--color-surface);
+    }
+
+    /* ── Guide Mode Questionnaire ─────────────────────────────────── */
+
+    #guide-mode { display: none; }
+
+    .guide-progress {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .guide-question { display: none; }
+    .guide-question.active { display: block; }
+
+    .guide-q-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .guide-q-desc {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .guide-answers {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .guide-answer {
+      text-align: left;
+      padding: 12px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      background: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text);
+      cursor: pointer;
+      transition: border-color 0.1s, background 0.1s;
+    }
+
+    .guide-answer:hover {
+      border-color: var(--color-accent);
+      background: #f0f6ff;
+    }
+
+    .guide-answer.selected {
+      border-color: var(--color-accent);
+      background: #f0f6ff;
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+
+    .guide-back {
+      font-size: 13px;
+      background: transparent;
+      color: var(--color-text-muted);
+      border: none;
+      cursor: pointer;
+      padding: 0 0 14px 0;
+      font-weight: 500;
+      display: none;
+    }
+
+    .guide-back:hover { color: var(--color-text); }
+
+    .guide-submit { display: none; }
   </style>
 </head>
 <body>
@@ -283,6 +397,15 @@
 </header>
 
 <div class="main">
+
+  <!-- Mode toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-expert">Expert Mode</button>
+    <button class="mode-btn" id="btn-guide">Guide Me</button>
+  </div>
+
+  <!-- Expert Mode panels -->
+  <div id="expert-panels">
 
   <div class="form-grid">
 
@@ -450,6 +573,77 @@
     <button class="btn-primary" id="generate-btn">Generate Plan</button>
     <span class="error-msg" id="error-msg"></span>
   </div>
+
+  </div><!-- /#expert-panels -->
+
+  <!-- Guide Me questionnaire -->
+  <div id="guide-mode">
+    <button class="guide-back" id="guide-back">&#8592; Back</button>
+    <div class="guide-progress">Question <span id="guide-step-num">1</span> of 5</div>
+
+    <div id="guide-questions">
+
+      <!-- Q1 -->
+      <div class="guide-question active" data-step="1">
+        <div class="guide-q-title">Is this a brand new EDS site, or are you migrating from AEM?</div>
+        <div class="guide-q-desc">This determines the foundational deployment architecture.</div>
+        <div class="guide-answers">
+          <button class="guide-answer" data-q="q1" data-val="new">Brand new site</button>
+          <button class="guide-answer" data-q="q1" data-val="migrate">Migrating from AEM Classic</button>
+          <button class="guide-answer" data-q="q1" data-val="sidebyside">AEM + EDS side by side</button>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="guide-question" data-step="2">
+        <div class="guide-q-title">Will authors edit content in Microsoft Word, Google Docs, or a browser editor?</div>
+        <div class="guide-q-desc">This shapes the authoring toolchain and which integrations you need.</div>
+        <div class="guide-answers">
+          <button class="guide-answer" data-q="q2" data-val="docs">Word / Docs (document-based)</button>
+          <button class="guide-answer" data-q="q2" data-val="browser">Browser editor (like WordPress)</button>
+          <button class="guide-answer" data-q="q2" data-val="both">Both / not sure</button>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="guide-question" data-step="3">
+        <div class="guide-q-title">Do you need content to change based on who&#8217;s visiting?</div>
+        <div class="guide-q-desc">For example: different content for logged-in users, different countries, or A/B tests.</div>
+        <div class="guide-answers">
+          <button class="guide-answer" data-q="q3" data-val="personalization">Yes, personalization is important</button>
+          <button class="guide-answer" data-q="q3" data-val="abonly">Just A/B testing is fine</button>
+          <button class="guide-answer" data-q="q3" data-val="none">No, same content for everyone</button>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="guide-question" data-step="4">
+        <div class="guide-q-title">Do you need custom server-side logic?</div>
+        <div class="guide-q-desc">For example: form submissions, product catalog API, loyalty points, or a pricing engine.</div>
+        <div class="guide-answers">
+          <button class="guide-answer" data-q="q4" data-val="yes">Yes, we have custom backend needs</button>
+          <button class="guide-answer" data-q="q4" data-val="maybe">Maybe later, not right now</button>
+          <button class="guide-answer" data-q="q4" data-val="no">No, content only</button>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="guide-question" data-step="5">
+        <div class="guide-q-title">What&#8217;s your team&#8217;s technical profile?</div>
+        <div class="guide-q-desc">This affects which backend patterns we&#8217;ll recommend.</div>
+        <div class="guide-answers">
+          <button class="guide-answer" data-q="q5" data-val="frontend">Front-end focused (HTML / CSS / JS)</button>
+          <button class="guide-answer" data-q="q5" data-val="fullstack">Full-stack (JS + Node / Java)</button>
+          <button class="guide-answer" data-q="q5" data-val="mixed">Mixed / not sure</button>
+        </div>
+      </div>
+
+    </div><!-- /#guide-questions -->
+
+    <div class="guide-submit" id="guide-submit">
+      <button class="btn-primary" id="guide-generate">See My Plan</button>
+    </div>
+  </div><!-- /#guide-mode -->
 
   <!-- Output -->
   <div id="output">
@@ -978,7 +1172,7 @@ document.querySelectorAll('.btn-copy').forEach((btn) => {
 
 // ─── Generate ────────────────────────────────────────────────────────────────
 
-document.getElementById('generate-btn').addEventListener('click', () => {
+function generatePlan() {
   const errorEl = document.getElementById('error-msg');
   const model = getModel();
   if (!model) {
@@ -996,6 +1190,152 @@ document.getElementById('generate-btn').addEventListener('click', () => {
   const notes        = buildCompatNotes(model, dynamic, compat);
 
   renderOutput(diagram, commandsHtml, prompt, notes);
+}
+
+document.getElementById('generate-btn').addEventListener('click', generatePlan);
+
+// ─── Defaults ────────────────────────────────────────────────────────────────
+
+(function setDefaults() {
+  const edsPure = document.querySelector('input[name="model"][value="eds-pure"]');
+  if (edsPure) { edsPure.checked = true; edsPure.closest('.option')?.classList.add('selected'); }
+
+  const rum = document.querySelector('input[name="compat"][value="rum"]');
+  if (rum) { rum.checked = true; rum.closest('.option')?.classList.add('selected'); }
+
+  const ewCompat = document.querySelector('input[name="compat"][value="ew-compat"]');
+  if (ewCompat) { ewCompat.checked = true; ewCompat.closest('.option')?.classList.add('selected'); }
+}());
+
+// ─── Mode Toggle ─────────────────────────────────────────────────────────────
+
+document.getElementById('btn-expert').addEventListener('click', () => {
+  document.getElementById('btn-expert').classList.add('active');
+  document.getElementById('btn-guide').classList.remove('active');
+  document.getElementById('expert-panels').style.display = '';
+  document.getElementById('guide-mode').style.display = 'none';
+});
+
+document.getElementById('btn-guide').addEventListener('click', () => {
+  document.getElementById('btn-guide').classList.add('active');
+  document.getElementById('btn-expert').classList.remove('active');
+  document.getElementById('expert-panels').style.display = 'none';
+  document.getElementById('guide-mode').style.display = 'block';
+});
+
+// ─── Guide Mode ──────────────────────────────────────────────────────────────
+
+const guideAnswers = {};
+let guideStep = 1;
+const TOTAL_STEPS = 5;
+
+function showGuideStep(step) {
+  guideStep = step;
+  document.getElementById('guide-step-num').textContent = step;
+
+  document.querySelectorAll('.guide-question').forEach((el) => {
+    el.classList.toggle('active', Number(el.dataset.step) === step);
+  });
+
+  // Restore any previously selected answer for this step
+  const qId = `q${step}`;
+  if (guideAnswers[qId]) {
+    document.querySelectorAll(`.guide-answer[data-q="${qId}"]`).forEach((btn) => {
+      btn.classList.toggle('selected', btn.dataset.val === guideAnswers[qId]);
+    });
+  }
+
+  document.getElementById('guide-back').style.display = step > 1 ? '' : 'none';
+
+  // Show "See My Plan" only when all 5 questions have been answered
+  document.getElementById('guide-submit').style.display =
+    Object.keys(guideAnswers).length === TOTAL_STEPS ? '' : 'none';
+}
+
+document.querySelectorAll('.guide-answer').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const { q: qId, val } = btn.dataset;
+    guideAnswers[qId] = val;
+
+    // Highlight the chosen card
+    document.querySelectorAll(`.guide-answer[data-q="${qId}"]`).forEach((b) => {
+      b.classList.toggle('selected', b === btn);
+    });
+
+    if (guideStep < TOTAL_STEPS) {
+      // Small delay so the selection highlight is visible before advancing
+      setTimeout(() => showGuideStep(guideStep + 1), 180);
+    } else {
+      // Last question answered — reveal the submit button
+      document.getElementById('guide-submit').style.display = '';
+    }
+  });
+});
+
+document.getElementById('guide-back').addEventListener('click', () => {
+  if (guideStep > 1) showGuideStep(guideStep - 1);
+});
+
+// Helper: programmatically check a radio or checkbox and add the .selected class
+function setInput(name, value) {
+  const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
+  if (!el) return;
+  el.checked = true;
+  el.closest('.option')?.classList.add('selected');
+}
+
+function applyGuideAnswers() {
+  // Reset all form inputs
+  document.querySelectorAll('input[name="model"]').forEach((el) => {
+    el.checked = false;
+    el.closest('.option')?.classList.remove('selected');
+  });
+  document.querySelectorAll('input[name="dynamic"], input[name="compat"]').forEach((el) => {
+    el.checked = false;
+    el.closest('.option')?.classList.remove('selected');
+  });
+
+  // Q1: deployment model
+  const modelMap = { new: 'eds-pure', migrate: 'crosswalk', sidebyside: 'hybrid' };
+  setInput('model', modelMap[guideAnswers.q1] || 'eds-pure');
+
+  // Q2: authoring workflow
+  if (guideAnswers.q2 === 'docs') {
+    setInput('dynamic', 'da-live');
+  } else if (guideAnswers.q2 === 'browser') {
+    setInput('compat', 'quick-edit');
+  } else if (guideAnswers.q2 === 'both') {
+    setInput('dynamic', 'da-live');
+    setInput('compat', 'quick-edit');
+  }
+
+  // Q3: personalization / experimentation
+  if (guideAnswers.q3 === 'personalization') {
+    setInput('dynamic', 'ew-personalization');
+    setInput('dynamic', 'ew-geo');
+  } else if (guideAnswers.q3 === 'abonly') {
+    setInput('compat', 'experimentation');
+  }
+
+  // Q4: server-side logic
+  if (guideAnswers.q4 === 'yes') {
+    setInput('dynamic', 'ab-backend');
+    setInput('dynamic', 'ab-state');
+  }
+
+  // Q5: team profile — full-stack with confirmed backend need adds event integration
+  if (guideAnswers.q5 === 'fullstack' && guideAnswers.q4 === 'yes') {
+    setInput('dynamic', 'ab-events');
+  }
+
+  // Always recommended for everyone
+  setInput('compat', 'rum');
+  setInput('compat', 'ew-compat');
+}
+
+document.getElementById('guide-generate').addEventListener('click', () => {
+  applyGuideAnswers();
+  generatePlan();
 });
 </script>
 </body>

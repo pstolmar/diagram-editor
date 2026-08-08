@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Introducing Adobe Edge Delivery Services 2.0</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1473e6;
+      --primary-dark: #0d66d0;
+      --text: #1a1a1a;
+      --text-muted: #555;
+      --bg: #fff;
+      --bg-alt: #f8f9fa;
+      --border: #e5e5e5;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --max-width: 1140px;
+    }
+
+    body {
+      font-family: var(--font);
+      font-size: 16px;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    /* ── Nav ──────────────────────────────────────────────────────── */
+
+    .nav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      font-size: 22px;
+      font-weight: 700;
+      color: #e1251b;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover { color: var(--primary); }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+
+    .hero {
+      background: var(--bg);
+      padding: 96px 32px 88px;
+    }
+
+    .hero-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      color: var(--text);
+      margin-bottom: 24px;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 640px;
+      margin: 0 auto 36px;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 100px;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* ── Pull Quote ───────────────────────────────────────────────── */
+
+    .pullquote-section {
+      background: var(--bg-alt);
+      padding: 80px 32px;
+    }
+
+    .pullquote {
+      max-width: 760px;
+      margin: 0 auto;
+      position: relative;
+      padding-left: 40px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .pullquote::before {
+      content: '\201C';
+      position: absolute;
+      left: -12px;
+      top: -16px;
+      font-size: 96px;
+      font-family: Georgia, serif;
+      color: var(--primary);
+      line-height: 1;
+      opacity: 0.3;
+    }
+
+    .pullquote blockquote {
+      font-size: 22px;
+      font-style: italic;
+      font-family: Georgia, 'Times New Roman', serif;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .pullquote-attribution {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Cards ────────────────────────────────────────────────────── */
+
+    .cards-section {
+      padding: 80px 32px;
+      background: var(--bg);
+    }
+
+    .section-heading {
+      max-width: var(--max-width);
+      margin: 0 auto 48px;
+    }
+
+    .section-heading h2 {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .cards-grid {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    @media (max-width: 900px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    }
+
+    .card-image {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    .card-image-blue {
+      background: linear-gradient(135deg, #1473e6 0%, #0d66d0 100%);
+    }
+
+    .card-image-teal {
+      background: linear-gradient(135deg, #2d9d78 0%, #1a7a5a 100%);
+    }
+
+    .card-image-purple {
+      background: linear-gradient(135deg, #7c4dff 0%, #6030cc 100%);
+    }
+
+    .card-body {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-body h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .card-body p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 16px;
+    }
+
+    .card-link {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── Two-column ───────────────────────────────────────────────── */
+
+    .columns-section {
+      background: var(--bg-alt);
+      padding: 80px 32px;
+    }
+
+    .columns-grid {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    @media (max-width: 768px) {
+      .columns-grid { grid-template-columns: 1fr; }
+    }
+
+    .column-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 36px 32px;
+    }
+
+    .column-card h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .column-card p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+
+    .column-card ul {
+      list-style: none;
+      margin-top: 8px;
+    }
+
+    .column-card li {
+      font-size: 14px;
+      color: var(--text-muted);
+      padding: 6px 0 6px 20px;
+      position: relative;
+      border-top: 1px solid var(--border);
+    }
+
+    .column-card li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .column-card li code {
+      font-family: 'Menlo', 'Monaco', monospace;
+      font-size: 12px;
+      background: #f0f4ff;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--primary);
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+
+    .footer {
+      background: #1a1a1a;
+      color: #999;
+      padding: 32px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: #ccc;
+      text-decoration: none;
+      margin: 0 12px;
+    }
+
+    .footer a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="/">Adobe</a>
+    <ul class="nav-links">
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Solutions</a></li>
+      <li><a href="#">Learn</a></li>
+      <li><a href="#">Support</a></li>
+      <li><a href="#">Company</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-eyebrow">Product Announcement</span>
+    <h1>Edge Delivery Services 2.0 is here</h1>
+    <p>
+      Today we are announcing the next generation of Adobe Edge Delivery Services —
+      a delivery platform that serves enterprise web experiences from 300 global edge
+      nodes with consistent 100&thinsp;ms Time to First Byte, perfect Core Web Vitals,
+      and zero infrastructure for your team to manage.
+    </p>
+    <div class="cta-group">
+      <a href="#" class="btn btn-primary">Request a Demo</a>
+      <a href="#" class="btn btn-secondary">Read the Docs</a>
+    </div>
+  </div>
+</section>
+
+<!-- Pull Quote -->
+<section class="pullquote-section">
+  <div class="pullquote">
+    <blockquote>
+      We cut our median page load time from 4.2 seconds to 310 milliseconds the day we
+      moved to Edge Delivery. Our CMS team went from gating every publish to shipping
+      dozens of updates a day without a single deploy.
+    </blockquote>
+    <p class="pullquote-attribution">&#8212; Sarah Chen, VP Digital Experience, Northstar Financial</p>
+  </div>
+</section>
+
+<!-- Feature Cards -->
+<section class="cards-section">
+  <div class="section-heading">
+    <h2>What&#8217;s new in 2.0</h2>
+  </div>
+  <div class="cards-grid">
+
+    <div class="card">
+      <div class="card-image card-image-blue">Authoring / DA Live</div>
+      <div class="card-body">
+        <h3>Instant authoring with DA Live</h3>
+        <p>
+          Author directly in DA Live&#8217;s browser editor or in Microsoft Word and Google Docs.
+          Changes publish to the live site in under five seconds &#8212; no export, no sync job, no waiting.
+        </p>
+        <a href="#" class="card-link">Explore DA Live authoring &#8250;</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-image card-image-teal">WYSIWYG / Universal Editor</div>
+      <div class="card-body">
+        <h3>WYSIWYG with Universal Editor</h3>
+        <p>
+          Non-technical authors get full in-context editing powered by the Universal Editor.
+          Click any block on the live page and edit it inline &#8212; no CMS training required.
+        </p>
+        <a href="#" class="card-link">See the Universal Editor &#8250;</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-image card-image-purple">Performance / Core Web Vitals</div>
+      <div class="card-body">
+        <h3>Perfect Core Web Vitals by default</h3>
+        <p>
+          Every EDS page ships with lazy-loaded images, critical CSS inlined, and zero
+          render-blocking scripts. A 100 Lighthouse score is the floor, not a goal to optimise toward.
+        </p>
+        <a href="#" class="card-link">View performance benchmarks &#8250;</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Two-column -->
+<section class="columns-section">
+  <div class="columns-grid">
+
+    <div class="column-card">
+      <h2>Migrate in weeks, not quarters</h2>
+      <p>
+        The blockify toolset converts your existing AEM Core Components HTML into EDS block HTML
+        in a single paste operation. Each section is classified, mapped to the closest EDS block,
+        and output as a working scaffold you can edit and ship immediately.
+      </p>
+      <p>
+        Most teams complete a full site migration in four to six weeks, including performance
+        testing and content author training.
+      </p>
+      <ul>
+        <li>Automated AEM component analysis</li>
+        <li>Block scaffold generation with confidence scoring</li>
+        <li>Sandbox previews before committing to the repo</li>
+      </ul>
+    </div>
+
+    <div class="column-card">
+      <h2>A development model that gets out of your way</h2>
+      <p>
+        Every EDS block is a plain JavaScript module that receives a DOM element and transforms it.
+        No framework. No virtual DOM. No build pipeline required.
+      </p>
+      <p>
+        Blocks auto-load their CSS sibling only when the block appears on the page, so no unused
+        code is ever shipped to users.
+      </p>
+      <ul>
+        <li>Start with <code>aem up</code> &#8212; no Docker, no Maven</li>
+        <li>Hot reload from GitHub on every save</li>
+        <li>Deploy by merging a pull request</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>
+    &copy; 2026 Adobe Inc. All rights reserved.
+    <a href="#">Privacy</a>
+    <a href="#">Terms of Use</a>
+    <a href="#">Cookie Preferences</a>
+    <a href="#">Contact Adobe</a>
+  </p>
+</footer>
+
+</body>
+</html>
