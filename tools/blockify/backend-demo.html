@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEM Backend Modernization: Monolith → Edge + App Builder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --adobe-blue: #1473e6;
+      --adobe-blue-dark: #0d66d0;
+      --purple: #7c4dff;
+      --red: #e34850;
+      --green: #2d9d78;
+      --orange: #f29423;
+      --yellow: #fbbf24;
+      --author-blue: #1e40af;
+      --publish-blue: #1e3a5f;
+      --ext-purple: #4c1d95;
+      --dark-bg: #0f172a;
+      --dark-surface: #1e293b;
+      --dark-border: #334155;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #f8fafc;
+    }
+
+    /* -----------------------------------------------------------------------
+       PAGE HEADER
+    ----------------------------------------------------------------------- */
+    .page-header {
+      background: var(--dark-bg);
+      color: #e2e8f0;
+      padding: 36px 48px 32px;
+      border-bottom: 1px solid var(--dark-border);
+    }
+
+    .page-header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.5px;
+    }
+
+    .page-header h1 span {
+      color: var(--adobe-blue);
+    }
+
+    .page-header p {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #94a3b8;
+      max-width: 700px;
+      line-height: 1.6;
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .click-hint {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(20, 115, 230, 0.15);
+      border: 1px solid rgba(20, 115, 230, 0.3);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: #93c5fd;
+    }
+
+    .click-hint strong { color: #bfdbfe; }
+
+    /* -----------------------------------------------------------------------
+       SECTION WRAPPERS
+    ----------------------------------------------------------------------- */
+    .section-before {
+      background: var(--dark-bg);
+      padding: 40px 48px 48px;
+    }
+
+    .section-after {
+      background: #f1f5f9;
+      padding: 40px 48px 48px;
+    }
+
+    .section-friction {
+      background: #fff;
+      padding: 40px 48px 56px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      margin-bottom: 4px;
+    }
+
+    .section-title.light { color: #f1f5f9; }
+    .section-title.dark { color: #0f172a; }
+
+    .section-subtitle {
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    .section-subtitle.light { color: #94a3b8; }
+    .section-subtitle.dark { color: #64748b; }
+
+    /* -----------------------------------------------------------------------
+       BEFORE: ARCHITECTURE DIAGRAM
+    ----------------------------------------------------------------------- */
+    .before-diagram {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    .aem-stack {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-width: 0;
+    }
+
+    .aem-box {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid;
+    }
+
+    .aem-box.author {
+      background: linear-gradient(135deg, #1e3a8a 0%, var(--author-blue) 100%);
+      border-color: #3b5fc0;
+    }
+
+    .aem-box.publish {
+      background: linear-gradient(135deg, #162d4a 0%, var(--publish-blue) 100%);
+      border-color: #274d73;
+    }
+
+    .box-header {
+      padding: 9px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .aem-box.author .box-header {
+      background: rgba(0,0,0,0.25);
+      color: #93c5fd;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .aem-box.publish .box-header {
+      background: rgba(0,0,0,0.3);
+      color: #7dd3fc;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .box-tag {
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.12);
+      border-radius: 3px;
+      padding: 2px 6px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .comp-list {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .comp-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 7px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      position: relative;
+      user-select: none;
+    }
+
+    .comp-card:hover {
+      background: rgba(255,255,255,0.11);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateX(2px);
+    }
+
+    .comp-card.selected {
+      background: rgba(251, 191, 36, 0.12);
+      border-color: var(--yellow);
+      transform: translateX(2px);
+    }
+
+    .comp-name {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .lang-tag {
+      font-size: 10px;
+      font-family: var(--mono);
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: #94a3b8;
+    }
+
+    .comp-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+
+    .comp-desc .call-target {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .problem-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(227, 72, 80, 0.2);
+      border: 1px solid rgba(227, 72, 80, 0.35);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 10px;
+      color: #fca5a5;
+      font-family: var(--font);
+      font-weight: 500;
+    }
+
+    /* Replication connector */
+    .replication-connector {
+      display: flex;
+      align-items: center;
+      padding: 6px 14px;
+      position: relative;
+    }
+
+    .replication-connector::before {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, #3b5fc0, #274d73);
+      position: absolute;
+      left: 30px;
+      top: 0;
+    }
+
+    .replication-label {
+      font-size: 11px;
+      color: #475569;
+      padding-left: 20px;
+      font-style: italic;
+    }
+
+    /* External services column */
+    .ext-services-col {
+      width: 268px;
+      flex-shrink: 0;
+    }
+
+    .ext-box {
+      background: linear-gradient(135deg, #2e1065 0%, #3b0764 100%);
+      border: 1px solid #6d28d9;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .ext-box .box-header {
+      background: rgba(0,0,0,0.3);
+      color: #c4b5fd;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .ext-list {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ext-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 7px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+
+    .ext-card:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .ext-card.selected {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: var(--yellow);
+    }
+
+    .ext-name {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: #ddd6fe;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .ext-host {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #7c6fcd;
+      margin-top: 2px;
+    }
+
+    .ext-desc {
+      font-size: 11px;
+      color: #8b7aba;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    /* -----------------------------------------------------------------------
+       TOOLTIP
+    ----------------------------------------------------------------------- */
+    .tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: #1e293b;
+      border: 1px solid var(--yellow);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #e2e8f0;
+      z-index: 100;
+      pointer-events: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tooltip strong { color: var(--yellow); }
+
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 18px;
+      border: 5px solid transparent;
+      border-top-color: var(--yellow);
+    }
+
+    /* -----------------------------------------------------------------------
+       TRANSFORM BANNER
+    ----------------------------------------------------------------------- */
+    .transform-banner {
+      background: linear-gradient(120deg, #1473e6 0%, #7c4dff 100%);
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .transform-text h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .transform-text p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      margin-top: 5px;
+    }
+
+    .transform-stats {
+      display: flex;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .transform-stat {
+      text-align: center;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 12px 18px;
+    }
+
+    .transform-stat .stat-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      display: block;
+    }
+
+    .transform-stat .stat-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* -----------------------------------------------------------------------
+       AFTER: THREE-COLUMN LAYOUT
+    ----------------------------------------------------------------------- */
+    .after-diagram {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+    }
+
+    .after-col {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid;
+    }
+
+    .after-col.edge-workers {
+      background: #fff;
+      border-color: #1e293b;
+    }
+
+    .after-col.app-builder {
+      background: #fff;
+      border-color: #bfdbfe;
+    }
+
+    .after-col.stays-aem {
+      background: #fff;
+      border-color: #a7f3d0;
+    }
+
+    .after-col-header {
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edge-workers .after-col-header {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .app-builder .after-col-header {
+      background: #1e40af;
+      color: #bfdbfe;
+      border-bottom: 1px solid #3b5fc0;
+    }
+
+    .stays-aem .after-col-header {
+      background: #064e3b;
+      color: #6ee7b7;
+      border-bottom: 1px solid #065f46;
+    }
+
+    .after-cards {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .after-card {
+      border-radius: 7px;
+      padding: 11px 12px;
+      border: 1px solid;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .edge-workers .after-card {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .app-builder .after-card {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .stays-aem .after-card {
+      background: #f0fdf4;
+      border-color: #a7f3d0;
+    }
+
+    @keyframes pulse-highlight {
+      0%, 100% { box-shadow: 0 0 0 2px var(--yellow); }
+      50% { box-shadow: 0 0 0 5px var(--yellow), 0 0 14px rgba(251, 191, 36, 0.3); }
+    }
+
+    .after-card.highlighted {
+      border-color: var(--yellow) !important;
+      animation: pulse-highlight 1.5s ease-in-out infinite;
+    }
+
+    .after-card-name {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .after-card-desc {
+      font-size: 12px;
+      color: #475569;
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
+    .after-card-desc code {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+      padding: 1px 4px;
+    }
+
+    .after-card-replaces {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 7px;
+      font-style: italic;
+    }
+
+    .after-card-replaces span {
+      font-family: var(--mono);
+      font-style: normal;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .edge-label {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 3px;
+      padding: 2px 5px;
+      margin-bottom: 4px;
+    }
+
+    .label-edge { background: #0f172a; color: #94a3b8; }
+    .label-ab   { background: #1e40af; color: #bfdbfe; }
+    .label-aem  { background: #064e3b; color: #6ee7b7; }
+
+    /* -----------------------------------------------------------------------
+       FRICTION POINTS
+    ----------------------------------------------------------------------- */
+    .friction-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    /* Row 2: cards 4 and 5 — 4 spans 2 cols, 5 takes col 3 */
+    .friction-card:nth-child(4) { grid-column: 1 / span 2; }
+    .friction-card:nth-child(5) { grid-column: 3; }
+
+    .friction-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 18px 18px 16px;
+      border-top: 3px solid;
+      transition: box-shadow 0.15s;
+    }
+
+    .friction-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    }
+
+    .friction-card:nth-child(1) { border-top-color: #e34850; }
+    .friction-card:nth-child(2) { border-top-color: #f29423; }
+    .friction-card:nth-child(3) { border-top-color: #e34850; }
+    .friction-card:nth-child(4) { border-top-color: #f29423; }
+    .friction-card:nth-child(5) { border-top-color: #7c4dff; }
+
+    .friction-icon { font-size: 22px; margin-bottom: 7px; }
+
+    .friction-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .friction-desc {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .friction-desc code {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: #f1f5f9;
+      border-radius: 3px;
+      padding: 1px 4px;
+      color: #334155;
+    }
+
+    .friction-resolution {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border-left: 3px solid #94a3b8;
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .friction-resolution strong {
+      color: #0f172a;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 12px;
+    }
+
+    .friction-resolution code {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: rgba(0,0,0,0.05);
+      border-radius: 3px;
+      padding: 1px 4px;
+    }
+
+    .friction-badges { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .friction-time-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #92400e;
+    }
+
+    .ticket-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #991b1b;
+    }
+
+    /* -----------------------------------------------------------------------
+       FOOTER
+    ----------------------------------------------------------------------- */
+    .page-footer {
+      background: var(--dark-bg);
+      border-top: 1px solid var(--dark-border);
+      padding: 18px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .page-footer p { font-size: 12px; color: #475569; }
+
+    .footer-legend { display: flex; gap: 18px; flex-wrap: wrap; }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* -----------------------------------------------------------------------
+       RESPONSIVE
+    ----------------------------------------------------------------------- */
+    @media (max-width: 1100px) {
+      .before-diagram { flex-direction: column; }
+      .ext-services-col { width: 100%; }
+      .after-diagram { grid-template-columns: 1fr 1fr; }
+      .after-col.stays-aem { grid-column: 1 / -1; }
+      .friction-grid { grid-template-columns: 1fr 1fr; }
+      .friction-card:nth-child(4), .friction-card:nth-child(5) { grid-column: auto; }
+      .transform-banner { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 680px) {
+      .section-before, .section-after, .section-friction,
+      .page-header, .transform-banner, .page-footer { padding: 24px 20px; }
+      .after-diagram, .friction-grid { grid-template-columns: 1fr; }
+      .after-col.stays-aem { grid-column: auto; }
+      .transform-stats { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- =========================================================================
+     PAGE HEADER
+========================================================================== -->
+<header class="page-header">
+  <h1>AEM Backend Modernization: <span>Monolith → Edge + App Builder</span></h1>
+  <p>A realistic mid-size enterprise AEM backend and its migration to Adobe I/O App Builder serverless actions and Edge Worker scripts — with every real-world blocker called out explicitly.</p>
+  <div class="header-meta">
+    <span class="header-badge">📐 5 AEM components</span>
+    <span class="header-badge">⚡ 4 Edge Workers</span>
+    <span class="header-badge">🔧 4 App Builder Actions</span>
+    <span class="header-badge">⏱ 6–10 weeks estimated</span>
+    <span class="header-badge">🎫 3 blockers require tickets</span>
+  </div>
+  <p class="click-hint">
+    <strong>Interactive:</strong> Click any component in the Before diagram to highlight what it maps to in the After architecture.
+  </p>
+</header>
+
+
+<!-- =========================================================================
+     BEFORE SECTION
+========================================================================== -->
+<section class="section-before" id="before-section">
+  <div class="section-title light">Before: AEM Monolith</div>
+  <div class="section-subtitle light">All logic lives in OSGi services, Sling Servlets, and Dispatcher rules — tightly coupled to AEM infrastructure.</div>
+
+  <div class="before-diagram">
+
+    <!-- Left: AEM Author + Publish stacked -->
+    <div class="aem-stack">
+
+      <!-- AEM Author -->
+      <div class="aem-box author">
+        <div class="box-header">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect width="13" height="13" rx="3" fill="#3b5fc0"/>
+            <path d="M2.5 10L6.5 3.5L10.5 10H2.5Z" fill="#93c5fd"/>
+          </svg>
+          AEM Author
+          <span class="box-tag">OSGi / Sling</span>
+        </div>
+        <div class="comp-list">
+
+          <div class="comp-card" id="before-product-catalog-svc" data-maps-to="after-products" tabindex="0"
+               aria-label="ProductCatalogService.java — click to see modernized equivalent">
+            <div class="comp-name">
+              ProductCatalogService
+              <span class="lang-tag">.java</span>
+              <span class="problem-badge">⚠ 800ms latency</span>
+            </div>
+            <div class="comp-desc">
+              OSGi service — calls PIM REST API at
+              <span class="call-target">internal.corp.net:8443/api/products</span>.
+              Blocks page renders.
+            </div>
+          </div>
+
+          <div class="comp-card" id="before-user-profile-svc" data-maps-to="after-user-segment after-personalization" tabindex="0">
+            <div class="comp-name">
+              UserProfileService
+              <span class="lang-tag">.java</span>
+              <span class="problem-badge">⚠ Kerberos only</span>
+            </div>
+            <div class="comp-desc">
+              OSGi service — reads from LDAP/SSO at
+              <span class="call-target">sso.corp.net</span>
+              via Apache Jackrabbit UserManager. Fails outside corp network.
+            </div>
+          </div>
+
+          <div class="comp-card" id="before-search-servlet" data-maps-to="after-search after-search-proxy" tabindex="0">
+            <div class="comp-name">
+              SearchServlet
+              <span class="lang-tag">.java</span>
+              <span class="problem-badge">⚠ Author-only</span>
+            </div>
+            <div class="comp-desc">
+              Sling Servlet at <span class="call-target">/bin/search</span> — proxies to Elasticsearch at
+              <span class="call-target">es-cluster.corp.net:9200</span>.
+              Index not replicated to Publish.
+            </div>
+          </div>
+
+          <div class="comp-card" id="before-offer-model" data-maps-to="after-stays-content" tabindex="0">
+            <div class="comp-name">
+              OfferModel
+              <span class="lang-tag">.java</span>
+            </div>
+            <div class="comp-desc">
+              Sling Model — aggregates product + profile data, renders via HTL template on Author preview.
+              Tight coupling to Author context.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Replication arrow connector -->
+      <div class="replication-connector">
+        <div class="replication-label">↓&nbsp; replication queue → Publish activation → Dispatcher cache flush</div>
+      </div>
+
+      <!-- AEM Publish + Dispatcher -->
+      <div class="aem-box publish">
+        <div class="box-header">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect width="13" height="13" rx="3" fill="#274d73"/>
+            <circle cx="6.5" cy="6.5" r="3.5" fill="none" stroke="#7dd3fc" stroke-width="1.3"/>
+            <circle cx="6.5" cy="6.5" r="1.4" fill="#7dd3fc"/>
+          </svg>
+          AEM Publish + Dispatcher
+          <span class="box-tag">Apache HTTPD</span>
+        </div>
+        <div class="comp-list">
+
+          <div class="comp-card" id="before-filters-any" data-maps-to="after-form-validate after-search-proxy" tabindex="0">
+            <div class="comp-name">
+              filters.any
+              <span class="lang-tag">.any</span>
+            </div>
+            <div class="comp-desc">
+              Dispatcher allow/deny rules — allowlists
+              <span class="call-target">/bin/search</span>,
+              blocks all other <span class="call-target">/bin/</span> paths. Manual maintenance required.
+            </div>
+          </div>
+
+          <div class="comp-card" id="before-form-submit-servlet" data-maps-to="after-form-submit after-form-validate" tabindex="0">
+            <div class="comp-name">
+              FormSubmitServlet
+              <span class="lang-tag">.java</span>
+              <span class="problem-badge">⚠ Abuse vector</span>
+            </div>
+            <div class="comp-desc">
+              Sling Servlet at <span class="call-target">/bin/form-submit</span> — writes to Adobe Campaign REST.
+              Bypasses Dispatcher cache rules — potential abuse vector with no rate limiting.
+            </div>
+          </div>
+
+          <div class="comp-card" id="before-replication-queue" data-maps-to="after-stays-workflow" tabindex="0">
+            <div class="comp-name">
+              Replication Queue
+              <span class="lang-tag">.config</span>
+            </div>
+            <div class="comp-desc">
+              Flushes Dispatcher cache on content activation. A blocked or stalled queue halts all content publishing across the site.
+            </div>
+          </div>
+
+          <div class="comp-card" id="before-dispatcher-cache" data-maps-to="after-cache-rules" tabindex="0">
+            <div class="comp-name">
+              Dispatcher Cache Rules
+              <span class="lang-tag">.rules</span>
+            </div>
+            <div class="comp-desc">
+              1-hour TTL on product pages. Blanket TTL — no per-path granularity. Cache invalidation triggered by replication events.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /aem-stack -->
+
+    <!-- Right: External Services -->
+    <div class="ext-services-col">
+      <div class="ext-box">
+        <div class="box-header">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect width="13" height="13" rx="3" fill="#6d28d9"/>
+            <path d="M4 6.5h5M6.5 4v5" stroke="#c4b5fd" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          External Services
+          <span class="box-tag">Corp Infrastructure</span>
+        </div>
+        <div class="ext-list">
+
+          <div class="ext-card" id="before-pim-api" data-maps-to="after-products" tabindex="0">
+            <div class="ext-name">PIM REST API <span class="problem-badge">⚠ VPN-only</span></div>
+            <div class="ext-host">internal.corp.net:8443</div>
+            <div class="ext-desc">Product catalog — not publicly accessible, sits behind corporate VPN</div>
+          </div>
+
+          <div class="ext-card" id="before-sso-ldap" data-maps-to="after-user-segment after-personalization" tabindex="0">
+            <div class="ext-name">SSO / LDAP <span class="problem-badge">⚠ Kerberos</span></div>
+            <div class="ext-host">sso.corp.net</div>
+            <div class="ext-desc">Identity + profile data — Kerberos auth, fails outside corporate network</div>
+          </div>
+
+          <div class="ext-card" id="before-elasticsearch" data-maps-to="after-search after-search-proxy" tabindex="0">
+            <div class="ext-name">Elasticsearch <span class="problem-badge">⚠ Not replicated</span></div>
+            <div class="ext-host">es-cluster.corp.net:9200</div>
+            <div class="ext-desc">Self-managed, internal — index not replicated to Publish tier, search is Author-only</div>
+          </div>
+
+          <div class="ext-card" id="before-campaign" data-maps-to="after-form-submit" tabindex="0">
+            <div class="ext-name">Adobe Campaign REST <span class="problem-badge">⚠ IP allowlist</span></div>
+            <div class="ext-host">campaign.adobe.com</div>
+            <div class="ext-desc">Public endpoint but requires IP allowlisting — App Builder's dynamic NAT breaks this</div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /ext-services-col -->
+
+  </div><!-- /before-diagram -->
+</section>
+
+
+<!-- =========================================================================
+     TRANSFORM BANNER
+========================================================================== -->
+<div class="transform-banner">
+  <div class="transform-text">
+    <h2>Modernizing to Edge Delivery Services</h2>
+    <p>5 components → 4 App Builder actions + 4 Edge Workers. Decoupled, serverless, globally distributed.</p>
+  </div>
+  <div class="transform-stats">
+    <div class="transform-stat">
+      <span class="stat-value">6–10 wks</span>
+      <span class="stat-label">Estimated total</span>
+    </div>
+    <div class="transform-stat">
+      <span class="stat-value">3</span>
+      <span class="stat-label">Ticket blockers</span>
+    </div>
+    <div class="transform-stat">
+      <span class="stat-value">0</span>
+      <span class="stat-label">OSGi bundles</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- =========================================================================
+     AFTER SECTION
+========================================================================== -->
+<section class="section-after" id="after-section">
+  <div class="section-title dark">After: EDS + Edge Workers + Adobe I/O App Builder</div>
+  <div class="section-subtitle dark">Business logic moves to serverless App Builder actions and CDN-level Edge Workers. AEM stays as the content authoring system.</div>
+
+  <div class="after-diagram">
+
+    <!-- Column 1: Edge Workers -->
+    <div class="after-col edge-workers">
+      <div class="after-col-header">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M6.5 1.5L11.5 11.5H1.5L6.5 1.5Z" fill="none" stroke="#4ade80" stroke-width="1.2"/>
+          <path d="M6.5 5v2.5M6.5 9v.5" stroke="#4ade80" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Edge Workers
+        <span class="box-tag" style="color:#4ade80;background:rgba(74,222,128,0.12);">Fastly / CDN</span>
+      </div>
+      <div class="after-cards">
+
+        <div class="after-card" id="after-personalization" data-name="personalization.js">
+          <div class="edge-label label-edge">Edge Worker</div>
+          <div class="after-card-name">personalization.js</div>
+          <div class="after-card-desc">Reads <code>X-Geo</code> header + <code>cf_visitor</code> cookie, rewrites request to appropriate language variant. Replaces SSO-based geo-personalization.</div>
+          <div class="after-card-replaces">Replaces: <span>UserProfileService.java</span> (SSO routing)</div>
+        </div>
+
+        <div class="after-card" id="after-search-proxy" data-name="search-proxy.js">
+          <div class="edge-label label-edge">Edge Worker</div>
+          <div class="after-card-name">search-proxy.js</div>
+          <div class="after-card-desc">Proxies search queries from EDS pages to App Builder search API. Adds rate limiting and auth header injection at the edge.</div>
+          <div class="after-card-replaces">Replaces: <span>SearchServlet.java</span> + <span>filters.any</span></div>
+        </div>
+
+        <div class="after-card" id="after-form-validate" data-name="form-validate.js">
+          <div class="edge-label label-edge">Edge Worker</div>
+          <div class="after-card-name">form-validate.js</div>
+          <div class="after-card-desc">Validates form submissions at the edge — honeypot check, rate limit, schema validation — before they reach the backend. Replaces Dispatcher filter rules.</div>
+          <div class="after-card-replaces">Replaces: <span>filters.any</span> + <span>FormSubmitServlet.java</span> (validation)</div>
+        </div>
+
+        <div class="after-card" id="after-cache-rules" data-name="Cache-Control: s-maxage=300">
+          <div class="edge-label label-edge">Edge Cache</div>
+          <div class="after-card-name">Cache-Control: s-maxage=300</div>
+          <div class="after-card-desc">Per-path cache rules at CDN level. Product pages: 5 min TTL. Static assets: 1 year. Instant surrogate-key purge replaces replication-triggered flush.</div>
+          <div class="after-card-replaces">Replaces: <span>Dispatcher Cache Rules</span> (1-hour blanket TTL)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Column 2: App Builder -->
+    <div class="after-col app-builder">
+      <div class="after-col-header">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <rect x="1.5" y="1.5" width="4" height="4" rx="1" fill="#60a5fa"/>
+          <rect x="7.5" y="1.5" width="4" height="4" rx="1" fill="#60a5fa"/>
+          <rect x="1.5" y="7.5" width="4" height="4" rx="1" fill="#60a5fa"/>
+          <rect x="7.5" y="7.5" width="4" height="4" rx="1" fill="#93c5fd"/>
+        </svg>
+        App Builder Actions
+        <span class="box-tag" style="color:#60a5fa;background:rgba(96,165,250,0.12);">I/O Runtime</span>
+      </div>
+      <div class="after-cards">
+
+        <div class="after-card" id="after-products" data-name="products.js">
+          <div class="edge-label label-ab">App Builder</div>
+          <div class="after-card-name">products.js</div>
+          <div class="after-card-desc">Fetches from PIM API using <code>aio-lib-state</code> for 5-minute caching. Exposed as <code>GET /api/v1/web/{ns}/products/{id}</code>.</div>
+          <div class="after-card-replaces">Replaces: <span>ProductCatalogService.java</span></div>
+        </div>
+
+        <div class="after-card" id="after-search" data-name="search.js">
+          <div class="edge-label label-ab">App Builder</div>
+          <div class="after-card-name">search.js</div>
+          <div class="after-card-desc">Wraps Elasticsearch query with field-level security. Exposed as a public API — no more Author-only limitation. Works on Publish and EDS.</div>
+          <div class="after-card-replaces">Replaces: <span>SearchServlet.java</span></div>
+        </div>
+
+        <div class="after-card" id="after-form-submit" data-name="form-submit.js">
+          <div class="edge-label label-ab">App Builder</div>
+          <div class="after-card-name">form-submit.js</div>
+          <div class="after-card-desc">Handles Campaign integration with retry logic via <code>aio-lib-events</code>. Outbound through Adobe I/O Event mesh — no IP allowlisting needed.</div>
+          <div class="after-card-replaces">Replaces: <span>FormSubmitServlet.java</span></div>
+        </div>
+
+        <div class="after-card" id="after-user-segment" data-name="user-segment.js">
+          <div class="edge-label label-ab">App Builder</div>
+          <div class="after-card-name">user-segment.js</div>
+          <div class="after-card-desc">Lightweight segment lookup — replaces heavy SSO/LDAP profile loading with JWT-based segment cookies. No Kerberos dependency.</div>
+          <div class="after-card-replaces">Replaces: <span>UserProfileService.java</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Column 3: Stays in AEM -->
+    <div class="after-col stays-aem">
+      <div class="after-col-header">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M6.5 1.5l5 10h-10l5-10z" fill="none" stroke="#6ee7b7" stroke-width="1.2"/>
+        </svg>
+        Stays in AEM
+        <span class="box-tag" style="color:#6ee7b7;background:rgba(110,231,183,0.12);">Unchanged</span>
+      </div>
+      <div class="after-cards">
+
+        <div class="after-card" id="after-stays-content" data-name="Content Authoring">
+          <div class="edge-label label-aem">AEM</div>
+          <div class="after-card-name">Content Authoring</div>
+          <div class="after-card-desc">AEM Author with Universal Editor / DA Live for content creation. EDS handles delivery — no rendering logic lives in AEM any more.</div>
+          <div class="after-card-replaces">Evolves: <span>OfferModel.java</span> rendering → EDS blocks</div>
+        </div>
+
+        <div class="after-card" id="after-stays-dam" data-name="Asset Management (DAM)">
+          <div class="edge-label label-aem">AEM</div>
+          <div class="after-card-name">Asset Management (DAM)</div>
+          <div class="after-card-desc">AEM Assets stays as the DAM. Optimized image renditions served via EDS CDN directly. No migration required.</div>
+          <div class="after-card-replaces">Stays: <span>AEM Assets DAM</span> — no change</div>
+        </div>
+
+        <div class="after-card" id="after-stays-cf" data-name="Content Fragments">
+          <div class="edge-label label-aem">AEM</div>
+          <div class="after-card-name">Content Fragments</div>
+          <div class="after-card-desc">CF data served via Assets REST API to EDS pages and App Builder actions. OfferModel structured data becomes CF schema.</div>
+          <div class="after-card-replaces">Evolves: <span>OfferModel.java</span> → CF schema</div>
+        </div>
+
+        <div class="after-card" id="after-stays-workflow" data-name="AEM Workflows">
+          <div class="edge-label label-aem">AEM</div>
+          <div class="after-card-name">Campaign / Workflow Triggers</div>
+          <div class="after-card-desc">AEM Workflows trigger Campaign via Adobe I/O Events instead of direct HTTP from Publish. Decoupled from the replication queue.</div>
+          <div class="after-card-replaces">Evolves: <span>Replication Queue</span> Campaign path</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /after-diagram -->
+</section>
+
+
+<!-- =========================================================================
+     FRICTION POINTS / BLOCKERS
+========================================================================== -->
+<section class="section-friction" id="friction-section">
+  <div class="section-title dark">Blockers &amp; Tickets Required</div>
+  <div class="section-subtitle dark">These are the real friction points that require action outside the engineering team. Plan for them at the start of the project.</div>
+
+  <div class="friction-grid">
+
+    <!-- 1: PIM API -->
+    <div class="friction-card">
+      <div class="friction-icon">🔒</div>
+      <div class="friction-title">PIM API Access from App Builder</div>
+      <div class="friction-desc">
+        App Builder actions run in Adobe's cloud. The PIM at
+        <code>internal.corp.net</code> is behind corporate VPN —
+        App Builder cannot reach it. Calling it from a cloud action simply times out.
+      </div>
+      <div class="friction-resolution">
+        <strong>Resolution path</strong>
+        File an IT ticket to expose PIM via API Gateway or VPN peering to Adobe's outbound CIDR ranges.
+        As a stopgap, cache product data in AEM and export via the CF Export API until the gateway is ready.
+      </div>
+      <div class="friction-badges">
+        <span class="friction-time-badge">⏱ 2–4 weeks (IT provisioning)</span>
+        <span class="ticket-badge">🎫 IT ticket required</span>
+      </div>
+    </div>
+
+    <!-- 2: Elasticsearch -->
+    <div class="friction-card">
+      <div class="friction-icon">🔍</div>
+      <div class="friction-title">Elasticsearch Migration</div>
+      <div class="friction-desc">
+        The internal cluster at <code>es-cluster.corp.net</code> is unreachable from App Builder.
+        The index also lives only on Author — search is currently unavailable on Publish even in the legacy setup.
+      </div>
+      <div class="friction-resolution">
+        <strong>Resolution path</strong>
+        Three options: (a) migrate to Elastic Cloud (managed, publicly reachable), (b) use AEP Query Service as search backend,
+        (c) rebuild with Algolia. Each carries different data migration and re-indexing scope.
+      </div>
+      <div class="friction-badges">
+        <span class="friction-time-badge">⏱ 4–8 weeks</span>
+        <span class="ticket-badge">🎫 Architecture decision required</span>
+      </div>
+    </div>
+
+    <!-- 3: Campaign IP -->
+    <div class="friction-card">
+      <div class="friction-icon">📡</div>
+      <div class="friction-title">Campaign IP Allowlisting</div>
+      <div class="friction-desc">
+        Adobe I/O App Builder uses a dynamic NAT gateway pool for outbound traffic.
+        Campaign's existing allowlist entry for the static AEM Publish IP will not cover App Builder.
+        Form submissions will be rejected by Campaign.
+      </div>
+      <div class="friction-resolution">
+        <strong>Resolution path</strong>
+        Open a support ticket with the Adobe Campaign team to allowlist the App Builder NAT range —
+        OR switch to Campaign's inbound webhook model (preferred, eliminates IP dependency entirely).
+      </div>
+      <div class="friction-badges">
+        <span class="friction-time-badge">⏱ 5–10 business days</span>
+        <span class="ticket-badge">🎫 Adobe Support ticket</span>
+      </div>
+    </div>
+
+    <!-- 4: Edge Worker CAB -->
+    <div class="friction-card">
+      <div class="friction-icon">📋</div>
+      <div class="friction-title">Edge Worker Deployment: CAB Approval</div>
+      <div class="friction-desc">
+        New Edge Worker scripts on production Fastly require Change Advisory Board (CAB) approval at most enterprises.
+        This is not a technical problem but a governance process that blocks production deployment.
+        The CAB requires load-test evidence and a documented rollback plan before approving a production push.
+        Starting this process late is the most common reason EDS migrations slip by 2–3 weeks.
+      </div>
+      <div class="friction-resolution">
+        <strong>Resolution path</strong>
+        Stage in <code>hlx3.live</code> non-production first. Run load tests; capture P99 latency data.
+        Submit the CAB request with test results and a rollback procedure (toggle Fastly VCL rule to bypass the worker).
+      </div>
+      <div class="friction-badges">
+        <span class="friction-time-badge">⏱ 1–3 weeks (CAB cycle)</span>
+        <span class="ticket-badge">🎫 CAB request required</span>
+      </div>
+    </div>
+
+    <!-- 5: Kerberos/SSO -->
+    <div class="friction-card">
+      <div class="friction-icon">🔑</div>
+      <div class="friction-title">Kerberos / SSO Replacement</div>
+      <div class="friction-desc">
+        <code>UserProfileService</code> uses Kerberos auth — corporate-network-only, not replicable in cloud.
+        The Identity team owns the replacement path and must be involved from day one.
+      </div>
+      <div class="friction-resolution">
+        <strong>Resolution path</strong>
+        Switch to JWT-based segment tokens issued by the Identity service.
+        Tokens are short-lived, edge-readable, carry only the segment data needed for personalization —
+        no full profile transfer over the wire. Requires Identity team to build a token issuance endpoint.
+      </div>
+      <div class="friction-badges">
+        <span class="friction-time-badge">⏱ 4–6 weeks</span>
+        <span class="ticket-badge">🎫 Identity team required</span>
+      </div>
+    </div>
+
+  </div><!-- /friction-grid -->
+</section>
+
+
+<!-- =========================================================================
+     FOOTER
+========================================================================== -->
+<footer class="page-footer">
+  <p>AEM Backend Modernization — conference demo visual. Components are representative of a typical mid-size enterprise AEM deployment.</p>
+  <div class="footer-legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#1e40af;"></div>
+      AEM Author
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#1e3a5f;"></div>
+      AEM Publish
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#4c1d95;"></div>
+      External Services
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#0f172a;"></div>
+      Edge Workers
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#1e40af;"></div>
+      App Builder
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#064e3b;"></div>
+      Stays in AEM
+    </div>
+  </div>
+</footer>
+
+
+<!-- =========================================================================
+     INTERACTIVE SCRIPT
+========================================================================== -->
+<script>
+  (function () {
+    'use strict';
+
+    var activeCard = null;
+
+    function clearAll() {
+      document.querySelectorAll('.comp-card.selected, .ext-card.selected').forEach(function (el) {
+        el.classList.remove('selected');
+      });
+      document.querySelectorAll('.after-card.highlighted').forEach(function (el) {
+        el.classList.remove('highlighted');
+      });
+      document.querySelectorAll('.tooltip').forEach(function (el) {
+        el.remove();
+      });
+      activeCard = null;
+    }
+
+    function activate(el) {
+      // Toggle off if already active
+      if (activeCard === el) {
+        clearAll();
+        return;
+      }
+      clearAll();
+      activeCard = el;
+
+      // Highlight the clicked card
+      el.classList.add('selected');
+
+      // Parse space-separated after IDs
+      var ids = (el.dataset.mapsTo || '').trim().split(/\s+/).filter(Boolean);
+      var names = [];
+      var firstAfterEl = null;
+
+      ids.forEach(function (id) {
+        var afterEl = document.getElementById(id);
+        if (afterEl) {
+          afterEl.classList.add('highlighted');
+          names.push(afterEl.dataset.name || id);
+          if (!firstAfterEl) firstAfterEl = afterEl;
+        }
+      });
+
+      // Show tooltip above the card
+      if (names.length > 0) {
+        var tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.innerHTML = 'Maps to: <strong>' + names.join(', ') + '</strong>';
+        el.appendChild(tooltip);
+      }
+
+      // Scroll to first highlighted after-card if out of viewport
+      if (firstAfterEl) {
+        var rect = firstAfterEl.getBoundingClientRect();
+        var inView = rect.top >= 60 && rect.bottom <= (window.innerHeight - 20);
+        if (!inView) {
+          setTimeout(function () {
+            firstAfterEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 80);
+        }
+      }
+    }
+
+    // Wire up all cards that have data-maps-to
+    document.querySelectorAll('[data-maps-to]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        activate(el);
+      });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activate(el);
+        }
+      });
+    });
+
+    // Click outside → clear
+    document.addEventListener('click', clearAll);
+
+    // Escape → clear
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') clearAll();
+    });
+
+  }());
+</script>
+
+</body>
+</html>
