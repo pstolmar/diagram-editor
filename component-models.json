@@ -1982,5 +1982,36 @@
   {
     "id": "wave-terrain",
     "fields": []
+  },
+  {
+    "id": "angular-hero",
+    "fields": [
+      {
+        "component": "aem-assets",
+        "name": "contentReference",
+        "label": "Hero Image",
+        "accept": "image/*"
+      },
+      {
+        "component": "text",
+        "name": "eyebrow",
+        "label": "Eyebrow"
+      },
+      {
+        "component": "text",
+        "name": "title",
+        "label": "Title"
+      },
+      {
+        "component": "richtext",
+        "name": "description",
+        "label": "Description"
+      },
+      {
+        "component": "text",
+        "name": "ctaLabel",
+        "label": "CTA Label"
+      }
+    ]
   }
 ]

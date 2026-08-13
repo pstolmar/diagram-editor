@@ -48,16 +48,37 @@
 
 <main>
 
+  <!-- ── QUICK FIX: FAILED TO FETCH DETAILS ── -->
+  <div class="card critical" style="margin-bottom:2rem;background:#1a0a0a">
+    <div class="card-title" style="font-size:1.1rem">⚡ "Failed to fetch details" — fix it right now</div>
+    <p style="margin-bottom:0.8rem"><strong>Most common cause: IMS session expired.</strong></p>
+    <ol style="padding-left:1.4rem;margin-bottom:0.8rem">
+      <li>Open <code>experience.adobe.com</code> in the <strong>same browser</strong> — confirm you are logged in with the correct org</li>
+      <li>Hard-refresh the UE page (<kbd>Cmd+Shift+R</kbd>)</li>
+      <li>If that fails: check the CF path in <code>data-aue-resource</code> still exists in AEM Author Assets</li>
+      <li>If CORS configs were wiped (RDE reset): run <code>bash tools/fix-ue.sh</code> (needs <code>aio auth:login</code> first)</li>
+    </ol>
+    <p><a href="../debugue.html" style="color:#7ec8e3">→ Open debugue.html</a> to diagnose CORS, IMS, and data attributes from the page itself.</p>
+  </div>
+
+  <!-- ── UPDATE NOTICE ── -->
+  <div class="card critical" style="margin-bottom:2rem">
+    <div class="card-title"><span class="tag tag-critical">UPDATED 2026-08-13</span> Script URL changed — experiencecloud.live is deprecated</div>
+    <p>As of March 2025 (UE release 2025.03.10), the <code>experiencecloud.live/corslib/LATEST</code> script is <strong>deprecated</strong>. Use <code>adobe.io/cors.js</code> instead — it is now the only supported URL. All demo pages already use the correct URL.</p>
+    <p>Old (deprecated): <code class="bad">&lt;script src="https://universal-editor-service.experiencecloud.live/corslib/LATEST"&gt;</code></p>
+    <p>Correct: <code class="ok">&lt;script src="https://universal-editor-service.adobe.io/cors.js" async&gt;</code></p>
+  </div>
+
   <!-- ── SECTION 1: REQUIRED PAGE META ── -->
   <section>
     <h2>1 — Required &lt;meta&gt; tags in every UE-editable page</h2>
     <p>These must be in the <code>&lt;head&gt;</code>. Without them UE cannot connect to the AEM author instance.</p>
-    <pre><code>&lt;!-- AEM author instance --&gt;
-&lt;meta name="urn:adobe:aue:config:host"
-      content="https://author-p138879-e1741192.adobeaemcloud.com"&gt;
+    <pre><code>&lt;!-- AEM author connection (system category, "aem" reference name matches urn:aem: in data-aue-resource) --&gt;
+&lt;meta name="urn:adobe:aue:system:aem"
+      content="aem:https://author-p138879-e1741192.adobeaemcloud.com"&gt;
 
-&lt;!-- Connection service (load from AEM CDN) --&gt;
-&lt;script src="https://universal-editor-service.experiencecloud.live/corslib/LATEST"&gt;&lt;/script&gt;</code></pre>
+&lt;!-- UE CORS library — use adobe.io (experiencecloud.live/corslib/ is DEPRECATED as of March 2025) --&gt;
+&lt;script src="https://universal-editor-service.adobe.io/cors.js" async&gt;&lt;/script&gt;</code></pre>
     <div class="card critical">
       <div class="card-title"><span class="tag tag-critical">CRITICAL</span> The host meta tag must match EXACTLY</div>
       <p>The host must be the full <code>https://author-p…-e….adobeaemcloud.com</code> URL — no trailing slash, no path. A typo here gives you a page that loads fine visually but the sidebar stays empty forever.</p>
@@ -252,7 +273,7 @@ function useCountdown(expiryISO, simNow) {
       <li>✅ Every editable container has <code>data-aue-resource</code>, <code>data-aue-type="component"</code>, <strong><code>data-aue-model</code></strong>, and <code>data-aue-label</code></li>
       <li>✅ Every model ID used in <code>data-aue-model</code> exists in <code>component-models.json</code></li>
       <li>✅ All <code>data-aue-prop</code> values match real CF field names</li>
-      <li>✅ <code>&lt;meta name="urn:adobe:aue:config:host"&gt;</code> points to correct author host</li>
+      <li>✅ <code>&lt;meta name="urn:adobe:aue:system:aem" content="aem:https://author-…"&gt;</code> — correct format, no <code>config:host</code></li>
       <li>✅ UE URL hash has no <code>https://</code> before the page host</li>
       <li>✅ Waited 60 seconds after last <code>git push</code> before testing</li>
       <li>✅ Hard-refreshed UE after push</li>

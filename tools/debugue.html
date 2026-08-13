@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="urn:adobe:aue:config:host" content="https://author-p138879-e1741192.adobeaemcloud.com"/>
+  <meta name="urn:adobe:aue:system:aem" content="aem:https://author-p138879-e1741192.adobeaemcloud.com"/>
   <title>UE Debug — diagram-editor</title>
-  <script src="https://universal-editor-service.experiencecloud.live/corslib/LATEST" async id="cors-js"></script>
+  <script src="https://universal-editor-service.adobe.io/cors.js" async id="cors-js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -210,16 +210,16 @@ function row(label, val, status, cls) {
   var corsEl = document.getElementById('cors-js');
   var issues = [], out = '';
 
-  var metaNew = document.querySelector('meta[name="urn:adobe:aue:config:host"]');
-  var metaOld = document.querySelector('meta[name="urn:adobe:aue:system:aem"]');
-  if (metaNew) {
-    var c = metaNew.getAttribute('content') || '';
-    var ok = c.startsWith('https://');
-    out += row('AUE meta (config:host)', esc(c), ok ? 'OK' : 'BAD — needs https://', ok ? 'ok' : 'fail');
-    if (!ok) issues.push('content must start with https://, not aem:https://');
-  } else if (metaOld) {
-    out += row('AUE meta (system:aem — DEPRECATED)', esc(metaOld.getAttribute('content')||''), 'WARN — use config:host', 'warn');
-    issues.push('Deprecated meta: change name to urn:adobe:aue:config:host and remove aem: prefix from content');
+  var metaCorrect = document.querySelector('meta[name="urn:adobe:aue:system:aem"]');
+  var metaAlt = document.querySelector('meta[name="urn:adobe:aue:config:host"]');
+  if (metaCorrect) {
+    var c = metaCorrect.getAttribute('content') || '';
+    var ok = c.startsWith('aem:https://');
+    out += row('AUE meta (system:aem)', esc(c), ok ? 'OK' : 'BAD — needs aem:https:// prefix', ok ? 'ok' : 'fail');
+    if (!ok) issues.push('system:aem content must start with aem:https://, e.g. aem:https://author-p…-e….adobeaemcloud.com');
+  } else if (metaAlt) {
+    out += row('AUE meta (config:host)', esc(metaAlt.getAttribute('content')||''), 'Non-standard — prefer system:aem format', 'warn');
+    issues.push('Non-standard meta format: use <meta name="urn:adobe:aue:system:aem" content="aem:https://author-…">');
   } else {
     out += row('AUE meta tag', 'NOT FOUND', 'MISSING', 'fail');
     issues.push('No AUE meta tag found');
@@ -227,10 +227,10 @@ function row(label, val, status, cls) {
 
   if (corsEl) {
     var src = corsEl.src || '';
-    var good = src.includes('experiencecloud.live');
-    var old  = src.includes('adobe.io');
-    out += row('cors.js src', esc(src), good ? 'OK' : (old ? 'OLD — adobe.io' : 'Unknown'), good ? 'ok' : 'warn');
-    if (!good) issues.push('cors.js should be universal-editor-service.experiencecloud.live/corslib/LATEST');
+    var good = src.includes('adobe.io');
+    var deprecated = src.includes('experiencecloud.live');
+    out += row('cors.js src', esc(src), good ? 'OK' : (deprecated ? 'DEPRECATED — switch to adobe.io/cors.js' : 'Unknown'), good ? 'ok' : 'warn');
+    if (!good) issues.push('cors.js should be https://universal-editor-service.adobe.io/cors.js (experiencecloud.live is deprecated since March 2025)');
     corsEl.addEventListener('error', function() { addError('cors.js failed to load: ' + src); badge('badge-instr','fail','cors.js fail'); });
   } else {
     out += row('cors.js', 'NOT FOUND', 'MISSING', 'fail');
@@ -362,26 +362,27 @@ function renderInspect(doc, url) {
   var modelIds = window._modelIds || [];
   var issues = [];
 
-  var metaNew = doc.querySelector('meta[name="urn:adobe:aue:config:host"]');
-  var metaOld = doc.querySelector('meta[name="urn:adobe:aue:system:aem"]');
+  var metaCorrect2 = doc.querySelector('meta[name="urn:adobe:aue:system:aem"]');
+  var metaAlt2 = doc.querySelector('meta[name="urn:adobe:aue:config:host"]');
   var metaContent='', metaSt, metaCls;
-  if (metaNew) {
-    metaContent = metaNew.getAttribute('content')||'';
-    var ok = metaContent.startsWith('https://');
-    metaSt = ok ? 'OK — config:host' : 'BAD content'; metaCls = ok ? 'ok' : 'fail';
-    if (!ok) issues.push('config:host content must start with https://');
-  } else if (metaOld) {
-    metaContent = metaOld.getAttribute('content')||'';
-    metaSt = 'WARN — use config:host'; metaCls = 'warn';
-    issues.push('Uses deprecated urn:adobe:aue:system:aem — change to config:host, remove aem: prefix');
+  if (metaCorrect2) {
+    metaContent = metaCorrect2.getAttribute('content')||'';
+    var ok2 = metaContent.startsWith('aem:https://');
+    metaSt = ok2 ? 'OK — system:aem' : 'BAD — needs aem:https:// prefix'; metaCls = ok2 ? 'ok' : 'fail';
+    if (!ok2) issues.push('system:aem content must start with aem:https://');
+  } else if (metaAlt2) {
+    metaContent = metaAlt2.getAttribute('content')||'';
+    metaSt = 'WARN — non-standard config:host'; metaCls = 'warn';
+    issues.push('Non-standard format: use <meta name="urn:adobe:aue:system:aem" content="aem:https://author-…">');
   } else { metaSt='MISSING'; metaCls='fail'; issues.push('No AUE meta tag'); }
 
   var corsEl2 = doc.querySelector('script[src*="universal-editor-service"]');
   var corsSrc = corsEl2 ? corsEl2.getAttribute('src') : null;
-  var corsOk  = corsSrc && corsSrc.includes('experiencecloud.live');
-  var corsOld2 = corsSrc && corsSrc.includes('adobe.io');
+  var corsOk  = corsSrc && corsSrc.includes('adobe.io');
+  var corsDeprecated = corsSrc && corsSrc.includes('experiencecloud.live');
   if (!corsEl2) issues.push('cors.js missing');
-  else if (!corsOk) issues.push('cors.js should use experiencecloud.live/corslib/LATEST');
+  else if (corsDeprecated) issues.push('cors.js uses deprecated experiencecloud.live — update to https://universal-editor-service.adobe.io/cors.js');
+  else if (!corsOk) issues.push('cors.js should be https://universal-editor-service.adobe.io/cors.js');
 
   var modelRefs={}, resources={};
   doc.querySelectorAll('[data-aue-model]').forEach(function(el) { var m=el.getAttribute('data-aue-model'); if(m) modelRefs[m]=(modelRefs[m]||0)+1; });
@@ -390,7 +391,7 @@ function renderInspect(doc, url) {
   var els = doc.querySelectorAll('[data-aue-resource],[data-aue-prop]');
   var out = '<div class="grid3" style="margin-bottom:1rem;">';
   out += '<div>'+row('AUE meta', esc(metaContent||'MISSING'), metaSt, metaCls)+'</div>';
-  out += '<div>'+row('cors.js', corsSrc?esc(corsSrc):'MISSING', corsOk?'OK':(corsOld2?'OLD — adobe.io':corsSrc?'Unknown':'MISSING'), corsOk?'ok':corsSrc?'warn':'fail')+'</div>';
+  out += '<div>'+row('cors.js', corsSrc?esc(corsSrc):'MISSING', corsOk?'OK':(corsDeprecated?'DEPRECATED — use adobe.io/cors.js':corsSrc?'Unknown':'MISSING'), corsOk?'ok':corsSrc?'warn':'fail')+'</div>';
   out += '<div>'+row('Instrumented elements', els.length+' total', 'Info', 'info')+'</div>';
   out += '</div>';
 
