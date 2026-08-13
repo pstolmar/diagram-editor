@@ -36,6 +36,41 @@ if (jsOrCssChanged) {
   }
 }
 
+// Guard: reject any staged vault package that uses a directory-level filter on
+// config.author — those wipe ALL OSGi configs in that dir, breaking Universal Editor.
+const stagedZips = modifiedFiles.filter((f) => f.endsWith('.zip'));
+if (stagedZips.length > 0) {
+  const checkScript = `
+import zipfile, sys, re
+bad = []
+for path in ${JSON.stringify(stagedZips)}:
+    try:
+        with zipfile.ZipFile(path) as z:
+            try:
+                fxml = z.read('META-INF/vault/filter.xml').decode()
+                # Dangerous pattern: filter root ending at config.author itself (no filename after)
+                if re.search(r'root="[^"]*config\\.author"', fxml):
+                    bad.append(path)
+            except KeyError:
+                pass
+    except Exception:
+        pass
+if bad:
+    print('BLOCKED: ' + ', '.join(bad))
+    sys.exit(1)
+`;
+  try {
+    await run(`python3 -c '${checkScript.replace(/'/g, "'\\''")}'`);
+  } catch (err) {
+    const blocked = (err.message || '').match(/BLOCKED: (.+)/)?.[1] || stagedZips.join(', ');
+    console.error(`\n🚫 COMMIT BLOCKED — package(s) with directory-level config.author filter detected:\n   ${blocked}`);
+    console.error('   A filter like root="/apps/.../config.author" wipes ALL OSGi configs in that');
+    console.error('   directory on install, breaking Universal Editor. Use a file-level filter:');
+    console.error('   root="/apps/.../config.author/com.example.MyConfig~name.cfg.json"\n');
+    process.exit(1);
+  }
+}
+
 // Run critical-path Playwright tests when any blocks/ files change.
 // Only runs if the dev server is already up (curl check) — avoids blocking
 // committers who aren't running the dev server locally.
