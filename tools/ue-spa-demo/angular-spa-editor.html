@@ -849,7 +849,7 @@ and add UE data-aue-* instrumentation to my Angular template.</div>
   function renderCard(c) {
     const r = esc(RES);
     document.getElementById('ue-card-content').innerHTML = `
-      <div data-aue-resource="${r}" data-aue-type="component" data-aue-model="angular-hero" data-aue-label="Hero CF">
+      <div data-aue-resource="${r}" data-aue-type="component" data-aue-label="Hero CF">
         <img class="ue-card-img" src="${esc(c.image)}" alt="Hero"
           data-aue-resource="${r}" data-aue-prop="contentReference"
           data-aue-type="image" data-aue-label="Hero Image"/>
