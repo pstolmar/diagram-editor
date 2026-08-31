@@ -836,18 +836,27 @@ function buildCommands(model, dynamic, compat) {
     const labels = { 'ew-personalization': 'A/B + personalization', 'ew-geo': 'geo/language redirect', 'ew-headers': 'security headers' };
     parts.push([
       hl(`# ── Edge Workers: ${ewKeys.map((k) => labels[k]).join(', ')} ──`),
-      kw('npm install -g @adobe/aio-cli'),
-      kw('aio plugins:install @adobe/aio-cli-plugin-edge-workers'),
-      '',
-      kw('aio auth:login'),
-      kw('aio app use --workspace Stage'),
-      '',
-      c('# Create and deploy an Edge Worker:'),
-      kw('aio ew create --name my-eds-ew'),
-      kw('aio ew upload --bundlePath ./bundle.tar.gz --ewId <ewId>'),
-      kw('aio ew activate --ewId <ewId> --versionId <versionId>'),
-      '',
+      c('# EDS uses Fastly CDN. Edge Worker deployment depends on your CDN provider.'),
+      c(''),
+      c('# Option A — Fastly Compute@Edge (if using Fastly as your CDN):'),
+      kw('npm install -g @fastly/cli'),
+      kw('fastly profile create                  # authenticate with Fastly API token'),
+      kw('fastly compute init                    # scaffold new EW project'),
+      kw('fastly compute build'),
+      kw('fastly compute deploy --service-id <your-fastly-service-id>'),
+      c('# Docs: https://developer.fastly.com/learning/compute/'),
+      c(''),
+      c('# Option B — Akamai EdgeWorkers (if using Akamai BYOC in front of EDS):'),
+      kw('npm install -g @akamai/cli'),
+      kw('akamai install edgeworkers'),
+      kw('akamai edgeworkers create-id --groupId <gid> --name my-eds-ew --resourceTierId 200'),
+      kw('akamai edgeworkers upload --bundlePath ./bundle.tar.gz <ewId>'),
+      kw('akamai edgeworkers activate <ewId> STAGING <versionId>'),
       c('# Docs: https://techdocs.akamai.com/edgeworkers/docs/welcome-to-edgeworkers'),
+      c(''),
+      c('# Option C — EDS-native A/B (no Edge Worker needed):'),
+      c('# The EDS Experimentation plugin handles client-side variant routing.'),
+      c('# https://www.aem.live/developer/experimentation'),
     ].join('\n'));
   }
 
@@ -856,7 +865,8 @@ function buildCommands(model, dynamic, compat) {
     const lines = [
       hl('# ── App Builder (Adobe I/O Runtime) ─────────────────────────'),
       kw('npm install -g @adobe/aio-cli'),
-      kw('aio app init my-eds-app --template=dx/excshell'),
+      kw('aio app init my-eds-app'),
+      c('# → Select templates interactively (or pass --template @adobe/generator-app-excshell)'),
       kw('cd my-eds-app'),
       '',
     ];
@@ -864,8 +874,12 @@ function buildCommands(model, dynamic, compat) {
     if (dynamic.has('ab-events'))   lines.push(kw('npm install @adobe/aio-lib-events'));
     if (dynamic.has('ab-commerce')) lines.push(kw('npm install @adobe/aio-lib-commerce'));
     lines.push('');
-    lines.push(kw('aio app deploy --workspace Stage'));
-    lines.push(kw('aio app deploy --workspace Production'));
+    lines.push(kw('aio app use Stage'));
+    lines.push(kw('aio app deploy'));
+    lines.push(c(''));
+    lines.push(kw('aio app use Production'));
+    lines.push(kw('aio app deploy'));
+    lines.push(c('# Docs: https://developer.adobe.com/app-builder/docs/get_started/'));
 
     if (dynamic.has('ab-state')) {
       lines.push('');
@@ -924,16 +938,22 @@ function buildCommands(model, dynamic, compat) {
   if (dynamic.has('da-live')) {
     parts.push([
       hl('# ── Document Authoring (DA Live) ────────────────────────────'),
-      kw('npm install -g @da-live/cli'),
-      '',
-      c('# Link your GitHub repo to DA Live:'),
-      kw('da link --repo https://github.com/your-org/your-repo'),
-      '',
-      c('# Create and publish a document:'),
-      kw('da new /content/mysite/page-slug'),
-      kw('da publish /content/mysite/page-slug'),
-      '',
-      c('# DA Live editor: https://da.live'),
+      c('# DA Live is a browser-only editor — there is no CLI or npm package.'),
+      c('# 1. Sign in at https://da.live with your Adobe ID'),
+      c('# 2. Click "+ New project" and connect your GitHub repo'),
+      c('# 3. Author pages in the browser; Publish triggers CDN cache invalidation'),
+      c(''),
+      c('# Programmatic updates: use the DA Admin API directly'),
+      kw('# Create / update a page:'),
+      kw('# PUT https://admin.da.live/source/{owner}/{repo}/{path}.html'),
+      kw('#     Content-Type: text/html  (EDS block markup)'),
+      c(''),
+      kw('# Publish a page (triggers CDN purge):'),
+      kw('# POST https://admin.da.live/publish/{owner}/{repo}/{path}'),
+      c(''),
+      c('# DA Live docs:  https://da.live/docs'),
+      c('# Admin API ref: https://da.live/docs/admin-api'),
+      c('# Structured content (DA-SC): https://da.live/docs/structured-content'),
     ].join('\n'));
   }
 
@@ -974,7 +994,7 @@ function buildCommands(model, dynamic, compat) {
     parts.push([
       hl('# ── Quick Edit / Universal Editor ───────────────────────────'),
       c('# Every editable page needs a UE connection meta tag in its <head>:'),
-      st('<meta name="urn:auecon:aemconnection"'),
+      st('<meta name="urn:adobe:aue:system:aem"'),
       st('      content="aem:https://author-pNNN-eNNN.adobeaemcloud.com">'),
       '',
       c('# Block containers need data-aue-* attributes (editor-support.js adds these):'),

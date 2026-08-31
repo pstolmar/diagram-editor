@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brand Concierge — AI-Powered Experience Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #06080f;
+      --surface: #0e1520;
+      --surface-2: #151e2d;
+      --border: #1a2640;
+      --accent: #e8552e;        /* Saffron brand red */
+      --accent-2: #f59e0b;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --text: #f1f5f9;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'Menlo', 'Consolas', monospace;
+      --radius: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .grid-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(232,85,46,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,85,46,.03) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+    .content { position: relative; z-index: 1; }
+
+    /* ── Header ── */
+    .site-header {
+      padding: 18px 32px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(6,8,15,.93); backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .brand-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: #fff; text-decoration: none; }
+    .brand-logo span { color: var(--accent); }
+    .site-header nav { display: flex; gap: 20px; align-items: center; }
+    .site-header a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .15s; }
+    .site-header a:hover { color: var(--text); }
+    .badge-pill {
+      padding: 4px 12px; border-radius: 20px;
+      background: rgba(232,85,46,.12); border: 1px solid rgba(232,85,46,.3);
+      font-size: 12px; font-weight: 600; color: #fca5a5;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 64px 32px 48px; max-width: 1000px; margin: 0 auto; text-align: center;
+    }
+    .hero h1 { font-size: clamp(28px,5vw,48px); font-weight: 800; line-height: 1.15; letter-spacing: -.03em; color: #fff; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { margin-top: 14px; font-size: 17px; line-height: 1.7; color: var(--text-dim); max-width: 620px; margin-left:auto; margin-right:auto; }
+
+    /* ── Demo Layout ── */
+    .demo-layout {
+      display: grid; grid-template-columns: 1fr 380px;
+      gap: 24px; max-width: 1100px; margin: 0 auto;
+      padding: 0 32px 64px;
+      align-items: start;
+    }
+    @media (max-width: 860px) { .demo-layout { grid-template-columns: 1fr; } }
+
+    /* ── Brand Concierge Chat Panel ── */
+    .chat-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      display: flex; flex-direction: column;
+      height: 620px;
+    }
+    .chat-header {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .chat-header-text .chat-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .chat-header-text .chat-status {
+      font-size: 11px; color: var(--green);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .chat-header-text .chat-status::before {
+      content: ''; display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--green);
+    }
+    .chat-header-badge {
+      margin-left: auto; font-size: 10px; font-weight: 700; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 4px;
+      background: rgba(232,85,46,.15); color: var(--accent); letter-spacing: .06em;
+    }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 14px;
+      scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .msg { display: flex; gap: 10px; align-items: flex-start; max-width: 88%; }
+    .msg.user { flex-direction: row-reverse; margin-left: auto; }
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .msg.bot .msg-avatar { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .msg.user .msg-avatar { background: rgba(59,130,246,.25); }
+    .msg-bubble {
+      padding: 10px 14px; border-radius: 10px;
+      font-size: 13px; line-height: 1.6;
+    }
+    .msg.bot .msg-bubble { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 3px 10px 10px 10px; }
+    .msg.user .msg-bubble { background: rgba(232,85,46,.15); color: var(--text); border: 1px solid rgba(232,85,46,.25); border-radius: 10px 3px 10px 10px; }
+
+    /* Rich response cards inside bubble */
+    .msg-card {
+      margin-top: 10px; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .msg-card-img {
+      height: 80px; position: relative;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+    }
+    .msg-card-img .dm-badge {
+      position: absolute; bottom: 6px; right: 6px;
+      font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 3px;
+      background: rgba(0,0,0,.6); color: #fff; text-transform: uppercase;
+    }
+    .msg-card-body { padding: 10px 12px; background: rgba(255,255,255,.04); }
+    .msg-card-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .msg-card-desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .msg-card-cta {
+      display: inline-flex; margin-top: 8px; padding: 5px 12px;
+      border-radius: 5px; background: var(--accent); color: #fff;
+      font-size: 11px; font-weight: 700; text-decoration: none; cursor: pointer; border: none;
+    }
+
+    .msg-source-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .source-pill {
+      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .source-cf { background: rgba(59,130,246,.15); color: #93c5fd; border: 1px solid rgba(59,130,246,.2); }
+    .source-vcf { background: rgba(232,85,46,.15); color: #fca5a5; border: 1px solid rgba(232,85,46,.2); }
+    .source-dm { background: rgba(16,185,129,.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
+    .source-faq { background: rgba(168,85,247,.15); color: #d8b4fe; border: 1px solid rgba(168,85,247,.2); }
+
+    /* Typing indicator */
+    .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
+    .typing-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted);
+      animation: typingBounce 1.2s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: .2s; }
+    .typing-dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+    /* Suggestions */
+    .chat-suggestions {
+      padding: 12px 14px; border-top: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; gap: 7px;
+      background: var(--surface-2);
+    }
+    .suggestion {
+      padding: 6px 12px; border-radius: 16px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 12px; font-weight: 500; color: var(--text-dim);
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .suggestion:hover { border-color: var(--accent); color: var(--text); background: rgba(232,85,46,.06); }
+    .sug-cf-badge {
+      font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px;
+      background: rgba(168,85,247,.15); color: #d8b4fe; margin-right: 4px;
+    }
+
+    /* Input */
+    .chat-input-row {
+      padding: 12px 14px; border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: center;
+      background: var(--surface);
+    }
+    .chat-input {
+      flex: 1; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 8px 16px;
+      font: 13px var(--font); color: var(--text); outline: none;
+      transition: border-color .15s;
+    }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-send {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; transition: background .15s, transform .1s;
+      flex-shrink: 0;
+    }
+    .chat-send:hover { background: #d14426; }
+    .chat-send:active { transform: scale(.93); }
+
+    /* ── Architecture Panel ── */
+    .arch-panel { display: flex; flex-direction: column; gap: 16px; }
+    .arch-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .arch-card-header {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--text-muted);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .arch-card-body { padding: 14px; }
+    .arch-flow { display: flex; flex-direction: column; gap: 8px; }
+    .arch-node {
+      padding: 8px 12px; border-radius: 6px;
+      font-size: 12px; line-height: 1.4;
+      border: 1px solid transparent;
+    }
+    .arch-node.active { border-color: var(--accent); background: rgba(232,85,46,.07); }
+    .arch-node strong { display: block; font-size: 12px; color: var(--text); margin-bottom: 2px; }
+    .arch-node span { color: var(--text-muted); font-size: 11px; }
+    .arch-arrow { text-align: center; font-size: 12px; color: var(--text-muted); }
+    .data-tag {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      padding: 1px 6px; border-radius: 3px; margin-top: 4px;
+    }
+    .tag-cf  { background: rgba(59,130,246,.12); color: #93c5fd; }
+    .tag-vcf { background: rgba(232,85,46,.12); color: #fca5a5; }
+    .tag-dm  { background: rgba(16,185,129,.12); color: #6ee7b7; }
+    .tag-ai  { background: rgba(168,85,247,.12); color: #d8b4fe; }
+    .tag-faq { background: rgba(245,158,11,.12); color: #fcd34d; }
+
+    /* ── Section ── */
+    .section { max-width: 1100px; margin: 0 auto; padding: 56px 32px; border-top: 1px solid var(--border); }
+    .section-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 8px; }
+    .section-title { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: #fff; margin-bottom: 6px; }
+    .section-sub { font-size: 15px; color: var(--text-dim); line-height: 1.6; margin-bottom: 28px; }
+
+    /* ── Use Case Cards ── */
+    .usecase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 720px) { .usecase-grid { grid-template-columns: 1fr; } }
+    .uc-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+      cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .uc-card:hover { border-color: var(--accent); background: var(--surface-2); }
+    .uc-icon { font-size: 24px; margin-bottom: 10px; }
+    .uc-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .uc-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+    .uc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
+    .uc-tag { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<!-- ── Site Header ── -->
+<header class="site-header">
+  <a class="brand-logo" href="#">Saffron <span>Restaurant</span></a>
+  <nav>
+    <a href="index.html">← Blockify Hub</a>
+    <a href="faq.html">FAQ</a>
+    <a href="vcf-agents-demo.html">VCF Agents</a>
+    <a href="unification-demo.html">Unification</a>
+    <span class="badge-pill">✦ Brand Concierge</span>
+  </nav>
+</header>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:20px">✦ Adobe Brand Concierge</div>
+  <h1>AI that knows your brand,<br>your content, and your <span>customers</span></h1>
+  <p>Brand Concierge answers questions using your AEM Content Fragments, VCFs, and Dynamic Media assets — serving rich, brand-accurate responses drawn from a single source of truth.</p>
+</div>
+
+<!-- ── Main Demo ── -->
+<div class="demo-layout">
+
+  <!-- Chat Panel -->
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-avatar">🍽️</div>
+      <div class="chat-header-text">
+        <div class="chat-name">Saffron Concierge</div>
+        <div class="chat-status">Online · powered by Adobe Brand Concierge</div>
+      </div>
+      <div class="chat-header-badge">CF-backed</div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <!-- Initial bot message -->
+      <div class="msg bot">
+        <div class="msg-avatar">🍽️</div>
+        <div class="msg-bubble">
+          Welcome to Saffron! I can help with reservations, menus, our seasonal dishes, dietary options, and more.
+          <div class="msg-source-pills">
+            <span class="source-pill source-faq">FAQ CF</span>
+            <span class="source-pill source-cf">Content Fragments</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestion chips — driven by FAQ Content Fragments -->
+    <div class="chat-suggestions" id="chat-suggestions">
+      <!-- filled by JS from FAQ CF data -->
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" type="text" placeholder="Ask about menus, reservations, dietary needs…">
+      <button class="chat-send" id="chat-send" aria-label="Send">➤</button>
+    </div>
+  </div>
+
+  <!-- Architecture Panel -->
+  <div class="arch-panel">
+    <div class="arch-card">
+      <div class="arch-card-header">🏗️ How it's powered</div>
+      <div class="arch-card-body">
+        <div class="arch-flow" id="arch-flow">
+          <div class="arch-node" id="arch-user">
+            <strong>User Question</strong>
+            <span>Natural language query via chat</span>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-node" id="arch-bc">
+            <strong>Adobe Brand Concierge</strong>
+            <span>Retrieval + generation layer — searches indexed CFs, ranks results, assembles response</span>
+            <div><span class="data-tag tag-ai">AI</span> <span class="data-tag tag-cf">CF Index</span></div>
+          </div>
+          <div class="arch-arrow">↓ fetches from</div>
+          <div class="arch-node" id="arch-cf">
+            <strong>Content Fragments (AEM)</strong>
+            <span>/content/dam/saffron/faq/*<br>/content/dam/saffron/menu/*</span>
+            <div><span class="data-tag tag-cf">CF Delivery API</span></div>
+          </div>
+          <div class="arch-arrow">↓ + assets from</div>
+          <div class="arch-node" id="arch-dm">
+            <strong>Dynamic Media</strong>
+            <span>Smart crop renditions + auto-format (AVIF/WebP) served inline in chat responses</span>
+            <div><span class="data-tag tag-dm">DM CDN</span></div>
+          </div>
+          <div class="arch-arrow">↓ rich answers rendered as</div>
+          <div class="arch-node" id="arch-vcf">
+            <strong>Visual Content Fragments</strong>
+            <span>Layout + brand tokens served as inline cards in the chat — same VCFs used on EDS pages</span>
+            <div><span class="data-tag tag-vcf">VCF</span> <span class="data-tag tag-cf">EDS Block</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-card">
+      <div class="arch-card-header">📋 FAQ CF → Suggestions</div>
+      <div class="arch-card-body" style="font-size:12px;color:var(--text-dim);line-height:1.6">
+        The suggestion chips below the chat box are driven by FAQ Content Fragments at
+        <code style="font-family:monospace;font-size:11px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px">/content/dam/saffron/faq/*</code>.
+        <br><br>
+        Each FAQ fragment has a <code style="font-family:monospace;font-size:11px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px">showAsSuggestion: true</code> field — Brand Concierge reads these at page load and renders them as chips.
+        <br><br>
+        <a href="faq.html" style="color:var(--accent)">View the FAQ page driven by the same CFs →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     USE CASES
+═════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-tag">Real-World Use Cases</div>
+  <div class="section-title">What Brand Concierge can answer</div>
+  <div class="section-sub">Every response is grounded in Content Fragments — no hallucinations, no off-brand copy. Dynamic Media delivers images in the right format and crop for each context.</div>
+
+  <div class="usecase-grid">
+    <div class="uc-card" onclick="document.getElementById('chat-input').value='What dishes are on the summer menu?';document.getElementById('chat-send').click()">
+      <div class="uc-icon">🥗</div>
+      <div class="uc-title">Menu &amp; Seasonal Dishes</div>
+      <div class="uc-desc">Answers from menu CFs. Dynamic Media serves dish photography with smart crop for chat thumbnail size. VCF card shows dish name, price, dietary tags.</div>
+      <div class="uc-tags">
+        <span class="uc-tag tag-cf">Menu CF</span>
+        <span class="uc-tag tag-dm">DM Image</span>
+        <span class="uc-tag tag-vcf">VCF Card</span>
+      </div>
+    </div>
+
+    <div class="uc-card" onclick="document.getElementById('chat-input').value='Do you have gluten-free options?';document.getElementById('chat-send').click()">
+      <div class="uc-icon">🌾</div>
+      <div class="uc-title">Dietary &amp; Allergen Info</div>
+      <div class="uc-desc">FAQ CFs store structured allergen data per dish. Brand Concierge cross-references menu and allergen fragments, returning a curated list with confidence indicators.</div>
+      <div class="uc-tags">
+        <span class="uc-tag tag-faq">FAQ CF</span>
+        <span class="uc-tag tag-cf">Menu CF</span>
+        <span class="uc-tag tag-ai">AI Ranking</span>
+      </div>
+    </div>
+
+    <div class="uc-card" onclick="document.getElementById('chat-input').value='Tell me about the chef and kitchen team?';document.getElementById('chat-send').click()">
+      <div class="uc-icon">👨‍🍳</div>
+      <div class="uc-title">Chef &amp; Team Stories</div>
+      <div class="uc-desc">Chef biography CF + Dynamic Media headshot served with Named Crop "portrait-square". Brand Concierge enriches with quote fragments from the same CF model.</div>
+      <div class="uc-tags">
+        <span class="uc-tag tag-cf">Chef CF</span>
+        <span class="uc-tag tag-dm">Named Crop</span>
+        <span class="uc-tag tag-vcf">Bio Card</span>
+      </div>
+    </div>
+
+    <div class="uc-card" onclick="document.getElementById('chat-input').value='How do I make a reservation for a group?';document.getElementById('chat-send').click()">
+      <div class="uc-icon">📅</div>
+      <div class="uc-title">Reservations &amp; Events</div>
+      <div class="uc-desc">FAQ fragment answers common booking questions. For group bookings, Brand Concierge renders a VCF action card with the booking CTA, driven from the events CF schedule.</div>
+      <div class="uc-tags">
+        <span class="uc-tag tag-faq">FAQ CF</span>
+        <span class="uc-tag tag-vcf">Action Card</span>
+      </div>
+    </div>
+
+    <div class="uc-card" onclick="document.getElementById('chat-input').value='What are your opening hours and location?';document.getElementById('chat-send').click()">
+      <div class="uc-icon">📍</div>
+      <div class="uc-title">Location &amp; Hours</div>
+      <div class="uc-desc">Single CF fragment holds all location/hours structured data. Updates here propagate to the website, Brand Concierge responses, and push notifications instantly.</div>
+      <div class="uc-tags">
+        <span class="uc-tag tag-cf">Location CF</span>
+        <span class="uc-tag tag-ai">Zero-latency</span>
+      </div>
+    </div>
+
+    <div class="uc-card" onclick="document.getElementById('chat-input').value='Do you have any current promotions?';document.getElementById('chat-send').click()">
+      <div class="uc-icon">🎁</div>
+      <div class="uc-title">Live Promotions</div>
+      <div class="uc-desc">Promo CFs carry date-bounded schedules. Brand Concierge filters to currently active promotions only — returning the right seasonal offer without any code change.</div>
+      <div class="uc-tags">
+        <span class="uc-tag tag-cf">Promo CF</span>
+        <span class="uc-tag tag-vcf">VCF Schedule</span>
+        <span class="uc-tag tag-dm">Promo Image</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer style="border-top:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:1100px;margin:0 auto">
+  <p style="font-size:12px;color:var(--text-muted)">Brand Concierge demo — Saffron Restaurant. Content is illustrative.</p>
+  <div style="display:flex;gap:14px;flex-wrap:wrap">
+    <a href="faq.html" style="font-size:12px;color:var(--accent)">FAQ Page ↗</a>
+    <a href="vcf-agents-demo.html" style="font-size:12px;color:var(--accent)">VCF Agents ↗</a>
+    <a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/generative-ai/generate-variations" target="_blank" rel="noopener" style="font-size:12px;color:var(--accent)">ExL: Generate Variations ↗</a>
+    <a href="index.html" style="font-size:12px;color:var(--text-muted)">← Blockify Hub</a>
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── FAQ CF data (mock — same data drives faq.html) ───────────────────────────
+  const FAQ_CFS = [
+    {
+      slug: 'summer-menu',
+      question: 'What dishes are on the summer menu?',
+      showAsSuggestion: true,
+      answer: 'Our Summer 2026 menu celebrates bold seasonal flavours. Highlights include: <strong>Seared Scallops with mango salsa</strong>, <strong>Grilled Lamb Chops</strong> with herb-roasted vegetables, and our signature <strong>Summer Pavlova</strong> with local berries.',
+      hasImage: true,
+      imageAlt: 'Vibrant summer dish presentation',
+      ctaLabel: 'View Full Menu',
+      ctaHref: '#menu',
+      sources: ['source-cf', 'source-dm', 'source-vcf'],
+      sourceLabels: ['Menu CF', 'DM Image', 'VCF Card'],
+    },
+    {
+      slug: 'gluten-free',
+      question: 'Do you have gluten-free options?',
+      showAsSuggestion: true,
+      answer: 'Yes — we have <strong>12 gluten-free dishes</strong> across our menu. Our kitchen maintains strict allergen protocols. Dishes are marked 🌾 on the menu. Chef recommends the <strong>Pan-seared Sea Bass</strong> or <strong>Roasted Cauliflower Steak</strong>.',
+      hasImage: false,
+      sources: ['source-faq', 'source-cf'],
+      sourceLabels: ['FAQ CF', 'Menu CF'],
+    },
+    {
+      slug: 'reservations',
+      question: 'How do I make a reservation for a group?',
+      showAsSuggestion: true,
+      answer: 'For groups of <strong>6 or more</strong>, we recommend booking at least <strong>48 hours in advance</strong>. Our private dining room seats up to 24. Contact us directly for group menus and event packages.',
+      hasImage: false,
+      ctaLabel: 'Book a Table',
+      ctaHref: '#reservations',
+      sources: ['source-faq'],
+      sourceLabels: ['FAQ CF'],
+    },
+    {
+      slug: 'chef',
+      question: 'Tell me about the chef and kitchen team?',
+      showAsSuggestion: false,
+      answer: '<strong>Head Chef Marco Ferretti</strong> brings 18 years of Michelin-starred experience from Rome and London. His philosophy: "Let the season speak." The kitchen team of 12 sources produce daily from within 40 miles.',
+      hasImage: true,
+      imageAlt: 'Head Chef Marco Ferretti',
+      sources: ['source-cf', 'source-dm'],
+      sourceLabels: ['Chef CF', 'DM Named Crop'],
+    },
+    {
+      slug: 'hours',
+      question: 'What are your opening hours and location?',
+      showAsSuggestion: true,
+      answer: '<strong>Saffron Restaurant</strong><br>12 Harbour Lane, London EC1A 2BB<br><br>Lunch: Tue–Sun 12:00–15:00<br>Dinner: Tue–Sat 18:00–22:30<br>Sunday Brunch: 11:00–15:00<br>Closed Mondays.',
+      hasImage: false,
+      sources: ['source-cf'],
+      sourceLabels: ['Location CF'],
+    },
+    {
+      slug: 'promotions',
+      question: 'Do you have any current promotions?',
+      showAsSuggestion: false,
+      answer: '☀️ <strong>Summer Tasting Menu</strong> — 5 courses + wine pairing for £85 per person. Running June through August. Book online for a complimentary welcome drink.',
+      hasImage: true,
+      imageAlt: 'Summer tasting menu spread',
+      ctaLabel: 'See Offer',
+      ctaHref: '#offers',
+      sources: ['source-cf', 'source-vcf', 'source-dm'],
+      sourceLabels: ['Promo CF', 'VCF Schedule', 'DM Image'],
+    },
+  ];
+
+  // ── Render suggestion chips ──────────────────────────────────────────────────
+  const sugsEl = document.getElementById('chat-suggestions');
+  FAQ_CFS.filter(f => f.showAsSuggestion).forEach(faq => {
+    const btn = document.createElement('button');
+    btn.className = 'suggestion';
+    btn.innerHTML = `<span class="sug-cf-badge">CF</span>${faq.question}`;
+    btn.addEventListener('click', () => sendMessage(faq.question, faq));
+    sugsEl.appendChild(btn);
+  });
+
+  // ── Chat logic ───────────────────────────────────────────────────────────────
+  const messagesEl = document.getElementById('chat-messages');
+  const inputEl    = document.getElementById('chat-input');
+  const sendBtn    = document.getElementById('chat-send');
+
+  function scrollBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function appendMsg(role, html) {
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${role}`;
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = role === 'bot' ? '🍽️' : '👤';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = html;
+    wrap.appendChild(avatar);
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function appendTyping() {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg bot';
+    wrap.id = 'typing-indicator';
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = '🍽️';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+    wrap.appendChild(avatar);
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    scrollBottom();
+    return wrap;
+  }
+
+  function highlightArchNode(id) {
+    document.querySelectorAll('.arch-node').forEach(n => n.classList.remove('active'));
+    if (id) document.getElementById(id)?.classList.add('active');
+  }
+
+  function buildBotHtml(faq) {
+    let html = faq.answer;
+    if (faq.hasImage) {
+      html += `<div class="msg-card">
+        <div class="msg-card-img">
+          <span>🍽️</span>
+          <div class="dm-badge">Dynamic Media</div>
+        </div>
+        <div class="msg-card-body">
+          <div class="msg-card-title">${faq.imageAlt}</div>
+          <div class="msg-card-desc">Served via DM CDN · smart crop · AVIF/WebP · CF: /saffron/${faq.slug}</div>
+          ${faq.ctaLabel ? `<button class="msg-card-cta">${faq.ctaLabel}</button>` : ''}
+        </div>
+      </div>`;
+    } else if (faq.ctaLabel) {
+      html += `<br><br><button class="msg-card-cta" style="margin-top:4px">${faq.ctaLabel}</button>`;
+    }
+    const pills = faq.sources.map((cls, i) =>
+      `<span class="source-pill ${cls}">${faq.sourceLabels[i]}</span>`
+    ).join('');
+    html += `<div class="msg-source-pills">${pills}</div>`;
+    return html;
+  }
+
+  function findFaq(text) {
+    const lower = text.toLowerCase();
+    return FAQ_CFS.find(f =>
+      lower.includes(f.slug.replace('-',' ')) ||
+      lower.includes(f.question.split(' ').slice(0,4).join(' ').toLowerCase())
+    );
+  }
+
+  function fallbackHtml(text) {
+    return `I found several Content Fragments related to your question. For the most accurate answer, let me check the latest CF at
+      <code style="font-family:monospace;font-size:11px;background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px">/content/dam/saffron/faq/</code>.
+      You may also browse our <a href="faq.html" style="color:var(--accent)">full FAQ page</a> — it's powered by the same Content Fragments.
+      <div class="msg-source-pills">
+        <span class="source-pill source-cf">CF Delivery API</span>
+        <span class="source-pill source-faq">FAQ CF</span>
+      </div>`;
+  }
+
+  async function sendMessage(text, prefetchedFaq) {
+    text = text.trim();
+    if (!text) return;
+    inputEl.value = '';
+    appendMsg('user', text);
+
+    const typing = appendTyping();
+    highlightArchNode('arch-bc');
+
+    await new Promise(r => setTimeout(r, 700));
+    highlightArchNode('arch-cf');
+    await new Promise(r => setTimeout(r, 500));
+
+    const faq = prefetchedFaq || findFaq(text);
+
+    if (faq?.hasImage) {
+      highlightArchNode('arch-dm');
+      await new Promise(r => setTimeout(r, 400));
+    }
+    if (faq?.sources?.includes('source-vcf')) {
+      highlightArchNode('arch-vcf');
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    typing.remove();
+    highlightArchNode(null);
+    appendMsg('bot', faq ? buildBotHtml(faq) : fallbackHtml(text));
+  }
+
+  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+  inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(inputEl.value); });
+
+}());
+</script>
+</body>
+</html>

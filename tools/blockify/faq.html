@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FAQ — Saffron Restaurant · CF-Backed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fdfcfb;
+      --surface: #fff;
+      --border: #e8e0d8;
+      --accent: #e8552e;
+      --text: #1a1210;
+      --text-muted: #7a6e68;
+      --text-dim: #9a8e88;
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'Menlo', 'Consolas', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    .site-header {
+      padding: 0 48px; height: 60px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); position: sticky; top: 0; z-index: 50;
+    }
+    .brand-logo { font-size: 17px; font-weight: 800; color: var(--text); text-decoration: none; }
+    .brand-logo span { color: var(--accent); }
+    .site-header nav { display: flex; gap: 24px; }
+    .site-header a { font-size: 14px; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: color .15s; }
+    .site-header a:hover { color: var(--text); }
+    .concierge-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 20px;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      transition: background .15s;
+    }
+    .concierge-btn:hover { background: #c94220; color: #fff; }
+
+    /* ── Page Hero ── */
+    .page-hero {
+      padding: 56px 48px 40px; max-width: 1000px; margin: 0 auto;
+    }
+    .page-hero .eyebrow {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .page-hero h1 { font-size: 36px; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
+    .page-hero p { margin-top: 10px; font-size: 16px; color: var(--text-muted); line-height: 1.6; max-width: 560px; }
+
+    .cf-meta-bar {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 18px;
+      padding: 8px 14px; border-radius: 6px;
+      background: #fff4f1; border: 1px solid #fdd0c4;
+      font-size: 12px; color: #9b3310;
+    }
+    .cf-meta-bar code { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+    .cf-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+    /* ── Main layout ── */
+    .faq-layout {
+      max-width: 1000px; margin: 0 auto;
+      padding: 0 48px 72px;
+      display: grid; grid-template-columns: 220px 1fr; gap: 40px;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .faq-layout { grid-template-columns: 1fr; } .site-header, .page-hero, .faq-layout { padding-left: 20px; padding-right: 20px; } }
+
+    /* ── Sidebar ── */
+    .faq-sidebar {
+      position: sticky; top: 76px;
+    }
+    .sidebar-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-bottom: 12px; }
+    .sidebar-links { display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-link {
+      padding: 7px 12px; border-radius: 6px; border-left: 2px solid transparent;
+      font-size: 13px; font-weight: 500; color: var(--text-muted);
+      text-decoration: none; transition: all .15s;
+    }
+    .sidebar-link:hover { background: #f5ede9; color: var(--text); border-left-color: var(--accent); }
+    .sidebar-link.active { background: #fdf0ec; color: var(--accent); border-left-color: var(--accent); }
+
+    .sidebar-cf-box {
+      margin-top: 24px; padding: 14px;
+      background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    }
+    .sidebar-cf-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 10px; }
+    .cf-field {
+      display: flex; align-items: flex-start; gap: 8px; padding: 5px 0;
+      border-bottom: 1px solid var(--border); font-size: 11px;
+    }
+    .cf-field:last-child { border-bottom: none; }
+    .cf-field-name { font-weight: 600; color: var(--text-muted); min-width: 80px; flex-shrink: 0; }
+    .cf-field-val { font-family: var(--mono); color: #7a6e68; word-break: break-all; }
+
+    /* ── FAQ Groups ── */
+    .faq-groups { display: flex; flex-direction: column; gap: 40px; }
+
+    .faq-group-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-muted); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .faq-group-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Accordion */
+    .faq-item {
+      border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+      transition: box-shadow .15s;
+      background: var(--surface);
+    }
+    .faq-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+    .faq-item + .faq-item { margin-top: 8px; }
+
+    .faq-question {
+      padding: 16px 20px; cursor: pointer;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      list-style: none; user-select: none;
+    }
+    .faq-question::-webkit-details-marker { display: none; }
+    .faq-q-text { font-size: 15px; font-weight: 600; line-height: 1.4; }
+    .faq-chevron {
+      flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+      background: #f5ede9; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; transition: transform .2s, background .15s; margin-top: 2px;
+    }
+    details[open] .faq-chevron { transform: rotate(180deg); background: #fdd0c4; }
+
+    .faq-answer {
+      padding: 0 20px 18px; font-size: 14px; color: var(--text-muted); line-height: 1.7;
+    }
+    .faq-answer strong { color: var(--text); }
+    .faq-answer a { color: var(--accent); }
+
+    .faq-cf-footer {
+      margin-top: 12px; padding: 8px 12px; border-radius: 5px;
+      background: #fdf7f5; border: 1px solid #fdd0c4;
+      font-size: 11px; color: #9b3310;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .faq-cf-footer code { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+    .bc-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px; border-radius: 3px;
+      background: rgba(232,85,46,.1); border: 1px solid rgba(232,85,46,.2);
+      font-size: 10px; font-weight: 700; color: var(--accent);
+    }
+
+    /* ── Brand Concierge CTA ── */
+    .bc-cta {
+      margin-top: 40px; padding: 24px 28px;
+      background: linear-gradient(135deg, #1a0a06, #2d1209);
+      border-radius: 12px; border: 1px solid #5c1f0d;
+      display: flex; align-items: center; gap: 20px;
+      flex-wrap: wrap;
+    }
+    .bc-cta-text h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+    .bc-cta-text p { font-size: 14px; color: #c9a99a; line-height: 1.5; }
+    .bc-cta a {
+      flex-shrink: 0; padding: 11px 22px; border-radius: 8px;
+      background: var(--accent); color: #fff;
+      font-size: 14px; font-weight: 700; text-decoration: none;
+      transition: background .15s; white-space: nowrap;
+    }
+    .bc-cta a:hover { background: #c94220; }
+  </style>
+</head>
+<body>
+
+<!-- ── Site Header ── -->
+<header class="site-header">
+  <a class="brand-logo" href="#">Saffron <span>Restaurant</span></a>
+  <nav>
+    <a href="#">Menu</a>
+    <a href="#">Reservations</a>
+    <a href="#">Events</a>
+    <a href="faq.html" style="color:var(--accent)">FAQ</a>
+  </nav>
+  <a class="concierge-btn" href="brandconcierge.html">✦ Ask Brand Concierge</a>
+</header>
+
+<!-- ── Page Hero ── -->
+<div class="page-hero">
+  <div class="eyebrow">
+    <span>📋</span> Help &amp; FAQ
+  </div>
+  <h1>Frequently Asked Questions</h1>
+  <p>Everything you need to know about dining at Saffron — menus, bookings, and more. Can't find your answer? Ask our AI concierge.</p>
+  <div class="cf-meta-bar">
+    <div class="cf-dot"></div>
+    <span>Content source: <code>/content/dam/saffron/faq/*</code> — AEM Content Fragments · live data</span>
+    <a href="brandconcierge.html" style="color:var(--accent);font-weight:600;margin-left:4px">Same CFs power Brand Concierge ↗</a>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div class="faq-layout">
+
+  <!-- Sidebar -->
+  <aside class="faq-sidebar">
+    <div class="sidebar-title">Jump to</div>
+    <div class="sidebar-links">
+      <a class="sidebar-link active" href="#menu">Menu &amp; Food</a>
+      <a class="sidebar-link" href="#bookings">Bookings &amp; Events</a>
+      <a class="sidebar-link" href="#dining">Dining Experience</a>
+      <a class="sidebar-link" href="#practical">Practical Info</a>
+    </div>
+
+    <!-- Live CF structure for the selected FAQ -->
+    <div class="sidebar-cf-box" id="cf-inspector">
+      <div class="sidebar-cf-title">CF Inspector</div>
+      <div class="cf-field">
+        <span class="cf-field-name">model</span>
+        <span class="cf-field-val">faqItem</span>
+      </div>
+      <div class="cf-field">
+        <span class="cf-field-name">path</span>
+        <span class="cf-field-val" id="cf-path">/dam/saffron/faq/…</span>
+      </div>
+      <div class="cf-field">
+        <span class="cf-field-name">slug</span>
+        <span class="cf-field-val" id="cf-slug">—</span>
+      </div>
+      <div class="cf-field">
+        <span class="cf-field-name">category</span>
+        <span class="cf-field-val" id="cf-category">—</span>
+      </div>
+      <div class="cf-field">
+        <span class="cf-field-name">suggestion</span>
+        <span class="cf-field-val" id="cf-suggestion">—</span>
+      </div>
+      <div class="cf-field">
+        <span class="cf-field-name">status</span>
+        <span class="cf-field-val" style="color:#10b981">published</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Click any FAQ to inspect its CF fields</div>
+    </div>
+  </aside>
+
+  <!-- FAQ Content -->
+  <div class="faq-groups">
+
+    <!-- GROUP: Menu & Food -->
+    <div id="menu">
+      <div class="faq-group-title">Menu &amp; Food</div>
+
+      <details class="faq-item" data-slug="summer-menu" data-category="menu" data-suggestion="true">
+        <summary class="faq-question">
+          <span class="faq-q-text">What dishes are on the summer menu?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          Our <strong>Summer 2026 menu</strong> celebrates bold seasonal flavours sourced within 40 miles of the restaurant. Highlights include:
+          <ul style="margin:10px 0 10px 20px;display:flex;flex-direction:column;gap:4px">
+            <li><strong>Seared Hand-Dived Scallops</strong> with mango and chilli salsa</li>
+            <li><strong>Grilled Lamb Chops</strong> with za'atar, herb-roasted courgette, and pomegranate</li>
+            <li><strong>Aubergine &amp; Miso</strong> (vegan) — roasted aubergine, white miso glaze, sesame</li>
+            <li><strong>Summer Pavlova</strong> with local strawberries, clotted cream, and elderflower</li>
+          </ul>
+          The full menu rotates weekly — our chefs adjust based on what's best at the market each Monday.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/summer-menu</code> · showAsSuggestion: true · Brand Concierge chip label: "What dishes are on the summer menu?"
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item" data-slug="gluten-free" data-category="menu" data-suggestion="true">
+        <summary class="faq-question">
+          <span class="faq-q-text">Do you have gluten-free options?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          Yes — we have <strong>12 gluten-free dishes</strong> on our current menu, including starters, mains, and desserts. Our kitchen uses dedicated preparation surfaces for allergen-sensitive orders.
+          <br><br>
+          Chef's gluten-free recommendations: <strong>Pan-seared Sea Bass</strong> with saffron broth, and <strong>Roasted Cauliflower Steak</strong> with harissa butter.
+          <br><br>
+          Please inform your server of any dietary requirements when booking — we can adapt dishes where possible.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/gluten-free</code> · showAsSuggestion: true · cross-referenced with menu-items CF for allergen data
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item" data-slug="vegan-vegetarian" data-category="menu" data-suggestion="false">
+        <summary class="faq-question">
+          <span class="faq-q-text">What vegan and vegetarian dishes do you offer?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          We offer a <strong>dedicated vegan tasting menu</strong> (4 courses, £65) available with advance notice. Our à la carte menu always includes at least 4 vegetarian and 2 vegan dishes, clearly marked on the menu.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/vegan-vegetarian</code> · showAsSuggestion: false
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item" data-slug="tasting-menu" data-category="menu" data-suggestion="false">
+        <summary class="faq-question">
+          <span class="faq-q-text">Tell me about the tasting menus.</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          We offer two tasting menus:
+          <ul style="margin:10px 0 10px 20px;display:flex;flex-direction:column;gap:4px">
+            <li><strong>Seasonal 5-Course</strong> (£85) — showcases the best of each season's produce</li>
+            <li><strong>Chef's Table 8-Course</strong> (£130) — Marco's creative vision, changes monthly</li>
+          </ul>
+          Both are available with optional wine pairing (+£45/£70). 48-hour advance booking required.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/tasting-menu</code> · linked to promo-cf/summer-tasting for seasonal pricing
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- GROUP: Bookings & Events -->
+    <div id="bookings">
+      <div class="faq-group-title">Bookings &amp; Events</div>
+
+      <details class="faq-item" data-slug="reservations" data-category="bookings" data-suggestion="true">
+        <summary class="faq-question">
+          <span class="faq-q-text">How do I make a reservation for a group?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          For groups of <strong>6 or more</strong>, we recommend booking at least <strong>48 hours in advance</strong>. Our private dining room seats up to 24 guests and can be arranged for exclusive hire.
+          <br><br>
+          Contact us directly at <strong>events@saffron-restaurant.com</strong> for group menus, dietary pre-orders, and event packages. We can also arrange bespoke wine pairings and chef's table experiences.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/reservations</code> · showAsSuggestion: true · renders Brand Concierge action card with CTA "Book a Table"
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item" data-slug="private-dining" data-category="bookings" data-suggestion="false">
+        <summary class="faq-question">
+          <span class="faq-q-text">Do you offer private dining hire?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          Yes — our private dining room is available for <strong>exclusive hire, Monday to Saturday evenings</strong>. Capacity 12–24. Packages from £60 per person including a 4-course set menu. Contact our events team for custom packages and AV requirements.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/private-dining</code> · cross-reference: events/private-dining-cf
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- GROUP: Dining Experience -->
+    <div id="dining">
+      <div class="faq-group-title">Dining Experience</div>
+
+      <details class="faq-item" data-slug="chef" data-category="dining" data-suggestion="false">
+        <summary class="faq-question">
+          <span class="faq-q-text">Tell me about the chef and kitchen team.</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          <strong>Head Chef Marco Ferretti</strong> brings 18 years of Michelin-starred experience from Rome and London. His philosophy: "Let the season speak." Before Saffron, Marco held a Michelin star at L'Osteria Nuova in London for six consecutive years.
+          <br><br>
+          The kitchen team of 12 sources produce daily from farms within 40 miles of the restaurant. Marco visits suppliers weekly.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/chef</code> · Dynamic Media headshot: Named Crop "portrait-square" · 400×400 AVIF
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item" data-slug="promotions" data-category="dining" data-suggestion="false">
+        <summary class="faq-question">
+          <span class="faq-q-text">Are there any current promotions or offers?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          ☀️ <strong>Summer Tasting Menu</strong> — 5 courses + wine pairing for £85 per person (regular price £130). Running June through August 2026. Book online and receive a complimentary welcome drink.
+          <br><br>
+          This offer is stored as a VCF with a date-bounded schedule — it will automatically stop appearing after August 31st with no manual change needed.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/promotions</code> · linked VCF: /dam/saffron/promos/summer-tasting · schedule.end: 2026-08-31
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- GROUP: Practical -->
+    <div id="practical">
+      <div class="faq-group-title">Practical Information</div>
+
+      <details class="faq-item" data-slug="hours" data-category="practical" data-suggestion="true">
+        <summary class="faq-question">
+          <span class="faq-q-text">What are your opening hours and location?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          <strong>Saffron Restaurant</strong><br>
+          12 Harbour Lane, London EC1A 2BB<br><br>
+          <strong>Lunch:</strong> Tuesday–Sunday, 12:00–15:00<br>
+          <strong>Dinner:</strong> Tuesday–Saturday, 18:00–22:30<br>
+          <strong>Sunday Brunch:</strong> 11:00–15:00<br>
+          <strong>Closed:</strong> Mondays<br><br>
+          Nearest tube: Barbican (Circle/Metropolitan/Hammersmith &amp; City). On-street parking available evenings and weekends.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/hours</code> · showAsSuggestion: true · source of truth for website, Brand Concierge, and push notifications
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item" data-slug="dress-code" data-category="practical" data-suggestion="false">
+        <summary class="faq-question">
+          <span class="faq-q-text">Is there a dress code?</span>
+          <span class="faq-chevron">▾</span>
+        </summary>
+        <div class="faq-answer">
+          We ask guests to dress <strong>smart casual</strong>. We want you to feel comfortable and at ease — no strict formal requirement. The private dining room and chef's table experiences are <strong>smart attire</strong> suggested.
+          <div class="faq-cf-footer">
+            <span class="bc-chip">CF</span>
+            <code>/dam/saffron/faq/dress-code</code>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ── Brand Concierge CTA ── -->
+    <div class="bc-cta">
+      <div class="bc-cta-text">
+        <h3>Still have questions?</h3>
+        <p>Our Brand Concierge uses the same Content Fragments as this FAQ page — but can answer follow-up questions, surface Dynamic Media images, and show you rich VCF response cards.</p>
+      </div>
+      <a href="brandconcierge.html">✦ Ask Brand Concierge</a>
+    </div>
+
+  </div><!-- /faq-groups -->
+</div><!-- /faq-layout -->
+
+<!-- ── Footer ── -->
+<footer style="border-top:1px solid var(--border);padding:20px 48px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--surface)">
+  <p style="font-size:12px;color:var(--text-dim)">FAQ powered by AEM Content Fragments at <code style="font-family:monospace">/content/dam/saffron/faq/*</code>. Same data used by Brand Concierge.</p>
+  <div style="display:flex;gap:14px">
+    <a href="brandconcierge.html" style="font-size:12px;color:var(--accent)">Brand Concierge Demo ↗</a>
+    <a href="index.html" style="font-size:12px;color:var(--text-muted)">← Blockify Hub</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('toggle', function () {
+      if (this.open) {
+        const s = this.dataset.slug || '…';
+        const cat = this.dataset.category || '…';
+        const sug = this.dataset.suggestion;
+        document.getElementById('cf-path').textContent = '/dam/saffron/faq/' + s;
+        document.getElementById('cf-slug').textContent = s;
+        document.getElementById('cf-category').textContent = cat;
+        document.getElementById('cf-suggestion').textContent =
+          sug === 'true' ? 'true → shown as Brand Concierge chip' : 'false';
+        // Update sidebar active link
+        const group = this.closest('[id]');
+        if (group) {
+          document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+          document.querySelector(`.sidebar-link[href="#${group.id}"]`)?.classList.add('active');
+        }
+      }
+    }, false);
+  });
+}());
+</script>
+</body>
+</html>

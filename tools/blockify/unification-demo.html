@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEM → EDS Unification Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050810;
+      --surface: #0f1621;
+      --surface-2: #17202e;
+      --border: #1c2a3d;
+      --accent: #6366f1;
+      --accent-2: #3b82f6;
+      --green: #10b981;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --text: #f1f5f9;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'Menlo', 'Consolas', monospace;
+      --radius: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .grid-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(99,102,241,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,.035) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+    .content { position: relative; z-index: 1; }
+
+    /* ── Header ── */
+    .site-header {
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,16,.92); backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .site-header a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .15s; }
+    .site-header a:hover { color: var(--text); }
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 20px;
+      background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.3);
+      font-size: 12px; font-weight: 600; color: #a5b4fc;
+    }
+    .site-header nav { display: flex; gap: 24px; align-items: center; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 72px 32px 56px; max-width: 900px; margin: 0 auto; text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--accent); margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5vw, 50px); font-weight: 800; line-height: 1.15;
+      letter-spacing: -.03em; color: #fff;
+    }
+    .hero h1 span { background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { margin-top: 16px; font-size: 17px; line-height: 1.7; color: var(--text-dim); max-width: 640px; margin-left: auto; margin-right: auto; }
+
+    /* ── Section ── */
+    .section { max-width: 1100px; margin: 0 auto; padding: 60px 32px; border-top: 1px solid var(--border); }
+    .section-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 8px; }
+    .section-title { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: #fff; margin-bottom: 6px; }
+    .section-sub { font-size: 15px; color: var(--text-dim); line-height: 1.6; margin-bottom: 32px; }
+
+    /* ── Source Ecosystem ── */
+    .ecosystem {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 0;
+      align-items: start;
+    }
+    .eco-sources { display: flex; flex-direction: column; gap: 12px; }
+    .eco-arrow {
+      display: flex; align-items: center; justify-content: center;
+      padding-top: 80px; font-size: 22px; color: var(--accent); flex-direction: column; gap: 8px;
+    }
+    .eco-eds {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .eco-eds-header {
+      padding: 12px 16px; background: rgba(99,102,241,.12);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px; font-weight: 700; color: #a5b4fc;
+      text-transform: uppercase; letter-spacing: .08em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .eco-eds-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .eco-feature {
+      padding: 10px 12px; border-radius: 6px;
+      background: rgba(255,255,255,.03); border: 1px solid var(--border);
+      font-size: 12px; color: var(--text-dim); line-height: 1.4;
+    }
+    .eco-feature strong { color: var(--text); display: block; font-size: 13px; margin-bottom: 2px; }
+
+    .src-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      cursor: pointer; transition: border-color .2s, background .2s;
+    }
+    .src-card:hover { border-color: var(--accent); background: var(--surface-2); }
+    .src-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .src-header {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    }
+    .src-body { padding: 12px 14px; font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+    .src-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .src-tag {
+      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px;
+      background: rgba(255,255,255,.07); color: var(--text-muted);
+    }
+
+    @media (max-width: 700px) { .ecosystem { grid-template-columns: 1fr; } .eco-arrow { display: none; } }
+
+    /* ── Ingestion Workflow ── */
+    .ingestion-drop {
+      border: 2px dashed var(--border); border-radius: 10px;
+      padding: 32px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: var(--surface);
+      margin-bottom: 24px;
+    }
+    .ingestion-drop:hover, .ingestion-drop.dragover { border-color: var(--accent); background: rgba(99,102,241,.05); }
+    .ingestion-drop-icon { font-size: 36px; margin-bottom: 10px; }
+    .ingestion-drop p { font-size: 15px; color: var(--text-dim); }
+    .ingestion-drop p strong { color: var(--text); }
+    .input-types { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+    .input-type {
+      padding: 6px 14px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface-2);
+      font-size: 12px; font-weight: 600; color: var(--text-dim);
+      cursor: pointer; transition: all .15s;
+    }
+    .input-type:hover, .input-type.active { border-color: var(--accent); color: #a5b4fc; background: rgba(99,102,241,.1); }
+
+    .ingestion-result {
+      display: none; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .ingestion-result.visible { display: block; }
+    .ingestion-steps { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+    .ing-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 13px; color: var(--text-dim);
+    }
+    .ing-step.done { color: var(--text); }
+    .ing-icon { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+      background: rgba(255,255,255,.06); border: 1px solid var(--border);
+      transition: all .3s;
+    }
+    .ing-step.done .ing-icon { background: rgba(16,185,129,.15); border-color: var(--green); }
+
+    .ingestion-preview {
+      border-top: 1px solid var(--border); padding: 16px 20px;
+    }
+    .ing-page-mock {
+      background: #fff; border-radius: 6px; overflow: hidden;
+      font-size: 12px; color: #333;
+    }
+    .ing-page-header { background: #1a1a2e; padding: 8px 14px; display: flex; align-items: center; gap: 8px; }
+    .ing-page-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .ing-block {
+      border-radius: 4px; padding: 10px 12px;
+    }
+
+    /* ── Schedule Compositor ── */
+    .schedule-compositor { position: relative; }
+    .sched-timeline {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .sched-header {
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px;
+    }
+    .sched-months {
+      display: grid; grid-template-columns: repeat(12, 1fr);
+      border-bottom: 1px solid var(--border);
+      font-size: 10px; font-weight: 600; color: var(--text-muted);
+    }
+    .sched-month { padding: 6px 0; text-align: center; border-right: 1px solid var(--border); }
+    .sched-rows { padding: 12px 0; display: flex; flex-direction: column; gap: 0; }
+    .sched-row {
+      display: grid; grid-template-columns: 140px 1fr;
+      align-items: center; padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .sched-row:last-child { border-bottom: none; }
+    .sched-row-label { padding: 0 16px; font-size: 12px; font-weight: 600; color: var(--text-dim); }
+    .sched-track { position: relative; height: 28px; }
+    .sched-bar {
+      position: absolute; top: 4px; height: 20px; border-radius: 4px;
+      display: flex; align-items: center; padding: 0 8px;
+      font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden;
+      cursor: pointer; transition: filter .15s, transform .1s;
+    }
+    .sched-bar:hover { filter: brightness(1.2); transform: scaleY(1.08); }
+    .sched-popover {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 0;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--text);
+      z-index: 10; white-space: nowrap; min-width: 200px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .sched-bar:hover .sched-popover { display: block; }
+    .sched-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── Audiences + Experimentation ── */
+    .aud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 720px) { .aud-grid { grid-template-columns: 1fr; } }
+    .aud-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .aud-card-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 700; color: var(--text);
+    }
+    .aud-card-body { padding: 14px 16px; }
+    .aud-segment {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: 13px;
+    }
+    .aud-segment:last-child { border-bottom: none; }
+    .aud-seg-name { color: var(--text); font-weight: 500; }
+    .aud-seg-pct { font-size: 12px; color: var(--text-muted); }
+    .aud-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; margin: 0 12px; overflow: hidden; }
+    .aud-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+    .exp-variant {
+      padding: 12px; border-radius: 6px; border: 1px solid var(--border);
+      margin-bottom: 10px; cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .exp-variant:hover { border-color: var(--accent); background: rgba(99,102,241,.05); }
+    .exp-variant.winner { border-color: var(--green); background: rgba(16,185,129,.06); }
+    .exp-variant-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .winner-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px;
+      background: rgba(16,185,129,.2); color: var(--green); text-transform: uppercase;
+    }
+    .exp-variant-stats { font-size: 12px; color: var(--text-muted); display: flex; gap: 16px; flex-wrap: wrap; }
+    .note-box {
+      padding: 12px 16px; border-radius: 6px;
+      background: rgba(99,102,241,.07); border: 1px solid rgba(99,102,241,.2);
+      font-size: 13px; color: #a5b4fc; margin-top: 16px; line-height: 1.5;
+    }
+    .note-box a { color: #c7d2fe; }
+  </style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<!-- ── Header ── -->
+<header class="site-header">
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="index.html">← Blockify Hub</a>
+    <span class="badge-pill">AEM → EDS Unification</span>
+  </div>
+  <nav>
+    <a href="#ecosystem">Sources</a>
+    <a href="#ingestion">Ingestion</a>
+    <a href="#scheduling">Scheduling</a>
+    <a href="#audiences">Audiences</a>
+    <a href="vcf-agents-demo.html" style="color:var(--accent);font-weight:600">← VCF Agents</a>
+  </nav>
+</header>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-eyebrow">Adobe Edge Delivery Services</div>
+  <h1>Everything Unifies<br><span>to EDS</span></h1>
+  <p>Page Editor pages, Core Components, Experience Fragments, native apps, push notifications — all converging to a single edge-delivered experience with complex per-component scheduling and CJA-powered personalization.</p>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SECTION 1: SOURCE ECOSYSTEM
+═════════════════════════════════════════════ -->
+<section class="section" id="ecosystem">
+  <div class="section-tag">Section 01</div>
+  <div class="section-title">Content Source Ecosystem</div>
+  <div class="section-sub">Five legacy content systems — each with its own authoring model — unified behind a single EDS delivery layer. Click a source to see how it maps to EDS.</div>
+
+  <div class="ecosystem">
+    <div class="eco-sources">
+      <div class="src-card" data-src="page-editor">
+        <div class="src-header" style="color:#60a5fa">
+          <span>🏗️</span> AEM Page Editor
+        </div>
+        <div class="src-body">
+          Editable Templates + Core Components + custom HTL components. Layout policy-driven, Dispatcher-cached.
+          <div class="src-tags">
+            <span class="src-tag">HTL / Sling</span>
+            <span class="src-tag">Core Components</span>
+            <span class="src-tag">Layout Container</span>
+          </div>
+        </div>
+      </div>
+      <div class="src-card" data-src="xf">
+        <div class="src-header" style="color:#a78bfa">
+          <span>🧩</span> Experience Fragments
+        </div>
+        <div class="src-body">
+          XF Building Blocks referenced across AEM pages. Header, footer, promotional banners — globally managed.
+          <div class="src-tags">
+            <span class="src-tag">Reusable blocks</span>
+            <span class="src-tag">Live Copy</span>
+          </div>
+        </div>
+      </div>
+      <div class="src-card" data-src="native-app">
+        <div class="src-header" style="color:#34d399">
+          <span>📱</span> Native Apps
+        </div>
+        <div class="src-body">
+          iOS/Android with in-app personalization needs. Currently isolated from web content strategy.
+          <div class="src-tags">
+            <span class="src-tag">Swift / Kotlin</span>
+            <span class="src-tag">GraphQL</span>
+          </div>
+        </div>
+      </div>
+      <div class="src-card" data-src="push">
+        <div class="src-header" style="color:#fb923c">
+          <span>🔔</span> Push Notifications
+        </div>
+        <div class="src-body">
+          Campaign-driven push with deep links. No shared content model with web — campaigns duplicated.
+          <div class="src-tags">
+            <span class="src-tag">Adobe Campaign</span>
+            <span class="src-tag">AJO</span>
+          </div>
+        </div>
+      </div>
+      <div class="src-card" data-src="da-live">
+        <div class="src-header" style="color:#f472b6">
+          <span>📝</span> DA Live / Document Authoring
+        </div>
+        <div class="src-body">
+          Browser-based structured authoring at <strong style="color:#f9a8d4">da.live</strong>. Publishes directly to GitHub → CDN. No AEM Author needed.
+          <div class="src-tags">
+            <span class="src-tag">da.live</span>
+            <span class="src-tag">Admin API</span>
+            <span class="src-tag">DA-SC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eco-arrow">
+      <div style="font-size:28px">→</div>
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);writing-mode:vertical-rl;transform:rotate(180deg);margin-top:8px">EDS Delivery Layer</div>
+    </div>
+
+    <div class="eco-eds">
+      <div class="eco-eds-header">
+        <span>⚡</span> Edge Delivery Services
+      </div>
+      <div class="eco-eds-body" id="eco-detail">
+        <div class="eco-feature">
+          <strong>Unified Authoring</strong>
+          DA Live, Universal Editor, or document-based. Authors choose; EDS delivers the same way.
+        </div>
+        <div class="eco-feature">
+          <strong>EDS Blocks</strong>
+          Each legacy component becomes a <code style="font-family:monospace;font-size:11px;background:rgba(255,255,255,.08);padding:1px 4px;border-radius:3px">default async decorate(block)</code> function — HTML, CSS, JS, no framework overhead.
+        </div>
+        <div class="eco-feature">
+          <strong>Visual Content Fragments</strong>
+          Structured content from AEM CF API served to EDS blocks at render time. Layout and schedule stored in the CF.
+        </div>
+        <div class="eco-feature">
+          <strong>Global CDN (Fastly)</strong>
+          Sub-100ms TTFB globally. Push notification deep links and app deep links point to the same EDS pages.
+        </div>
+        <div class="eco-feature">
+          <strong>DA-SC Structured Content</strong>
+          DA Live structured content blocks enable complex page composition — schedule metadata, regional variants, and personalization rules authored in-browser.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECTION 2: CONTENT INGESTION
+═════════════════════════════════════════════ -->
+<section class="section" id="ingestion">
+  <div class="section-tag">Section 02</div>
+  <div class="section-title">Drop → Page Workflow</div>
+  <div class="section-sub">Drop a brief, document, Figma link, or transcript. The AI pipeline assembles a structured EDS page — brand-compliant, fully editable in DA Live.</div>
+
+  <div class="ingestion-drop" id="drop-zone">
+    <div class="ingestion-drop-icon">📥</div>
+    <p><strong>Drop your content here</strong> — or click an input type below</p>
+    <div class="input-types" id="input-types">
+      <button class="input-type" data-type="brief">📋 Creative Brief</button>
+      <button class="input-type" data-type="doc">📄 Word / Google Doc</button>
+      <button class="input-type" data-type="figma">🎨 Figma Link</button>
+      <button class="input-type" data-type="transcript">🎙️ Meeting Transcript</button>
+    </div>
+  </div>
+
+  <div class="ingestion-result" id="ingestion-result">
+    <div class="ingestion-steps" id="ingestion-steps"></div>
+    <div class="ingestion-preview" id="ingestion-preview" style="display:none">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Generated page preview</div>
+      <div class="ing-page-mock" id="ing-page-mock"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECTION 3: SCHEDULE COMPOSITOR
+═════════════════════════════════════════════ -->
+<section class="section" id="scheduling">
+  <div class="section-tag">Section 03</div>
+  <div class="section-title">Multi-Layer Schedule Compositor</div>
+  <div class="section-sub">Every component on the page has its own schedule. Hero rotates seasonally. Recommended dishes rotate weekly. Regional promos run on campaign windows. Hover bars to inspect.</div>
+
+  <div class="sched-timeline">
+    <div class="sched-header">
+      <span style="font-weight:600;color:var(--text)">saffron-restaurant.aem.live / homepage</span>
+      <span style="color:var(--text-muted)">2026 schedule · 12-month view</span>
+    </div>
+    <div class="sched-months">
+      <div class="sched-month">Jan</div><div class="sched-month">Feb</div><div class="sched-month">Mar</div>
+      <div class="sched-month">Apr</div><div class="sched-month">May</div><div class="sched-month">Jun</div>
+      <div class="sched-month">Jul</div><div class="sched-month">Aug</div><div class="sched-month">Sep</div>
+      <div class="sched-month">Oct</div><div class="sched-month">Nov</div><div class="sched-month">Dec</div>
+    </div>
+    <div class="sched-rows" id="sched-rows"><!-- filled by JS --></div>
+  </div>
+
+  <div class="sched-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Seasonal (quarterly)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Weekly rotation</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Campaign window</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Regional promo</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div>Experimentation</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECTION 4: AUDIENCES + EXPERIMENTATION
+═════════════════════════════════════════════ -->
+<section class="section" id="audiences">
+  <div class="section-tag">Section 04</div>
+  <div class="section-title">CJA Audiences + EDS Experimentation</div>
+  <div class="section-sub">RUM data feeds Customer Journey Analytics. CJA-defined audiences are applied at the edge as personalization segments. EDS native Experimentation runs A/B tests on the same page — no separate platform.</div>
+
+  <div class="aud-grid">
+    <div class="aud-card">
+      <div class="aud-card-header">
+        <span>👥</span> CJA Audience Segments
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);font-weight:400">Powered by RUM + CJA</span>
+      </div>
+      <div class="aud-card-body" id="aud-segments">
+        <!-- filled by JS -->
+      </div>
+      <div class="note-box" style="margin:0 16px 16px">
+        RUM is built into EDS <code style="font-family:monospace;font-size:11px">aem.js</code> — sampled events flow to CJA, which segments visitors and returns audience IDs as edge cookies. No separate CDP tag required.
+        <br><br>
+        <a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery/rum" target="_blank" rel="noopener">ExL: EDS Real User Monitoring ↗</a>
+      </div>
+    </div>
+
+    <div class="aud-card">
+      <div class="aud-card-header">
+        <span>🧪</span> EDS Native Experimentation
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);font-weight:400">hero-cta-experiment</span>
+      </div>
+      <div class="aud-card-body">
+        <div class="exp-variant winner">
+          <div class="exp-variant-name">Challenger B — "Reserve a Table" <span class="winner-badge">Winner</span></div>
+          <div class="exp-variant-stats">
+            <span>Conversion: <strong style="color:var(--green)">8.4%</strong></span>
+            <span>Visitors: 14,220</span>
+            <span>Confidence: 97%</span>
+          </div>
+        </div>
+        <div class="exp-variant">
+          <div class="exp-variant-name">Control — "Explore the Menu"</div>
+          <div class="exp-variant-stats">
+            <span>Conversion: <strong>5.1%</strong></span>
+            <span>Visitors: 14,080</span>
+          </div>
+        </div>
+        <div class="exp-variant">
+          <div class="exp-variant-name">Challenger A — "See Tonight's Menu"</div>
+          <div class="exp-variant-stats">
+            <span>Conversion: <strong>6.7%</strong></span>
+            <span>Visitors: 13,950</span>
+          </div>
+        </div>
+      </div>
+      <div class="note-box" style="margin:0 16px 16px">
+        EDS experimentation is file-based: challenger pages live at
+        <code style="font-family:monospace;font-size:11px">/experiments/hero-cta-experiment/challenger-b</code>.
+        The plugin routes traffic client-side — no server changes.
+        <br><br>
+        <a href="https://www.aem.live/developer/experimentation" target="_blank" rel="noopener">AEM.live: Experimentation plugin ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer style="border-top:1px solid var(--border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:1100px;margin:0 auto">
+  <p style="font-size:13px;color:var(--text-muted)">AEM → EDS Unification — conference demo. Content is illustrative.</p>
+  <div style="display:flex;gap:16px;flex-wrap:wrap">
+    <a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery" target="_blank" rel="noopener" style="font-size:12px;color:var(--accent)">ExL: Edge Delivery ↗</a>
+    <a href="https://da.live/docs" target="_blank" rel="noopener" style="font-size:12px;color:var(--accent)">DA Live ↗</a>
+    <a href="vcf-agents-demo.html" style="font-size:12px;color:var(--accent)">← VCF Agents</a>
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── ECOSYSTEM ────────────────────────────────────────────────────────────────
+
+  const SRC_DETAIL = {
+    'page-editor': [
+      { title: 'Migrate with Blockify', text: 'Each Core Component maps to an EDS block. The Blockify tool converts HTL → decorate(block) scaffolds. Layout Container becomes CSS Grid.' },
+      { title: 'Experience Fragments → include blocks', text: 'XFs become reusable EDS include blocks. Referencing works the same way — one source of truth across all pages.' },
+      { title: 'AEM Author stays for structured content', text: 'AEM Author remains for Content Fragments + DAM. Only the rendering layer moves to EDS.' },
+    ],
+    'xf': [
+      { title: 'XF Building Blocks → EDS includes', text: 'Experience Fragments become shared EDS blocks included by path, authored once, referenced everywhere. No HTL required.' },
+      { title: 'Live Copy → fragment references', text: 'Live Copy relationships are replaced by CF references with region-aware variations stored in the fragment itself.' },
+    ],
+    'native-app': [
+      { title: 'Shared content via CF Delivery API', text: 'iOS/Android apps fetch VCFs from the same AEM CF Delivery API endpoint as EDS pages. One content update propagates everywhere.' },
+      { title: 'Push deep links to EDS pages', text: 'Notification deep links point directly to EDS page URLs. The page is already fast — sub-100ms TTFB means a tap feels instant.' },
+    ],
+    'push': [
+      { title: 'Adobe Journey Optimizer integration', text: 'AJO sends push notifications with deep links to EDS pages. AJO audiences are shared with EDS experimentation for consistent cross-channel targeting.' },
+      { title: 'No more duplicate campaigns', text: 'Web promotional content (hero schedules, offer banners) is authored once as VCFs. AJO reads the same CF to build push copy — no duplication.' },
+    ],
+    'da-live': [
+      { title: 'DA Live — browser editor at da.live', text: 'Authors create and edit EDS pages directly in the browser. No Microsoft 365 licence required. Publishes to GitHub via Admin API, triggers CDN cache invalidation.' },
+      { title: 'DA-SC: structured content blocks', text: 'Structured content blocks (DA-SC) enable complex page composition with metadata fields — schedule ranges, region codes, experiment IDs — authored as structured data in-browser.' },
+      { title: 'Admin API for automation', text: 'PUT /source/{owner}/{repo}/{path}.html to create pages programmatically. POST /publish/{owner}/{repo}/{path} to go live. No CLI needed.' },
+    ],
+  };
+
+  document.querySelectorAll('.src-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.src-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const d = SRC_DETAIL[card.dataset.src] || [];
+      const detail = document.getElementById('eco-detail');
+      detail.innerHTML = d.map(item => `
+        <div class="eco-feature">
+          <strong>${item.title}</strong>
+          ${item.text}
+        </div>`).join('');
+    });
+  });
+
+  // ── INGESTION ────────────────────────────────────────────────────────────────
+
+  const INGESTION_FLOWS = {
+    brief: {
+      label: 'Creative Brief',
+      steps: [
+        { icon: '📋', text: 'Brief parsed — goals, tone, target audience, key messages extracted' },
+        { icon: '🔍', text: 'Brand Experience Agent validates tone + palette against brand guidelines' },
+        { icon: '✍️', text: 'Content Production Agent generates headline, body, CTAs from brief context' },
+        { icon: '📐', text: 'Experience Modernization Agent selects layout template: hero-left + 3-up grid' },
+        { icon: '🚀', text: 'Page draft created in DA Live — ready for author review and publish' },
+      ],
+      page: {
+        hero: { bg: '#1e1b4b', emoji: '🌟', label: 'Campaign Hero', text: 'Crafted from your brief: "Summer Launch 2026"' },
+        body: '#7c3aed',
+        blocks: ['Promotional Banner · Regional: EMEA · Active: Jun–Aug', 'Recommended Dishes · Weekly rotation from CF', 'Newsletter Sign-up · AEM Forms headless'],
+      },
+    },
+    doc: {
+      label: 'Word / Google Doc',
+      steps: [
+        { icon: '📄', text: 'Document imported and parsed — headings, paragraphs, tables, images extracted' },
+        { icon: '🗂️', text: 'Content mapped to EDS block types: hero, text, table, columns, cards' },
+        { icon: '🎨', text: 'Brand Studio applies palette + spacing tokens from brand config' },
+        { icon: '🔗', text: 'Images uploaded to AEM Assets DAM; rendition URLs swapped in' },
+        { icon: '✅', text: 'Page created in DA Live with inline review annotations' },
+      ],
+      page: {
+        hero: { bg: '#052e16', emoji: '📄', label: 'Imported Document', text: 'Headings became hero · Tables became cards' },
+        body: '#065f46',
+        blocks: ['Rich Text Section · from document body paragraphs', 'Data Table · imported from document table', 'Related Links · extracted from document footnotes'],
+      },
+    },
+    figma: {
+      label: 'Figma Link',
+      steps: [
+        { icon: '🎨', text: 'Figma file fetched via API — frames, components, design tokens extracted' },
+        { icon: '🤖', text: 'Brand Experience Agent validates design tokens against brand system' },
+        { icon: '⚙️', text: 'Experience Modernization Agent generates EDS block scaffold from frame structure' },
+        { icon: '📦', text: 'Visual CF created with layout preference + brand tokens stored in fragment' },
+        { icon: '🚀', text: 'Live page deployed to aem.live preview — pixel-accurate to Figma design' },
+      ],
+      page: {
+        hero: { bg: '#1c1917', emoji: '🎨', label: 'Figma Frame → EDS Block', text: 'Design tokens applied via CSS custom properties' },
+        body: '#a16207',
+        blocks: ['Hero · layout-left from Figma frame structure', 'Feature Cards · 3-up grid from Figma component grid', 'VCF: brandTokens → --vcf-accent, --vcf-radius'],
+      },
+    },
+    transcript: {
+      label: 'Meeting Transcript',
+      steps: [
+        { icon: '🎙️', text: 'Transcript parsed — action items, content requirements, tone noted' },
+        { icon: '🧠', text: 'Key content themes extracted: product launch, regional focus, CTA strategy' },
+        { icon: '✍️', text: 'Content Production Agent generates page copy from extracted intent' },
+        { icon: '📐', text: 'Layout matched to content density: mixed hero + cards + regional promo' },
+        { icon: '📝', text: 'Draft page surfaced in DA Live with inline comments tracing decisions back to transcript' },
+      ],
+      page: {
+        hero: { bg: '#1e1b4b', emoji: '🎙️', label: 'Transcript → Content', text: '"Q3 EMEA launch" → regional hero + promo block' },
+        body: '#3730a3',
+        blocks: ['Regional Hero · EMEA audiences · Jun–Sep window', 'Product Launch Cards · from action items in transcript', 'CTA: "Book a Demo" · from transcript discussion'],
+      },
+    },
+  };
+
+  let ingRunning = false;
+
+  async function runIngestion(type) {
+    if (ingRunning) return;
+    ingRunning = true;
+    const flow = INGESTION_FLOWS[type];
+    if (!flow) { ingRunning = false; return; }
+
+    document.querySelectorAll('.input-type').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+    const result = document.getElementById('ingestion-result');
+    const stepsEl = document.getElementById('ingestion-steps');
+    const preview = document.getElementById('ingestion-preview');
+    preview.style.display = 'none';
+    result.classList.add('visible');
+
+    stepsEl.innerHTML = flow.steps.map(s =>
+      `<div class="ing-step" data-done="false">
+        <div class="ing-icon">${s.icon}</div>
+        <span>${s.text}</span>
+      </div>`
+    ).join('');
+
+    const stepEls = stepsEl.querySelectorAll('.ing-step');
+    for (let i = 0; i < stepEls.length; i++) {
+      await new Promise(r => setTimeout(r, 550));
+      stepEls[i].classList.add('done');
+      stepEls[i].querySelector('.ing-icon').textContent = '✓';
+    }
+
+    const p = flow.page;
+    document.getElementById('ing-page-mock').innerHTML = `
+      <div class="ing-page-header">
+        <div style="width:8px;height:8px;border-radius:50%;background:#ef4444"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-left:4px"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#10b981;margin-left:4px"></div>
+        <div style="font-size:11px;color:#94a3b8;margin-left:12px">saffron-restaurant.aem.live/preview/new-page</div>
+      </div>
+      <div class="ing-page-body">
+        <div class="ing-block" style="background:${p.hero.bg};color:#fff;min-height:72px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:24px">${p.hero.emoji}</span>
+          <div><div style="font-weight:700;font-size:14px">${p.hero.label}</div><div style="font-size:12px;opacity:.7">${p.hero.text}</div></div>
+        </div>
+        ${p.blocks.map(b => `<div class="ing-block" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94a3b8;font-size:12px">${b}</div>`).join('')}
+      </div>`;
+    preview.style.display = 'block';
+    ingRunning = false;
+  }
+
+  document.querySelectorAll('.input-type').forEach(btn => {
+    btn.addEventListener('click', () => runIngestion(btn.dataset.type));
+  });
+  document.getElementById('drop-zone').addEventListener('click', () => runIngestion('brief'));
+
+  // ── SCHEDULE COMPOSITOR ──────────────────────────────────────────────────────
+
+  // Each bar: { label, col (1-12), span (months), color, detail }
+  const SCHED_DATA = [
+    {
+      rowLabel: 'Hero — Seasonal',
+      bars: [
+        { col: 1, span: 2, color: '#6366f1', label: 'Winter Hero', detail: 'Jan–Feb · Global · VCF: winter-seasonal' },
+        { col: 3, span: 3, color: '#6366f1', label: 'Spring Hero', detail: 'Mar–May · Global · VCF: spring-seasonal' },
+        { col: 6, span: 3, color: '#6366f1', label: 'Summer Hero', detail: 'Jun–Aug · EMEA, AMER · VCF: summer-seasonal' },
+        { col: 9, span: 4, color: '#6366f1', label: 'Autumn Hero', detail: 'Sep–Dec · EMEA · VCF: autumn-seasonal' },
+      ]
+    },
+    {
+      rowLabel: 'Dishes — Weekly',
+      bars: [
+        { col: 1, span: 12, color: '#10b981', label: 'Weekly Rotation (52 variants)', detail: 'Rotates every Monday 00:00 UTC · CFs: /dam/saffron/weekly-dishes/{wk-1..52}' },
+      ]
+    },
+    {
+      rowLabel: 'Dishes — Daily Special',
+      bars: [
+        { col: 1, span: 12, color: '#10b981', label: 'Daily Special (7 variants)', detail: 'Rotates daily · Days: Mon–Sun · Sourced from VCF schedule array' },
+      ]
+    },
+    {
+      rowLabel: 'Promo — EMEA',
+      bars: [
+        { col: 3, span: 2, color: '#ef4444', label: 'Spring EMEA Promo', detail: 'Mar–Apr · Regions: EMEA · AJO Campaign: spring-emea-2026' },
+        { col: 9, span: 2, color: '#ef4444', label: 'Autumn EMEA Promo', detail: 'Sep–Oct · Regions: EMEA · AJO Campaign: autumn-emea-2026' },
+      ]
+    },
+    {
+      rowLabel: 'Promo — AMER',
+      bars: [
+        { col: 5, span: 3, color: '#f59e0b', label: 'Summer AMER Campaign', detail: 'May–Jul · Regions: AMER · AJO Campaign: summer-amer-2026' },
+        { col: 11, span: 2, color: '#f59e0b', label: 'Holiday AMER', detail: 'Nov–Dec · Regions: AMER · AJO Campaign: holiday-amer-2026' },
+      ]
+    },
+    {
+      rowLabel: 'Experimentation',
+      bars: [
+        { col: 2, span: 2, color: '#a855f7', label: 'hero-cta-v1', detail: 'Feb–Mar · A/B: control vs challenger-B · Winner declared Mar 15' },
+        { col: 6, span: 3, color: '#a855f7', label: 'menu-layout-test', detail: 'Jun–Aug · A/B: hero-left vs grid3 layout · Running' },
+        { col: 10, span: 2, color: '#a855f7', label: 'seasonal-copy-test', detail: 'Oct–Nov · A/B: autumn headline variants · Planned' },
+      ]
+    },
+  ];
+
+  const rowsEl = document.getElementById('sched-rows');
+  SCHED_DATA.forEach(row => {
+    const barsHtml = row.bars.map(b => {
+      const left = ((b.col - 1) / 12 * 100).toFixed(2) + '%';
+      const width = (b.span / 12 * 100).toFixed(2) + '%';
+      return `<div class="sched-bar" style="left:${left};width:${width};background:${b.color};color:#fff">
+        ${b.label}
+        <div class="sched-popover"><strong>${b.label}</strong><br>${b.detail}</div>
+      </div>`;
+    }).join('');
+    rowsEl.innerHTML += `<div class="sched-row">
+      <div class="sched-row-label">${row.rowLabel}</div>
+      <div class="sched-track">${barsHtml}</div>
+    </div>`;
+  });
+
+  // ── AUDIENCES ────────────────────────────────────────────────────────────────
+
+  const SEGMENTS = [
+    { name: 'High-intent diners', pct: 34, color: '#6366f1' },
+    { name: 'Weekend browsers', pct: 28, color: '#3b82f6' },
+    { name: 'Returning loyalists', pct: 22, color: '#10b981' },
+    { name: 'First-time visitors', pct: 16, color: '#f59e0b' },
+  ];
+
+  const audEl = document.getElementById('aud-segments');
+  audEl.innerHTML = SEGMENTS.map(s => `
+    <div class="aud-segment">
+      <div class="aud-seg-name">${s.name}</div>
+      <div class="aud-bar-wrap"><div class="aud-bar-fill" style="width:0%;background:${s.color}" data-pct="${s.pct}"></div></div>
+      <div class="aud-seg-pct">${s.pct}%</div>
+    </div>`).join('');
+
+  setTimeout(() => {
+    document.querySelectorAll('.aud-bar-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 400);
+
+}());
+</script>
+</body>
+</html>
