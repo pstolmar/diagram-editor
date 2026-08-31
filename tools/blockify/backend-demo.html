@@ -770,6 +770,57 @@
       .after-col.stays-aem { grid-column: auto; }
       .transform-stats { flex-wrap: wrap; }
     }
+
+    /* ── Detail Modal ── */
+    #detail-modal {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    #detail-modal.open { display: flex; }
+    #detail-modal-inner {
+      background: #fff; border-radius: 12px;
+      max-width: 600px; width: 100%; max-height: 82vh; overflow-y: auto;
+      box-shadow: 0 24px 72px rgba(0,0,0,.3); position: relative;
+    }
+    #detail-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid #e2e8f0;
+      position: sticky; top: 0; background: #fff; z-index: 10;
+    }
+    #detail-modal-header h3 { font-size: 15px; font-weight: 700; color: #0f172a; }
+    #detail-modal-close {
+      width: 28px; height: 28px; border-radius: 50%; border: 1px solid #e2e8f0;
+      background: #f8fafc; font-size: 16px; cursor: pointer; color: #475569;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: background .15s;
+    }
+    #detail-modal-close:hover { background: #f1f5f9; }
+    #detail-modal-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .modal-before-box {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;
+    }
+    .modal-before-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      color: #94a3b8; margin-bottom: 4px;
+    }
+    .modal-before-name { font-family: 'SFMono-Regular',monospace; font-size: 13px; font-weight: 700; color: #1e293b; }
+    .modal-before-desc { font-size: 12px; color: #64748b; margin-top: 4px; line-height: 1.5; }
+    .modal-arrow { text-align: center; color: #94a3b8; font-size: 14px; }
+    .modal-after-box {
+      border-radius: 8px; padding: 12px 14px;
+      border: 1px solid;
+    }
+    .modal-after-box.edge { background: #f8fafc; border-color: #cbd5e1; }
+    .modal-after-box.ab { background: #eff6ff; border-color: #bfdbfe; }
+    .modal-after-box.aem { background: #f0fdf4; border-color: #a7f3d0; }
+    .modal-after-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+    .modal-after-name { font-family: 'SFMono-Regular',monospace; font-size: 13px; font-weight: 700; color: #0f172a; }
+    .modal-after-desc { font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.5; }
+    .modal-after-replaces { font-size: 11px; color: #94a3b8; margin-top: 6px; font-style: italic; }
   </style>
 </head>
 <body>
@@ -1298,6 +1349,17 @@
 </footer>
 
 
+<!-- ── Detail Modal ── -->
+<div id="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+  <div id="detail-modal-inner">
+    <div id="detail-modal-header">
+      <h3 id="detail-modal-title">Component Mapping</h3>
+      <button id="detail-modal-close" aria-label="Close">×</button>
+    </div>
+    <div id="detail-modal-body"></div>
+  </div>
+</div>
+
 <!-- =========================================================================
      INTERACTIVE SCRIPT
 ========================================================================== -->
@@ -1320,10 +1382,51 @@
       activeCard = null;
     }
 
+    var modal = document.getElementById('detail-modal');
+    var modalBody = document.getElementById('detail-modal-body');
+    var modalTitle = document.getElementById('detail-modal-title');
+    var modalClose = document.getElementById('detail-modal-close');
+
+    function closeModal() {
+      modal.classList.remove('open');
+    }
+
+    function showModal(beforeEl, afterEls) {
+      var beforeName = beforeEl.querySelector('.comp-name, .ext-card-name');
+      var beforeDesc = beforeEl.querySelector('.comp-desc, .ext-card-desc');
+
+      var html = '<div style="background:#fef9c3;border:1px solid #fcd34d;border-radius:8px;padding:12px 14px;margin-bottom:4px;">';
+      html += '<div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:.06em;margin-bottom:4px;">BEFORE — AEM Monolith</div>';
+      html += '<div style="font-weight:600;color:#0f172a;font-size:14px;">' + (beforeName ? beforeName.innerHTML : beforeEl.id) + '</div>';
+      if (beforeDesc) html += '<div style="color:#475569;font-size:13px;margin-top:4px;">' + beforeDesc.innerHTML + '</div>';
+      html += '</div>';
+
+      afterEls.forEach(function (afterEl) {
+        var name = afterEl.querySelector('.after-card-name');
+        var desc = afterEl.querySelector('.after-card-desc');
+        var replaces = afterEl.querySelector('.after-card-replaces');
+        var section = afterEl.closest('.section-panel');
+        var sectionClass = section ? (section.classList.contains('edge-workers') ? '#0ea5e9' : section.classList.contains('app-builder') ? '#8b5cf6' : '#10b981') : '#0ea5e9';
+
+        html += '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid ' + sectionClass + ';border-radius:8px;padding:12px 14px;">';
+        html += '<div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:.06em;margin-bottom:4px;">AFTER — ' + (section ? (section.querySelector('.section-label') || {}).textContent || 'EDS' : 'EDS') + '</div>';
+        if (name) html += '<div style="font-weight:600;color:#0f172a;font-size:14px;">' + name.textContent + '</div>';
+        if (desc) html += '<div style="color:#475569;font-size:13px;margin-top:4px;">' + desc.innerHTML + '</div>';
+        if (replaces) html += '<div style="color:#94a3b8;font-size:12px;margin-top:8px;">' + replaces.innerHTML + '</div>';
+        html += '</div>';
+      });
+
+      modalTitle.textContent = (beforeName ? beforeName.textContent.trim() : 'Component') + ' → Modernized';
+      modalBody.innerHTML = html;
+      modal.classList.add('open');
+      modalClose.focus();
+    }
+
     function activate(el) {
       // Toggle off if already active
       if (activeCard === el) {
         clearAll();
+        closeModal();
         return;
       }
       clearAll();
@@ -1335,14 +1438,14 @@
       // Parse space-separated after IDs
       var ids = (el.dataset.mapsTo || '').trim().split(/\s+/).filter(Boolean);
       var names = [];
-      var firstAfterEl = null;
+      var afterEls = [];
 
       ids.forEach(function (id) {
         var afterEl = document.getElementById(id);
         if (afterEl) {
           afterEl.classList.add('highlighted');
           names.push(afterEl.dataset.name || id);
-          if (!firstAfterEl) firstAfterEl = afterEl;
+          afterEls.push(afterEl);
         }
       });
 
@@ -1354,15 +1457,9 @@
         el.appendChild(tooltip);
       }
 
-      // Scroll to first highlighted after-card if out of viewport
-      if (firstAfterEl) {
-        var rect = firstAfterEl.getBoundingClientRect();
-        var inView = rect.top >= 60 && rect.bottom <= (window.innerHeight - 20);
-        if (!inView) {
-          setTimeout(function () {
-            firstAfterEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 80);
-        }
+      // Show modal with mapping detail
+      if (afterEls.length > 0) {
+        showModal(el, afterEls);
       }
     }
 
@@ -1380,12 +1477,31 @@
       });
     });
 
-    // Click outside → clear
-    document.addEventListener('click', clearAll);
+    // Modal dismiss: close button
+    modalClose.addEventListener('click', function () {
+      closeModal();
+      clearAll();
+    });
 
-    // Escape → clear
+    // Modal dismiss: click outside modal inner
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) {
+        closeModal();
+        clearAll();
+      }
+    });
+
+    // Click outside cards → clear (but not if clicking inside modal)
+    document.addEventListener('click', function (e) {
+      if (!modal.contains(e.target)) clearAll();
+    });
+
+    // Escape → clear everything
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') clearAll();
+      if (e.key === 'Escape') {
+        closeModal();
+        clearAll();
+      }
     });
 
   }());

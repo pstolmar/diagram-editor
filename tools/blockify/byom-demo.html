@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Saffron Restaurant — BYOM Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand: #e8552e;
+      --brand-dark: #c94220;
+      --cream: #fdf8f4;
+      --cream-2: #f5ede4;
+      --border: #e8ddd5;
+      --text: #1a1210;
+      --text-muted: #7a6e68;
+      --text-dim: #9a8e88;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'Menlo', 'Consolas', monospace;
+      /* source colors */
+      --c-xf:   #3b82f6;
+      --c-dasc: #10b981;
+      --c-cf:   #6366f1;
+      --c-ext:  #f59e0b;
+      --c-eds:  #e8552e;
+      --c-da:   #a855f7;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: #fff; color: var(--text); min-height: 100vh; }
+
+    /* ── BYOM badge ── */
+    .byom-badge {
+      position: fixed; top: 12px; right: 16px; z-index: 200;
+      display: flex; align-items: center; gap: 6px;
+      background: #1a1a1a; color: #fff;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      cursor: default;
+    }
+    .byom-badge .info { color: rgba(255,255,255,.5); font-size: 13px; cursor: pointer; position: relative; }
+    .byom-badge .info-tip {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: #111; border: 1px solid #333; border-radius: 8px;
+      padding: 12px 14px; width: 260px; font-size: 12px;
+      font-weight: 400; line-height: 1.6; color: #ccc; text-transform: none; letter-spacing: 0;
+      white-space: normal;
+    }
+    .byom-badge .info:hover .info-tip { display: block; }
+
+    /* ── Source hover highlight ── */
+    [data-source] {
+      outline: 3px solid transparent;
+      outline-offset: -2px;
+      transition: outline-color .2s;
+      position: relative;
+    }
+    [data-source]:hover { cursor: default; }
+    [data-source="xf"]:hover   { outline-color: var(--c-xf); }
+    [data-source="dasc"]:hover { outline-color: var(--c-dasc); }
+    [data-source="cf"]:hover   { outline-color: var(--c-cf); }
+    [data-source="ext"]:hover  { outline-color: var(--c-ext); }
+    [data-source="eds"]:hover  { outline-color: var(--c-eds); }
+    [data-source="da"]:hover   { outline-color: var(--c-da); }
+
+    /* ── Hover overlay card ── */
+    #source-card {
+      position: fixed; z-index: 999;
+      width: 320px; max-width: calc(100vw - 32px);
+      background: #fff; border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08);
+      overflow: hidden;
+      opacity: 0; pointer-events: none;
+      transition: opacity .15s;
+    }
+    #source-card.visible { opacity: 1; pointer-events: auto; }
+    .sc-header {
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; color: #fff;
+      text-transform: uppercase; letter-spacing: .07em;
+    }
+    .sc-body { padding: 12px 14px; }
+    .sc-desc { font-size: 13px; line-height: 1.6; color: #334155; margin-bottom: 10px; }
+    .sc-code {
+      background: #f1f5f9; border-radius: 5px; padding: 8px 10px;
+      font-family: var(--mono); font-size: 11px; color: #475569;
+      line-height: 1.6; white-space: pre-wrap; word-break: break-all;
+      margin-bottom: 10px;
+    }
+    .sc-link { font-size: 12px; font-weight: 600; text-decoration: none; }
+
+    /* ══════════════════════════════════════════
+       SECTION 1 — NAV (AEM XF)
+    ══════════════════════════════════════════ */
+    [data-source="xf"] {
+      background: #fff; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 32px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-family: var(--font-serif); font-size: 22px; font-weight: 700; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--brand); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: color .15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      padding: 8px 18px; border-radius: 6px;
+      background: var(--brand); color: #fff;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      transition: background .15s;
+    }
+    .nav-cta:hover { background: var(--brand-dark); }
+
+    /* ══════════════════════════════════════════
+       SECTION 2 — HERO (DA Live SC)
+    ══════════════════════════════════════════ */
+    [data-source="dasc"] {
+      background: var(--cream);
+      padding: 80px 32px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--brand); margin-bottom: 16px;
+    }
+    .hero-title {
+      font-family: var(--font-serif); font-size: clamp(36px, 6vw, 64px);
+      font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
+      color: var(--text); max-width: 700px; margin: 0 auto 18px;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--text-muted); line-height: 1.7;
+      max-width: 560px; margin: 0 auto 28px;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 8px;
+      background: var(--brand); color: #fff;
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-cta:hover { background: var(--brand-dark); }
+    .hero-img {
+      margin-top: 40px; border-radius: 12px; overflow: hidden;
+      max-width: 900px; margin-left: auto; margin-right: auto;
+      aspect-ratio: 16/7; position: relative;
+    }
+    .hero-img-fill {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,.08), rgba(0,0,0,.15)),
+        url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=70') center/cover;
+    }
+
+    /* ══════════════════════════════════════════
+       SECTION 3 — FEATURED DISH (AEM CF API)
+    ══════════════════════════════════════════ */
+    [data-source="cf"] {
+      padding: 72px 32px;
+      background: #fff;
+    }
+    .cf-section-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+    @media (max-width: 720px) { .cf-section-inner { grid-template-columns: 1fr; } }
+    .cf-img { border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative; }
+    .cf-img-fill {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=70') center/cover;
+    }
+    .cf-content { }
+    .cf-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--c-cf); background: rgba(99,102,241,.08);
+      border: 1px solid rgba(99,102,241,.2); padding: 3px 10px; border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .cf-title { font-family: var(--font-serif); font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+    .cf-desc { font-size: 15px; color: var(--text-muted); line-height: 1.7; margin-bottom: 18px; }
+    .cf-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-bottom: 20px; }
+    .cf-meta-item { display: flex; align-items: center; gap: 5px; color: var(--text-muted); }
+    .cf-meta-item strong { color: var(--text); }
+    .cf-pill { display: inline-block; padding: 4px 10px; border-radius: 4px; background: var(--cream-2); font-size: 12px; font-weight: 600; color: var(--text-muted); margin-right: 6px; margin-bottom: 6px; }
+    .cf-cta { padding: 10px 22px; border-radius: 6px; background: var(--text); color: #fff; font: 600 13px var(--font); border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+
+    /* ══════════════════════════════════════════
+       SECTION 4 — DASHBOARD (External feed)
+    ══════════════════════════════════════════ */
+    [data-source="ext"] {
+      background: #1a1210;
+      padding: 60px 32px;
+    }
+    .ext-inner { max-width: 1100px; margin: 0 auto; }
+    .ext-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .ext-title { font-family: var(--font-serif); font-size: 26px; color: #fff; }
+    .ext-subtitle { font-size: 13px; color: rgba(255,255,255,.4); margin-top: 4px; }
+    .live-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #4ade80; }
+    .live-dot::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    @media (max-width: 700px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+    .metric-card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 18px; }
+    .metric-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.35); margin-bottom: 8px; }
+    .metric-value { font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+    .metric-delta { font-size: 12px; margin-top: 4px; }
+    .delta-pos { color: #4ade80; }
+    .delta-neg { color: #f87171; }
+    .feed-rows { display: flex; flex-direction: column; gap: 8px; }
+    .feed-row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; background: rgba(255,255,255,.03); border-radius: 8px; border: 1px solid rgba(255,255,255,.06); font-size: 13px; color: rgba(255,255,255,.7); }
+    .feed-row strong { color: #fff; flex: 1; }
+    .feed-row .time { font-size: 11px; color: rgba(255,255,255,.3); }
+    .feed-row .badge-sm { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+    .badge-sm.new { background: rgba(74,222,128,.15); color: #4ade80; }
+    .badge-sm.vip { background: rgba(245,158,11,.15); color: #fbbf24; }
+
+    /* ══════════════════════════════════════════
+       SECTION 5 — DIAGRAM (EDS block)
+    ══════════════════════════════════════════ */
+    [data-source="eds"] {
+      background: var(--cream);
+      padding: 64px 32px;
+    }
+    .eds-inner { max-width: 900px; margin: 0 auto; }
+    .section-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--brand); margin-bottom: 10px; }
+    .section-h2 { font-family: var(--font-serif); font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+    .section-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 28px; max-width: 580px; }
+    /* EDS block markup */
+    .diagram-editor { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 24px; min-height: 180px; }
+    .diagram-editor pre { display: none; }
+    .diagram-editor .diagram-output { text-align: center; }
+    .diagram-editor .diagram-output svg { max-width: 100%; height: auto; }
+
+    /* ══════════════════════════════════════════
+       SECTION 6 — PRESS QUOTES (DA Live doc)
+    ══════════════════════════════════════════ */
+    [data-source="da"] {
+      background: #fff;
+      padding: 72px 32px;
+    }
+    .da-inner { max-width: 1100px; margin: 0 auto; }
+    .quotes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 32px; }
+    @media (max-width: 800px) { .quotes-grid { grid-template-columns: 1fr; } }
+    .quote-card { background: var(--cream); border-radius: 10px; padding: 24px; border: 1px solid var(--border); }
+    .quote-text { font-family: var(--font-serif); font-size: 18px; line-height: 1.6; color: var(--text); margin-bottom: 16px; font-style: italic; }
+    .quote-text::before { content: '\201C'; color: var(--brand); font-size: 32px; line-height: 0; vertical-align: -12px; margin-right: 4px; }
+    .quote-source { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .quote-pub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ══════════════════════════════════════════
+       SECTION 7 — FOOTER (EDS blocks)
+    ══════════════════════════════════════════ */
+    [data-source="eds-footer"] {
+      background: #1a1210;
+      padding: 48px 32px 24px;
+    }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+    @media (max-width: 720px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    .footer-brand { font-family: var(--font-serif); font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .footer-brand span { color: var(--brand); }
+    .footer-tagline { font-size: 13px; color: rgba(255,255,255,.35); line-height: 1.6; max-width: 220px; }
+    .footer-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.3); margin-bottom: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 8px; }
+    .footer-links a { font-size: 13px; color: rgba(255,255,255,.5); text-decoration: none; transition: color .15s; }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.07); padding-top: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: 12px; color: rgba(255,255,255,.2); }
+    .footer-bottom nav { display: flex; gap: 16px; }
+    .footer-bottom nav a { font-size: 12px; color: rgba(255,255,255,.3); text-decoration: none; }
+    .footer-bottom nav a:hover { color: rgba(255,255,255,.7); }
+
+    /* ── Legend ── */
+    .byom-legend {
+      max-width: 1100px; margin: 0 auto;
+      padding: 20px 32px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    }
+    .legend-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<!-- BYOM Concept Badge -->
+<div class="byom-badge">
+  BYOM
+  <span class="info">ⓘ
+    <span class="info-tip">
+      <strong>Bring Your Own Markup.</strong> Every section of this page comes from a different content source — AEM Experience Fragments, DA Live structured content, AEM CF API, an external data feed, an EDS block, and a DA Live document. Hover any section to see which source it uses and how it's fetched.
+    </span>
+  </span>
+</div>
+
+<!-- ── Floating source overlay card ── -->
+<div id="source-card">
+  <div class="sc-header" id="sc-header"></div>
+  <div class="sc-body">
+    <div class="sc-desc" id="sc-desc"></div>
+    <div class="sc-code" id="sc-code"></div>
+    <a class="sc-link" id="sc-link" href="#" target="_blank" rel="noopener"></a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 1 — NAV (AEM XF)
+═══════════════════════════════════ -->
+<nav data-source="xf"
+     data-source-label="AEM Experience Fragment"
+     data-source-desc="This navigation bar is an AEM Experience Fragment — a reusable, centrally managed content block authored once in AEM Author and referenced across all pages. When the XF is updated in AEM, every page that references it reflects the change on next publish."
+     data-source-code="/content/experience-fragments/saffron/nav/master.model.json
+→ rendered server-side via HTL
+→ EDS: fetched as HTML fragment via
+  blocks/fragment/fragment.js"
+     data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/sites/authoring/fragments/experience-fragments">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">Saffron <span>Restaurant</span></a>
+    <div class="nav-links">
+      <a href="#">Menu</a>
+      <a href="#">Reservations</a>
+      <a href="#">Events</a>
+      <a href="faq.html">FAQ</a>
+      <a href="brandconcierge.html">Concierge</a>
+    </div>
+    <a class="nav-cta" href="brandconcierge.html">Book a Table</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════
+     SECTION 2 — HERO (DA Live SC)
+═══════════════════════════════════ -->
+<section data-source="dasc"
+         data-source-label="DA Live Structured Content"
+         data-source-desc="This hero is authored in DA Live (da.live) using a structured content block — a named field form rather than freeform document text. The author fills in 'eyebrow', 'title', 'subtitle', and 'CTA' fields. DA Live publishes to GitHub via the Admin API, triggering CDN cache invalidation."
+         data-source-code="PUT https://admin.da.live/source/
+  pstolmar/diagram-editor/saffron/hero.html
+Content-Type: text/html
+
+<div class='hero-block'>
+  <div><div>Summer is Served</div></div>
+  <div><div>Book a table →</div></div>
+</div>"
+         data-source-link="https://da.live/docs">
+  <div class="hero-eyebrow">☀️ Summer Menu 2026 · Now Open</div>
+  <h1 class="hero-title">Where Every Season<br>Tells a Story</h1>
+  <p class="hero-sub">Fresh ingredients. Honest cooking. Chef Marco Ferretti's seasonal kitchen — open for lunch and dinner Tuesday through Sunday.</p>
+  <a class="hero-cta" href="brandconcierge.html">Reserve a Table →</a>
+  <div class="hero-img"><div class="hero-img-fill"></div></div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 3 — FEATURED DISH (CF API)
+═══════════════════════════════════ -->
+<section data-source="cf"
+         data-source-label="AEM Content Fragment API"
+         data-source-desc="This dish card is fetched from AEM at runtime using the CF Delivery API (GraphQL). The content lives in a Content Fragment at /content/dam/saffron/menu/seared-scallops. When the chef updates the fragment in AEM Author and publishes, the EDS page reflects the change on next user visit — no redeploy required."
+         data-source-code="fetch('https://publish-p138879-e1741192
+  .adobeaemcloud.com/graphql/execute.json/
+  saffron/featuredDish;variation=summer')
+  .then(r => r.json())
+  .then(({ data }) => renderDish(
+    data.homeHeroByPath.item
+  ));"
+         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/headless/graphql-api/content-fragments">
+  <div class="cf-section-inner">
+    <div class="cf-img"><div class="cf-img-fill"></div></div>
+    <div class="cf-content">
+      <div class="cf-tag">✦ Tonight's Feature</div>
+      <h2 class="cf-title">Seared Hand-Dived Scallops</h2>
+      <p class="cf-desc">Pan-seared king scallops from the Orkney Islands, served with a mango and chilli salsa, compressed cucumber, and a pea shoot garnish. A signature of our summer menu.</p>
+      <div class="cf-meta">
+        <div class="cf-meta-item"><strong>£32</strong> main</div>
+        <div class="cf-meta-item">Serves <strong>1</strong></div>
+        <div class="cf-meta-item"><strong>15 min</strong> prep</div>
+      </div>
+      <div>
+        <span class="cf-pill">Gluten-free</span>
+        <span class="cf-pill">Dairy-free</span>
+        <span class="cf-pill">Seasonal</span>
+      </div>
+      <br>
+      <a class="cf-cta" href="faq.html#menu">Full Menu</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 4 — DASHBOARD (External)
+═══════════════════════════════════ -->
+<section data-source="ext"
+         data-source-label="External Data Feed"
+         data-source-desc="This dashboard pulls live reservation and capacity data from an external OpenTable / ResOS webhook. The EDS page fetches a JSON endpoint on load — no AEM involvement. Any REST or GraphQL feed can be integrated this way via an App Builder action that caches and rate-limits the upstream call."
+         data-source-code="// App Builder action as CORS-safe proxy:
+fetch('https://runtime.adobe.io/api/v1/
+  web/saffron/reservations/tonight')
+  .then(r => r.json())
+  .then(renderDashboard);
+
+// Upstream: ResOS / OpenTable webhook
+// Cached by aio-lib-state (5-min TTL)"
+         data-source-link="https://developer.adobe.com/app-builder/docs/">
+  <div class="ext-inner">
+    <div class="ext-header">
+      <div>
+        <div class="ext-title" style="font-family:var(--font-serif)">Tonight at Saffron</div>
+        <div class="ext-subtitle">Live reservation data · refreshes every 5 min</div>
+      </div>
+      <div class="live-dot">Live feed</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Covers Tonight</div>
+        <div class="metric-value">84</div>
+        <div class="metric-delta delta-pos">↑ 12 vs last Tuesday</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Tables Available</div>
+        <div class="metric-value">6</div>
+        <div class="metric-delta" style="color:rgba(255,255,255,.3)">of 28 total</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Avg. Spend</div>
+        <div class="metric-value">£94</div>
+        <div class="metric-delta delta-pos">↑ £8 vs last week</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Chef's Special</div>
+        <div class="metric-value" style="font-size:18px;line-height:1.3">Wagyu<br>Tartare</div>
+        <div class="metric-delta" style="color:rgba(255,255,255,.3)">Limited: 12 portions</div>
+      </div>
+    </div>
+    <div class="feed-rows" id="reservation-feed">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 5 — DIAGRAM (EDS block)
+═══════════════════════════════════ -->
+<section data-source="eds"
+         data-source-label="EDS Block (diagram-editor)"
+         data-source-desc="This diagram is rendered by the diagram-editor EDS block — a block in this very repository at blocks/diagram-editor/. The block reads a Mermaid source string from the page markup and renders it as SVG via the Mermaid v10 CDN library. No server-side rendering — pure edge-delivered static HTML that activates client-side."
+         data-source-code="// blocks/diagram-editor/diagram-editor.js
+export default async function decorate(block) {
+  const pre = block.querySelector('pre');
+  const { default: mermaid } = await import(
+    'https://cdn.jsdelivr.net/npm/mermaid@10/
+    dist/mermaid.esm.min.mjs');
+  mermaid.initialize({ startOnLoad: false });
+  const { svg } = await mermaid.render(
+    'diagram', pre.textContent);
+  block.innerHTML = svg;
+}"
+         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery/developer/block-collection">
+  <div class="eds-inner">
+    <div class="section-eyebrow">EDS Block</div>
+    <h2 class="section-h2">How This Page Is Assembled</h2>
+    <p class="section-desc">Each section fetches from a different source. This diagram — rendered by the diagram-editor block — shows the content flow.</p>
+    <!-- EDS block markup pattern -->
+    <div class="diagram-editor">
+      <div><div>
+        <pre class="diagram-source">
+flowchart LR
+    XF["AEM XF\n(Nav)"] -->|fragment block| P["EDS Page"]
+    DA["DA Live SC\n(Hero)"] -->|Admin API| P
+    CF["AEM CF API\n(Dish)"] -->|GraphQL fetch| P
+    EXT["External Feed\n(Dashboard)"] -->|App Builder proxy| P
+    BLK["EDS Block\n(This diagram)"] -->|blocks/diagram-editor| P
+    DOC["DA Live Doc\n(Quotes)"] -->|GitHub → CDN| P
+    FTR["EDS Blocks\n(Footer)"] -->|blocks/footer| P
+        </pre>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 6 — QUOTES (DA Live doc)
+═══════════════════════════════════ -->
+<section data-source="da"
+         data-source-label="DA Live Document"
+         data-source-desc="These press quotes are authored in a plain DA Live document — the author types quotes and attribution into a simple table block in the browser editor. DA Live publishes to GitHub, EDS serves the resulting HTML. No structured schema needed; document-based authoring handles freeform editorial content like this perfectly."
+         data-source-code="<!-- Authored in da.live as a table block:
+| Quote | Source | Publication |
+| Scallops were... | Sarah T. | The Guardian |
+|...               |          |              |
+
+DA Live → GitHub commit →
+Fastly CDN serves HTML directly -->"
+         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery/wysiwyg-authoring/da-integration">
+  <div class="da-inner">
+    <div class="section-eyebrow">As Seen In</div>
+    <h2 class="section-h2">What Critics Are Saying</h2>
+    <div class="quotes-grid">
+      <div class="quote-card">
+        <p class="quote-text">The scallops were the finest I've tasted this side of the Channel. Marco's restraint with seasoning is masterful.</p>
+        <div class="quote-source">Sarah Thompson</div>
+        <div class="quote-pub">The Guardian Food, June 2026 · ★★★★½</div>
+      </div>
+      <div class="quote-card">
+        <p class="quote-text">A seasonal kitchen that genuinely means it. The summer menu reads like a love letter to British produce.</p>
+        <div class="quote-source">James Ramsay</div>
+        <div class="quote-pub">Eater London, July 2026 · Critic's Pick</div>
+      </div>
+      <div class="quote-card">
+        <p class="quote-text">Saffron is what happens when a chef stops trying to impress and starts trying to nourish. Remarkable.</p>
+        <div class="quote-source">Priya Nair</div>
+        <div class="quote-pub">Financial Times Life &amp; Arts, May 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 7 — FOOTER (EDS blocks)
+═══════════════════════════════════ -->
+<footer data-source="eds-footer"
+        data-source-label="EDS Blocks (header/footer)"
+        data-source-desc="This footer is an EDS blocks/footer block — the same pattern used across the entire site. One file in blocks/footer/ controls the footer everywhere. Authors update a single Google Sheet or DA Live document row; the CDN purges the cache and all pages pick up the change within seconds."
+        data-source-code="// blocks/footer/footer.js
+export default async function decorate(block) {
+  const cfg = readBlockConfig(block);
+  const resp = await fetch(
+    `${cfg.footerPath}.plain.html`);
+  block.innerHTML = await resp.text();
+  decorateIcons(block);
+}"
+        data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery/developer/block-collection">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Saffron <span>Restaurant</span></div>
+        <div class="footer-tagline">12 Harbour Lane, London EC1A 2BB. Seasonal cooking, sourced locally.</div>
+      </div>
+      <div>
+        <div class="footer-col-title">Visit</div>
+        <div class="footer-links">
+          <a href="#">Lunch Menu</a>
+          <a href="#">Dinner Menu</a>
+          <a href="#">Sunday Brunch</a>
+          <a href="#">Tasting Menus</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Reserve</div>
+        <div class="footer-links">
+          <a href="brandconcierge.html">Book a Table</a>
+          <a href="#">Private Dining</a>
+          <a href="#">Events</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Demo Pages</div>
+        <div class="footer-links">
+          <a href="byom-demo.html">BYOM Demo</a>
+          <a href="vcf-agents-demo.html">VCF Agents</a>
+          <a href="unification-demo.html">Unification</a>
+          <a href="index.html">Blockify Hub</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Saffron Restaurant · EDS BYOM demo · content is illustrative</p>
+      <nav>
+        <a href="index.html">Blockify Hub</a>
+        <a href="faq.html">FAQ</a>
+        <a href="brandconcierge.html">Brand Concierge</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<!-- ── BYOM Source Legend ── -->
+<div class="byom-legend">
+  <span class="legend-label">Source key:</span>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-xf)"></div>AEM Experience Fragment</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc)"></div>DA Live SC</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-cf)"></div>AEM CF API</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-ext)"></div>External Feed</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-eds)"></div>EDS Block</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-da)"></div>DA Live Document</div>
+</div>
+
+<script type="module">
+  // ── Mermaid diagram ──────────────────────────────────────────────────────────
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false, theme: 'default', flowchart: { curve: 'basis' } });
+  const pre = document.querySelector('.diagram-source');
+  if (pre) {
+    const diagramDiv = pre.closest('.diagram-editor');
+    try {
+      const { svg } = await mermaid.render('byom-arch', pre.textContent.trim());
+      const output = document.createElement('div');
+      output.className = 'diagram-output';
+      output.innerHTML = svg;
+      diagramDiv.innerHTML = '';
+      diagramDiv.appendChild(output);
+    } catch (e) {
+      diagramDiv.innerHTML = '<p style="color:#888;font-size:13px;padding:16px">Diagram rendering requires a network connection (Mermaid CDN).</p>';
+    }
+  }
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Source colour map ────────────────────────────────────────────────────────
+  var COLORS = {
+    xf:        '#3b82f6',
+    dasc:      '#10b981',
+    cf:        '#6366f1',
+    ext:       '#f59e0b',
+    eds:       '#e8552e',
+    da:        '#a855f7',
+    'eds-footer': '#e8552e',
+  };
+
+  // ── Simulated reservation feed ───────────────────────────────────────────────
+  var RESERVATIONS = [
+    { name: 'Williams — party of 4', time: '18:30', badge: 'vip', label: 'VIP' },
+    { name: 'Patel — party of 2',    time: '19:00', badge: 'new', label: 'New' },
+    { name: 'Chen — party of 6',     time: '19:15', badge: null, label: null },
+    { name: 'Johnson — party of 3',  time: '20:00', badge: 'new', label: 'New' },
+    { name: 'Martinez — party of 2', time: '20:30', badge: null, label: null },
+  ];
+  var feedEl = document.getElementById('reservation-feed');
+  if (feedEl) {
+    RESERVATIONS.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'feed-row';
+      row.innerHTML =
+        '<strong>' + r.name + '</strong>' +
+        (r.badge ? '<span class="badge-sm ' + r.badge + '">' + r.label + '</span>' : '') +
+        '<span class="time">Dinner · ' + r.time + '</span>';
+      feedEl.appendChild(row);
+    });
+  }
+
+  // ── Hover overlay card ───────────────────────────────────────────────────────
+  var card = document.getElementById('source-card');
+  var scHeader = document.getElementById('sc-header');
+  var scDesc   = document.getElementById('sc-desc');
+  var scCode   = document.getElementById('sc-code');
+  var scLink   = document.getElementById('sc-link');
+  var isMobile = window.matchMedia('(max-width: 680px)').matches;
+
+  function showCard(el, e) {
+    var src   = el.dataset.source;
+    var color = COLORS[src] || '#64748b';
+    var label = el.dataset.sourceLabel    || src;
+    var desc  = el.dataset.sourceDesc     || '';
+    var code  = el.dataset.sourceCode     || '';
+    var link  = el.dataset.sourceLink     || '#';
+
+    scHeader.style.background = color;
+    scHeader.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="6" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><path d="M7 6v4M7 4.5v.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>' + label;
+    scDesc.textContent = desc;
+    scCode.textContent = code;
+    scLink.href = link;
+    scLink.style.color = color;
+    scLink.textContent = 'Learn more on Experience League →';
+
+    positionCard(e || null, el);
+    card.classList.add('visible');
+  }
+
+  function positionCard(e, el) {
+    var cardW = 320;
+    var vw = window.innerWidth;
+    var rect = el.getBoundingClientRect();
+    var x, y;
+    if (e) {
+      x = e.clientX + 14;
+      y = e.clientY + 14;
+    } else {
+      x = rect.right - cardW - 16;
+      y = rect.top + 16;
+    }
+    if (x + cardW > vw - 8) x = vw - cardW - 8;
+    if (x < 8) x = 8;
+    card.style.left = x + 'px';
+    card.style.top  = (y + window.scrollY) + 'px';
+  }
+
+  function hideCard() {
+    card.classList.remove('visible');
+  }
+
+  var hideTimer = null;
+
+  document.querySelectorAll('[data-source]').forEach(function (el) {
+    if (isMobile) {
+      el.addEventListener('click', function (e) {
+        if (card.classList.contains('visible')) { hideCard(); return; }
+        clearTimeout(hideTimer);
+        showCard(el, e);
+        hideTimer = setTimeout(hideCard, 4000);
+      });
+    } else {
+      el.addEventListener('mouseenter', function (e) {
+        clearTimeout(hideTimer);
+        showCard(el, e);
+      });
+      el.addEventListener('mousemove', function (e) {
+        positionCard(e, el);
+      });
+      el.addEventListener('mouseleave', function () {
+        hideTimer = setTimeout(hideCard, 250);
+      });
+    }
+  });
+
+  card.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
+  card.addEventListener('mouseleave', function () { hideTimer = setTimeout(hideCard, 200); });
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-source]') && !e.target.closest('#source-card')) {
+      hideCard();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') hideCard();
+  });
+
+}());
+</script>
+<script>
+(function rumBeacon() {
+  var d = 'edge--diagram-editor--pstolmar.aem.live';
+  var data = { weight: 1, id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2), referer: document.referrer, checkpoint: 'top', target: location.href };
+  navigator.sendBeacon('https://rum.aem.live/1/rum?d=' + encodeURIComponent(d), JSON.stringify(data));
+  ['LCP','CLS','FID','INP','TTFB'].forEach(function(m){try{new PerformanceObserver(function(l){l.getEntries().forEach(function(e){var p={weight:1,id:data.id,referer:document.referrer,checkpoint:m.toLowerCase(),source:e.element?e.element.nodeName:'',value:Math.round(e.value||e.startTime||0)};navigator.sendBeacon('https://rum.aem.live/1/rum?d='+encodeURIComponent(d),JSON.stringify(p));})}).observe({type:m,buffered:true});}catch(e){}});
+}());
+</script>
+</body>
+</html>

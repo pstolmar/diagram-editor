@@ -679,5 +679,13 @@
 
 }());
 </script>
+<script>
+(function rumBeacon() {
+  var d = 'edge--diagram-editor--pstolmar.aem.live';
+  var data = { weight: 1, id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2), referer: document.referrer, checkpoint: 'top', target: location.href };
+  navigator.sendBeacon('https://rum.aem.live/1/rum?d=' + encodeURIComponent(d), JSON.stringify(data));
+  ['LCP','CLS','FID','INP','TTFB'].forEach(function(m){try{new PerformanceObserver(function(l){l.getEntries().forEach(function(e){var p={weight:1,id:data.id,referer:document.referrer,checkpoint:m.toLowerCase(),source:e.element?e.element.nodeName:'',value:Math.round(e.value||e.startTime||0)};navigator.sendBeacon('https://rum.aem.live/1/rum?d='+encodeURIComponent(d),JSON.stringify(p));})}).observe({type:m,buffered:true});}catch(e){}});
+}());
+</script>
 </body>
 </html>

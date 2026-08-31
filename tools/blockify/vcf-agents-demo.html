@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Visual Content Fragments + AI Agents — EDS Demo</title>
+  <title>Visual Content Fragments + AI Agents | EDS Demo</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -137,20 +137,34 @@
     .pipe-run-btn:hover { background: #2563eb; }
     .pipe-run-btn:active { transform: scale(.97); }
     .pipe-detail {
-      margin-top: 24px; padding: 20px 24px;
+      margin-top: 24px;
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); min-height: 180px;
+      border-radius: var(--radius); min-height: 200px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      overflow: hidden;
     }
-    .pipe-detail-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .pipe-detail-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
+    .pipe-detail-left { padding: 20px 24px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+    .pipe-detail-right { padding: 20px 24px; display: flex; align-items: center; justify-content: center; }
+    .pipe-detail-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .pipe-detail-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
     .pipe-code {
       background: #0d1117; border-radius: 6px; padding: 14px 16px;
       font-family: var(--mono); font-size: 12px; line-height: 1.7;
-      color: #a5f3fc; white-space: pre; overflow-x: auto;
+      color: #a5f3fc; white-space: pre; overflow-x: auto; width: 100%;
+    }
+    .pipe-visual {
+      width: 100%; border-radius: 8px; overflow: hidden;
+      background: #0d1117; display: flex; align-items: center; justify-content: center;
+      min-height: 160px; padding: 16px; box-sizing: border-box;
+    }
+    .pipe-visual-placeholder {
+      color: var(--text-dim); font-size: 13px; text-align: center; line-height: 1.6;
     }
     @media (max-width: 700px) {
       .pipeline { flex-direction: column; }
       .pipe-connector { display: none; }
+      .pipe-detail { grid-template-columns: 1fr; }
+      .pipe-detail-left { border-right: none; border-bottom: 1px solid var(--border); }
     }
 
     /* ── Layout Lab ── */
@@ -340,7 +354,7 @@
 <div class="hero" style="padding-top:72px">
   <div class="hero-eyebrow">🎨 Adobe Edge Delivery Services</div>
   <h1>Visual Content Fragments<br><span>+ AI Agent Pipeline</span></h1>
-  <p>From Figma design to live EDS block in minutes. Brand Experience Agent → Content Production Agent → Experience Modernization Agent — zero developer handoff.</p>
+  <p>From Figma design to live EDS block in minutes. Brand Experience Agent &rarr; Content Production Agent &rarr; Experience Modernization Agent. No developer handoff.</p>
 </div>
 
 <!-- ════════════════════════════════════════════
@@ -386,9 +400,16 @@
   </div>
 
   <div class="pipe-detail" id="pipe-detail">
-    <div class="pipe-detail-title" id="pipe-detail-title">Click any step — or run the pipeline — to inspect the output</div>
-    <div class="pipe-detail-desc" id="pipe-detail-desc"></div>
-    <div class="pipe-code" id="pipe-detail-code" style="display:none"></div>
+    <div class="pipe-detail-left">
+      <div class="pipe-detail-title" id="pipe-detail-title">Click any step, or run the pipeline, to inspect output</div>
+      <div class="pipe-detail-desc" id="pipe-detail-desc"></div>
+      <div class="pipe-code" id="pipe-detail-code" style="display:none"></div>
+    </div>
+    <div class="pipe-detail-right">
+      <div class="pipe-visual" id="pipe-visual">
+        <div class="pipe-visual-placeholder">▶ Run the pipeline<br>to see live output</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -398,7 +419,7 @@
 <section class="section" id="layout-lab">
   <div class="section-tag">Section 02</div>
   <div class="section-title">Layout Lab</div>
-  <div class="section-sub">Switch between five layout presets. The VCF stores the layout choice alongside the content — no code change, no developer ticket needed.</div>
+  <div class="section-sub">Switch between five layout presets. The VCF stores the layout choice alongside the content. No code change, no developer ticket.</div>
 
   <div class="layout-pills">
     <button class="layout-pill active" data-layout="hero-left">Hero Left</button>
@@ -419,7 +440,7 @@
   </div>
 
   <div class="vcf-note">
-    Layout choice is stored in the VCF as <code>"layout": "hero-left"</code> — the author changed this, not a developer.
+    Layout choice is stored in the VCF as <code>"layout": "hero-left"</code>. The author changed this; no developer ticket required.
     <a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery/wysiwyg-authoring/content-fragments" target="_blank" rel="noopener" style="color:#93c5fd;margin-left:8px">ExL: CFs in EDS ↗</a>
   </div>
 </section>
@@ -430,7 +451,7 @@
 <section class="section" id="brand-studio">
   <div class="section-tag">Section 03</div>
   <div class="section-title">Brand Studio</div>
-  <div class="section-sub">Adjust brand tokens — palette, radius, scale, spacing — and watch the preview above update instantly. The VCF stores these choices; no CSS file changes required.</div>
+  <div class="section-sub">Adjust brand tokens (palette, radius, scale, spacing) and watch the preview update. The VCF stores these choices; no CSS file changes required.</div>
 
   <div class="brand-grid">
     <div>
@@ -465,7 +486,7 @@
       </div>
 
       <div class="brand-note">
-        <strong>Zero developer involvement.</strong> These brand tokens are stored in the Visual CF and applied at render time — consistent across every page that references this fragment.
+        <strong>No developer involvement.</strong> Brand tokens are stored in the Visual CF and applied at render time, consistently, across every page that references this fragment.
       </div>
     </div>
 
@@ -489,7 +510,7 @@
 <section class="section" id="rotation">
   <div class="section-tag">Section 04</div>
   <div class="section-title">Timed Hero Rotation</div>
-  <div class="section-sub">Three seasonal variants auto-advance every 5 seconds. Each variant carries its own schedule range, region targets, and content — all stored in the VCF schedule block.</div>
+  <div class="section-sub">Three seasonal variants auto-advance every 5 seconds. Each carries its own schedule range, region targets, and content, all stored in the VCF schedule block.</div>
 
   <div class="rot-controls">
     <button class="rot-btn" id="rot-prev">← Prev</button>
@@ -538,7 +559,7 @@
 
 <!-- ── Footer ── -->
 <footer style="border-top:1px solid var(--border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:1100px;margin:0 auto">
-  <p style="font-size:13px;color:var(--text-muted)">VCF + AI Agents — EDS demo visual. Content is illustrative.</p>
+  <p style="font-size:13px;color:var(--text-muted)">VCF + AI Agents | EDS demo. Content is illustrative.</p>
   <div style="display:flex;gap:16px;flex-wrap:wrap">
     <a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/ai-in-aem/agents/brand-experience/experience-production/figma-to-visual-content-fragments" target="_blank" rel="noopener" style="font-size:12px;color:var(--accent)">ExL: Figma → VCF ↗</a>
     <a href="https://da.live/docs" target="_blank" rel="noopener" style="font-size:12px;color:var(--accent)">DA Live Docs ↗</a>
@@ -584,12 +605,12 @@
     },
     {
       title: 'Content Production Agent',
-      desc: 'Generates production-ready copy — headline, body, CTA label, alt text — from Figma layer names and a provided brief. Output is structured for AEM Content Fragment fields.',
+      desc: 'Generates production-ready copy (headline, body, CTA label, alt text) from Figma layer names and a brief. Output maps directly to AEM Content Fragment fields.',
       code: `// Content Production Agent output
 {
   "eyebrow": "Limited Time · Summer 2026",
   "title": "Summer is Served",
-  "description": "Fresh seasonal ingredients. Bold new flavors. Our chef's patio menu runs June through August — celebrate summer the way it should be tasted.",
+  "description": "Fresh seasonal ingredients, bold new flavors. Our chef's patio menu runs June through August. Celebrate summer the way it should be tasted.",
   "ctaLabel": "Explore the Menu",
   "imageAlt": "Vibrant summer patio spread with colorful seasonal dishes"
 }`
@@ -610,7 +631,7 @@
     },
     {
       title: 'Visual Content Fragment',
-      desc: 'The VCF is created in AEM Assets at /content/dam/saffron/fragments/summer-hero. It holds content, layout, schedule, and brand tokens in one structured artifact — ready for any EDS page to reference.',
+      desc: 'The VCF is created in AEM Assets at /content/dam/saffron/fragments/summer-hero. It holds content, layout, schedule, and brand tokens in one structured artifact, ready for any EDS page to reference.',
       code: `// CF created at:
 // /content/dam/saffron/fragments/summer-hero
 // Fetch via Delivery API:
@@ -621,8 +642,8 @@ fetch('https://publish-p138879.adobeaemcloud.com' +
   .then(d => renderBlock(d.data.homeHeroByPath.item));`
     },
     {
-      title: 'EDS Block — Live',
-      desc: 'The EDS hero block reads the VCF at page load. Layout, style, and schedule are all driven by the CF — not hard-coded. A content author can change layout or season without touching any source file.',
+      title: 'EDS Block, Live',
+      desc: 'The EDS hero block reads the VCF at page load. Layout, style, and schedule are all driven by the CF, not hard-coded. A content author can change layout or season without touching any source file.',
       code: `// blocks/hero/hero.js
 export default async function decorate(block) {
   const cfPath = block.querySelector('a')?.href;
@@ -670,7 +691,7 @@ export default async function decorate(block) {
     document.querySelectorAll('.pipe-step').forEach(el => { el.classList.remove('active','done'); });
     document.querySelectorAll('.pipe-connector').forEach(el => el.classList.remove('lit'));
     for (let i = 0; i < STEP_DATA.length; i++) {
-      await new Promise(r => setTimeout(r, 620));
+      await new Promise(r => setTimeout(r, 1400));
       setStepActive(i);
     }
     running = false;
@@ -698,7 +719,7 @@ export default async function decorate(block) {
     return `<div style="display:flex;flex-direction:column;justify-content:center;gap:12px;padding:var(--vcf-gap)">
       <div class="card-eyebrow" style="font-size:11px;font-weight:700;color:var(--vcf-accent);text-transform:uppercase;letter-spacing:.08em">Summer 2026</div>
       <div style="font-size:calc(28px*var(--vcf-scale));font-weight:800;line-height:1.1;color:#fff">Summer<br>is Served</div>
-      <div style="font-size:calc(15px*var(--vcf-scale));color:var(--text-dim);line-height:1.6;max-width:360px">Fresh seasonal ingredients, bold new flavors. Our chef's patio menu — June through August.</div>
+      <div style="font-size:calc(15px*var(--vcf-scale));color:var(--text-dim);line-height:1.6;max-width:360px">Fresh seasonal ingredients, bold new flavors. Our chef's patio menu. June through August.</div>
       <div><button class="card-cta">Explore the Menu →</button></div>
     </div>`;
   }
@@ -725,7 +746,8 @@ export default async function decorate(block) {
   // ── BRAND STUDIO ────────────────────────────────────────────────────────────
 
   function renderBrandPreview() {
-    document.getElementById('brand-preview').innerHTML = makeCard();
+    document.getElementById('brand-preview').innerHTML =
+      `<div style="display:flex;gap:var(--vcf-gap);flex-wrap:wrap">${makeCard()}${makeCard()}</div>`;
   }
   renderBrandPreview();
 
@@ -812,6 +834,14 @@ export default async function decorate(block) {
 
   setRotActive(0, true);
 
+}());
+</script>
+<script>
+(function rumBeacon() {
+  var d = 'edge--diagram-editor--pstolmar.aem.live';
+  var data = { weight: 1, id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2), referer: document.referrer, checkpoint: 'top', target: location.href };
+  navigator.sendBeacon('https://rum.aem.live/1/rum?d=' + encodeURIComponent(d), JSON.stringify(data));
+  ['LCP','CLS','FID','INP','TTFB'].forEach(function(m){try{new PerformanceObserver(function(l){l.getEntries().forEach(function(e){var p={weight:1,id:data.id,referer:document.referrer,checkpoint:m.toLowerCase(),source:e.element?e.element.nodeName:'',value:Math.round(e.value||e.startTime||0)};navigator.sendBeacon('https://rum.aem.live/1/rum?d='+encodeURIComponent(d),JSON.stringify(p));})}).observe({type:m,buffered:true});}catch(e){}});
 }());
 </script>
 </body>
