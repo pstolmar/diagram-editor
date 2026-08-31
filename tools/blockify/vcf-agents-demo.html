@@ -578,21 +578,30 @@
   const STEP_DATA = [
     {
       title: 'Input: Figma File',
-      desc: 'Brand designer exports the Summer Menu campaign frame. The Brand Experience Agent receives the Figma file URL and reads design tokens, layer names, and text content.',
-      code: `// Figma file shared with the Brand Experience Agent
+      desc: 'Brand designer exports the Summer Menu campaign frame. The Brand Experience Agent reads design tokens, layer names, and text content from the Figma API.',
+      code: `// Figma file shared with Brand Experience Agent
 {
   "fileKey": "Xk9mT2pQ3rL8",
   "frameName": "Summer Menu Hero",
   "extractedTokens": {
     "colors": { "primary": "#c2410c", "surface": "#fff7ed" },
-    "typography": { "heading": "Playfair Display 48/1.1", "body": "Inter 16/1.6" },
+    "typography": { "heading": "Playfair Display 48/1.1" },
     "spacing": { "section": "80px", "component": "24px" }
   }
-}`
+}`,
+      visual: `<div style="text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">🎨</div>
+        <div style="font-size:11px;font-weight:700;color:#a5f3fc;letter-spacing:.06em;margin-bottom:8px">FIGMA FRAME DETECTED</div>
+        <div style="background:#1e293b;border-radius:6px;padding:10px 14px;font-size:12px;color:#94a3b8;text-align:left;line-height:1.8">
+          <div>frame: <span style="color:#86efac">Summer Menu Hero</span></div>
+          <div>layers: <span style="color:#86efac">14 extracted</span></div>
+          <div>tokens: <span style="color:#86efac">color, type, spacing</span></div>
+        </div>
+      </div>`,
     },
     {
       title: 'Brand Experience Agent',
-      desc: 'Validates brand compliance, maps Figma tokens to AEM component palette, and flags any off-brand elements. Produces a brand-validated token manifest and block recommendation.',
+      desc: 'Validates brand compliance, maps Figma tokens to AEM component palette, and flags off-brand elements. Produces a validated token manifest and block recommendation.',
       code: `// Brand Experience Agent output
 {
   "brandValidation": "passed",
@@ -601,62 +610,100 @@
   "palette": { "accent": "#c2410c", "bg": "#fff7ed" },
   "flags": [],
   "confidence": 0.97
-}`
+}`,
+      visual: `<div style="text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">🤖</div>
+        <div style="font-size:11px;font-weight:700;color:#a5f3fc;letter-spacing:.06em;margin-bottom:8px">BRAND TOKENS VALIDATED</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:8px">
+          <div style="background:#c2410c;width:36px;height:36px;border-radius:8px"></div>
+          <div style="background:#fff7ed;width:36px;height:36px;border-radius:8px;border:1px solid #4b5563"></div>
+          <div style="background:#1e293b;width:36px;height:36px;border-radius:12px;border:1px solid #4b5563"></div>
+        </div>
+        <div style="font-size:11px;color:#4ade80">brand compliance: 97%</div>
+      </div>`,
     },
     {
       title: 'Content Production Agent',
-      desc: 'Generates production-ready copy (headline, body, CTA label, alt text) from Figma layer names and a brief. Output maps directly to AEM Content Fragment fields.',
+      desc: 'Generates production-ready copy from Figma layer names and a brief. Output maps directly to AEM Content Fragment fields, no rewriting needed.',
       code: `// Content Production Agent output
 {
   "eyebrow": "Limited Time · Summer 2026",
   "title": "Summer is Served",
-  "description": "Fresh seasonal ingredients, bold new flavors. Our chef's patio menu runs June through August. Celebrate summer the way it should be tasted.",
+  "description": "Fresh seasonal ingredients, bold new flavors.",
   "ctaLabel": "Explore the Menu",
-  "imageAlt": "Vibrant summer patio spread with colorful seasonal dishes"
-}`
+  "imageAlt": "Summer patio spread with seasonal dishes"
+}`,
+      visual: `<div style="background:#1e293b;border-radius:8px;padding:14px;width:100%">
+        <div style="font-size:10px;font-weight:700;color:#c2410c;letter-spacing:.08em;margin-bottom:4px">LIMITED TIME · SUMMER 2026</div>
+        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px">Summer is Served</div>
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">Fresh seasonal ingredients, bold new flavors.</div>
+        <div style="display:inline-block;background:#c2410c;color:#fff;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px">Explore the Menu</div>
+      </div>`,
     },
     {
       title: 'Experience Modernization Agent',
-      desc: 'Assembles the VCF JSON payload combining content, layout preference, schedule, and brand tokens. Also scaffolds the EDS block markup for the first render.',
-      code: `// Experience Modernization Agent output (VCF payload)
+      desc: 'Assembles the VCF JSON payload combining content, layout, schedule, and brand tokens. Also scaffolds the EDS block markup for the first render.',
+      code: `// Experience Modernization Agent output
 {
   "model": "visual-cf",
-  "content": { "eyebrow": "Limited Time · Summer 2026",
-               "title": "Summer is Served", "ctaLabel": "Explore the Menu" },
+  "content": { "title": "Summer is Served",
+               "ctaLabel": "Explore the Menu" },
   "layout": "hero-left",
   "brandTokens": { "accent": "#c2410c", "radius": "12px" },
   "schedule": { "start": "2026-06-01", "end": "2026-08-31",
                 "regions": ["EMEA", "AMER"] }
-}`
+}`,
+      visual: `<div style="text-align:center">
+        <div style="font-size:30px;margin-bottom:8px">🧩</div>
+        <div style="font-size:11px;font-weight:700;color:#a5f3fc;letter-spacing:.06em;margin-bottom:8px">VCF PAYLOAD ASSEMBLED</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+          <span style="background:#1e3a5f;color:#93c5fd;font-size:10px;padding:3px 8px;border-radius:10px">content</span>
+          <span style="background:#1e3a5f;color:#93c5fd;font-size:10px;padding:3px 8px;border-radius:10px">layout</span>
+          <span style="background:#1e3a5f;color:#93c5fd;font-size:10px;padding:3px 8px;border-radius:10px">tokens</span>
+          <span style="background:#1e3a5f;color:#93c5fd;font-size:10px;padding:3px 8px;border-radius:10px">schedule</span>
+        </div>
+      </div>`,
     },
     {
       title: 'Visual Content Fragment',
-      desc: 'The VCF is created in AEM Assets at /content/dam/saffron/fragments/summer-hero. It holds content, layout, schedule, and brand tokens in one structured artifact, ready for any EDS page to reference.',
-      code: `// CF created at:
-// /content/dam/saffron/fragments/summer-hero
-// Fetch via Delivery API:
+      desc: 'The VCF is created in AEM Assets. It holds content, layout, schedule, and brand tokens in one structured artifact, ready for any EDS page to reference via the Delivery API.',
+      code: `// /content/dam/saffron/fragments/summer-hero
 fetch('https://publish-p138879.adobeaemcloud.com' +
   '/graphql/execute.json/saffron/heroByPath' +
   ';path=/content/dam/saffron/fragments/summer-hero')
   .then(r => r.json())
-  .then(d => renderBlock(d.data.homeHeroByPath.item));`
+  .then(d => renderBlock(d.data.homeHeroByPath.item));`,
+      visual: `<div style="text-align:center">
+        <div style="font-size:30px;margin-bottom:8px">📦</div>
+        <div style="font-size:11px;font-weight:700;color:#a5f3fc;letter-spacing:.06em;margin-bottom:8px">VCF STORED IN AEM</div>
+        <div style="font-size:11px;color:#64748b;font-family:monospace;line-height:1.8">/content/dam/saffron/<br>fragments/summer-hero</div>
+        <div style="margin-top:8px;font-size:11px;color:#4ade80">Delivery API ready</div>
+      </div>`,
     },
     {
       title: 'EDS Block, Live',
-      desc: 'The EDS hero block reads the VCF at page load. Layout, style, and schedule are all driven by the CF, not hard-coded. A content author can change layout or season without touching any source file.',
+      desc: 'The EDS hero block reads the VCF at page load. Layout, style, and schedule are driven by the CF, not hard-coded. A content author can change layout or season without touching any source file.',
       code: `// blocks/hero/hero.js
 export default async function decorate(block) {
   const cfPath = block.querySelector('a')?.href;
   const { content, layout, brandTokens, schedule } =
     await fetchVCF(cfPath);
-
-  // Apply brand tokens as CSS custom properties
   Object.entries(brandTokens).forEach(([k, v]) =>
     block.style.setProperty('--vcf-' + k, v));
-
   block.dataset.layout = layout;
   block.innerHTML = renderHero(content);
-}`
+}`,
+      visual: `<div style="background:#0f2a1e;border-radius:8px;padding:14px;width:100%;border:1px solid #166534">
+        <div style="font-size:10px;font-weight:700;color:#4ade80;letter-spacing:.08em;margin-bottom:8px">LIVE ON EDS</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="background:#c2410c;width:44px;height:44px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px">🍽️</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#fff">Summer is Served</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:2px">hero-left · schedule active</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:10px;color:#4ade80">Author-controlled, no dev required</div>
+      </div>`,
     },
   ];
 
@@ -678,6 +725,10 @@ export default async function decorate(block) {
     const codeEl = document.getElementById('pipe-detail-code');
     codeEl.textContent = d.code;
     codeEl.style.display = 'block';
+    const visualEl = document.getElementById('pipe-visual');
+    if (d.visual) {
+      visualEl.innerHTML = d.visual;
+    }
   }
 
   document.querySelectorAll('.pipe-step').forEach((el) => {
