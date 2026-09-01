@@ -52,6 +52,69 @@
     }
     .byom-badge .info:hover .info-tip { display: block; }
 
+
+    /* ── Controls bar ─────────────────────────────────── */
+    .byom-controls {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .byom-toggle {
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; border-radius: 12px; padding: 2px 9px;
+      font: 600 10px var(--font); cursor: pointer; letter-spacing: .06em;
+      text-transform: uppercase; white-space: nowrap;
+      transition: background .15s;
+    }
+    .byom-toggle:hover { background: rgba(255,255,255,.22); }
+    .byom-toggle.off { opacity: .55; }
+
+    /* ── Dark mode ─────────────────────────────────────── */
+    body.dark { background: #0f172a; color: #e2e8f0; }
+    body.dark { --text: #e2e8f0; --text-muted: #94a3b8; --text-dim: #64748b;
+      --cream: #1e293b; --cream-2: #162032; --border: #334155; }
+    body.dark [data-source="xf"]  { background: #1e293b; border-bottom-color: #334155; }
+    body.dark .nav-logo           { color: #f1f5f9; }
+    body.dark .nav-links a        { color: #94a3b8; }
+    body.dark [data-source="dasc"]{ background: #0b1a12; }
+    body.dark .hero-title         { color: #f1f5f9; }
+    body.dark [data-source="da-sc"]{ background: #0a1f11; border-color: #1e4d2a; }
+    body.dark .dasc2-headline     { color: #f1f5f9; }
+    body.dark .dasc2-tag          { background: #1a3524; border-color: #2d5e40; color: #6ee7b7; }
+    body.dark [data-source="cf"]  { background: #13111f; }
+    body.dark .cf-title           { color: #e2e8f0; }
+    body.dark .cf-desc            { color: #94a3b8; }
+    body.dark .cf-pill            { background: #1e293b; color: #94a3b8; }
+    body.dark [data-source="da"]  { background: #100b1a; }
+    body.dark .section-h2         { color: #f1f5f9; }
+    body.dark .quote-card         { background: #1e1030; border-color: #3d2065; }
+    body.dark .quote-text         { color: #d4b8f0; }
+    body.dark .quote-source       { color: #c084fc; }
+    body.dark .quote-pub          { color: #7e22ce; }
+    body.dark [data-source="eds-footer"] { background: #111827; }
+    body.dark .footer-inner       { border-top-color: #1f2937; }
+    body.dark .footer-links a     { color: #94a3b8; }
+    body.dark .footer-copy        { color: #4b5563; }
+    body.dark #source-card        { background: #1e293b; }
+    body.dark .sc-body            { background: #1e293b; }
+    body.dark .sc-desc            { color: #cbd5e1; }
+    body.dark .sc-code            { background: #0f172a; color: #7dd3fc; }
+    body.dark .sc-link            { }
+    body.dark .byom-legend        { background: rgba(15,23,42,.9); border-color: #334155; }
+    body.dark .legend-label       { color: #94a3b8; }
+    body.dark .legend-item        { color: #cbd5e1; }
+
+    /* ── Copy Mermaid button ───────────────────────────── */
+    .copy-mermaid-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 12px; padding: 6px 14px; border-radius: 6px;
+      background: #f1f5f9; border: 1px solid #e2e8f0;
+      font: 600 12px var(--font); color: #475569; cursor: pointer;
+      transition: background .15s;
+    }
+    .copy-mermaid-btn:hover { background: #e2e8f0; }
+    .copy-mermaid-btn.copied { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    body.dark .copy-mermaid-btn { background: #1e293b; border-color: #334155; color: #94a3b8; }
+    body.dark .copy-mermaid-btn.copied { background: #14532d; color: #86efac; }
+
     /* ── Source hover highlight ── */
     [data-source] {
       outline: 4px solid transparent;
@@ -73,7 +136,7 @@
     /* ── Hover overlay card ── */
     #source-card {
       position: fixed; z-index: 999;
-      width: 320px; max-width: calc(100vw - 32px);
+      width: 440px; max-width: calc(100vw - 32px);
       background: #fff; border-radius: 10px;
       box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08);
       overflow: hidden;
@@ -226,7 +289,7 @@
     .cf-img { border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative; }
     .cf-img-fill {
       position: absolute; inset: 0;
-      background: url('https://images.unsplash.com/photo-1490914327627-9fe8d52f4d90?auto=format&fit=crop&w=800&q=70') center/cover;
+      background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=70') center/cover;
     }
     .cf-content { }
     .cf-tag {
@@ -425,10 +488,14 @@
 
 <!-- BYOM Concept Badge -->
 <div class="byom-badge">
+  <div class="byom-controls">
   BYOM
+  <button class="byom-toggle" id="toggle-hover" title="Toggle hover info">Hover ON</button>
+  <button class="byom-toggle" id="toggle-dark" title="Toggle dark mode">Light</button>
+  </div>
   <span class="info">ⓘ
     <span class="info-tip">
-      <strong>Bring Your Own Markup.</strong> Every section of this page comes from a different content source — AEM Experience Fragments, DA Live structured content, AEM CF API, an external data feed, an EDS block, and a DA Live document. Hover any section to see which source it uses and how it's fetched.
+      <strong>Bring Your Own Markup — demo content.</strong> Every section of this page comes from a different content source — AEM XF, DA Live SC, AEM CF API, an external feed, an AEM Edge Function, an EDS block, and a DA Live document. Hover any section to see which source it uses and how it's fetched.<br><br><em>Saffron Restaurant, its chef, menu items, press quotes, reviewers, and reservation data are entirely fictional and for demonstration purposes only.</em>
     </span>
   </span>
 </div>
@@ -758,15 +825,28 @@ export default async function decorate(block) {
     <!-- EDS block markup pattern -->
     <div class="diagram-editor">
       <div><div>
-        <pre class="diagram-source">
+        <button class="copy-mermaid-btn" id="copy-mermaid-btn">⬡ Copy Mermaid source</button>
+      <pre class="diagram-source">
+%%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','edgeLabelBackground':'#ffffff','lineColor':'#94a3b8','fontSize':'13px'}}}%%
 flowchart LR
-    XF["AEM XF\n(Nav)"] -->|fragment block| P["EDS Page"]
-    DA["DA Live SC\n(Hero)"] -->|Admin API| P
-    CF["AEM CF API\n(Dish)"] -->|GraphQL fetch| P
-    EXT["External Feed\n(Dashboard)"] -->|App Builder proxy| P
-    BLK["EDS Block\n(This diagram)"] -->|blocks/diagram-editor| P
-    DOC["DA Live Doc\n(Quotes)"] -->|GitHub → CDN| P
-    FTR["EDS Blocks\n(Footer)"] -->|blocks/footer| P
+    classDef xf      fill:#3b82f6,color:#fff,stroke:#2563eb
+    classDef dasc    fill:#10b981,color:#fff,stroke:#059669
+    classDef dasc2   fill:#10b981,color:#fff,stroke:#059669,stroke-dasharray:5
+    classDef cf      fill:#6366f1,color:#fff,stroke:#4f46e5
+    classDef ext     fill:#f59e0b,color:#1a1210,stroke:#d97706
+    classDef edgefn  fill:#f97316,color:#fff,stroke:#ea580c
+    classDef eds     fill:#e8552e,color:#fff,stroke:#c94220
+    classDef da      fill:#a855f7,color:#fff,stroke:#9333ea
+
+    XF["XF\n(Nav)"]:::xf           -->|"fragment"| P["EDS\nPage"]
+    DASC["DA Live SC\n(Hero)"]:::dasc -->|"Admin API"| P
+    DASC2["DA Native SC\n(Special)"]:::dasc2 -->|"Admin API"| P
+    CF["AEM CF API\n(Dish)"]:::cf   -->|"GraphQL"| P
+    EXT["Ext Feed\n(Dashboard)"]:::ext -->|"App Builder"| P
+    EDGE["Edge Fn\n(Availability)"]:::edgefn -->|"HTMLRewriter"| P
+    BLK["EDS Block\n(Diagram)"]:::eds  -->|"blocks/"| P
+    DOC["DA Doc\n(Quotes)"]:::da    -->|"GitHub→CDN"| P
+    FTR["EDS Blocks\n(Footer)"]:::eds  -->|"blocks/footer"| P
         </pre>
       </div></div>
     </div>
@@ -860,7 +940,7 @@ export default async function decorate(block) {
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 Saffron Restaurant · EDS BYOM demo · content is illustrative</p>
+      <p>© 2026 Saffron Restaurant · <strong>Demo only — all content, people, places and data are fictional</strong> · built with Adobe Edge Delivery Services</p>
       <nav>
         <a href="index.html">Blockify Hub</a>
         <a href="faq.html">FAQ</a>
@@ -873,14 +953,14 @@ export default async function decorate(block) {
 <!-- ── BYOM Source Legend ── -->
 <div class="byom-legend">
   <span class="legend-label">Source key:</span>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-xf)"></div>AEM Experience Fragment</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc)"></div>DA Live SC (hero)</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc);opacity:.6"></div>DA Native SC Component</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-cf)"></div>AEM CF API</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-xf)"></div>XF</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc)"></div>DA Live SC</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc);opacity:.6"></div>DA Native SC</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-cf)"></div>AEM CF</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-ext)"></div>External Feed</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-edge)"></div>AEM Edge Function</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-edge)"></div>Edge Fn</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-eds)"></div>EDS Block</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-da)"></div>DA Live Document</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-da)"></div>DA Doc</div>
 </div>
 
 <script type="module">
@@ -972,28 +1052,22 @@ export default async function decorate(block) {
     activeHighlightEl = el;
     el.style.boxShadow = '0 0 0 4px ' + color + ', 0 0 32px ' + color + '44';
 
-    positionCard(e || null, el);
+    positionCard(el);
     card.classList.add('visible');
   }
 
-  function positionCard(e, el) {
-    var cardW = 320;
-    var cardH = card.offsetHeight || 360;
+  function positionCard(el) {
+    var cardW = card.offsetWidth || 440;
+    var cardH = card.offsetHeight || 400;
     var vw = window.innerWidth;
     var vh = window.innerHeight;
     var rect = el.getBoundingClientRect();
-    var x, y;
-    if (e) {
-      x = e.clientX + 14;
-      y = e.clientY + 14;
-    } else {
-      x = rect.right - cardW - 16;
-      y = rect.top + 16;
-    }
+    // Anchor inside element top-right corner — card never follows cursor
+    var x = rect.right - cardW - 16;
+    var y = rect.top + 16;
     if (x + cardW > vw - 8) x = vw - cardW - 8;
     if (x < 8) x = 8;
-    // Flip above cursor when card would overflow viewport bottom
-    if (y + cardH > vh - 8) y = (e ? e.clientY : rect.top) - cardH - 8;
+    if (y + cardH > vh - 8) y = vh - cardH - 8;
     if (y < 8) y = 8;
     card.style.left = x + 'px';
     card.style.top  = y + 'px';
@@ -1029,11 +1103,7 @@ export default async function decorate(block) {
       clearTimeout(hideTimer);
       if (activeHighlightEl !== el) showCard(el, e);
     });
-    document.addEventListener('mousemove', function (e) {
-      if (!activeHighlightEl) return;
-      var el = e.target.closest('[data-source]');
-      if (el && el === activeHighlightEl) positionCard(e, el);
-    });
+
     document.addEventListener('mouseout', function (e) {
       var el = e.target.closest('[data-source]');
       if (!el) return;
@@ -1047,7 +1117,7 @@ export default async function decorate(block) {
   }
 
   document.addEventListener('click', function (e) {
-    if (!e.target.closest('[data-source]') && !e.target.closest('#source-card')) {
+    if (!e.target.closest('[data-source]') && !e.target.closest('#source-card') && !e.target.closest('.byom-badge')) {
       hideCard();
     }
   });
@@ -1055,6 +1125,51 @@ export default async function decorate(block) {
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') hideCard();
   });
+
+  // ── Hover toggle ───────────────────────────────────────────────────────────
+  var hoverEnabled = true;
+  var toggleHoverBtn = document.getElementById('toggle-hover');
+  if (toggleHoverBtn) {
+    toggleHoverBtn.addEventListener('click', function () {
+      hoverEnabled = !hoverEnabled;
+      toggleHoverBtn.textContent = hoverEnabled ? 'Hover ON' : 'Hover OFF';
+      toggleHoverBtn.classList.toggle('off', !hoverEnabled);
+      if (!hoverEnabled) hideCard();
+    });
+  }
+
+  // Wrap showCard to respect toggle
+  var _origShowCard = showCard;
+  showCard = function (el, e) {
+    if (!hoverEnabled) return;
+    _origShowCard(el, e);
+  };
+
+  // ── Dark mode toggle ───────────────────────────────────────────────────────
+  var darkBtn = document.getElementById('toggle-dark');
+  if (darkBtn) {
+    darkBtn.addEventListener('click', function () {
+      var isDark = document.body.classList.toggle('dark');
+      darkBtn.textContent = isDark ? 'Dark' : 'Light';
+    });
+  }
+
+  // ── Copy Mermaid source ───────────────────────────────────────────────────
+  var copyBtn = document.getElementById('copy-mermaid-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var pre = document.querySelector('.diagram-source');
+      if (!pre) return;
+      navigator.clipboard.writeText(pre.textContent.trim()).then(function () {
+        copyBtn.textContent = '✓ Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(function () {
+          copyBtn.textContent = '⬡ Copy Mermaid source';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  }
 
 }());
 </script>
