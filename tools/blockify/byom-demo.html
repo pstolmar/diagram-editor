@@ -302,7 +302,7 @@
     .cf-img { border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative; }
     .cf-img-fill {
       position: absolute; inset: 0;
-      background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=70') center/cover;
+      background: url('https://content.da.live/pstolmar/diagram-editor/media/saffron-scallops.jpg') center/cover;
     }
     .cf-content { }
     .cf-tag {
@@ -497,13 +497,13 @@
     .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
   </style>
 </head>
-<body>
+<body class="dark">
 
 <!-- BYOM Controls Badge -->
 <div class="byom-badge" id="byom-badge">
   <div class="byom-controls" id="byom-controls">
     <button class="byom-toggle" id="toggle-hover" title="Toggle hover info">Hover ON</button>
-    <button class="byom-toggle" id="toggle-dark" title="Toggle dark mode">Light</button>
+    <button class="byom-toggle" id="toggle-dark" title="Toggle dark mode">Dark</button>
   </div>
   <button class="info" id="byom-collapse" title="Click to collapse · hover for info">ⓘ
     <span class="info-tip">
@@ -839,7 +839,7 @@ export default async function decorate(block) {
       <div><div>
         <button class="copy-mermaid-btn" id="copy-mermaid-btn">⬡ Copy Mermaid source</button>
       <pre class="diagram-source">
-%%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','edgeLabelBackground':'#ffffff','lineColor':'#94a3b8','fontSize':'13px'}}}%%
+%%{init:{'theme':'base','flowchart':{'nodeSpacing':30},'themeVariables':{'primaryColor':'#ffffff','edgeLabelBackground':'#ffffff','lineColor':'#94a3b8','fontSize':'13px'}}}%%
 flowchart LR
     classDef xf      fill:#3b82f6,color:#fff,stroke:#2563eb
     classDef dasc    fill:#10b981,color:#fff,stroke:#059669
@@ -978,21 +978,36 @@ export default async function decorate(block) {
 <script type="module">
   // ── Mermaid diagram ──────────────────────────────────────────────────────────
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: false, theme: 'default', flowchart: { curve: 'basis' } });
-  const pre = document.querySelector('.diagram-source');
-  if (pre) {
-    const diagramDiv = pre.closest('.diagram-editor');
+
+  const preSrc = document.querySelector('.diagram-source');
+  const srcText = preSrc ? preSrc.textContent.trim() : '';
+  window.diagramSourceText = srcText;
+  const diagramContainer = preSrc ? preSrc.closest('.diagram-editor') : null;
+  let renderCount = 0;
+
+  const darkSrc = srcText.replace(
+    /%%\{init:[^\n]*%%/,
+    "%%{init:{'theme':'dark','flowchart':{'nodeSpacing':30}}}%%"
+  );
+
+  async function renderDiagram() {
+    if (!diagramContainer || !srcText) return;
+    const isDark = document.body.classList.contains('dark');
+    mermaid.initialize({ startOnLoad: false, flowchart: { curve: 'basis' } });
     try {
-      const { svg } = await mermaid.render('byom-arch', pre.textContent.trim());
+      const { svg } = await mermaid.render('byom-arch-' + (++renderCount), isDark ? darkSrc : srcText);
       const output = document.createElement('div');
       output.className = 'diagram-output';
       output.innerHTML = svg;
-      diagramDiv.innerHTML = '';
-      diagramDiv.appendChild(output);
+      diagramContainer.innerHTML = '';
+      diagramContainer.appendChild(output);
     } catch (e) {
-      diagramDiv.innerHTML = '<p style="color:#888;font-size:13px;padding:16px">Diagram rendering requires a network connection (Mermaid CDN).</p>';
+      if (diagramContainer) diagramContainer.innerHTML = '<p style="color:#888;font-size:13px;padding:16px">Diagram rendering requires a network connection (Mermaid CDN).</p>';
     }
   }
+
+  renderDiagram();
+  window.rerenderDiagram = renderDiagram;
 </script>
 
 <script>
@@ -1146,6 +1161,7 @@ export default async function decorate(block) {
     darkBtn.addEventListener('click', function () {
       var isDark = document.body.classList.toggle('dark');
       darkBtn.textContent = isDark ? 'Dark' : 'Light';
+      if (window.rerenderDiagram) window.rerenderDiagram();
     });
   }
 
@@ -1163,9 +1179,9 @@ export default async function decorate(block) {
   var copyBtn = document.getElementById('copy-mermaid-btn');
   if (copyBtn) {
     copyBtn.addEventListener('click', function () {
-      var pre = document.querySelector('.diagram-source');
-      if (!pre) return;
-      navigator.clipboard.writeText(pre.textContent.trim()).then(function () {
+      var src = window.diagramSourceText || '';
+      if (!src) return;
+      navigator.clipboard.writeText(src).then(function () {
         copyBtn.textContent = '✓ Copied!';
         copyBtn.classList.add('copied');
         setTimeout(function () {
