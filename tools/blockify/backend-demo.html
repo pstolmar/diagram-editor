@@ -821,6 +821,36 @@
     .modal-after-name { font-family: 'SFMono-Regular',monospace; font-size: 13px; font-weight: 700; color: #0f172a; }
     .modal-after-desc { font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.5; }
     .modal-after-replaces { font-size: 11px; color: #94a3b8; margin-top: 6px; font-style: italic; }
+
+    /* ── Modal card clones ── */
+    @keyframes cardFlyIn {
+      from { opacity: 0; transform: translateY(16px) scale(.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-cards-row {
+      display: flex; gap: 10px; align-items: flex-start; margin-bottom: 4px; flex-wrap: wrap;
+    }
+    .modal-card-clone {
+      flex: 1; min-width: 180px;
+      border-radius: 8px; padding: 11px 13px;
+      border: 1px solid #e2e8f0; background: #f8fafc;
+      animation: cardFlyIn .25s ease forwards;
+    }
+    .modal-card-clone.before-clone { background: #fef9c3; border-color: #fcd34d; }
+    .modal-card-clone.after-clone  { background: #f0f9ff; border-color: #bae6fd; }
+    .modal-card-clone-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      color: #94a3b8; margin-bottom: 5px;
+    }
+    .modal-card-clone .comp-name,
+    .modal-card-clone .after-card-name { font-size: 12px !important; }
+    .modal-card-clone .comp-desc,
+    .modal-card-clone .after-card-desc,
+    .modal-card-clone .after-card-replaces { font-size: 11px !important; margin-top: 3px; }
+    .modal-card-clone .problem-badge,
+    .modal-card-clone .lang-tag { font-size: 9px; padding: 1px 4px; }
+    .modal-card-clone .call-target { font-size: 10px; }
+    .modal-arrow-wrap { display: flex; align-items: center; padding-top: 24px; color: #94a3b8; font-size: 18px; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -1391,33 +1421,77 @@
       modal.classList.remove('open');
     }
 
+    function cloneCard(el, labelText, extraClass, delay) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'modal-card-clone ' + (extraClass || '');
+      wrapper.style.animationDelay = delay || '0ms';
+
+      var label = document.createElement('div');
+      label.className = 'modal-card-clone-label';
+      label.textContent = labelText;
+      wrapper.appendChild(label);
+
+      var inner = el.cloneNode(true);
+      // Strip tooltip if any
+      var tt = inner.querySelector('.tooltip');
+      if (tt) tt.remove();
+      // Remove selected/highlighted state classes
+      inner.classList.remove('selected', 'highlighted');
+      inner.removeAttribute('id');
+      inner.removeAttribute('tabindex');
+      wrapper.appendChild(inner);
+      return wrapper;
+    }
+
     function showModal(beforeEl, afterEls) {
       var beforeName = beforeEl.querySelector('.comp-name, .ext-card-name');
-      var beforeDesc = beforeEl.querySelector('.comp-desc, .ext-card-desc');
+      modalTitle.textContent = (beforeName ? beforeName.textContent.trim() : 'Component') + ' → Modernized';
 
-      var html = '<div style="background:#fef9c3;border:1px solid #fcd34d;border-radius:8px;padding:12px 14px;margin-bottom:4px;">';
-      html += '<div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:.06em;margin-bottom:4px;">BEFORE — AEM Monolith</div>';
-      html += '<div style="font-weight:600;color:#0f172a;font-size:14px;">' + (beforeName ? beforeName.innerHTML : beforeEl.id) + '</div>';
-      if (beforeDesc) html += '<div style="color:#475569;font-size:13px;margin-top:4px;">' + beforeDesc.innerHTML + '</div>';
-      html += '</div>';
+      // Clear and build body
+      modalBody.innerHTML = '';
+
+      // ── Card clone row ──────────────────────────────────────────
+      var row = document.createElement('div');
+      row.className = 'modal-cards-row';
+
+      // Before clone
+      row.appendChild(cloneCard(beforeEl, 'BEFORE', 'before-clone', '0ms'));
+
+      // Arrow
+      var arrow = document.createElement('div');
+      arrow.className = 'modal-arrow-wrap';
+      arrow.innerHTML = '→';
+      row.appendChild(arrow);
+
+      // After clones
+      afterEls.forEach(function (afterEl, idx) {
+        row.appendChild(cloneCard(afterEl, 'AFTER', 'after-clone', (idx * 60 + 60) + 'ms'));
+      });
+
+      modalBody.appendChild(row);
+
+      // ── Descriptive text blocks ─────────────────────────────────
+      var textBlocks = document.createElement('div');
+      textBlocks.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-top:4px';
 
       afterEls.forEach(function (afterEl) {
         var name = afterEl.querySelector('.after-card-name');
         var desc = afterEl.querySelector('.after-card-desc');
         var replaces = afterEl.querySelector('.after-card-replaces');
         var section = afterEl.closest('.section-panel');
-        var sectionClass = section ? (section.classList.contains('edge-workers') ? '#0ea5e9' : section.classList.contains('app-builder') ? '#8b5cf6' : '#10b981') : '#0ea5e9';
+        var color = section ? (section.classList.contains('edge-workers') ? '#0ea5e9' : section.classList.contains('app-builder') ? '#8b5cf6' : '#10b981') : '#0ea5e9';
+        var sectionLabel = section ? ((section.querySelector('.section-label') || {}).textContent || 'EDS') : 'EDS';
 
-        html += '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid ' + sectionClass + ';border-radius:8px;padding:12px 14px;">';
-        html += '<div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:.06em;margin-bottom:4px;">AFTER — ' + (section ? (section.querySelector('.section-label') || {}).textContent || 'EDS' : 'EDS') + '</div>';
-        if (name) html += '<div style="font-weight:600;color:#0f172a;font-size:14px;">' + name.textContent + '</div>';
-        if (desc) html += '<div style="color:#475569;font-size:13px;margin-top:4px;">' + desc.innerHTML + '</div>';
-        if (replaces) html += '<div style="color:#94a3b8;font-size:12px;margin-top:8px;">' + replaces.innerHTML + '</div>';
-        html += '</div>';
+        var block = document.createElement('div');
+        block.style.cssText = 'background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid ' + color + ';border-radius:8px;padding:12px 14px';
+        block.innerHTML = '<div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.06em;margin-bottom:3px">AFTER — ' + sectionLabel + '</div>' +
+          (name ? '<div style="font-weight:600;color:#0f172a;font-size:13px">' + name.textContent + '</div>' : '') +
+          (desc ? '<div style="color:#475569;font-size:12px;margin-top:4px;line-height:1.5">' + desc.innerHTML + '</div>' : '') +
+          (replaces ? '<div style="color:#94a3b8;font-size:11px;margin-top:6px">' + replaces.innerHTML + '</div>' : '');
+        textBlocks.appendChild(block);
       });
 
-      modalTitle.textContent = (beforeName ? beforeName.textContent.trim() : 'Component') + ' → Modernized';
-      modalBody.innerHTML = html;
+      modalBody.appendChild(textBlocks);
       modal.classList.add('open');
       modalClose.focus();
     }

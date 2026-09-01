@@ -294,23 +294,64 @@
     .brand-note strong { color: var(--green); }
 
     /* ── Timed Rotation ── */
-    .rotation-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    @media (max-width: 700px) { .rotation-cards { grid-template-columns: 1fr; } }
-    .rot-card {
-      border-radius: var(--radius); overflow: hidden;
-      border: 2px solid var(--border);
-      transition: border-color .3s, box-shadow .3s;
-      cursor: pointer;
+    /* ── Hero rotation ── */
+    .rot-hero {
+      position: relative; border-radius: var(--radius); overflow: hidden;
+      height: 380px; background: var(--surface);
     }
-    .rot-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 4px 24px rgba(59,130,246,.2); }
-    .rot-img { aspect-ratio: 16/7; position: relative; }
-    .rot-body { padding: 14px; background: var(--surface); }
-    .rot-season { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
-    .rot-title { font-size: 15px; font-weight: 700; color: #fff; }
-    .rot-meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
-    .rot-progress-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-top: 10px; overflow: hidden; }
-    .rot-progress { height: 100%; background: var(--accent); width: 0%; transition: none; border-radius: 2px; }
-    .rot-controls { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
+    .rot-slide {
+      position: absolute; inset: 0;
+      display: flex; align-items: flex-end;
+      opacity: 0; transition: opacity .5s ease;
+      pointer-events: none;
+    }
+    .rot-slide.active { opacity: 1; pointer-events: auto; }
+    .rot-slide-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+    }
+    .rot-slide-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.2) 55%, transparent 100%);
+    }
+    .rot-slide-content {
+      position: relative; z-index: 1;
+      padding: 28px 32px 0; width: 100%;
+    }
+    .rot-slide-season {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      margin-bottom: 6px;
+    }
+    .rot-slide-title { font-size: 28px; font-weight: 800; line-height: 1.1; color: #fff; margin-bottom: 6px; }
+    .rot-slide-meta { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.5; margin-bottom: 16px; }
+    .rot-prog-bar-wrap {
+      height: 3px; background: rgba(255,255,255,.15); border-radius: 2px;
+      overflow: hidden; margin: 0 -32px; /* bleed to edges */
+    }
+    .rot-prog-bar { height: 100%; width: 0%; background: #fff; border-radius: 2px; transition: none; }
+
+    /* Thumbnail row */
+    .rot-thumbs {
+      display: flex; gap: 12px; margin-top: 16px;
+    }
+    .rot-thumb {
+      flex: 1; border-radius: 6px; overflow: hidden; cursor: pointer;
+      border: 2px solid var(--border); transition: border-color .2s, transform .2s;
+    }
+    .rot-thumb:hover { border-color: rgba(255,255,255,.35); transform: translateY(-2px); }
+    .rot-thumb.active { border-color: #fff; }
+    .rot-thumb-img {
+      height: 56px;
+      background-size: cover; background-position: center;
+    }
+    .rot-thumb-label {
+      padding: 6px 8px; background: var(--surface);
+      font-size: 11px; font-weight: 600; color: var(--text-dim);
+    }
+    .rot-thumb.active .rot-thumb-label { color: #fff; }
+
+    /* Controls row */
+    .rot-controls { display: flex; gap: 10px; margin-top: 14px; align-items: center; }
     .rot-btn {
       padding: 8px 16px; border-radius: 6px;
       border: 1px solid var(--border); background: var(--surface);
@@ -323,11 +364,6 @@
       border-radius: 6px; padding: 16px;
       font-family: var(--mono); font-size: 12px; line-height: 1.8;
       color: #a5f3fc; overflow-x: auto; white-space: pre;
-    }
-
-    @keyframes progressFill {
-      from { width: 0%; }
-      to   { width: 100%; }
     }
   </style>
 </head>
@@ -512,46 +548,63 @@
   <div class="section-title">Timed Hero Rotation</div>
   <div class="section-sub">Three seasonal variants auto-advance every 5 seconds. Each carries its own schedule range, region targets, and content, all stored in the VCF schedule block.</div>
 
+  <!-- Full-width hero panel -->
+  <div class="rot-hero">
+    <!-- Spring -->
+    <div class="rot-slide active" data-rot="0">
+      <div class="rot-slide-bg" style="background:linear-gradient(135deg,#0d9488 0%,#065f46 60%,#022c22 100%)"></div>
+      <div class="rot-slide-overlay"></div>
+      <div class="rot-slide-content">
+        <div class="rot-slide-season" style="color:#6ee7b7">🌸 Spring · Mar 1 – May 31 · Global</div>
+        <div class="rot-slide-title">Fresh Beginnings</div>
+        <div class="rot-slide-meta">New spring menu with seasonal produce. VCF active for all regions.</div>
+        <div class="rot-prog-bar-wrap"><div class="rot-prog-bar" id="rot-prog-0"></div></div>
+      </div>
+    </div>
+    <!-- Summer -->
+    <div class="rot-slide" data-rot="1">
+      <div class="rot-slide-bg" style="background:linear-gradient(135deg,#c2410c 0%,#7c2d12 60%,#431407 100%)"></div>
+      <div class="rot-slide-overlay"></div>
+      <div class="rot-slide-content">
+        <div class="rot-slide-season" style="color:#fdba74">☀️ Summer · Jun 1 – Aug 31 · EMEA, AMER</div>
+        <div class="rot-slide-title">Summer is Served</div>
+        <div class="rot-slide-meta">Bold flavors, limited-time patio menu. VCF active for EMEA and AMER.</div>
+        <div class="rot-prog-bar-wrap"><div class="rot-prog-bar" id="rot-prog-1"></div></div>
+      </div>
+    </div>
+    <!-- Autumn -->
+    <div class="rot-slide" data-rot="2">
+      <div class="rot-slide-bg" style="background:linear-gradient(135deg,#92400e 0%,#451a03 60%,#1c0a00 100%)"></div>
+      <div class="rot-slide-overlay"></div>
+      <div class="rot-slide-content">
+        <div class="rot-slide-season" style="color:#fcd34d">🍂 Autumn · Sep 1 – Nov 30 · EMEA</div>
+        <div class="rot-slide-title">Harvest Tables</div>
+        <div class="rot-slide-meta">Root vegetables, slow-cooked warmth. VCF active for EMEA only.</div>
+        <div class="rot-prog-bar-wrap"><div class="rot-prog-bar" id="rot-prog-2"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thumbnail row -->
+  <div class="rot-thumbs">
+    <div class="rot-thumb active" data-rot="0">
+      <div class="rot-thumb-img" style="background:linear-gradient(135deg,#0d9488,#065f46)"></div>
+      <div class="rot-thumb-label">🌸 Spring</div>
+    </div>
+    <div class="rot-thumb" data-rot="1">
+      <div class="rot-thumb-img" style="background:linear-gradient(135deg,#c2410c,#7c2d12)"></div>
+      <div class="rot-thumb-label">☀️ Summer</div>
+    </div>
+    <div class="rot-thumb" data-rot="2">
+      <div class="rot-thumb-img" style="background:linear-gradient(135deg,#92400e,#451a03)"></div>
+      <div class="rot-thumb-label">🍂 Autumn</div>
+    </div>
+  </div>
+
   <div class="rot-controls">
     <button class="rot-btn" id="rot-prev">← Prev</button>
     <button class="rot-btn" id="rot-next">Next →</button>
     <span style="font-size:13px;color:var(--text-muted);margin-left:8px">Auto-advances every 5 s</span>
-  </div>
-
-  <div class="rotation-cards">
-    <div class="rot-card active" data-rot="0">
-      <div class="rot-img" style="background:linear-gradient(135deg,#0d9488,#065f46)">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px">🌸</div>
-      </div>
-      <div class="rot-body">
-        <div class="rot-season" style="color:#10b981">Spring</div>
-        <div class="rot-title">Fresh Beginnings</div>
-        <div class="rot-meta">Mar 1 – May 31 · Regions: Global<br>New spring menu with seasonal produce</div>
-        <div class="rot-progress-wrap"><div class="rot-progress" id="rot-prog-0"></div></div>
-      </div>
-    </div>
-    <div class="rot-card" data-rot="1">
-      <div class="rot-img" style="background:linear-gradient(135deg,#c2410c,#7c2d12)">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px">☀️</div>
-      </div>
-      <div class="rot-body">
-        <div class="rot-season" style="color:#f59e0b">Summer</div>
-        <div class="rot-title">Summer is Served</div>
-        <div class="rot-meta">Jun 1 – Aug 31 · Regions: EMEA, AMER<br>Bold flavors · Limited-time patio menu</div>
-        <div class="rot-progress-wrap"><div class="rot-progress" id="rot-prog-1"></div></div>
-      </div>
-    </div>
-    <div class="rot-card" data-rot="2">
-      <div class="rot-img" style="background:linear-gradient(135deg,#92400e,#451a03)">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px">🍂</div>
-      </div>
-      <div class="rot-body">
-        <div class="rot-season" style="color:#f59e0b">Autumn</div>
-        <div class="rot-title">Harvest Tables</div>
-        <div class="rot-meta">Sep 1 – Nov 30 · Regions: EMEA<br>Root vegetables · Slow-cooked warmth</div>
-        <div class="rot-progress-wrap"><div class="rot-progress" id="rot-prog-2"></div></div>
-      </div>
-    </div>
   </div>
 
   <div class="rot-schedule-block" id="rot-schedule"><!-- filled by JS --></div>
@@ -860,8 +913,12 @@ export default async function decorate(block) {
 
   function setRotActive(i, restart) {
     rotActive = (i + 3) % 3;
-    document.querySelectorAll('.rot-card').forEach((c, idx) => c.classList.toggle('active', idx === rotActive));
-    document.querySelectorAll('.rot-progress').forEach(p => {
+    // Slides
+    document.querySelectorAll('.rot-slide').forEach((el, idx) => el.classList.toggle('active', idx === rotActive));
+    // Thumbs
+    document.querySelectorAll('.rot-thumb').forEach((el, idx) => el.classList.toggle('active', idx === rotActive));
+    // Progress bars: reset all
+    document.querySelectorAll('.rot-prog-bar').forEach(p => {
       p.style.transition = 'none';
       p.style.width = '0%';
     });
@@ -879,7 +936,7 @@ export default async function decorate(block) {
 
   document.getElementById('rot-prev').addEventListener('click', () => setRotActive(rotActive - 1, true));
   document.getElementById('rot-next').addEventListener('click', () => setRotActive(rotActive + 1, true));
-  document.querySelectorAll('.rot-card').forEach(c => {
+  document.querySelectorAll('.rot-thumb').forEach(c => {
     c.addEventListener('click', () => setRotActive(Number(c.dataset.rot), true));
   });
 

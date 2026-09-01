@@ -53,18 +53,19 @@
 
     /* ── Source hover highlight ── */
     [data-source] {
-      outline: 3px solid transparent;
-      outline-offset: -2px;
+      outline: 4px solid transparent;
+      outline-offset: 0px;
       transition: outline-color .2s;
       position: relative;
     }
     [data-source]:hover { cursor: default; }
-    [data-source="xf"]:hover   { outline-color: var(--c-xf); }
-    [data-source="dasc"]:hover { outline-color: var(--c-dasc); }
-    [data-source="cf"]:hover   { outline-color: var(--c-cf); }
-    [data-source="ext"]:hover  { outline-color: var(--c-ext); }
-    [data-source="eds"]:hover  { outline-color: var(--c-eds); }
-    [data-source="da"]:hover   { outline-color: var(--c-da); }
+    [data-source="xf"]:hover        { outline-color: var(--c-xf); }
+    [data-source="dasc"]:hover      { outline-color: var(--c-dasc); }
+    [data-source="cf"]:hover        { outline-color: var(--c-cf); }
+    [data-source="ext"]:hover       { outline-color: var(--c-ext); }
+    [data-source="eds"]:hover       { outline-color: var(--c-eds); }
+    [data-source="da"]:hover        { outline-color: var(--c-da); }
+    [data-source="eds-footer"]:hover { outline-color: var(--c-eds); }
 
     /* ── Hover overlay card ── */
     #source-card {
@@ -171,7 +172,7 @@
     .cf-img { border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative; }
     .cf-img-fill {
       position: absolute; inset: 0;
-      background: url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=70') center/cover;
+      background: url('https://images.unsplash.com/photo-Dl0XzDSE918?auto=format&fit=crop&w=800&q=70') center/cover;
     }
     .cf-content { }
     .cf-tag {
@@ -655,6 +656,8 @@ export default async function decorate(block) {
   var scLink   = document.getElementById('sc-link');
   var isMobile = window.matchMedia('(max-width: 680px)').matches;
 
+  var activeHighlightEl = null;
+
   function showCard(el, e) {
     var src   = el.dataset.source;
     var color = COLORS[src] || '#64748b';
@@ -670,6 +673,11 @@ export default async function decorate(block) {
     scLink.href = link;
     scLink.style.color = color;
     scLink.textContent = 'Learn more on Experience League →';
+
+    // JS-driven highlight: box-shadow outside the element (always visible over children)
+    if (activeHighlightEl) activeHighlightEl.style.boxShadow = '';
+    activeHighlightEl = el;
+    el.style.boxShadow = '0 0 0 4px ' + color + ', 0 0 32px ' + color + '44';
 
     positionCard(e || null, el);
     card.classList.add('visible');
@@ -695,6 +703,10 @@ export default async function decorate(block) {
 
   function hideCard() {
     card.classList.remove('visible');
+    if (activeHighlightEl) {
+      activeHighlightEl.style.boxShadow = '';
+      activeHighlightEl = null;
+    }
   }
 
   var hideTimer = null;
