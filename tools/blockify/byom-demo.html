@@ -316,6 +316,45 @@
     }
     .dasc2-price-label { font-size: 12px; color: var(--text-muted); }
 
+    /* ── SPECIALS TABS ────────────────────────────────────────── */
+    .specials-tabs {
+      display: flex; margin-bottom: 16px; border-radius: 8px; overflow: hidden;
+      border: 1px solid #bbf7d0; width: fit-content; background: #e8fcf1;
+    }
+    .spec-tab {
+      padding: 6px 16px; font-size: 12px; font-weight: 600; cursor: pointer;
+      border: none; background: transparent; color: #166534;
+      transition: background .12s, color .12s; display: flex; align-items: center; gap: 7px;
+    }
+    .spec-tab.active { background: #10b981; color: #fff; }
+    .spec-tab:not(.active):hover { background: #d1fae5; }
+    .tab-pill {
+      font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .spec-tab.active .tab-pill { background: rgba(255,255,255,.25); color: #fff; }
+    .spec-tab:not(.active) .tab-pill { background: #bbf7d0; color: #166534; }
+    .specials-pane { display: none; }
+    .specials-pane.active { display: block; }
+    body.dark .specials-tabs { background: #0e2c18; border-color: #1e4d2a; }
+    body.dark .spec-tab { color: #6ee7b7; }
+    body.dark .spec-tab.active { background: #10b981; color: #fff; }
+    body.dark .spec-tab:not(.active):hover { background: #1a3524; }
+    body.dark .spec-tab:not(.active) .tab-pill { background: #1a3524; color: #6ee7b7; }
+
+    /* ── DUAL SOURCE CARD TABS ────────────────────────────────── */
+    .sc-dual-tabs {
+      display: flex; border-radius: 6px; overflow: hidden;
+      background: rgba(0,0,0,.18); margin-bottom: 10px;
+    }
+    .sc-dual-tab {
+      flex: 1; padding: 6px 10px; font-size: 11px; font-weight: 700; border: none;
+      background: transparent; cursor: pointer; color: rgba(255,255,255,.55);
+      transition: all .12s; text-transform: uppercase; letter-spacing: .06em; line-height: 1.3;
+    }
+    .sc-dual-tab.active { background: rgba(255,255,255,.18); color: #fff; }
+    .sc-dual-tab:hover:not(.active) { background: rgba(255,255,255,.09); color: rgba(255,255,255,.8); }
+
     /* ══════════════════════════════════════════
        SECTION 3 — FEATURED DISH (AEM CF API)
     ══════════════════════════════════════════ */
@@ -600,49 +639,75 @@ Content-Type: text/html
 
 
 <!-- ══════════════════════════════════
-     SECTION 2b — DAILY SPECIAL (DA Native SC)
+     SECTION 2b — DAILY SPECIAL (DA Fragment + DA SC dual demo)
 ═══════════════════════════════════ -->
-<section data-source="da-sc"
-         data-source-label="DA Live SC Component"
-         data-source-desc="This specials banner is a DA Live structured content component with named fields: badge, headline, sub, price, tags. Unlike freeform document authoring, SC components use a field-level model — the author fills a form, never touching markup. DA publishes the structured HTML payload to GitHub via the Admin API; EDS renders the block at edge."
-         data-source-code="// DA Live SC model: /models/specials-banner.json
-{
-  \"fields\": [
-    { \"name\": \"badge\",    \"type\": \"text\" },
-    { \"name\": \"headline\", \"type\": \"text\" },
-    { \"name\": \"sub\",      \"type\": \"textarea\" },
-    { \"name\": \"price\",    \"type\": \"text\" },
-    { \"name\": \"tags\",     \"type\": \"text\" }
-  ]
-}
-// Publish via DA Admin API:
-PUT /source/pstolmar/diagram-editor
-    /saffron/specials/week-36.html"
-         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery/wysiwyg-authoring/authoring">
+<section data-source="da-sc" data-source-dual="true"
+         data-source-label="DA Live · Week 36 / 37"
+         data-source-desc="placeholder"
+         data-source-code="placeholder"
+         data-source-link="https://da.live/docs"
+         id="specials-section">
   <div class="dasc2-inner">
-    <div class="dasc2-header">
-      <span class="dasc2-model-label">DA SC Model fields:</span>
-      <span class="dasc2-field">badge</span>
-      <span class="dasc2-field">headline</span>
-      <span class="dasc2-field">sub</span>
-      <span class="dasc2-field">price</span>
-      <span class="dasc2-field">tags</span>
-      <span class="dasc2-source">week-36.html · published via DA Admin API</span>
+    <!-- Tab switcher -->
+    <div class="specials-tabs">
+      <button class="spec-tab active" data-week="36" id="spec-tab-36">
+        This week <span class="tab-pill">Fragment</span>
+      </button>
+      <button class="spec-tab" data-week="37" id="spec-tab-37">
+        Next week <span class="tab-pill">SC</span>
+      </button>
     </div>
-    <div class="dasc2-card">
-      <div class="dasc2-body">
-        <div class="dasc2-badge">Chef's Pick · Week 36</div>
-        <h3 class="dasc2-headline">Wagyu Tartare &amp; Truffle Toast</h3>
-        <p class="dasc2-sub">Hand-trimmed A5 wagyu, shallot, caper, egg yolk — served with sourdough rubbed with black truffle. Limited to 20 portions each evening.</p>
-        <div class="dasc2-tags">
-          <span class="dasc2-tag">Gluten-free on request</span>
-          <span class="dasc2-tag">Contains egg</span>
-          <span class="dasc2-tag">Limited: 20 covers</span>
+
+    <!-- Week 36 pane: DA Live Fragment (block table) -->
+    <div class="specials-pane active" id="spec-pane-36">
+      <div class="dasc2-header">
+        <span class="dasc2-model-label">DA Fragment · block table document</span>
+        <span class="dasc2-source">week-36 · da.live/#/…/da/structured/week-36</span>
+      </div>
+      <div class="dasc2-card">
+        <div class="dasc2-body">
+          <div class="dasc2-badge">Chef's Pick · Week 36</div>
+          <h3 class="dasc2-headline">Wagyu Tartare &amp; Truffle Toast</h3>
+          <p class="dasc2-sub">Hand-trimmed A5 wagyu, shallot, caper, egg yolk — served with sourdough rubbed with black truffle. Limited to 20 portions each evening.</p>
+          <div class="dasc2-tags">
+            <span class="dasc2-tag">Gluten-free on request</span>
+            <span class="dasc2-tag">Contains egg</span>
+            <span class="dasc2-tag">Limited: 20 covers</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="dasc2-price">£38</div>
+          <div class="dasc2-price-label">starter · à la carte</div>
         </div>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div class="dasc2-price">£38</div>
-        <div class="dasc2-price-label">starter · à la carte</div>
+    </div>
+
+    <!-- Week 37 pane: DA Structured Content (schema-driven form) -->
+    <div class="specials-pane" id="spec-pane-37">
+      <div class="dasc2-header">
+        <span class="dasc2-model-label">DA Structured Content · specials-banner.json</span>
+        <span class="dasc2-field">badge</span>
+        <span class="dasc2-field">headline</span>
+        <span class="dasc2-field">sub</span>
+        <span class="dasc2-field">price</span>
+        <span class="dasc2-field">tags</span>
+        <span class="dasc2-source">week-37 · da.live/form#/…/da/structured/week-37</span>
+      </div>
+      <div class="dasc2-card">
+        <div class="dasc2-body">
+          <div class="dasc2-badge">Chef's Pick · Week 37</div>
+          <h3 class="dasc2-headline">Saffron-Glazed Lamb Cutlets</h3>
+          <p class="dasc2-sub">Rack of spring lamb brushed with saffron and pomegranate molasses, finished over oak. Served with charred aubergine, preserved lemon yoghurt, and harissa-roasted courgette.</p>
+          <div class="dasc2-tags">
+            <span class="dasc2-tag">Contains dairy</span>
+            <span class="dasc2-tag">Halal on request</span>
+            <span class="dasc2-tag">Weekend special</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="dasc2-price">£44</div>
+          <div class="dasc2-price-label">main · à la carte</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1088,9 +1153,77 @@ export default async function decorate(block) {
 
   var activeHighlightEl = null;
 
+  // ── Dual-panel data for the specials section ────────────────────────────────
+  var DUAL_DATA = {
+    '36': {
+      label: 'DA Live Fragment · Week 36',
+      desc:  'This specials banner is authored in DA Live as a regular document — the editor uses a block table where field names sit in the left column and values in the right. DA Live publishes the HTML to GitHub via the Admin API; EDS renders the block at the edge. No schema required: great for freeform editorial content that changes weekly.',
+      code:  'PUT https://admin.da.live/source/\n    pstolmar/diagram-editor\n    /da/structured/week-36.html\n\n<!-- DA fragment (block table): -->\n| specials-banner         |                              |\n| ----------------------- | ---------------------------- |\n| badge                   | Chef\'s Pick · Week 36        |\n| headline                | Wagyu Tartare & Truffle Toast|\n| sub                     | Hand-trimmed A5 wagyu...     |\n| price                   | £38                          |\n| tags                    | Gluten-free on request, ...  |',
+      link:  'https://www.aem.live/docs/document-authoring',
+    },
+    '37': {
+      label: 'DA Structured Content · Week 37',
+      desc:  'Week 37 is authored as DA Structured Content — the author fills a validated form in the SC editor (da.live/form#/…), never touching markup. The schema (specials-banner.json) defines field names, types, and validation rules. DA stores a structured payload; the block renders identically to the fragment version, but authoring is a proper form UI with field-level validation.',
+      code:  '// /models/specials-banner.json\n{\n  "id": "specials-banner",\n  "fields": [\n    { "name": "badge",    "label": "Badge text",  "type": "text",     "required": true },\n    { "name": "headline", "label": "Dish name",   "type": "text",     "required": true },\n    { "name": "sub",      "label": "Description", "type": "textarea", "required": true },\n    { "name": "price",    "label": "Price",       "type": "text",     "required": true },\n    { "name": "tags",     "label": "Dietary tags","type": "text" }\n  ]\n}\n\n// SC form editor URL:\nda.live/form#/pstolmar/diagram-editor\n         /da/structured/week-37',
+      link:  'https://da.live/docs',
+    },
+  };
+
+  function getActiveSpecialsWeek() {
+    var activeTab = document.querySelector('#specials-section .spec-tab.active');
+    return activeTab ? activeTab.dataset.week : '36';
+  }
+
+  function renderDualCard(week) {
+    var d = DUAL_DATA[week];
+    var color = COLORS['da-sc'];
+    var infoIcon = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="6" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><path d="M7 6v4M7 4.5v.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>';
+    scHeader.style.background = color;
+    scHeader.innerHTML =
+      '<div class="sc-dual-tabs" style="width:100%">' +
+      '<button class="sc-dual-tab' + (week==='36'?' active':'') + '" id="sct-36">Week 36 · Fragment</button>' +
+      '<button class="sc-dual-tab' + (week==='37'?' active':'') + '" id="sct-37">Week 37 · SC</button>' +
+      '</div>';
+    scDesc.textContent = d.desc;
+    scCode.textContent = d.code;
+    scLink.href = d.link;
+    scLink.style.color = color;
+    scLink.textContent = 'Learn more →';
+    setTimeout(function () {
+      var bt36 = document.getElementById('sct-36');
+      var bt37 = document.getElementById('sct-37');
+      if (bt36) bt36.onclick = function (ev) { ev.stopPropagation(); switchSpecialsTab('36'); };
+      if (bt37) bt37.onclick = function (ev) { ev.stopPropagation(); switchSpecialsTab('37'); };
+    }, 0);
+  }
+
+  function switchSpecialsTab(week) {
+    ['36','37'].forEach(function (w) {
+      document.getElementById('spec-tab-' + w).classList.toggle('active', w === week);
+      document.getElementById('spec-pane-' + w).classList.toggle('active', w === week);
+    });
+    // Update card if open
+    if (card.classList.contains('visible') && activeHighlightEl && activeHighlightEl.dataset.sourceDual) {
+      renderDualCard(week);
+    }
+  }
+
+  document.getElementById('spec-tab-36').addEventListener('click', function () { switchSpecialsTab('36'); });
+  document.getElementById('spec-tab-37').addEventListener('click', function () { switchSpecialsTab('37'); });
+
   function showCard(el, e) {
     var src   = el.dataset.source;
     var color = COLORS[src] || '#64748b';
+
+    if (el.dataset.sourceDual) {
+      if (activeHighlightEl) activeHighlightEl.style.boxShadow = '';
+      activeHighlightEl = el;
+      el.style.boxShadow = '0 0 0 4px ' + color + ', 0 0 32px ' + color + '44';
+      card.classList.add('visible');
+      renderDualCard(getActiveSpecialsWeek());
+      return;
+    }
+
     var label = el.dataset.sourceLabel    || src;
     var desc  = el.dataset.sourceDesc     || '';
     var code  = el.dataset.sourceCode     || '';
