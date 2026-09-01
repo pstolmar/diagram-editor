@@ -789,7 +789,9 @@ export default async function decorate(block) {
 
   function positionCard(e, el) {
     var cardW = 320;
+    var cardH = card.offsetHeight || 360;
     var vw = window.innerWidth;
+    var vh = window.innerHeight;
     var rect = el.getBoundingClientRect();
     var x, y;
     if (e) {
@@ -801,6 +803,9 @@ export default async function decorate(block) {
     }
     if (x + cardW > vw - 8) x = vw - cardW - 8;
     if (x < 8) x = 8;
+    // Flip above cursor when card would overflow viewport bottom
+    if (y + cardH > vh - 8) y = (e ? e.clientY : rect.top) - cardH - 8;
+    if (y < 8) y = 8;
     card.style.left = x + 'px';
     card.style.top  = y + 'px';
   }
