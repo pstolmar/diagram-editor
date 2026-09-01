@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Saffron VIP — Member Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #e8552e;
+      --brand-dark:   #c94220;
+      --brand-glow:   rgba(232,85,46,.18);
+      --gold:         #d4a843;
+      --gold-light:   #f3d27a;
+      --gold-dark:    #b8892a;
+      --cream:        #fdf8f4;
+      --border:       #e8ddd5;
+      --text:         #1a1210;
+      --text-muted:   #7a6e68;
+      --font-serif:   'Playfair Display', Georgia, serif;
+      --font:         'Inter', -apple-system, sans-serif;
+      --mono:         'Menlo', 'Consolas', monospace;
+
+      /* dark surface palette */
+      --dark-bg:      #0a0d14;
+      --dark-nav:     #0f1520;
+      --dark-card:    #151c2e;
+      --dark-card2:   #1a2236;
+      --dark-border:  #253047;
+      --dark-text:    #e2e8f0;
+      --dark-muted:   #8a96aa;
+      --dark-dim:     #5a6680;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--dark-bg);
+      color: var(--dark-text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ──────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--dark-nav);
+      border-bottom: 1px solid var(--dark-border);
+      padding: 0 32px;
+      display: flex; align-items: center; gap: 20px; height: 60px;
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 20px; font-weight: 600;
+      color: var(--dark-text); text-decoration: none; margin-right: auto;
+    }
+    .nav-logo span { color: var(--brand); }
+    .nav-tier {
+      display: flex; align-items: center; gap: 7px;
+      background: linear-gradient(135deg, rgba(212,168,67,.15), rgba(243,210,122,.08));
+      border: 1px solid rgba(212,168,67,.35);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 12px; font-weight: 700; letter-spacing: .07em;
+      color: var(--gold-light);
+      text-transform: uppercase;
+    }
+    .nav-tier::before { content: '★'; font-size: 10px; }
+    .nav-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #e8552e, #c94220);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+      border: 2px solid rgba(212,168,67,.4);
+    }
+    .nav-dark-toggle {
+      background: rgba(255,255,255,.07); border: 1px solid var(--dark-border);
+      color: var(--dark-muted); border-radius: 8px; padding: 5px 10px;
+      font-size: 14px; cursor: pointer; transition: background .15s;
+    }
+    .nav-dark-toggle:hover { background: rgba(255,255,255,.12); }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    main {
+      max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px;
+      display: grid; grid-template-columns: 1fr 340px; gap: 28px;
+    }
+    @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+
+    .col-left  { display: flex; flex-direction: column; gap: 24px; }
+    .col-right { display: flex; flex-direction: column; gap: 24px; }
+
+    /* ── CARD BASE ────────────────────────────────────────── */
+    .card {
+      background: var(--dark-card);
+      border: 1px solid var(--dark-border);
+      border-radius: 16px; padding: 28px;
+    }
+    .card-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--dark-dim); margin-bottom: 14px;
+    }
+
+    /* ── WELCOME CARD ─────────────────────────────────────── */
+    .welcome-card {
+      background: linear-gradient(135deg, #151c2e 0%, #1a1428 60%, #0f1520 100%);
+      border: 1px solid rgba(212,168,67,.2);
+      position: relative; overflow: hidden;
+    }
+    .welcome-card::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,168,67,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .welcome-meta { display: flex; align-items: flex-start; gap: 20px; }
+    .welcome-avatar {
+      width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #e8552e 0%, #7c2d12 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 700; color: #fff;
+      border: 3px solid rgba(212,168,67,.4);
+      box-shadow: 0 0 0 6px rgba(212,168,67,.06);
+    }
+    .welcome-info { flex: 1; }
+    .welcome-greeting {
+      font-size: 13px; color: var(--dark-muted); margin-bottom: 2px;
+    }
+    .welcome-name {
+      font-family: var(--font-serif);
+      font-size: 26px; font-weight: 700; color: #f1f5f9;
+      margin-bottom: 8px;
+    }
+    .tier-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(212,168,67,.2), rgba(243,210,122,.1));
+      border: 1px solid rgba(212,168,67,.4);
+      border-radius: 20px; padding: 4px 12px 4px 10px;
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+      color: var(--gold-light); text-transform: uppercase;
+    }
+    .tier-badge .star { font-size: 14px; }
+    .welcome-since {
+      margin-top: 12px; font-size: 12px; color: var(--dark-dim);
+    }
+    .welcome-perks {
+      margin-top: 20px; padding-top: 20px;
+      border-top: 1px solid rgba(212,168,67,.12);
+      display: flex; gap: 20px; flex-wrap: wrap;
+    }
+    .perk-pill {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--gold-light);
+    }
+    .perk-pill .icon { font-size: 16px; }
+
+    /* ── TAB BALANCE CARD ─────────────────────────────────── */
+    .tab-card {
+      background: linear-gradient(135deg, #0f1a10 0%, #141f16 100%);
+      border-color: rgba(45,157,120,.25);
+    }
+    .tab-balance-row {
+      display: flex; align-items: baseline; gap: 6px; margin: 6px 0 18px;
+    }
+    .tab-currency { font-size: 22px; font-weight: 600; color: #4ade80; margin-top: 4px; }
+    .tab-amount {
+      font-family: var(--font-serif);
+      font-size: 52px; font-weight: 700; color: #4ade80;
+      letter-spacing: -1px; line-height: 1;
+    }
+    .tab-amount-cents { font-size: 28px; }
+    .tab-sub { font-size: 12px; color: var(--dark-dim); margin-bottom: 20px; }
+    .tab-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 20px; border-radius: 10px; font-size: 13px;
+      font-weight: 600; cursor: pointer; border: none; transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--brand); color: #fff;
+    }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .btn-ghost {
+      background: rgba(255,255,255,.07); color: var(--dark-text);
+      border: 1px solid var(--dark-border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.12); }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #1a0f00;
+    }
+    .btn-gold:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+    /* ── CHARGE MODAL ─────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.65); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--dark-card2);
+      border: 1px solid var(--dark-border);
+      border-radius: 20px; padding: 32px; width: 380px; max-width: 94vw;
+      position: relative;
+    }
+    .modal h3 {
+      font-family: var(--font-serif); font-size: 20px; margin-bottom: 6px;
+    }
+    .modal p { font-size: 13px; color: var(--dark-muted); margin-bottom: 20px; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(255,255,255,.08); border: none; border-radius: 8px;
+      width: 28px; height: 28px; font-size: 16px; color: var(--dark-muted);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.14); }
+    .charge-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .charge-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.06);
+      font-size: 13px; cursor: pointer; transition: background .12s;
+    }
+    .charge-item:hover { background: rgba(255,255,255,.09); }
+    .charge-item.selected {
+      background: rgba(232,85,46,.12); border-color: rgba(232,85,46,.3);
+    }
+    .charge-item .ci-name { font-weight: 500; }
+    .charge-item .ci-price { color: var(--brand); font-weight: 600; }
+    .charge-perk {
+      background: rgba(45,157,120,.08); border: 1px solid rgba(45,157,120,.2);
+      border-radius: 10px; padding: 10px 14px; font-size: 12px;
+      color: #4ade80; display: flex; align-items: center; gap: 8px;
+      margin-bottom: 20px;
+    }
+    .charge-total {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 14px 0; border-top: 1px solid var(--dark-border);
+      margin-bottom: 16px;
+    }
+    .charge-total .label { font-size: 13px; color: var(--dark-muted); }
+    .charge-total .amount { font-size: 22px; font-weight: 700; color: var(--dark-text); }
+    .charge-result {
+      display: none; text-align: center; padding: 20px 0 8px;
+    }
+    .charge-result .cr-icon { font-size: 40px; margin-bottom: 8px; }
+    .charge-result .cr-msg { font-family: var(--font-serif); font-size: 17px; margin-bottom: 6px; }
+    .charge-result .cr-sub { font-size: 12px; color: var(--dark-muted); }
+
+    /* ── TRANSACTION HISTORY ──────────────────────────────── */
+    .tx-list { display: flex; flex-direction: column; gap: 2px; }
+    .tx-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .tx-row:last-child { border-bottom: none; }
+    .tx-icon {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .tx-icon.debit  { background: rgba(232,85,46,.12); }
+    .tx-icon.credit { background: rgba(45,157,120,.12); }
+    .tx-icon.perk   { background: rgba(212,168,67,.12); }
+    .tx-desc { flex: 1; font-size: 13px; }
+    .tx-desc .tx-title  { font-weight: 500; color: var(--dark-text); }
+    .tx-desc .tx-date   { font-size: 11px; color: var(--dark-dim); margin-top: 1px; }
+    .tx-amount { font-size: 13px; font-weight: 600; }
+    .tx-amount.debit  { color: var(--brand); }
+    .tx-amount.credit { color: #4ade80; }
+    .tx-amount.perk   { color: var(--gold-light); }
+
+    /* ── RESERVATION CARD ─────────────────────────────────── */
+    .res-card {}
+    .res-datetime {
+      font-family: var(--font-serif);
+      font-size: 28px; font-weight: 700; color: #f1f5f9;
+      margin: 6px 0 4px;
+    }
+    .res-detail { font-size: 13px; color: var(--dark-muted); margin-bottom: 16px; }
+    .res-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+      letter-spacing: .05em; text-transform: uppercase;
+    }
+    .badge-vip { background: rgba(212,168,67,.15); color: var(--gold-light); border: 1px solid rgba(212,168,67,.3); }
+    .badge-dessert { background: rgba(45,157,120,.12); color: #4ade80; border: 1px solid rgba(45,157,120,.25); }
+    .badge-window { background: rgba(99,102,241,.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,.25); }
+    .res-note { font-size: 12px; color: var(--dark-dim); font-style: italic; }
+    .res-actions { margin-top: 18px; display: flex; gap: 10px; }
+
+    /* ── APP BUILDER CALLOUT ──────────────────────────────── */
+    .api-callout {
+      background: #0a0f1c;
+      border: 1px solid var(--dark-border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .api-callout-header {
+      display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+      background: rgba(255,255,255,.03); border-bottom: 1px solid var(--dark-border);
+      cursor: pointer; user-select: none;
+    }
+    .api-callout-header h4 { font-size: 13px; font-weight: 600; flex: 1; }
+    .api-callout-header .badge-api {
+      font-size: 10px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 8px;
+      background: rgba(20,115,230,.2); color: #93c5fd; border: 1px solid rgba(20,115,230,.3);
+    }
+    .api-chevron { transition: transform .2s; color: var(--dark-dim); }
+    .api-callout.open .api-chevron { transform: rotate(180deg); }
+    .api-body { display: none; padding: 16px 18px; }
+    .api-callout.open .api-body { display: block; }
+    .api-endpoint {
+      margin-bottom: 12px;
+    }
+    .api-endpoint .ep-method {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 5px; background: rgba(34,197,94,.15);
+      color: #4ade80; margin-right: 8px; vertical-align: middle;
+      text-transform: uppercase;
+    }
+    .api-endpoint .ep-path {
+      font-family: var(--mono); font-size: 12px; color: #93c5fd;
+    }
+    .api-endpoint .ep-desc { font-size: 12px; color: var(--dark-muted); margin-top: 4px; margin-left: 4px; }
+    .api-note {
+      font-size: 11px; color: var(--dark-dim); margin-top: 12px;
+      padding-top: 12px; border-top: 1px solid var(--dark-border); line-height: 1.6;
+    }
+    .demo-mode-banner {
+      background: rgba(232,85,46,.08); border: 1px solid rgba(232,85,46,.2);
+      border-radius: 10px; padding: 10px 14px; margin-bottom: 20px;
+      font-size: 12px; color: #fca5a5; display: flex; align-items: center; gap: 8px;
+    }
+    .demo-mode-banner strong { color: #f87171; }
+
+    /* ── LIGHT MODE ───────────────────────────────────────── */
+    body.light {
+      background: var(--cream);
+      color: var(--text);
+    }
+    body.light nav {
+      background: #fff;
+      border-bottom-color: var(--border);
+    }
+    body.light .nav-logo { color: var(--text); }
+    body.light .card { background: #fff; border-color: var(--border); }
+    body.light .welcome-card {
+      background: linear-gradient(135deg, #fdf4ef 0%, #fef9f6 100%);
+      border-color: rgba(212,168,67,.3);
+    }
+    body.light .welcome-card::before { background: radial-gradient(circle, rgba(212,168,67,.06) 0%, transparent 70%); }
+    body.light .welcome-name { color: var(--text); }
+    body.light .tab-card { background: #f0fdf4; border-color: rgba(45,157,120,.3); }
+    body.light .tab-amount { color: #16a34a; }
+    body.light .tab-currency { color: #16a34a; }
+    body.light .tx-desc .tx-title { color: var(--text); }
+    body.light .res-datetime { color: var(--text); }
+    body.light .btn-ghost { background: rgba(0,0,0,.05); color: var(--text); border-color: var(--border); }
+    body.light .btn-ghost:hover { background: rgba(0,0,0,.09); }
+    body.light .charge-item { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.06); }
+    body.light .charge-item:hover { background: rgba(0,0,0,.07); }
+    body.light .modal { background: #fff; border-color: var(--border); }
+    body.light .charge-item .ci-name { color: var(--text); }
+    body.light .api-callout { background: #f8fafc; border-color: var(--border); }
+    body.light .api-callout-header { background: rgba(0,0,0,.02); border-bottom-color: var(--border); }
+    body.light .api-callout-header h4 { color: var(--text); }
+    body.light .demo-mode-banner { background: rgba(232,85,46,.06); }
+    body.light .nav-dark-toggle { background: rgba(0,0,0,.05); color: var(--text-muted); border-color: var(--border); }
+  </style>
+</head>
+<body class="dark">
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" href="#">Saffron <span>Restaurant</span></a>
+  <div class="nav-tier">Saffron VIP</div>
+  <button class="nav-dark-toggle" id="dark-toggle" title="Toggle theme">☀️</button>
+  <div class="nav-avatar">P</div>
+</nav>
+
+<!-- ── MAIN GRID ─────────────────────────────────────────────── -->
+<main>
+  <!-- LEFT COLUMN -->
+  <div class="col-left">
+
+    <!-- WELCOME CARD -->
+    <div class="card welcome-card">
+      <div class="welcome-meta">
+        <div class="welcome-avatar">P</div>
+        <div class="welcome-info">
+          <div class="welcome-greeting">Welcome back</div>
+          <div class="welcome-name">Peter Stolmar</div>
+          <div class="tier-badge">
+            <span class="star">★</span> Saffron VIP
+          </div>
+        </div>
+      </div>
+      <div class="welcome-since">Member since April 2022 · 47 visits · #00142</div>
+      <div class="welcome-perks">
+        <div class="perk-pill"><span class="icon">🍮</span> Free dessert every visit</div>
+        <div class="perk-pill"><span class="icon">📅</span> Priority reservations</div>
+        <div class="perk-pill"><span class="icon">🍾</span> Complimentary welcome pour</div>
+        <div class="perk-pill"><span class="icon">🎂</span> Birthday dinner for two</div>
+      </div>
+    </div>
+
+    <!-- TAB BALANCE CARD -->
+    <div class="card tab-card">
+      <div class="card-label">Pre-loaded tab</div>
+      <div class="tab-balance-row">
+        <div class="tab-currency">$</div>
+        <div class="tab-amount" id="tab-display">1,000<span class="tab-amount-cents">.00</span></div>
+      </div>
+      <div class="tab-sub">Available balance · expires 31 Dec 2026</div>
+      <div class="tab-actions">
+        <button class="btn btn-primary" id="open-charge">Charge to Tab</button>
+        <button class="btn btn-ghost" id="top-up-btn">+ Top Up</button>
+        <button class="btn btn-gold" id="redeem-dessert">🍮 Claim Free Dessert</button>
+      </div>
+    </div>
+
+    <!-- TRANSACTION HISTORY -->
+    <div class="card">
+      <div class="card-label">Recent transactions</div>
+      <div class="tx-list" id="tx-list">
+        <div class="tx-row">
+          <div class="tx-icon perk">★</div>
+          <div class="tx-desc">
+            <div class="tx-title">VIP Tab pre-loaded</div>
+            <div class="tx-date">28 Aug 2026 · Front of house</div>
+          </div>
+          <div class="tx-amount credit">+$1,000.00</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon debit">🍽</div>
+          <div class="tx-desc">
+            <div class="tx-title">Dinner — party of 2</div>
+            <div class="tx-date">12 Aug 2026 · Mains + wine pairing</div>
+          </div>
+          <div class="tx-amount debit">−$224.00</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon perk">🍮</div>
+          <div class="tx-desc">
+            <div class="tx-title">Complimentary dessert</div>
+            <div class="tx-date">12 Aug 2026 · Saffron VIP perk</div>
+          </div>
+          <div class="tx-amount perk">Free</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon debit">🍽</div>
+          <div class="tx-desc">
+            <div class="tx-title">Dinner — party of 3</div>
+            <div class="tx-date">29 Jul 2026 · Tasting menu</div>
+          </div>
+          <div class="tx-amount debit">−$318.00</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon credit">🎁</div>
+          <div class="tx-desc">
+            <div class="tx-title">Birthday dinner credit</div>
+            <div class="tx-date">15 Jun 2026 · Annual VIP benefit</div>
+          </div>
+          <div class="tx-amount credit">+$200.00</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-right">
+
+    <!-- NEXT RESERVATION -->
+    <div class="card res-card">
+      <div class="card-label">Next reservation</div>
+      <div class="res-datetime">Sat 6 Sep · 19:30</div>
+      <div class="res-detail">Table 12 · 2 guests · River window</div>
+      <div class="res-badges">
+        <span class="badge badge-vip">★ VIP</span>
+        <span class="badge badge-dessert">🍮 Dessert included</span>
+        <span class="badge badge-window">🪟 Window seat</span>
+      </div>
+      <div class="res-note">"Anniversary dinner — surprise dessert please"</div>
+      <div class="res-actions">
+        <button class="btn btn-ghost">Modify</button>
+        <button class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+
+    <!-- DEMO MODE BANNER -->
+    <div class="demo-mode-banner">
+      <span>⚡</span>
+      <div><strong>Demo mode</strong> — data is mocked. Swap the <code>getMember()</code> &amp; <code>processCharge()</code> calls with real App Builder endpoints to go live.</div>
+    </div>
+
+    <!-- APP BUILDER CALLOUT -->
+    <div class="api-callout" id="api-callout">
+      <div class="api-callout-header" id="api-toggle">
+        <span>⚡</span>
+        <h4>Adobe App Builder wiring</h4>
+        <span class="badge-api">App Builder</span>
+        <span class="api-chevron">▾</span>
+      </div>
+      <div class="api-body">
+        <div class="api-endpoint">
+          <span class="ep-method">GET</span>
+          <span class="ep-path">/api/v1/web/saffron/getMember</span>
+          <div class="ep-desc">Returns member profile, tier, perks, and tab balance. Replaces <code>window.MOCK_MEMBER</code>.</div>
+        </div>
+        <div class="api-endpoint">
+          <span class="ep-method">POST</span>
+          <span class="ep-path">/api/v1/web/saffron/processCharge</span>
+          <div class="ep-desc">Deducts from tab, logs transaction, returns updated balance. Replaces the mock <code>chargeTab()</code>.</div>
+        </div>
+        <div class="api-endpoint">
+          <span class="ep-method">GET</span>
+          <span class="ep-path">/api/v1/web/saffron/getReservations</span>
+          <div class="ep-desc">Returns upcoming bookings for the authenticated member.</div>
+        </div>
+        <div class="api-note">
+          These three actions extend the existing App Builder namespace already used by the BYOM demo
+          (<code>pstolmar/diagram-editor</code> runtime). Auth via IMS bearer token — the same flow used in AEM CF API calls.
+          All three are &lt;50 lines each; the mock data shapes match the real API response contract.
+        </div>
+      </div>
+    </div>
+
+    <!-- VISIT STATS -->
+    <div class="card">
+      <div class="card-label">This year</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px;">
+        <div>
+          <div style="font-size:28px; font-weight:700; color:#f1f5f9; font-family:var(--font-serif)">12</div>
+          <div style="font-size:11px; color:var(--dark-dim); margin-top:2px;">Visits</div>
+        </div>
+        <div>
+          <div style="font-size:28px; font-weight:700; color:#f1f5f9; font-family:var(--font-serif)">$2,847</div>
+          <div style="font-size:11px; color:var(--dark-dim); margin-top:2px;">Spent</div>
+        </div>
+        <div>
+          <div style="font-size:28px; font-weight:700; color:var(--gold-light); font-family:var(--font-serif)">12</div>
+          <div style="font-size:11px; color:var(--dark-dim); margin-top:2px;">Free desserts redeemed</div>
+        </div>
+        <div>
+          <div style="font-size:28px; font-weight:700; color:#4ade80; font-family:var(--font-serif)">$240</div>
+          <div style="font-size:11px; color:var(--dark-dim); margin-top:2px;">Perk value received</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── CHARGE MODAL ─────────────────────────────────────────── -->
+<div class="modal-overlay" id="charge-modal">
+  <div class="modal">
+    <button class="modal-close" id="close-charge">✕</button>
+    <div id="charge-form">
+      <h3>Charge to Tab</h3>
+      <p>Select items to charge against your pre-loaded balance.</p>
+      <div class="charge-items">
+        <div class="charge-item" data-price="38" data-name="Seared Scallops">
+          <span class="ci-name">Seared Scallops</span><span class="ci-price">$38</span>
+        </div>
+        <div class="charge-item" data-price="58" data-name="Wagyu Tenderloin">
+          <span class="ci-name">Wagyu Tenderloin</span><span class="ci-price">$58</span>
+        </div>
+        <div class="charge-item" data-price="28" data-name="Truffle Risotto">
+          <span class="ci-name">Truffle Risotto</span><span class="ci-price">$28</span>
+        </div>
+        <div class="charge-item" data-price="120" data-name="Wine pairing (3 course)">
+          <span class="ci-name">Wine pairing (3 course)</span><span class="ci-price">$120</span>
+        </div>
+        <div class="charge-item" data-price="0" data-name="Saffron Crème Brûlée (VIP)">
+          <span class="ci-name">🍮 Saffron Crème Brûlée <em>(VIP perk)</em></span><span class="ci-price">Free</span>
+        </div>
+      </div>
+      <div class="charge-perk">
+        <span>★</span>
+        <span>As a Saffron VIP, your dessert tonight is on us.</span>
+      </div>
+      <div class="charge-total">
+        <span class="label">Total to charge</span>
+        <span class="amount" id="charge-total">$0.00</span>
+      </div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center; padding:13px;" id="confirm-charge">Confirm charge</button>
+    </div>
+    <div class="charge-result" id="charge-result">
+      <div class="cr-icon">✅</div>
+      <div class="cr-msg">Charged successfully</div>
+      <div class="cr-sub" id="cr-sub-text">$0.00 deducted · tab updated</div>
+      <div style="margin-top:16px;">
+        <button class="btn btn-ghost" id="done-charge" style="width:100%; justify-content:center;">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── MOCK DATA (swap these fetches for real App Builder calls to go live) ──
+  // GET /api/v1/web/saffron/getMember → window.MOCK_MEMBER
+  // POST /api/v1/web/saffron/processCharge → chargeTab()
+  var MOCK_MEMBER = {
+    id: 'MBR-00142',
+    name: 'Peter Stolmar',
+    tier: 'VIP',
+    tabBalance: 1000.00,
+    perks: ['free_dessert', 'priority_reservation', 'welcome_pour', 'birthday_dinner'],
+  };
+
+  var tabBalance = MOCK_MEMBER.tabBalance;
+  var selectedItems = [];
+
+  // Format currency
+  function fmt(n) {
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // Update tab display
+  function updateTabDisplay() {
+    var whole = Math.floor(tabBalance).toLocaleString();
+    var cents = (tabBalance % 1).toFixed(2).slice(1); // ".00"
+    document.getElementById('tab-display').innerHTML = whole + '<span class="tab-amount-cents">' + cents + '</span>';
+  }
+
+  // ── DARK/LIGHT TOGGLE ────────────────────────────────────────
+  var toggle = document.getElementById('dark-toggle');
+  toggle.addEventListener('click', function () {
+    var body = document.body;
+    if (body.classList.contains('dark')) {
+      body.classList.replace('dark', 'light');
+      toggle.textContent = '🌙';
+    } else {
+      body.classList.replace('light', 'dark');
+      toggle.textContent = '☀️';
+    }
+  });
+
+  // ── CHARGE MODAL ─────────────────────────────────────────────
+  var modal = document.getElementById('charge-modal');
+  var chargeForm = document.getElementById('charge-form');
+  var chargeResult = document.getElementById('charge-result');
+
+  document.getElementById('open-charge').addEventListener('click', function () {
+    selectedItems = [];
+    updateChargeTotal();
+    document.querySelectorAll('.charge-item').forEach(function (el) { el.classList.remove('selected'); });
+    chargeForm.style.display = '';
+    chargeResult.style.display = 'none';
+    modal.classList.add('open');
+  });
+
+  document.getElementById('close-charge').addEventListener('click', function () {
+    modal.classList.remove('open');
+  });
+
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) modal.classList.remove('open');
+  });
+
+  document.querySelectorAll('.charge-item').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var name = el.dataset.name;
+      var price = parseFloat(el.dataset.price);
+      var idx = selectedItems.findIndex(function (i) { return i.name === name; });
+      if (idx === -1) {
+        selectedItems.push({ name: name, price: price });
+        el.classList.add('selected');
+      } else {
+        selectedItems.splice(idx, 1);
+        el.classList.remove('selected');
+      }
+      updateChargeTotal();
+    });
+  });
+
+  function updateChargeTotal() {
+    var total = selectedItems.reduce(function (s, i) { return s + i.price; }, 0);
+    document.getElementById('charge-total').textContent = fmt(total);
+  }
+
+  document.getElementById('confirm-charge').addEventListener('click', function () {
+    var total = selectedItems.reduce(function (s, i) { return s + i.price; }, 0);
+    if (selectedItems.length === 0) return;
+
+    // Mock POST /api/v1/web/saffron/processCharge
+    tabBalance = Math.max(0, tabBalance - total);
+    updateTabDisplay();
+
+    // Add to transaction list
+    if (total > 0) addTransaction('debit', '🍽', 'Tab charge — ' + selectedItems.map(function(i){return i.name;}).join(', '), 'Just now · charged to tab', '−' + fmt(total));
+
+    document.getElementById('cr-sub-text').textContent = fmt(total) + ' deducted · new balance ' + fmt(tabBalance);
+    chargeForm.style.display = 'none';
+    chargeResult.style.display = 'block';
+  });
+
+  document.getElementById('done-charge').addEventListener('click', function () {
+    modal.classList.remove('open');
+  });
+
+  function addTransaction(type, icon, title, date, amount) {
+    var list = document.getElementById('tx-list');
+    var row = document.createElement('div');
+    row.className = 'tx-row';
+    row.innerHTML = '<div class="tx-icon ' + type + '">' + icon + '</div>' +
+      '<div class="tx-desc"><div class="tx-title">' + title + '</div><div class="tx-date">' + date + '</div></div>' +
+      '<div class="tx-amount ' + type + '">' + amount + '</div>';
+    list.insertBefore(row, list.firstChild);
+  }
+
+  // ── REDEEM DESSERT ────────────────────────────────────────────
+  document.getElementById('redeem-dessert').addEventListener('click', function () {
+    var btn = this;
+    btn.textContent = '✓ Dessert claimed!';
+    btn.disabled = true;
+    btn.style.opacity = '.6';
+    addTransaction('perk', '🍮', 'Complimentary dessert redeemed', 'Just now · Saffron VIP perk', 'Free');
+  });
+
+  // ── TOP UP (demo only) ────────────────────────────────────────
+  document.getElementById('top-up-btn').addEventListener('click', function () {
+    tabBalance += 500;
+    updateTabDisplay();
+    addTransaction('credit', '🎁', 'Tab top-up', 'Just now', '+$500.00');
+  });
+
+  // ── APP BUILDER CALLOUT TOGGLE ────────────────────────────────
+  document.getElementById('api-toggle').addEventListener('click', function () {
+    document.getElementById('api-callout').classList.toggle('open');
+  });
+</script>
+</body>
+</html>
