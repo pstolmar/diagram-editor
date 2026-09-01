@@ -65,6 +65,7 @@
     [data-source="ext"]:hover       { outline-color: var(--c-ext); }
     [data-source="eds"]:hover       { outline-color: var(--c-eds); }
     [data-source="da"]:hover        { outline-color: var(--c-da); }
+    [data-source="da-sc"]:hover      { outline-color: var(--c-dasc); }
     [data-source="eds-footer"]:hover { outline-color: var(--c-eds); }
 
     /* ── Hover overlay card ── */
@@ -160,6 +161,57 @@
         url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=70') center/cover;
     }
 
+
+    /* ══════════════════════════════════════════
+       SECTION 2b — DA NATIVE SC COMPONENT
+    ══════════════════════════════════════════ */
+    [data-source="da-sc"] {
+      background: linear-gradient(to right, #f0fdf4, #f7fef9);
+      padding: 28px 32px;
+      border-top: 1px solid #bbf7d0;
+      border-bottom: 1px solid #bbf7d0;
+    }
+    .dasc2-inner { max-width: 1100px; margin: 0 auto; }
+    .dasc2-header {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .dasc2-model-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #166534;
+    }
+    .dasc2-field {
+      background: #bbf7d0; color: #166534;
+      padding: 2px 7px; border-radius: 3px;
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+    }
+    .dasc2-source {
+      margin-left: auto; font-size: 11px; color: #16a34a; font-weight: 600; font-family: var(--mono);
+    }
+    .dasc2-card {
+      display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap;
+    }
+    .dasc2-body { flex: 1; }
+    .dasc2-badge {
+      display: inline-block; background: #10b981; color: #fff;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      padding: 3px 10px; border-radius: 4px; margin-bottom: 8px;
+    }
+    .dasc2-headline {
+      font-family: var(--font-serif); font-size: 22px; font-weight: 700;
+      line-height: 1.2; color: var(--text); margin-bottom: 8px;
+    }
+    .dasc2-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+    .dasc2-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .dasc2-tag {
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      padding: 3px 9px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #15803d;
+    }
+    .dasc2-price {
+      font-family: var(--font-serif); font-size: 36px; font-weight: 700;
+      color: var(--text); line-height: 1; margin-bottom: 4px;
+    }
+    .dasc2-price-label { font-size: 12px; color: var(--text-muted); }
+
     /* ══════════════════════════════════════════
        SECTION 3 — FEATURED DISH (AEM CF API)
     ══════════════════════════════════════════ */
@@ -172,7 +224,7 @@
     .cf-img { border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative; }
     .cf-img-fill {
       position: absolute; inset: 0;
-      background: url('https://images.unsplash.com/photo-Dl0XzDSE918?auto=format&fit=crop&w=800&q=70') center/cover;
+      background: url('https://images.unsplash.com/photo-cr1VdXRxcdQ?auto=format&fit=crop&w=800&q=70') center/cover;
     }
     .cf-content { }
     .cf-tag {
@@ -355,6 +407,56 @@ Content-Type: text/html
   <p class="hero-sub">Fresh ingredients. Honest cooking. Chef Marco Ferretti's seasonal kitchen — open for lunch and dinner Tuesday through Sunday.</p>
   <a class="hero-cta" href="brandconcierge.html">Reserve a Table →</a>
   <div class="hero-img"><div class="hero-img-fill"></div></div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SECTION 2b — DAILY SPECIAL (DA Native SC)
+═══════════════════════════════════ -->
+<section data-source="da-sc"
+         data-source-label="DA Live SC Component"
+         data-source-desc="This specials banner is a DA Live structured content component with named fields: badge, headline, sub, price, tags. Unlike freeform document authoring, SC components use a field-level model — the author fills a form, never touching markup. DA publishes the structured HTML payload to GitHub via the Admin API; EDS renders the block at edge."
+         data-source-code="// DA Live SC model: /models/specials-banner.json
+{
+  \"fields\": [
+    { \"name\": \"badge\",    \"type\": \"text\" },
+    { \"name\": \"headline\", \"type\": \"text\" },
+    { \"name\": \"sub\",      \"type\": \"textarea\" },
+    { \"name\": \"price\",    \"type\": \"text\" },
+    { \"name\": \"tags\",     \"type\": \"text\" }
+  ]
+}
+// Publish via DA Admin API:
+PUT /source/pstolmar/diagram-editor
+    /saffron/specials/week-36.html"
+         data-source-link="https://www.aem.live/developer/da-sc">
+  <div class="dasc2-inner">
+    <div class="dasc2-header">
+      <span class="dasc2-model-label">DA SC Model fields:</span>
+      <span class="dasc2-field">badge</span>
+      <span class="dasc2-field">headline</span>
+      <span class="dasc2-field">sub</span>
+      <span class="dasc2-field">price</span>
+      <span class="dasc2-field">tags</span>
+      <span class="dasc2-source">week-36.html · published via DA Admin API</span>
+    </div>
+    <div class="dasc2-card">
+      <div class="dasc2-body">
+        <div class="dasc2-badge">Chef's Pick · Week 36</div>
+        <h3 class="dasc2-headline">Wagyu Tartare &amp; Truffle Toast</h3>
+        <p class="dasc2-sub">Hand-trimmed A5 wagyu, shallot, caper, egg yolk — served with sourdough rubbed with black truffle. Limited to 20 portions each evening.</p>
+        <div class="dasc2-tags">
+          <span class="dasc2-tag">Gluten-free on request</span>
+          <span class="dasc2-tag">Contains egg</span>
+          <span class="dasc2-tag">Limited: 20 covers</span>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="dasc2-price">£38</div>
+        <div class="dasc2-price-label">starter · à la carte</div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ══════════════════════════════════
@@ -585,7 +687,8 @@ export default async function decorate(block) {
 <div class="byom-legend">
   <span class="legend-label">Source key:</span>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-xf)"></div>AEM Experience Fragment</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc)"></div>DA Live SC</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc)"></div>DA Live SC (hero)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc);opacity:.6"></div>DA Native SC Component</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-cf)"></div>AEM CF API</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-ext)"></div>External Feed</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-eds)"></div>EDS Block</div>
@@ -624,6 +727,7 @@ export default async function decorate(block) {
     ext:       '#f59e0b',
     eds:       '#e8552e',
     da:        '#a855f7',
+    'da-sc':      '#10b981',
     'eds-footer': '#e8552e',
   };
 
@@ -711,30 +815,42 @@ export default async function decorate(block) {
 
   var hideTimer = null;
 
-  document.querySelectorAll('[data-source]').forEach(function (el) {
-    if (isMobile) {
-      el.addEventListener('click', function (e) {
-        if (card.classList.contains('visible')) { hideCard(); return; }
+  // Mobile: click to show/hide
+  if (isMobile) {
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest('[data-source]');
+      if (el) {
+        if (card.classList.contains('visible') && activeHighlightEl === el) { hideCard(); return; }
         clearTimeout(hideTimer);
         showCard(el, e);
         hideTimer = setTimeout(hideCard, 4000);
-      });
-    } else {
-      el.addEventListener('mouseenter', function (e) {
-        clearTimeout(hideTimer);
-        showCard(el, e);
-      });
-      el.addEventListener('mousemove', function (e) {
-        positionCard(e, el);
-      });
-      el.addEventListener('mouseleave', function () {
+      }
+    });
+  } else {
+    // Desktop: event-delegate on document so every [data-source] element works
+    // regardless of child z-index / stacking context
+    document.addEventListener('mouseover', function (e) {
+      var el = e.target.closest('[data-source]');
+      if (!el) return;
+      clearTimeout(hideTimer);
+      if (activeHighlightEl !== el) showCard(el, e);
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!activeHighlightEl) return;
+      var el = e.target.closest('[data-source]');
+      if (el && el === activeHighlightEl) positionCard(e, el);
+    });
+    document.addEventListener('mouseout', function (e) {
+      var el = e.target.closest('[data-source]');
+      if (!el) return;
+      // Only hide when leaving the [data-source] element entirely
+      if (!el.contains(e.relatedTarget) && !(e.relatedTarget && e.relatedTarget.closest('#source-card'))) {
         hideTimer = setTimeout(hideCard, 250);
-      });
-    }
-  });
-
-  card.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
-  card.addEventListener('mouseleave', function () { hideTimer = setTimeout(hideCard, 200); });
+      }
+    });
+    card.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
+    card.addEventListener('mouseleave', function () { hideTimer = setTimeout(hideCard, 200); });
+  }
 
   document.addEventListener('click', function (e) {
     if (!e.target.closest('[data-source]') && !e.target.closest('#source-card')) {
