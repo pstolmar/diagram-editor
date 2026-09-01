@@ -26,6 +26,7 @@
       --c-cf:   #6366f1;
       --c-ext:  #f59e0b;
       --c-eds:  #e8552e;
+      --c-edge: #f97316;
       --c-da:   #a855f7;
     }
 
@@ -64,6 +65,7 @@
     [data-source="cf"]:hover        { outline-color: var(--c-cf); }
     [data-source="ext"]:hover       { outline-color: var(--c-ext); }
     [data-source="eds"]:hover       { outline-color: var(--c-eds); }
+    [data-source="edge-fn"]:hover    { outline-color: var(--c-edge); }
     [data-source="da"]:hover        { outline-color: var(--c-da); }
     [data-source="da-sc"]:hover      { outline-color: var(--c-dasc); }
     [data-source="eds-footer"]:hover { outline-color: var(--c-eds); }
@@ -271,6 +273,84 @@
     .feed-row .badge-sm { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
     .badge-sm.new { background: rgba(74,222,128,.15); color: #4ade80; }
     .badge-sm.vip { background: rgba(245,158,11,.15); color: #fbbf24; }
+
+    /* ══════════════════════════════════════════
+       SECTION 4b — EDGE FUNCTION
+    ══════════════════════════════════════════ */
+    [data-source="edge-fn"] {
+      background: #0f172a;
+      padding: 56px 32px;
+      color: #e2e8f0;
+    }
+    .edgefn-inner { max-width: 1100px; margin: 0 auto; }
+    .edgefn-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: #f97316; margin-bottom: 16px;
+    }
+    .edgefn-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+    }
+    @media (max-width: 800px) { .edgefn-layout { grid-template-columns: 1fr; } }
+    .edgefn-code-wrap {
+      background: #1e293b; border-radius: 10px; overflow: hidden;
+      border: 1px solid #334155;
+    }
+    .edgefn-code-bar {
+      background: #273549; padding: 8px 14px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; color: #94a3b8; font-family: var(--mono);
+    }
+    .edgefn-code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .edgefn-code-filename { margin-left: auto; opacity: .7; }
+    .edgefn-code-body {
+      padding: 18px; font-family: var(--mono); font-size: 12px; line-height: 1.7;
+      color: #cbd5e1; overflow-x: auto; tab-size: 2;
+      white-space: pre;
+    }
+    .edgefn-kw  { color: #7dd3fc; }
+    .edgefn-fn  { color: #a5f3fc; }
+    .edgefn-str { color: #86efac; }
+    .edgefn-cmt { color: #64748b; }
+    .edgefn-right { display: flex; flex-direction: column; gap: 20px; }
+    .edgefn-pipeline {
+      display: flex; align-items: center; gap: 0; flex-wrap: nowrap; overflow-x: auto;
+    }
+    .edgefn-node {
+      background: #1e293b; border: 1px solid #334155; border-radius: 6px;
+      padding: 8px 12px; text-align: center; flex-shrink: 0;
+    }
+    .edgefn-node-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #94a3b8; }
+    .edgefn-node-sub { font-size: 11px; color: #cbd5e1; margin-top: 2px; }
+    .edgefn-node.active { background: #1c2f1c; border-color: #f97316; }
+    .edgefn-node.active .edgefn-node-label { color: #f97316; }
+    .edgefn-arrow { color: #475569; padding: 0 6px; font-size: 16px; flex-shrink: 0; }
+    .edgefn-injected {
+      background: #1e293b; border: 1px solid #f9731644; border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .edgefn-injected-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: #f97316; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .edgefn-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #f973160f; border: 1px solid #f9731644;
+      padding: 8px 14px; border-radius: 6px; font-size: 13px; color: #fde68a;
+      font-weight: 600; margin-bottom: 10px;
+    }
+    .edgefn-badge-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e; box-shadow: 0 0 6px #22c55e88;
+      flex-shrink: 0;
+    }
+    .edgefn-desc {
+      font-size: 13px; color: #94a3b8; line-height: 1.6;
+    }
+    .edgefn-h2 {
+      font-family: var(--font-serif); font-size: 26px; font-weight: 700;
+      color: #f8fafc; margin-bottom: 8px; line-height: 1.2;
+    }
+    .edgefn-sub { font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
 
     /* ══════════════════════════════════════════
        SECTION 5 — DIAGRAM (EDS block)
@@ -547,6 +627,113 @@ fetch('https://runtime.adobe.io/api/v1/
 </section>
 
 <!-- ══════════════════════════════════
+     SECTION 4b — EDGE FUNCTION
+═══════════════════════════════════ -->
+<section data-source="edge-fn"
+         data-source-label="AEM Edge Function"
+         data-source-desc="This availability badge is injected by an AEM Edge Function — the EDS page is pure static HTML served from Fastly, but the edge worker intercepts the response, calls a live reservations API, and injects the table count before the HTML reaches the browser. Zero round-trips from the client; no visible JS hydration."
+         data-source-code="// edge-fn/table-availability.js
+export default {
+  async fetch(req, ctx) {
+    // 1. Fetch the static EDS page from origin
+    const res = await ctx.next(req);
+
+    // 2. Call live reservations API at the edge
+    const { tables, next_slot } = await fetch(
+      'https://api.saffron.co.uk/reservations/tonight'
+    ).then(r => r.json());
+
+    // 3. Inject availability badge via HTMLRewriter
+    const badge = `&lt;div id=&quot;avail-badge&quot;&gt;
+  ${tables} tables tonight · ${next_slot}
+&lt;/div&gt;`;
+
+    return new HTMLRewriter()
+      .on('body', {
+        element: el =&gt;
+          el.prepend(badge, { html: true })
+      })
+      .transform(res);
+  }
+}"
+         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-learn/cloud-service/edge-functions/edge-functions-setup/setup-eds">
+  <div class="edgefn-inner">
+    <div class="edgefn-eyebrow">Edge Compute Layer</div>
+    <div class="edgefn-layout">
+      <div>
+        <h2 class="edgefn-h2">AEM Edge Function injects live data into a static page</h2>
+        <p class="edgefn-sub">The EDS page never changes — but the edge worker calls the reservations API on every request and injects current availability directly into the HTML stream before it reaches the browser.</p>
+        <div class="edgefn-code-wrap">
+          <div class="edgefn-code-bar">
+            <div class="edgefn-code-dot" style="background:#ef4444"></div>
+            <div class="edgefn-code-dot" style="background:#f59e0b"></div>
+            <div class="edgefn-code-dot" style="background:#22c55e"></div>
+            <span class="edgefn-code-filename">edge-fn/table-availability.js</span>
+          </div>
+          <div class="edgefn-code-body"><span class="edgefn-cmt">// Intercept every request to the Saffron page</span>
+<span class="edgefn-kw">export default</span> {
+  <span class="edgefn-kw">async</span> <span class="edgefn-fn">fetch</span>(req, ctx) {
+    <span class="edgefn-kw">const</span> res = <span class="edgefn-kw">await</span> ctx.<span class="edgefn-fn">next</span>(req); <span class="edgefn-cmt">// static EDS HTML</span>
+
+    <span class="edgefn-kw">const</span> { tables, next_slot } = <span class="edgefn-kw">await</span>
+      <span class="edgefn-fn">fetch</span>(<span class="edgefn-str">'https://api.saffron.co.uk/reservations/tonight'</span>)
+        .<span class="edgefn-fn">then</span>(r => r.<span class="edgefn-fn">json</span>());
+
+    <span class="edgefn-kw">return new</span> <span class="edgefn-fn">HTMLRewriter</span>()
+      .<span class="edgefn-fn">on</span>(<span class="edgefn-str">'body'</span>, { element: el =>
+        el.<span class="edgefn-fn">prepend</span>(badge(tables, next_slot), { html: <span class="edgefn-kw">true</span> })
+      })
+      .<span class="edgefn-fn">transform</span>(res);
+  }
+}</div>
+        </div>
+      </div>
+      <div class="edgefn-right">
+        <div class="edgefn-pipeline">
+          <div class="edgefn-node">
+            <div class="edgefn-node-label">Browser</div>
+            <div class="edgefn-node-sub">GET /saffron</div>
+          </div>
+          <div class="edgefn-arrow">→</div>
+          <div class="edgefn-node active">
+            <div class="edgefn-node-label">Edge Function</div>
+            <div class="edgefn-node-sub">inject + transform</div>
+          </div>
+          <div class="edgefn-arrow">→</div>
+          <div class="edgefn-node">
+            <div class="edgefn-node-label">Fastly CDN</div>
+            <div class="edgefn-node-sub">static HTML</div>
+          </div>
+          <div class="edgefn-arrow">→</div>
+          <div class="edgefn-node">
+            <div class="edgefn-node-label">EDS Origin</div>
+            <div class="edgefn-node-sub">GitHub</div>
+          </div>
+        </div>
+        <div class="edgefn-injected">
+          <div class="edgefn-injected-label">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#f97316" stroke-width="1.5"/><path d="M6 4v3M6 8.5v.5" stroke="#f97316" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Injected by edge worker at request time
+          </div>
+          <div class="edgefn-badge">
+            <div class="edgefn-badge-dot"></div>
+            Tonight: 3 tables available · Next slot 19:30
+          </div>
+          <div class="edgefn-desc">This content doesn't exist in the EDS HTML file on GitHub. It's assembled at the Fastly edge node closest to the visitor — no client-side fetch, no layout shift, no waiting for hydration.</div>
+        </div>
+        <div class="edgefn-injected" style="border-color:#7c3aed44">
+          <div class="edgefn-injected-label" style="color:#a78bfa">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#a78bfa" stroke-width="1.5"/><path d="M4 6l1.5 1.5L8 4" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Also possible: A/B test routing, geo-personalisation, auth gates
+          </div>
+          <div class="edgefn-desc">Edge functions can also vary the response by cookie (VIP preview), Accept-Language (locale swap), or X-Forwarded-For (geo) — all before the HTML leaves the CDN.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
      SECTION 5 — DIAGRAM (EDS block)
 ═══════════════════════════════════ -->
 <section data-source="eds"
@@ -691,6 +878,7 @@ export default async function decorate(block) {
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc);opacity:.6"></div>DA Native SC Component</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-cf)"></div>AEM CF API</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-ext)"></div>External Feed</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-edge)"></div>AEM Edge Function</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-eds)"></div>EDS Block</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--c-da)"></div>DA Live Document</div>
 </div>
@@ -727,6 +915,7 @@ export default async function decorate(block) {
     ext:       '#f59e0b',
     eds:       '#e8552e',
     da:        '#a855f7',
+    'edge-fn':    '#f97316',
     'da-sc':      '#10b981',
     'eds-footer': '#e8552e',
   };
