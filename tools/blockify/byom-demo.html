@@ -156,9 +156,33 @@
       background: #fff; border-radius: 10px;
       box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08);
       opacity: 0; pointer-events: none;
-      transition: opacity .15s;
+      transition: opacity .2s, width .2s;
     }
     #source-card.visible { opacity: 1; pointer-events: auto; }
+    #source-card.card-left { right: auto; left: 16px; }
+    #source-card.card-bar {
+      width: 28px; overflow: hidden; overflow-y: hidden;
+      opacity: 1 !important; pointer-events: auto;
+      background: rgba(15,23,42,.6) !important;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    }
+    #source-card.card-bar .sc-header,
+    #source-card.card-bar .sc-body { display: none; }
+    #source-card.card-bar #sc-ctrls { flex-direction: column; padding: 10px 4px; gap: 10px; background: transparent; }
+    #source-card.card-bar #sc-swap { display: none; }
+    #sc-ctrls {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 3px; padding: 4px 6px 2px;
+      background: rgba(0,0,0,.08);
+    }
+    .sc-ctrl {
+      width: 20px; height: 20px; border-radius: 3px; border: none;
+      background: rgba(255,255,255,.2); color: #fff;
+      cursor: pointer; font-size: 11px; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sc-ctrl:hover { background: rgba(255,255,255,.35); }
     .sc-header {
       padding: 10px 14px;
       display: flex; align-items: center; gap: 8px;
@@ -516,6 +540,10 @@
 
 <!-- ── Floating source overlay card ── -->
 <div id="source-card">
+  <div id="sc-ctrls">
+    <button class="sc-ctrl" id="sc-swap" title="Swap to other side">⇄</button>
+    <button class="sc-ctrl" id="sc-collapse" title="Collapse to bar">◀</button>
+  </div>
   <div class="sc-header" id="sc-header"></div>
   <div class="sc-body">
     <div class="sc-desc" id="sc-desc"></div>
@@ -1121,11 +1149,11 @@ export default async function decorate(block) {
       if (!el) return;
       // Only hide when leaving the [data-source] element entirely
       if (!el.contains(e.relatedTarget) && !(e.relatedTarget && e.relatedTarget.closest('#source-card'))) {
-        hideTimer = setTimeout(hideCard, 250);
+        hideTimer = setTimeout(hideCard, 1200);
       }
     });
     card.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
-    card.addEventListener('mouseleave', function () { hideTimer = setTimeout(hideCard, 200); });
+    card.addEventListener('mouseleave', function () { hideTimer = setTimeout(hideCard, 900); });
   }
 
   document.addEventListener('click', function (e) {
@@ -1176,6 +1204,30 @@ export default async function decorate(block) {
       badge.classList.toggle('collapsed');
     });
   }
+
+  // ── Source card: swap side + collapse to bar ────────────────────────────────
+  var scSwap = document.getElementById('sc-swap');
+  var scCollapse = document.getElementById('sc-collapse');
+  if (scSwap) {
+    scSwap.addEventListener('click', function (e) {
+      e.stopPropagation();
+      card.classList.toggle('card-left');
+    });
+  }
+  if (scCollapse) {
+    scCollapse.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isBar = card.classList.toggle('card-bar');
+      scCollapse.textContent = isBar ? '▶' : '◀';
+    });
+  }
+  // Click narrow bar itself to expand
+  card.addEventListener('click', function (e) {
+    if (!card.classList.contains('card-bar')) return;
+    if (e.target.closest('#sc-ctrls')) return;
+    card.classList.remove('card-bar');
+    if (scCollapse) scCollapse.textContent = '◀';
+  });
 
   // ── Copy Mermaid source ───────────────────────────────────────────────────
   var copyBtn = document.getElementById('copy-mermaid-btn');
