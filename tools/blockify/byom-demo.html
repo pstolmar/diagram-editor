@@ -35,7 +35,7 @@
 
     /* ── BYOM badge ── */
     .byom-badge {
-      position: fixed; bottom: 16px; right: 16px; z-index: 200;
+      position: fixed; top: 12px; right: 16px; z-index: 200;
       display: flex; align-items: center; gap: 6px;
       background: rgba(20,20,20,.92); color: #fff;
       padding: 6px 12px; border-radius: 20px;
@@ -148,10 +148,11 @@
     /* ── Hover overlay card ── */
     #source-card {
       position: fixed; z-index: 999;
+      right: 16px; top: 72px;
       width: 440px; max-width: calc(100vw - 32px);
+      max-height: calc(100vh - 160px); overflow-y: auto;
       background: #fff; border-radius: 10px;
       box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08);
-      overflow: hidden;
       opacity: 0; pointer-events: none;
       transition: opacity .15s;
     }
@@ -1062,27 +1063,10 @@ export default async function decorate(block) {
     if (activeHighlightEl) activeHighlightEl.style.boxShadow = '';
     activeHighlightEl = el;
     el.style.boxShadow = '0 0 0 4px ' + color + ', 0 0 32px ' + color + '44';
-
-    positionCard(el);
     card.classList.add('visible');
   }
 
-  function positionCard(el) {
-    var cardW = card.offsetWidth || 440;
-    var cardH = card.offsetHeight || 400;
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
-    var rect = el.getBoundingClientRect();
-    var x = rect.right - cardW - 16;
-    // For sticky nav (top ≈ 0) show card below element so it clears the toolbar
-    var y = rect.top < 80 ? rect.bottom + 8 : rect.top + 16;
-    if (x + cardW > vw - 8) x = vw - cardW - 8;
-    if (x < 8) x = 8;
-    if (y + cardH > vh - 8) y = vh - cardH - 8;
-    if (y < 8) y = 8;
-    card.style.left = x + 'px';
-    card.style.top  = y + 'px';
-  }
+  function positionCard() {}
 
   function hideCard() {
     card.classList.remove('visible');
