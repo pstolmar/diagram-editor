@@ -856,7 +856,7 @@ function buildCommands(model, dynamic, compat) {
       c(''),
       c('# Option C — EDS-native A/B (no Edge Worker needed):'),
       c('# The EDS Experimentation plugin handles client-side variant routing.'),
-      c('# https://www.aem.live/developer/experimentation'),
+      c('# https://www.aem.live/docs/experimentation'),
     ].join('\n'));
   }
 
@@ -952,8 +952,8 @@ function buildCommands(model, dynamic, compat) {
       kw('# POST https://admin.da.live/publish/{owner}/{repo}/{path}'),
       c(''),
       c('# DA Live docs:  https://da.live/docs'),
-      c('# Admin API ref: https://da.live/docs/admin-api'),
-      c('# Structured content (DA-SC): https://da.live/docs/structured-content'),
+      c('# Admin API ref: https://da.live'),
+      c('# Structured content (DA-SC): https://da.live'),
     ].join('\n'));
   }
 
@@ -971,7 +971,7 @@ function buildCommands(model, dynamic, compat) {
       kw("import { loadScript } from './aem.js';"),
       kw("await loadScript('https://www.aem.live/plugins/experimentation/src/index.js');"),
       '',
-      c('# Docs: https://www.aem.live/developer/plugins/experimentation'),
+      c('# Docs: https://www.aem.live/docs/experimentation'),
     ].join('\n'));
   }
 
@@ -986,7 +986,7 @@ function buildCommands(model, dynamic, compat) {
       kw("import { sampleRUM } from '../../scripts/aem.js';"),
       kw("sampleRUM('click', { source: '.hero a', target: '/get-started' });"),
       '',
-      c('# View telemetry: https://www.aem.live/tools/rum/explorer'),
+      c('# View telemetry: https://www.aem.live/docs/operational-telemetry'),
     ].join('\n'));
   }
 
