@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Saffron Restaurant — Seasonal Menu Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand: #e8552e;
+      --brand-dark: #c94220;
+      --cream: #fdf8f4;
+      --cream-2: #f5ede4;
+      --border: #e8ddd5;
+      --text: #1a1210;
+      --text-muted: #7a6e68;
+      --text-dim: #9a8e88;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'Menlo', 'Consolas', monospace;
+      /* source colors */
+      --c-xf:   #3b82f6;
+      --c-dasc: #10b981;
+      --c-cf:   #6366f1;
+      --c-ext:  #f59e0b;
+      --c-eds:  #e8552e;
+      --c-edge: #f97316;
+      --c-da:   #a855f7;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: #fff; color: var(--text); min-height: 100vh; }
+
+    /* ── BYOM badge ── */
+    .byom-badge {
+      position: fixed; top: 12px; right: 16px; z-index: 200;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(20,20,20,.92); color: #fff;
+      padding: 6px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      cursor: default; backdrop-filter: blur(8px);
+      transition: padding .2s, border-radius .2s, background .2s;
+    }
+    .byom-badge.collapsed {
+      padding: 0; width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,.35); justify-content: center;
+    }
+    .byom-badge.collapsed .byom-controls { display: none; }
+    .byom-badge .info {
+      color: rgba(255,255,255,.65); font-size: 15px; cursor: pointer;
+      position: relative; line-height: 1; user-select: none;
+      background: none; border: none; padding: 0; transition: color .15s;
+    }
+    .byom-badge .info:hover { color: #fff; }
+    .byom-badge.collapsed .info { font-size: 16px; color: rgba(255,255,255,.8); }
+    .byom-badge .info-tip {
+      display: none; position: absolute; bottom: calc(100% + 10px); right: 0;
+      background: #111; border: 1px solid #333; border-radius: 8px;
+      padding: 12px 14px; width: 280px; font-size: 12px;
+      font-weight: 400; line-height: 1.6; color: #ccc; text-transform: none; letter-spacing: 0;
+      white-space: normal; z-index: 201;
+    }
+    .byom-badge .info:hover .info-tip { display: block; }
+
+
+    /* ── Controls bar ─────────────────────────────────── */
+    .byom-controls {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .byom-toggle {
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; border-radius: 12px; padding: 2px 9px;
+      font: 600 10px var(--font); cursor: pointer; letter-spacing: .06em;
+      text-transform: uppercase; white-space: nowrap;
+      transition: background .15s;
+    }
+    .byom-toggle:hover { background: rgba(255,255,255,.22); }
+    .byom-toggle.off { opacity: .55; }
+
+    /* ── Dark mode ─────────────────────────────────────── */
+    body.dark { background: #0f172a; color: #e2e8f0; }
+    body.dark { --text: #e2e8f0; --text-muted: #94a3b8; --text-dim: #64748b;
+      --cream: #1e293b; --cream-2: #162032; --border: #334155; }
+    body.dark [data-source="xf"]  { background: #1e293b; border-bottom-color: #334155; }
+    body.dark .nav-logo           { color: #f1f5f9; }
+    body.dark .nav-links a        { color: #94a3b8; }
+    body.dark [data-source="dasc"]{ background: #0b1a12; }
+    body.dark .hero-title         { color: #f1f5f9; }
+    body.dark [data-source="da-sc"]{ background: #0a1f11; border-color: #1e4d2a; }
+    body.dark .dasc2-headline     { color: #f1f5f9; }
+    body.dark .dasc2-tag          { background: #1a3524; border-color: #2d5e40; color: #6ee7b7; }
+    body.dark [data-source="cf"]  { background: #13111f; }
+    body.dark .cf-title           { color: #e2e8f0; }
+    body.dark .cf-desc            { color: #94a3b8; }
+    body.dark .cf-pill            { background: #1e293b; color: #94a3b8; }
+    body.dark [data-source="da"]  { background: #100b1a; }
+    body.dark .section-h2         { color: #f1f5f9; }
+    body.dark .quote-card         { background: #1e1030; border-color: #3d2065; }
+    body.dark .quote-text         { color: #d4b8f0; }
+    body.dark .quote-source       { color: #c084fc; }
+    body.dark .quote-pub          { color: #7e22ce; }
+    body.dark [data-source="eds-footer"] { background: #111827; }
+    body.dark .footer-inner       { border-top-color: #1f2937; }
+    body.dark .footer-links a     { color: #94a3b8; }
+    body.dark .footer-copy        { color: #4b5563; }
+    body.dark #source-card        { background: #1e293b; }
+    body.dark .sc-body            { background: #1e293b; }
+    body.dark .sc-desc            { color: #cbd5e1; }
+    body.dark .sc-code            { background: #0f172a; color: #7dd3fc; }
+    body.dark .sc-link            { }
+    body.dark .byom-legend        { background: rgba(15,23,42,.9); border-color: #334155; }
+    body.dark .legend-label       { color: #94a3b8; }
+    body.dark .legend-item        { color: #cbd5e1; }
+    body.dark .diagram-editor     { background: #0f172a; border-color: #334155; }
+    body.dark [data-source="eds"] { background: #1a0f0a; }
+
+    /* ── Copy Mermaid button ───────────────────────────── */
+    .copy-mermaid-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 12px; padding: 6px 14px; border-radius: 6px;
+      background: #f1f5f9; border: 1px solid #e2e8f0;
+      font: 600 12px var(--font); color: #475569; cursor: pointer;
+      transition: background .15s;
+    }
+    .copy-mermaid-btn:hover { background: #e2e8f0; }
+    .copy-mermaid-btn.copied { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    body.dark .copy-mermaid-btn { background: #1e293b; border-color: #334155; color: #94a3b8; }
+    body.dark .copy-mermaid-btn.copied { background: #14532d; color: #86efac; }
+
+    /* ── Source hover highlight ── */
+    [data-source] {
+      outline: 4px solid transparent;
+      outline-offset: 0px;
+      transition: outline-color .2s;
+      position: relative;
+    }
+    [data-source]:hover { cursor: default; }
+    [data-source="xf"]:hover        { outline-color: var(--c-xf); }
+    [data-source="dasc"]:hover      { outline-color: var(--c-dasc); }
+    [data-source="cf"]:hover        { outline-color: var(--c-cf); }
+    [data-source="ext"]:hover       { outline-color: var(--c-ext); }
+    [data-source="eds"]:hover       { outline-color: var(--c-eds); }
+    [data-source="edge-fn"]:hover    { outline-color: var(--c-edge); }
+    [data-source="da"]:hover        { outline-color: var(--c-da); }
+    [data-source="da-sc"]:hover      { outline-color: var(--c-dasc); }
+    [data-source="eds-footer"]:hover { outline-color: var(--c-eds); }
+
+    /* ── Hover overlay card ── */
+    #source-card {
+      position: fixed; z-index: 999;
+      right: 16px; top: 72px;
+      width: 440px; max-width: calc(100vw - 32px);
+      max-height: calc(100vh - 160px); overflow-y: auto;
+      background: #fff; border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08);
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s, width .2s;
+    }
+    #source-card.visible { opacity: 1; pointer-events: auto; }
+    #source-card.card-left { right: auto; left: 16px; }
+    #source-card.card-bar {
+      width: 28px; overflow: hidden; overflow-y: hidden;
+      opacity: 1 !important; pointer-events: auto;
+      background: rgba(15,23,42,.6) !important;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    }
+    #source-card.card-bar .sc-header,
+    #source-card.card-bar .sc-body { display: none; }
+    #source-card.card-bar #sc-ctrls { flex-direction: column; padding: 10px 4px; gap: 10px; background: transparent; }
+    #source-card.card-bar #sc-swap { display: none; }
+    #sc-ctrls {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 3px; padding: 4px 6px 2px;
+      background: rgba(0,0,0,.08);
+    }
+    .sc-ctrl {
+      width: 20px; height: 20px; border-radius: 3px; border: none;
+      background: rgba(255,255,255,.2); color: #fff;
+      cursor: pointer; font-size: 11px; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sc-ctrl:hover { background: rgba(255,255,255,.35); }
+    .sc-header {
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; color: #fff;
+      text-transform: uppercase; letter-spacing: .07em;
+    }
+    .sc-body { padding: 12px 14px; }
+    .sc-desc { font-size: 13px; line-height: 1.6; color: #334155; margin-bottom: 10px; }
+    .sc-code {
+      background: #f1f5f9; border-radius: 5px; padding: 8px 10px;
+      font-family: var(--mono); font-size: 11px; color: #475569;
+      line-height: 1.6; white-space: pre-wrap; word-break: break-all;
+      margin-bottom: 10px;
+    }
+    .sc-link { font-size: 12px; font-weight: 600; text-decoration: none; }
+
+    /* ══════════════════════════════════════════
+       SECTION 1 — NAV (AEM XF)
+    ══════════════════════════════════════════ */
+    [data-source="xf"] {
+      background: #fff; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 32px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-family: var(--font-serif); font-size: 22px; font-weight: 700; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--brand); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: color .15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      padding: 8px 18px; border-radius: 6px;
+      background: var(--brand); color: #fff;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      transition: background .15s;
+    }
+    .nav-cta:hover { background: var(--brand-dark); }
+
+    /* ══════════════════════════════════════════
+       SECTION 2 — HERO (DA Live SC)
+    ══════════════════════════════════════════ */
+    [data-source="dasc"] {
+      background: var(--cream);
+      padding: 80px 32px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--brand); margin-bottom: 16px;
+    }
+    .hero-title {
+      font-family: var(--font-serif); font-size: clamp(36px, 6vw, 64px);
+      font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
+      color: var(--text); max-width: 700px; margin: 0 auto 18px;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--text-muted); line-height: 1.7;
+      max-width: 560px; margin: 0 auto 28px;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 8px;
+      background: var(--brand); color: #fff;
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-cta:hover { background: var(--brand-dark); }
+    .hero-img {
+      margin-top: 40px; border-radius: 12px; overflow: hidden;
+      max-width: 900px; margin-left: auto; margin-right: auto;
+      aspect-ratio: 16/7; position: relative;
+    }
+    .hero-img-fill {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,.08), rgba(0,0,0,.15)),
+        url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=70') center/cover;
+    }
+
+
+    /* ══════════════════════════════════════════
+       SECTION 2b — DA NATIVE SC COMPONENT
+    ══════════════════════════════════════════ */
+    [data-source="da-sc"] {
+      background: linear-gradient(to right, #f0fdf4, #f7fef9);
+      padding: 28px 32px;
+      border-top: 1px solid #bbf7d0;
+      border-bottom: 1px solid #bbf7d0;
+    }
+    .dasc2-inner { max-width: 1100px; margin: 0 auto; }
+    .dasc2-header {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .dasc2-model-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #166534;
+    }
+    .dasc2-field {
+      background: #bbf7d0; color: #166534;
+      padding: 2px 7px; border-radius: 3px;
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+    }
+    .dasc2-source {
+      margin-left: auto; font-size: 11px; color: #16a34a; font-weight: 600; font-family: var(--mono);
+    }
+    .dasc2-card {
+      display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap;
+    }
+    .dasc2-body { flex: 1; }
+    .dasc2-badge {
+      display: inline-block; background: #10b981; color: #fff;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      padding: 3px 10px; border-radius: 4px; margin-bottom: 8px;
+    }
+    .dasc2-headline {
+      font-family: var(--font-serif); font-size: 22px; font-weight: 700;
+      line-height: 1.2; color: var(--text); margin-bottom: 8px;
+    }
+    .dasc2-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+    .dasc2-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .dasc2-tag {
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      padding: 3px 9px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #15803d;
+    }
+    .dasc2-price {
+      font-family: var(--font-serif); font-size: 36px; font-weight: 700;
+      color: var(--text); line-height: 1; margin-bottom: 4px;
+    }
+    .dasc2-price-label { font-size: 12px; color: var(--text-muted); }
+
+    /* ── SPECIALS TABS ────────────────────────────────────────── */
+    .specials-tabs {
+      display: flex; margin-bottom: 16px; border-radius: 8px; overflow: hidden;
+      border: 1px solid #bbf7d0; width: fit-content; background: #e8fcf1;
+    }
+    .spec-tab {
+      padding: 6px 16px; font-size: 12px; font-weight: 600; cursor: pointer;
+      border: none; background: transparent; color: #166534;
+      transition: background .12s, color .12s; display: flex; align-items: center; gap: 7px;
+    }
+    .spec-tab.active { background: #10b981; color: #fff; }
+    .spec-tab:not(.active):hover { background: #d1fae5; }
+    .tab-pill {
+      font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .spec-tab.active .tab-pill { background: rgba(255,255,255,.25); color: #fff; }
+    .spec-tab:not(.active) .tab-pill { background: #bbf7d0; color: #166534; }
+    .specials-pane { display: none; }
+    .specials-pane.active { display: block; }
+    body.dark .specials-tabs { background: #0e2c18; border-color: #1e4d2a; }
+    body.dark .spec-tab { color: #6ee7b7; }
+    body.dark .spec-tab.active { background: #10b981; color: #fff; }
+    body.dark .spec-tab:not(.active):hover { background: #1a3524; }
+    body.dark .spec-tab:not(.active) .tab-pill { background: #1a3524; color: #6ee7b7; }
+
+    /* ── DUAL SOURCE CARD TABS ────────────────────────────────── */
+    .sc-dual-tabs {
+      display: flex; border-radius: 6px; overflow: hidden;
+      background: rgba(0,0,0,.18); margin-bottom: 10px;
+    }
+    .sc-dual-tab {
+      flex: 1; padding: 6px 10px; font-size: 11px; font-weight: 700; border: none;
+      background: transparent; cursor: pointer; color: rgba(255,255,255,.55);
+      transition: all .12s; text-transform: uppercase; letter-spacing: .06em; line-height: 1.3;
+    }
+    .sc-dual-tab.active { background: rgba(255,255,255,.18); color: #fff; }
+    .sc-dual-tab:hover:not(.active) { background: rgba(255,255,255,.09); color: rgba(255,255,255,.8); }
+
+    /* ══════════════════════════════════════════
+       SECTION 3 — FEATURED DISH (AEM CF API)
+    ══════════════════════════════════════════ */
+    [data-source="cf"] {
+      padding: 72px 32px;
+      background: #fff;
+    }
+    .cf-section-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+    @media (max-width: 720px) { .cf-section-inner { grid-template-columns: 1fr; } }
+    .cf-img { border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative; }
+    .cf-img-fill {
+      position: absolute; inset: 0;
+      background: url('media/saffron-scallops.jpg') center/cover;
+    }
+    .cf-content { }
+    .cf-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--c-cf); background: rgba(99,102,241,.08);
+      border: 1px solid rgba(99,102,241,.2); padding: 3px 10px; border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .cf-title { font-family: var(--font-serif); font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+    .cf-desc { font-size: 15px; color: var(--text-muted); line-height: 1.7; margin-bottom: 18px; }
+    .cf-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-bottom: 20px; }
+    .cf-meta-item { display: flex; align-items: center; gap: 5px; color: var(--text-muted); }
+    .cf-meta-item strong { color: var(--text); }
+    .cf-pill { display: inline-block; padding: 4px 10px; border-radius: 4px; background: var(--cream-2); font-size: 12px; font-weight: 600; color: var(--text-muted); margin-right: 6px; margin-bottom: 6px; }
+    .cf-cta { padding: 10px 22px; border-radius: 6px; background: var(--text); color: #fff; font: 600 13px var(--font); border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+
+    /* ══════════════════════════════════════════
+       SECTION 4 — DASHBOARD (External feed)
+    ══════════════════════════════════════════ */
+    [data-source="ext"] {
+      background: #1a1210;
+      padding: 60px 32px;
+    }
+    .ext-inner { max-width: 1100px; margin: 0 auto; }
+    .ext-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .ext-title { font-family: var(--font-serif); font-size: 26px; color: #fff; }
+    .ext-subtitle { font-size: 13px; color: rgba(255,255,255,.4); margin-top: 4px; }
+    .live-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #4ade80; }
+    .live-dot::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    @media (max-width: 700px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+    .metric-card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 18px; }
+    .metric-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.35); margin-bottom: 8px; }
+    .metric-value { font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+    .metric-delta { font-size: 12px; margin-top: 4px; }
+    .delta-pos { color: #4ade80; }
+    .delta-neg { color: #f87171; }
+    .feed-rows { display: flex; flex-direction: column; gap: 8px; }
+    .feed-row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; background: rgba(255,255,255,.03); border-radius: 8px; border: 1px solid rgba(255,255,255,.06); font-size: 13px; color: rgba(255,255,255,.7); }
+    .feed-row strong { color: #fff; flex: 1; }
+    .feed-row .time { font-size: 11px; color: rgba(255,255,255,.3); }
+    .feed-row .badge-sm { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+    .badge-sm.new { background: rgba(74,222,128,.15); color: #4ade80; }
+    .badge-sm.vip { background: rgba(245,158,11,.15); color: #fbbf24; }
+
+    /* ══════════════════════════════════════════
+       SECTION 4b — EDGE FUNCTION
+    ══════════════════════════════════════════ */
+    [data-source="edge-fn"] {
+      background: #0f172a;
+      padding: 56px 32px;
+      color: #e2e8f0;
+    }
+    .edgefn-inner { max-width: 1100px; margin: 0 auto; }
+    .edgefn-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: #f97316; margin-bottom: 16px;
+    }
+    .edgefn-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+    }
+    @media (max-width: 800px) { .edgefn-layout { grid-template-columns: 1fr; } }
+    .edgefn-code-wrap {
+      background: #1e293b; border-radius: 10px; overflow: hidden;
+      border: 1px solid #334155;
+    }
+    .edgefn-code-bar {
+      background: #273549; padding: 8px 14px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; color: #94a3b8; font-family: var(--mono);
+    }
+    .edgefn-code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .edgefn-code-filename { margin-left: auto; opacity: .7; }
+    .edgefn-code-body {
+      padding: 18px; font-family: var(--mono); font-size: 12px; line-height: 1.7;
+      color: #cbd5e1; overflow-x: auto; tab-size: 2;
+      white-space: pre;
+    }
+    .edgefn-kw  { color: #7dd3fc; }
+    .edgefn-fn  { color: #a5f3fc; }
+    .edgefn-str { color: #86efac; }
+    .edgefn-cmt { color: #64748b; }
+    .edgefn-right { display: flex; flex-direction: column; gap: 20px; }
+    .edgefn-pipeline {
+      display: flex; align-items: center; gap: 0; flex-wrap: nowrap; overflow-x: auto;
+    }
+    .edgefn-node {
+      background: #1e293b; border: 1px solid #334155; border-radius: 6px;
+      padding: 8px 12px; text-align: center; flex-shrink: 0;
+    }
+    .edgefn-node-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #94a3b8; }
+    .edgefn-node-sub { font-size: 11px; color: #cbd5e1; margin-top: 2px; }
+    .edgefn-node.active { background: #1c2f1c; border-color: #f97316; }
+    .edgefn-node.active .edgefn-node-label { color: #f97316; }
+    .edgefn-arrow { color: #475569; padding: 0 6px; font-size: 16px; flex-shrink: 0; }
+    .edgefn-injected {
+      background: #1e293b; border: 1px solid #f9731644; border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .edgefn-injected-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: #f97316; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .edgefn-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #f973160f; border: 1px solid #f9731644;
+      padding: 8px 14px; border-radius: 6px; font-size: 13px; color: #fde68a;
+      font-weight: 600; margin-bottom: 10px;
+    }
+    .edgefn-badge-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e; box-shadow: 0 0 6px #22c55e88;
+      flex-shrink: 0;
+    }
+    .edgefn-desc {
+      font-size: 13px; color: #94a3b8; line-height: 1.6;
+    }
+    .edgefn-h2 {
+      font-family: var(--font-serif); font-size: 26px; font-weight: 700;
+      color: #f8fafc; margin-bottom: 8px; line-height: 1.2;
+    }
+    .edgefn-sub { font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
+
+    /* ══════════════════════════════════════════
+       SECTION 5 — DIAGRAM (EDS block)
+    ══════════════════════════════════════════ */
+    [data-source="eds"] {
+      background: var(--cream);
+      padding: 64px 32px;
+    }
+    .eds-inner { max-width: 900px; margin: 0 auto; }
+    .section-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--brand); margin-bottom: 10px; }
+    .section-h2 { font-family: var(--font-serif); font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+    .section-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 28px; max-width: 580px; }
+    /* EDS block markup */
+    .diagram-editor { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 24px; min-height: 180px; }
+    .diagram-editor pre { display: none; }
+    .diagram-editor .diagram-output { text-align: center; }
+    .diagram-editor .diagram-output svg { max-width: 100%; height: auto; }
+
+    /* ══════════════════════════════════════════
+       SECTION 6 — PRESS QUOTES (DA Live doc)
+    ══════════════════════════════════════════ */
+    [data-source="da"] {
+      background: #fff;
+      padding: 72px 32px;
+    }
+    .da-inner { max-width: 1100px; margin: 0 auto; }
+    .quotes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 32px; }
+    @media (max-width: 800px) { .quotes-grid { grid-template-columns: 1fr; } }
+    .quote-card { background: var(--cream); border-radius: 10px; padding: 24px; border: 1px solid var(--border); }
+    .quote-text { font-family: var(--font-serif); font-size: 18px; line-height: 1.6; color: var(--text); margin-bottom: 16px; font-style: italic; }
+    .quote-text::before { content: '\201C'; color: var(--brand); font-size: 32px; line-height: 0; vertical-align: -12px; margin-right: 4px; }
+    .quote-source { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .quote-pub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ══════════════════════════════════════════
+       SECTION 7 — FOOTER (EDS blocks)
+    ══════════════════════════════════════════ */
+    [data-source="eds-footer"] {
+      background: #1a1210;
+      padding: 48px 32px 24px;
+    }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+    @media (max-width: 720px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    .footer-brand { font-family: var(--font-serif); font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .footer-brand span { color: var(--brand); }
+    .footer-tagline { font-size: 13px; color: rgba(255,255,255,.35); line-height: 1.6; max-width: 220px; }
+    .footer-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.3); margin-bottom: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 8px; }
+    .footer-links a { font-size: 13px; color: rgba(255,255,255,.5); text-decoration: none; transition: color .15s; }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.07); padding-top: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: 12px; color: rgba(255,255,255,.2); }
+    .footer-bottom nav { display: flex; gap: 16px; }
+    .footer-bottom nav a { font-size: 12px; color: rgba(255,255,255,.3); text-decoration: none; }
+    .footer-bottom nav a:hover { color: rgba(255,255,255,.7); }
+
+    /* ── Legend ── */
+    .byom-legend {
+      max-width: 1100px; margin: 0 auto;
+      padding: 20px 32px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    }
+    .legend-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  </style>
+</head>
+<body class="dark">
+
+<!-- BYOM Controls Badge -->
+<div class="byom-badge" id="byom-badge">
+  <div class="byom-controls" id="byom-controls">
+    <button class="byom-toggle" id="toggle-hover" title="Toggle hover info">Hover ON</button>
+    <button class="byom-toggle" id="toggle-dark" title="Toggle dark mode">Dark</button>
+  </div>
+  <button class="info" id="byom-collapse" title="Click to collapse · hover for info">ⓘ
+    <span class="info-tip">
+      <strong>Bring Your Own Markup — demo content.</strong> Every section of this page comes from a different content source — AEM XF, DA Live SC, AEM CF API, an external feed, an AEM Edge Function, an EDS block, and a DA Live document. Hover any section to see which source it uses and how it's fetched.<br><br><em>Saffron Restaurant, its chef, menu items, press quotes, reviewers, and reservation data are entirely fictional and for demonstration purposes only.</em>
+    </span>
+  </button>
+</div>
+
+<!-- ── Floating source overlay card ── -->
+<div id="source-card">
+  <div id="sc-ctrls">
+    <button class="sc-ctrl" id="sc-swap" title="Swap to other side">⇄</button>
+    <button class="sc-ctrl" id="sc-collapse" title="Collapse to bar">◀</button>
+  </div>
+  <div class="sc-header" id="sc-header"></div>
+  <div class="sc-body">
+    <div class="sc-desc" id="sc-desc"></div>
+    <div class="sc-code" id="sc-code"></div>
+    <a class="sc-link" id="sc-link" href="#" target="_blank" rel="noopener"></a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 1 — NAV (AEM XF)
+═══════════════════════════════════ -->
+<nav data-source="xf"
+     data-source-label="AEM Experience Fragment"
+     data-source-desc="This navigation bar is an AEM Experience Fragment — a reusable, centrally managed content block authored once in AEM Author and referenced across all pages. When the XF is updated in AEM, every page that references it reflects the change on next publish."
+     data-source-code="/content/experience-fragments/saffron/nav/master.model.json
+→ rendered server-side via HTL
+→ EDS: fetched as HTML fragment via
+  blocks/fragment/fragment.js"
+     data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/sites/authoring/fragments/experience-fragments">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">Saffron <span>Restaurant</span></a>
+    <div class="nav-links">
+      <a href="#">Menu</a>
+      <a href="#">Reservations</a>
+      <a href="#">Events</a>
+      <a href="faq.html">FAQ</a>
+      <a href="brandconcierge.html">Concierge</a>
+    </div>
+    <a class="nav-cta" href="brandconcierge.html">Book a Table</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════
+     SECTION 2 — HERO (DA Live SC)
+═══════════════════════════════════ -->
+<section data-source="dasc"
+         data-source-label="DA Live Structured Content"
+         data-source-desc="This hero is authored in DA Live (da.live) using a structured content block — a named field form rather than freeform document text. The author fills in 'eyebrow', 'title', 'subtitle', and 'CTA' fields. DA Live publishes to GitHub via the Admin API, triggering CDN cache invalidation."
+         data-source-code="PUT https://admin.da.live/source/
+  pstolmar/diagram-editor/saffron/hero.html
+Content-Type: text/html
+
+<div class='hero-block'>
+  <div><div>Summer is Served</div></div>
+  <div><div>Book a table →</div></div>
+</div>"
+         data-source-link="https://da.live/docs">
+  <div class="hero-eyebrow">☀️ Summer Menu 2026 · Now Open</div>
+  <h1 class="hero-title">Where Every Season<br>Tells a Story</h1>
+  <p class="hero-sub">Fresh ingredients. Honest cooking. Chef Marco Ferretti's seasonal kitchen — open for lunch and dinner Tuesday through Sunday.</p>
+  <a class="hero-cta" href="brandconcierge.html">Reserve a Table →</a>
+  <div class="hero-img"><div class="hero-img-fill"></div></div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SECTION 2b — DAILY SPECIAL (DA Fragment + DA SC dual demo)
+═══════════════════════════════════ -->
+<section data-source="da-sc" data-source-dual="true"
+         data-source-label="DA Live · Week 36 / 37"
+         data-source-desc="placeholder"
+         data-source-code="placeholder"
+         data-source-link="https://da.live/docs"
+         id="specials-section">
+  <div class="dasc2-inner">
+    <!-- Tab switcher -->
+    <div class="specials-tabs">
+      <button class="spec-tab active" data-week="36" id="spec-tab-36">
+        This week <span class="tab-pill">Fragment</span>
+      </button>
+      <button class="spec-tab" data-week="37" id="spec-tab-37">
+        Next week <span class="tab-pill">SC</span>
+      </button>
+    </div>
+
+    <!-- Week 36 pane: DA Live Fragment (block table) -->
+    <div class="specials-pane active" id="spec-pane-36">
+      <div class="dasc2-header">
+        <span class="dasc2-model-label">DA Fragment · block table document</span>
+        <span class="dasc2-source">week-36 · da.live/#/…/da/structured/week-36</span>
+      </div>
+      <div class="dasc2-card">
+        <div class="dasc2-body">
+          <div class="dasc2-badge">Chef's Pick · Week 36</div>
+          <h3 class="dasc2-headline">Wagyu Tartare &amp; Truffle Toast</h3>
+          <p class="dasc2-sub">Hand-trimmed A5 wagyu, shallot, caper, egg yolk — served with sourdough rubbed with black truffle. Limited to 20 portions each evening.</p>
+          <div class="dasc2-tags">
+            <span class="dasc2-tag">Gluten-free on request</span>
+            <span class="dasc2-tag">Contains egg</span>
+            <span class="dasc2-tag">Limited: 20 covers</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="dasc2-price">£38</div>
+          <div class="dasc2-price-label">starter · à la carte</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Week 37 pane: DA Structured Content (schema-driven form) -->
+    <div class="specials-pane" id="spec-pane-37">
+      <div class="dasc2-header">
+        <span class="dasc2-model-label">DA Structured Content · specials-banner.json</span>
+        <span class="dasc2-field">badge</span>
+        <span class="dasc2-field">headline</span>
+        <span class="dasc2-field">sub</span>
+        <span class="dasc2-field">price</span>
+        <span class="dasc2-field">tags</span>
+        <span class="dasc2-source">week-37 · da.live/form#/…/da/structured/week-37</span>
+      </div>
+      <div class="dasc2-card">
+        <div class="dasc2-body">
+          <div class="dasc2-badge">Chef's Pick · Week 37</div>
+          <h3 class="dasc2-headline">Saffron-Glazed Lamb Cutlets</h3>
+          <p class="dasc2-sub">Rack of spring lamb brushed with saffron and pomegranate molasses, finished over oak. Served with charred aubergine, preserved lemon yoghurt, and harissa-roasted courgette.</p>
+          <div class="dasc2-tags">
+            <span class="dasc2-tag">Contains dairy</span>
+            <span class="dasc2-tag">Halal on request</span>
+            <span class="dasc2-tag">Weekend special</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="dasc2-price">£44</div>
+          <div class="dasc2-price-label">main · à la carte</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 3 — FEATURED DISH (CF API)
+═══════════════════════════════════ -->
+<section data-source="cf"
+         data-source-label="AEM Content Fragment API"
+         data-source-desc="This dish card is fetched from AEM at runtime using the CF Delivery API (GraphQL). The content lives in a Content Fragment at /content/dam/saffron/menu/seared-scallops. When the chef updates the fragment in AEM Author and publishes, the EDS page reflects the change on next user visit — no redeploy required."
+         data-source-code="fetch('https://publish-p138879-e1741192
+  .adobeaemcloud.com/graphql/execute.json/
+  saffron/featuredDish;variation=summer')
+  .then(r => r.json())
+  .then(({ data }) => renderDish(
+    data.homeHeroByPath.item
+  ));"
+         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/headless/graphql-api/content-fragments">
+  <div class="cf-section-inner">
+    <div class="cf-img"><div class="cf-img-fill"></div></div>
+    <div class="cf-content">
+      <div class="cf-tag">✦ Tonight's Feature</div>
+      <h2 class="cf-title">Seared Hand-Dived Scallops</h2>
+      <p class="cf-desc">Pan-seared king scallops from the Orkney Islands, served with a mango and chilli salsa, compressed cucumber, and a pea shoot garnish. A signature of our summer menu.</p>
+      <div class="cf-meta">
+        <div class="cf-meta-item"><strong>£32</strong> main</div>
+        <div class="cf-meta-item">Serves <strong>1</strong></div>
+        <div class="cf-meta-item"><strong>15 min</strong> prep</div>
+      </div>
+      <div>
+        <span class="cf-pill">Gluten-free</span>
+        <span class="cf-pill">Dairy-free</span>
+        <span class="cf-pill">Seasonal</span>
+      </div>
+      <br>
+      <a class="cf-cta" href="faq.html#menu">Full Menu</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 4 — DASHBOARD (External)
+═══════════════════════════════════ -->
+<section data-source="ext"
+         data-source-label="External Data Feed"
+         data-source-desc="This dashboard pulls live reservation and capacity data from an external OpenTable / ResOS webhook. The EDS page fetches a JSON endpoint on load — no AEM involvement. Any REST or GraphQL feed can be integrated this way via an App Builder action that caches and rate-limits the upstream call."
+         data-source-code="// App Builder action as CORS-safe proxy:
+fetch('https://runtime.adobe.io/api/v1/
+  web/saffron/reservations/tonight')
+  .then(r => r.json())
+  .then(renderDashboard);
+
+// Upstream: ResOS / OpenTable webhook
+// Cached by aio-lib-state (5-min TTL)"
+         data-source-link="https://developer.adobe.com/app-builder/docs/">
+  <div class="ext-inner">
+    <div class="ext-header">
+      <div>
+        <div class="ext-title" style="font-family:var(--font-serif)">Tonight at Saffron</div>
+        <div class="ext-subtitle">Live reservation data · refreshes every 5 min</div>
+      </div>
+      <div class="live-dot">Live feed</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Covers Tonight</div>
+        <div class="metric-value">84</div>
+        <div class="metric-delta delta-pos">↑ 12 vs last Tuesday</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Tables Available</div>
+        <div class="metric-value">6</div>
+        <div class="metric-delta" style="color:rgba(255,255,255,.3)">of 28 total</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Avg. Spend</div>
+        <div class="metric-value">£94</div>
+        <div class="metric-delta delta-pos">↑ £8 vs last week</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Chef's Special</div>
+        <div class="metric-value" style="font-size:18px;line-height:1.3">Wagyu<br>Tartare</div>
+        <div class="metric-delta" style="color:rgba(255,255,255,.3)">Limited: 12 portions</div>
+      </div>
+    </div>
+    <div class="feed-rows" id="reservation-feed">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 4b — EDGE FUNCTION
+═══════════════════════════════════ -->
+<section data-source="edge-fn"
+         data-source-label="AEM Edge Function"
+         data-source-desc="This availability badge is injected by an AEM Edge Function — the EDS page is pure static HTML served from Fastly, but the edge worker intercepts the response, calls a live reservations API, and injects the table count before the HTML reaches the browser. Zero round-trips from the client; no visible JS hydration."
+         data-source-code="// edge-fn/table-availability.js
+export default {
+  async fetch(req, ctx) {
+    // 1. Fetch the static EDS page from origin
+    const res = await ctx.next(req);
+
+    // 2. Call live reservations API at the edge
+    const { tables, next_slot } = await fetch(
+      'https://api.saffron.co.uk/reservations/tonight'
+    ).then(r => r.json());
+
+    // 3. Inject availability badge via HTMLRewriter
+    const badge = `&lt;div id=&quot;avail-badge&quot;&gt;
+  ${tables} tables tonight · ${next_slot}
+&lt;/div&gt;`;
+
+    return new HTMLRewriter()
+      .on('body', {
+        element: el =&gt;
+          el.prepend(badge, { html: true })
+      })
+      .transform(res);
+  }
+}"
+         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-learn/cloud-service/edge-functions/edge-functions-setup/setup-eds">
+  <div class="edgefn-inner">
+    <div class="edgefn-eyebrow">Edge Compute Layer</div>
+    <div class="edgefn-layout">
+      <div>
+        <h2 class="edgefn-h2">AEM Edge Function injects live data into a static page</h2>
+        <p class="edgefn-sub">The EDS page never changes — but the edge worker calls the reservations API on every request and injects current availability directly into the HTML stream before it reaches the browser.</p>
+        <div class="edgefn-code-wrap">
+          <div class="edgefn-code-bar">
+            <div class="edgefn-code-dot" style="background:#ef4444"></div>
+            <div class="edgefn-code-dot" style="background:#f59e0b"></div>
+            <div class="edgefn-code-dot" style="background:#22c55e"></div>
+            <span class="edgefn-code-filename">edge-fn/table-availability.js</span>
+          </div>
+          <div class="edgefn-code-body"><span class="edgefn-cmt">// Intercept every request to the Saffron page</span>
+<span class="edgefn-kw">export default</span> {
+  <span class="edgefn-kw">async</span> <span class="edgefn-fn">fetch</span>(req, ctx) {
+    <span class="edgefn-kw">const</span> res = <span class="edgefn-kw">await</span> ctx.<span class="edgefn-fn">next</span>(req); <span class="edgefn-cmt">// static EDS HTML</span>
+
+    <span class="edgefn-kw">const</span> { tables, next_slot } = <span class="edgefn-kw">await</span>
+      <span class="edgefn-fn">fetch</span>(<span class="edgefn-str">'https://api.saffron.co.uk/reservations/tonight'</span>)
+        .<span class="edgefn-fn">then</span>(r => r.<span class="edgefn-fn">json</span>());
+
+    <span class="edgefn-kw">return new</span> <span class="edgefn-fn">HTMLRewriter</span>()
+      .<span class="edgefn-fn">on</span>(<span class="edgefn-str">'body'</span>, { element: el =>
+        el.<span class="edgefn-fn">prepend</span>(badge(tables, next_slot), { html: <span class="edgefn-kw">true</span> })
+      })
+      .<span class="edgefn-fn">transform</span>(res);
+  }
+}</div>
+        </div>
+      </div>
+      <div class="edgefn-right">
+        <div class="edgefn-pipeline">
+          <div class="edgefn-node">
+            <div class="edgefn-node-label">Browser</div>
+            <div class="edgefn-node-sub">GET /saffron</div>
+          </div>
+          <div class="edgefn-arrow">→</div>
+          <div class="edgefn-node active">
+            <div class="edgefn-node-label">Edge Function</div>
+            <div class="edgefn-node-sub">inject + transform</div>
+          </div>
+          <div class="edgefn-arrow">→</div>
+          <div class="edgefn-node">
+            <div class="edgefn-node-label">Fastly CDN</div>
+            <div class="edgefn-node-sub">static HTML</div>
+          </div>
+          <div class="edgefn-arrow">→</div>
+          <div class="edgefn-node">
+            <div class="edgefn-node-label">EDS Origin</div>
+            <div class="edgefn-node-sub">GitHub</div>
+          </div>
+        </div>
+        <div class="edgefn-injected">
+          <div class="edgefn-injected-label">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#f97316" stroke-width="1.5"/><path d="M6 4v3M6 8.5v.5" stroke="#f97316" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Injected by edge worker at request time
+          </div>
+          <div class="edgefn-badge">
+            <div class="edgefn-badge-dot"></div>
+            Tonight: 3 tables available · Next slot 19:30
+          </div>
+          <div class="edgefn-desc">This content doesn't exist in the EDS HTML file on GitHub. It's assembled at the Fastly edge node closest to the visitor — no client-side fetch, no layout shift, no waiting for hydration.</div>
+        </div>
+        <div class="edgefn-injected" style="border-color:#7c3aed44">
+          <div class="edgefn-injected-label" style="color:#a78bfa">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#a78bfa" stroke-width="1.5"/><path d="M4 6l1.5 1.5L8 4" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Also possible: A/B test routing, geo-personalisation, auth gates
+          </div>
+          <div class="edgefn-desc">Edge functions can also vary the response by cookie (VIP preview), Accept-Language (locale swap), or X-Forwarded-For (geo) — all before the HTML leaves the CDN.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 5 — DIAGRAM (EDS block)
+═══════════════════════════════════ -->
+<section data-source="eds"
+         data-source-label="EDS Block (diagram-editor)"
+         data-source-desc="This diagram is rendered by the diagram-editor EDS block — a block in this very repository at blocks/diagram-editor/. The block reads a Mermaid source string from the page markup and renders it as SVG via the Mermaid v10 CDN library. No server-side rendering — pure edge-delivered static HTML that activates client-side."
+         data-source-code="// blocks/diagram-editor/diagram-editor.js
+export default async function decorate(block) {
+  const pre = block.querySelector('pre');
+  const { default: mermaid } = await import(
+    'https://cdn.jsdelivr.net/npm/mermaid@10/
+    dist/mermaid.esm.min.mjs');
+  mermaid.initialize({ startOnLoad: false });
+  const { svg } = await mermaid.render(
+    'diagram', pre.textContent);
+  block.innerHTML = svg;
+}"
+         data-source-link="https://www.aem.live/developer/block-collection">
+  <div class="eds-inner">
+    <div class="section-eyebrow">EDS Block</div>
+    <h2 class="section-h2">How This Page Is Assembled</h2>
+    <p class="section-desc">Each section fetches from a different source. This diagram — rendered by the diagram-editor block — shows the content flow.</p>
+    <!-- EDS block markup pattern -->
+    <div class="diagram-editor">
+      <div><div>
+        <button class="copy-mermaid-btn" id="copy-mermaid-btn">⬡ Copy Mermaid source</button>
+      <pre class="diagram-source">
+%%{init:{'theme':'base','flowchart':{'nodeSpacing':30},'themeVariables':{'primaryColor':'#ffffff','edgeLabelBackground':'#ffffff','lineColor':'#94a3b8','fontSize':'13px'}}}%%
+flowchart LR
+    classDef xf      fill:#3b82f6,color:#fff,stroke:#2563eb
+    classDef dasc    fill:#10b981,color:#fff,stroke:#059669
+    classDef dasc2   fill:#10b981,color:#fff,stroke:#059669,stroke-dasharray:5
+    classDef cf      fill:#6366f1,color:#fff,stroke:#4f46e5
+    classDef ext     fill:#f59e0b,color:#1a1210,stroke:#d97706
+    classDef edgefn  fill:#f97316,color:#fff,stroke:#ea580c
+    classDef eds     fill:#e8552e,color:#fff,stroke:#c94220
+    classDef da      fill:#a855f7,color:#fff,stroke:#9333ea
+
+    XF["XF\n(Nav)"]:::xf           -->|"fragment"| P["EDS\nPage"]
+    DASC["DA Live SC\n(Hero)"]:::dasc -->|"Admin API"| P
+    DASC2["DA Native SC\n(Special)"]:::dasc2 -->|"Admin API"| P
+    CF["AEM CF API\n(Dish)"]:::cf   -->|"GraphQL"| P
+    EXT["Ext Feed\n(Dashboard)"]:::ext -->|"App Builder"| P
+    EDGE["Edge Fn\n(Availability)"]:::edgefn -->|"HTMLRewriter"| P
+    BLK["EDS Block\n(Diagram)"]:::eds  -->|"blocks/"| P
+    DOC["DA Doc\n(Quotes)"]:::da    -->|"GitHub→CDN"| P
+    FTR["EDS Blocks\n(Footer)"]:::eds  -->|"blocks/footer"| P
+        </pre>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 6 — QUOTES (DA Live doc)
+═══════════════════════════════════ -->
+<section data-source="da"
+         data-source-label="DA Live Document"
+         data-source-desc="These press quotes are authored in a plain DA Live document — the author types quotes and attribution into a simple table block in the browser editor. DA Live publishes to GitHub, EDS serves the resulting HTML. No structured schema needed; document-based authoring handles freeform editorial content like this perfectly."
+         data-source-code="<!-- Authored in da.live as a table block:
+| Quote | Source | Publication |
+| Scallops were... | Sarah T. | The Guardian |
+|...               |          |              |
+
+DA Live → GitHub commit →
+Fastly CDN serves HTML directly -->"
+         data-source-link="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/edge-delivery/wysiwyg-authoring/create-block">
+  <div class="da-inner">
+    <div class="section-eyebrow">As Seen In</div>
+    <h2 class="section-h2">What Critics Are Saying</h2>
+    <div class="quotes-grid">
+      <div class="quote-card">
+        <p class="quote-text">The scallops were the finest I've tasted this side of the Channel. Marco's restraint with seasoning is masterful.</p>
+        <div class="quote-source">Sarah Thompson</div>
+        <div class="quote-pub">The Guardian Food, June 2026 · ★★★★½</div>
+      </div>
+      <div class="quote-card">
+        <p class="quote-text">A seasonal kitchen that genuinely means it. The summer menu reads like a love letter to British produce.</p>
+        <div class="quote-source">James Ramsay</div>
+        <div class="quote-pub">Eater London, July 2026 · Critic's Pick</div>
+      </div>
+      <div class="quote-card">
+        <p class="quote-text">Saffron is what happens when a chef stops trying to impress and starts trying to nourish. Remarkable.</p>
+        <div class="quote-source">Priya Nair</div>
+        <div class="quote-pub">Financial Times Life &amp; Arts, May 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 7 — FOOTER (EDS blocks)
+═══════════════════════════════════ -->
+<footer data-source="eds-footer"
+        data-source-label="EDS Blocks (header/footer)"
+        data-source-desc="This footer is an EDS blocks/footer block — the same pattern used across the entire site. One file in blocks/footer/ controls the footer everywhere. Authors update a single Google Sheet or DA Live document row; the CDN purges the cache and all pages pick up the change within seconds."
+        data-source-code="// blocks/footer/footer.js
+export default async function decorate(block) {
+  const cfg = readBlockConfig(block);
+  const resp = await fetch(
+    `${cfg.footerPath}.plain.html`);
+  block.innerHTML = await resp.text();
+  decorateIcons(block);
+}"
+        data-source-link="https://www.aem.live/developer/block-collection">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Saffron <span>Restaurant</span></div>
+        <div class="footer-tagline">12 Harbour Lane, London EC1A 2BB. Seasonal cooking, sourced locally.</div>
+      </div>
+      <div>
+        <div class="footer-col-title">Visit</div>
+        <div class="footer-links">
+          <a href="#">Lunch Menu</a>
+          <a href="#">Dinner Menu</a>
+          <a href="#">Sunday Brunch</a>
+          <a href="#">Tasting Menus</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Reserve</div>
+        <div class="footer-links">
+          <a href="brandconcierge.html">Book a Table</a>
+          <a href="#">Private Dining</a>
+          <a href="#">Events</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Demo Pages</div>
+        <div class="footer-links">
+          <a href="byom-demo.html">BYOM Demo</a>
+          <a href="vcf-agents-demo.html">VCF Agents</a>
+          <a href="unification-demo.html">Unification</a>
+          <a href="index.html">Blockify Hub</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Saffron Restaurant · <strong>Demo only — all content, people, places and data are fictional</strong> · built with Adobe Edge Delivery Services</p>
+      <nav>
+        <a href="index.html">Blockify Hub</a>
+        <a href="faq.html">FAQ</a>
+        <a href="brandconcierge.html">Brand Concierge</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<!-- ── BYOM Source Legend ── -->
+<div class="byom-legend">
+  <span class="legend-label">Source key:</span>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-xf)"></div>XF</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc)"></div>DA Live SC</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-dasc);opacity:.6"></div>DA Native SC</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-cf)"></div>AEM CF</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-ext)"></div>External Feed</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-edge)"></div>Edge Fn</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-eds)"></div>EDS Block</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-da)"></div>DA Doc</div>
+</div>
+
+<script type="module">
+  // ── Mermaid diagram ──────────────────────────────────────────────────────────
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+  const preSrc = document.querySelector('.diagram-source');
+  const srcText = preSrc ? preSrc.textContent.trim() : '';
+  window.diagramSourceText = srcText;
+  const diagramContainer = preSrc ? preSrc.closest('.diagram-editor') : null;
+  let renderCount = 0;
+
+  const darkSrc = srcText.replace(
+    /%%\{init:[^\n]*%%/,
+    "%%{init:{'theme':'dark','flowchart':{'nodeSpacing':30}}}%%"
+  );
+
+  async function renderDiagram() {
+    if (!diagramContainer || !srcText) return;
+    const isDark = document.body.classList.contains('dark');
+    mermaid.initialize({ startOnLoad: false, flowchart: { curve: 'basis' } });
+    try {
+      const { svg } = await mermaid.render('byom-arch-' + (++renderCount), isDark ? darkSrc : srcText);
+      const output = document.createElement('div');
+      output.className = 'diagram-output';
+      output.innerHTML = svg;
+      diagramContainer.innerHTML = '';
+      diagramContainer.appendChild(output);
+    } catch (e) {
+      if (diagramContainer) diagramContainer.innerHTML = '<p style="color:#888;font-size:13px;padding:16px">Diagram rendering requires a network connection (Mermaid CDN).</p>';
+    }
+  }
+
+  renderDiagram();
+  window.rerenderDiagram = renderDiagram;
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Seasonal content rotation ────────────────────────────────────────────────
+  var SEASONS = {
+    spring: {
+      label: 'Spring', emoji: '🌸',
+      eyebrow: '🌸 Spring Menu 2026 · Now Open',
+      variation: 'spring',
+      dish: {
+        tag: '✦ Spring Special',
+        title: 'Wild Garlic Gnudi & Brown Butter',
+        desc: 'Hand-rolled ricotta gnudi with wild garlic picked from the Surrey Hills, finished in aged brown butter, crispy sage and shaved Pecorino. The first dish of spring.',
+        price: '£26', prep: '20 min',
+        pills: ['Vegetarian', 'Gluten-free option', 'Seasonal'],
+      },
+    },
+    summer: {
+      label: 'Summer', emoji: '☀️',
+      eyebrow: '☀️ Summer Menu 2026 · Now Open',
+      variation: 'summer',
+      dish: {
+        tag: '✦ Tonight\'s Feature',
+        title: 'Seared Hand-Dived Scallops',
+        desc: 'Pan-seared king scallops from the Orkney Islands, served with a mango and chilli salsa, compressed cucumber, and a pea shoot garnish. A signature of our summer menu.',
+        price: '£32', prep: '15 min',
+        pills: ['Gluten-free', 'Dairy-free', 'Seasonal'],
+      },
+    },
+    fall: {
+      label: 'Autumn', emoji: '🍂',
+      eyebrow: '🍂 Autumn Menu 2026 · Now Open',
+      variation: 'fall',
+      dish: {
+        tag: '✦ Autumn Feature',
+        title: 'Roasted Cep & Chestnut Risotto',
+        desc: 'Wild ceps foraged from the Surrey Hills, stirred into aged carnaroli rice with toasted chestnut and aged Parmesan. A celebration of autumn\'s first fungi harvest.',
+        price: '£28', prep: '25 min',
+        pills: ['Vegetarian', 'Gluten-free option', 'Seasonal'],
+      },
+    },
+    winter: {
+      label: 'Winter', emoji: '❄️',
+      eyebrow: '❄️ Winter Menu 2026 · Now Open',
+      variation: 'winter',
+      dish: {
+        tag: '✦ Winter Highlight',
+        title: 'Slow-Braised Beef Short Rib',
+        desc: 'Short rib braised 48 hours in red wine and bone marrow butter, served with celeriac purée, pickled walnut and crispy shallots. The definitive cold-weather dish.',
+        price: '£36', prep: '30 min',
+        pills: ['Gluten-free option', 'Dairy', 'Weekend Special'],
+      },
+    },
+  };
+
+  function getSeasonFromDate(d) {
+    var m = d.getMonth() + 1;
+    if (m >= 3 && m <= 5) return 'spring';
+    if (m >= 6 && m <= 8) return 'summer';
+    if (m >= 9 && m <= 11) return 'fall';
+    return 'winter';
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var menuParam = params.get('menu');
+  var dateParam = params.get('date');
+
+  var refDate = new Date();
+  if (dateParam && /^\d{8}$/.test(dateParam)) {
+    refDate = new Date(
+      parseInt(dateParam.slice(0, 4)),
+      parseInt(dateParam.slice(4, 6)) - 1,
+      parseInt(dateParam.slice(6, 8))
+    );
+  }
+  var activeSeason = (menuParam && SEASONS[menuParam]) ? menuParam : getSeasonFromDate(refDate);
+  var seasonData = SEASONS[activeSeason];
+
+  function applySeasonalContent() {
+    var dish = seasonData.dish;
+
+    // Hero eyebrow
+    var eyebrow = document.querySelector('.hero-eyebrow');
+    if (eyebrow) eyebrow.textContent = seasonData.eyebrow;
+
+    // CF dish card — tag, title, description, meta, pills
+    var cfTag = document.querySelector('.cf-tag');
+    if (cfTag) cfTag.textContent = dish.tag;
+    var cfTitle = document.querySelector('.cf-title');
+    if (cfTitle) cfTitle.textContent = dish.title;
+    var cfDesc = document.querySelector('.cf-desc');
+    if (cfDesc) cfDesc.textContent = dish.desc;
+    var cfMetas = document.querySelectorAll('.cf-meta-item');
+    if (cfMetas[0]) cfMetas[0].innerHTML = '<strong>' + dish.price + '</strong> main';
+    if (cfMetas[2]) cfMetas[2].innerHTML = '<strong>' + dish.prep + '</strong> prep';
+    var cfPills = document.querySelectorAll('.cf-pill');
+    dish.pills.forEach(function (p, i) { if (cfPills[i]) cfPills[i].textContent = p; });
+
+    // Update CF data-source-code to reflect correct variation in the overlay
+    var cfSection = document.querySelector('[data-source="cf"]');
+    if (cfSection && cfSection.dataset.sourceCode) {
+      cfSection.dataset.sourceCode = cfSection.dataset.sourceCode
+        .replace(/variation=[a-z]+/g, 'variation=' + seasonData.variation);
+    }
+
+    // Season pill in BYOM badge
+    var controls = document.querySelector('.byom-controls');
+    if (controls && !document.getElementById('season-pill')) {
+      var pill = document.createElement('span');
+      pill.id = 'season-pill';
+      pill.title = 'Active: ' + seasonData.label + ' (auto-detected from date)\nOverride: ?menu=spring|summer|fall|winter\nSimulate: ?date=YYYYMMDD';
+      pill.style.cssText = 'background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:2px 8px;font-size:10px;cursor:default;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;';
+      pill.innerHTML = seasonData.emoji + '<span style="opacity:.75;letter-spacing:.04em">' + seasonData.label.toUpperCase() + '</span>';
+      controls.insertBefore(pill, controls.firstChild);
+    }
+  }
+
+  applySeasonalContent();
+
+  // ── Source colour map ────────────────────────────────────────────────────────
+  var COLORS = {
+    xf:        '#3b82f6',
+    dasc:      '#10b981',
+    cf:        '#6366f1',
+    ext:       '#f59e0b',
+    eds:       '#e8552e',
+    da:        '#a855f7',
+    'edge-fn':    '#f97316',
+    'da-sc':      '#10b981',
+    'eds-footer': '#e8552e',
+  };
+
+  // ── Simulated reservation feed ───────────────────────────────────────────────
+  var RESERVATIONS = [
+    { name: 'Williams — party of 4', time: '18:30', badge: 'vip', label: 'VIP' },
+    { name: 'Patel — party of 2',    time: '19:00', badge: 'new', label: 'New' },
+    { name: 'Chen — party of 6',     time: '19:15', badge: null, label: null },
+    { name: 'Johnson — party of 3',  time: '20:00', badge: 'new', label: 'New' },
+    { name: 'Martinez — party of 2', time: '20:30', badge: null, label: null },
+  ];
+  var feedEl = document.getElementById('reservation-feed');
+  if (feedEl) {
+    RESERVATIONS.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'feed-row';
+      row.innerHTML =
+        '<strong>' + r.name + '</strong>' +
+        (r.badge ? '<span class="badge-sm ' + r.badge + '">' + r.label + '</span>' : '') +
+        '<span class="time">Dinner · ' + r.time + '</span>';
+      feedEl.appendChild(row);
+    });
+  }
+
+  // ── Hover overlay card ───────────────────────────────────────────────────────
+  var card = document.getElementById('source-card');
+  var scHeader = document.getElementById('sc-header');
+  var scDesc   = document.getElementById('sc-desc');
+  var scCode   = document.getElementById('sc-code');
+  var scLink   = document.getElementById('sc-link');
+  var isMobile = window.matchMedia('(max-width: 680px)').matches;
+
+  var activeHighlightEl = null;
+
+  // ── Dual-panel data for the specials section ────────────────────────────────
+  var DUAL_DATA = {
+    '36': {
+      label: 'DA Live Fragment · Week 36',
+      desc:  'This specials banner is authored in DA Live as a regular document — the editor uses a block table where field names sit in the left column and values in the right. DA Live publishes the HTML to GitHub via the Admin API; EDS renders the block at the edge. No schema required: great for freeform editorial content that changes weekly.',
+      code:  'PUT https://admin.da.live/source/\n    pstolmar/diagram-editor\n    /da/structured/week-36.html\n\n<!-- DA fragment (block table): -->\n| specials-banner         |                              |\n| ----------------------- | ---------------------------- |\n| badge                   | Chef\'s Pick · Week 36        |\n| headline                | Wagyu Tartare & Truffle Toast|\n| sub                     | Hand-trimmed A5 wagyu...     |\n| price                   | £38                          |\n| tags                    | Gluten-free on request, ...  |',
+      link:  'https://www.aem.live/docs/document-authoring',
+    },
+    '37': {
+      label: 'DA Structured Content · Week 37',
+      desc:  'Week 37 is authored as DA Structured Content — the author fills a validated form in the SC editor (da.live/form#/…), never touching markup. The schema (specials-banner.json) defines field names, types, and validation rules. DA stores a structured payload; the block renders identically to the fragment version, but authoring is a proper form UI with field-level validation.',
+      code:  '// /models/specials-banner.json\n{\n  "id": "specials-banner",\n  "fields": [\n    { "name": "badge",    "label": "Badge text",  "type": "text",     "required": true },\n    { "name": "headline", "label": "Dish name",   "type": "text",     "required": true },\n    { "name": "sub",      "label": "Description", "type": "textarea", "required": true },\n    { "name": "price",    "label": "Price",       "type": "text",     "required": true },\n    { "name": "tags",     "label": "Dietary tags","type": "text" }\n  ]\n}\n\n// SC form editor URL:\nda.live/form#/pstolmar/diagram-editor\n         /da/structured/week-37',
+      link:  'https://da.live/docs',
+    },
+  };
+
+  function getActiveSpecialsWeek() {
+    var activeTab = document.querySelector('#specials-section .spec-tab.active');
+    return activeTab ? activeTab.dataset.week : '36';
+  }
+
+  function renderDualCard(week) {
+    var d = DUAL_DATA[week];
+    var color = COLORS['da-sc'];
+    var infoIcon = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="6" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><path d="M7 6v4M7 4.5v.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>';
+    scHeader.style.background = color;
+    scHeader.innerHTML =
+      '<div class="sc-dual-tabs" style="width:100%">' +
+      '<button class="sc-dual-tab' + (week==='36'?' active':'') + '" id="sct-36">Week 36 · Fragment</button>' +
+      '<button class="sc-dual-tab' + (week==='37'?' active':'') + '" id="sct-37">Week 37 · SC</button>' +
+      '</div>';
+    scDesc.textContent = d.desc;
+    scCode.textContent = d.code;
+    scLink.href = d.link;
+    scLink.style.color = color;
+    scLink.textContent = 'Learn more →';
+    setTimeout(function () {
+      var bt36 = document.getElementById('sct-36');
+      var bt37 = document.getElementById('sct-37');
+      if (bt36) bt36.onclick = function (ev) { ev.stopPropagation(); switchSpecialsTab('36'); };
+      if (bt37) bt37.onclick = function (ev) { ev.stopPropagation(); switchSpecialsTab('37'); };
+    }, 0);
+  }
+
+  function switchSpecialsTab(week) {
+    ['36','37'].forEach(function (w) {
+      document.getElementById('spec-tab-' + w).classList.toggle('active', w === week);
+      document.getElementById('spec-pane-' + w).classList.toggle('active', w === week);
+    });
+    // Update card if open
+    if (card.classList.contains('visible') && activeHighlightEl && activeHighlightEl.dataset.sourceDual) {
+      renderDualCard(week);
+    }
+  }
+
+  document.getElementById('spec-tab-36').addEventListener('click', function () { switchSpecialsTab('36'); });
+  document.getElementById('spec-tab-37').addEventListener('click', function () { switchSpecialsTab('37'); });
+
+  function showCard(el, e) {
+    var src   = el.dataset.source;
+    var color = COLORS[src] || '#64748b';
+
+    if (el.dataset.sourceDual) {
+      if (activeHighlightEl) activeHighlightEl.style.boxShadow = '';
+      activeHighlightEl = el;
+      el.style.boxShadow = '0 0 0 4px ' + color + ', 0 0 32px ' + color + '44';
+      card.classList.add('visible');
+      renderDualCard(getActiveSpecialsWeek());
+      return;
+    }
+
+    var label = el.dataset.sourceLabel    || src;
+    var desc  = el.dataset.sourceDesc     || '';
+    var code  = el.dataset.sourceCode     || '';
+    var link  = el.dataset.sourceLink     || '#';
+
+    scHeader.style.background = color;
+    scHeader.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="6" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><path d="M7 6v4M7 4.5v.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>' + label;
+    scDesc.textContent = desc;
+    scCode.textContent = code;
+    scLink.href = link;
+    scLink.style.color = color;
+    scLink.textContent = 'Learn more on Experience League →';
+
+    // JS-driven highlight: box-shadow outside the element (always visible over children)
+    if (activeHighlightEl) activeHighlightEl.style.boxShadow = '';
+    activeHighlightEl = el;
+    el.style.boxShadow = '0 0 0 4px ' + color + ', 0 0 32px ' + color + '44';
+    card.classList.add('visible');
+  }
+
+  function positionCard() {}
+
+  function hideCard() {
+    card.classList.remove('visible');
+    if (activeHighlightEl) {
+      activeHighlightEl.style.boxShadow = '';
+      activeHighlightEl = null;
+    }
+  }
+
+  var hideTimer = null;
+
+  // Mobile: click to show/hide
+  if (isMobile) {
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest('[data-source]');
+      if (el) {
+        if (card.classList.contains('visible') && activeHighlightEl === el) { hideCard(); return; }
+        clearTimeout(hideTimer);
+        showCard(el, e);
+        hideTimer = setTimeout(hideCard, 4000);
+      }
+    });
+  } else {
+    // Desktop: event-delegate on document so every [data-source] element works
+    // regardless of child z-index / stacking context
+    document.addEventListener('mouseover', function (e) {
+      var el = e.target.closest('[data-source]');
+      if (!el) return;
+      clearTimeout(hideTimer);
+      if (activeHighlightEl !== el) showCard(el, e);
+    });
+
+    document.addEventListener('mouseout', function (e) {
+      var el = e.target.closest('[data-source]');
+      if (!el) return;
+      // Only hide when leaving the [data-source] element entirely
+      if (!el.contains(e.relatedTarget) && !(e.relatedTarget && e.relatedTarget.closest('#source-card'))) {
+        hideTimer = setTimeout(hideCard, 1200);
+      }
+    });
+    card.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
+    card.addEventListener('mouseleave', function () { hideTimer = setTimeout(hideCard, 900); });
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-source]') && !e.target.closest('#source-card') && !e.target.closest('.byom-badge')) {
+      hideCard();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') hideCard();
+  });
+
+  // ── Hover toggle ───────────────────────────────────────────────────────────
+  var hoverEnabled = true;
+  var toggleHoverBtn = document.getElementById('toggle-hover');
+  if (toggleHoverBtn) {
+    toggleHoverBtn.addEventListener('click', function () {
+      hoverEnabled = !hoverEnabled;
+      toggleHoverBtn.textContent = hoverEnabled ? 'Hover ON' : 'Hover OFF';
+      toggleHoverBtn.classList.toggle('off', !hoverEnabled);
+      if (!hoverEnabled) hideCard();
+    });
+  }
+
+  // Wrap showCard to respect toggle
+  var _origShowCard = showCard;
+  showCard = function (el, e) {
+    if (!hoverEnabled) return;
+    _origShowCard(el, e);
+  };
+
+  // ── Dark mode toggle ───────────────────────────────────────────────────────
+  var darkBtn = document.getElementById('toggle-dark');
+  if (darkBtn) {
+    darkBtn.addEventListener('click', function () {
+      var isDark = document.body.classList.toggle('dark');
+      darkBtn.textContent = isDark ? 'Dark' : 'Light';
+      if (window.rerenderDiagram) window.rerenderDiagram();
+    });
+  }
+
+  // ── Badge collapse ─────────────────────────────────────────────────────────
+  var collapseBtn = document.getElementById('byom-collapse');
+  var badge = document.getElementById('byom-badge');
+  if (collapseBtn && badge) {
+    collapseBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      badge.classList.toggle('collapsed');
+    });
+  }
+
+  // ── Source card: swap side + collapse to bar ────────────────────────────────
+  var scSwap = document.getElementById('sc-swap');
+  var scCollapse = document.getElementById('sc-collapse');
+  if (scSwap) {
+    scSwap.addEventListener('click', function (e) {
+      e.stopPropagation();
+      card.classList.toggle('card-left');
+    });
+  }
+  if (scCollapse) {
+    scCollapse.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isBar = card.classList.toggle('card-bar');
+      scCollapse.textContent = isBar ? '▶' : '◀';
+    });
+  }
+  // Click narrow bar itself to expand
+  card.addEventListener('click', function (e) {
+    if (!card.classList.contains('card-bar')) return;
+    if (e.target.closest('#sc-ctrls')) return;
+    card.classList.remove('card-bar');
+    if (scCollapse) scCollapse.textContent = '◀';
+  });
+
+  // ── Copy Mermaid source ───────────────────────────────────────────────────
+  var copyBtn = document.getElementById('copy-mermaid-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var src = window.diagramSourceText || '';
+      if (!src) return;
+      navigator.clipboard.writeText(src).then(function () {
+        copyBtn.textContent = '✓ Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(function () {
+          copyBtn.textContent = '⬡ Copy Mermaid source';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  }
+
+}());
+</script>
+<script>
+(function rumBeacon() {
+  var d = 'edge--diagram-editor--pstolmar.aem.live';
+  var data = { weight: 1, id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2), referer: document.referrer, checkpoint: 'top', t: Math.round(performance.now()), source: document.title || location.pathname, target: location.href };
+  navigator.sendBeacon('https://rum.aem.live/1/rum?d=' + encodeURIComponent(d), JSON.stringify(data));
+  ['LCP','CLS','FID','INP','TTFB'].forEach(function(m){try{new PerformanceObserver(function(l){l.getEntries().forEach(function(e){var p={weight:1,id:data.id,referer:document.referrer,checkpoint:m.toLowerCase(),source:e.element?e.element.nodeName:'',value:Math.round(e.value||e.startTime||0)};navigator.sendBeacon('https://rum.aem.live/1/rum?d='+encodeURIComponent(d),JSON.stringify(p));})}).observe({type:m,buffered:true});}catch(e){}});
+}());
+</script>
+</body>
+</html>
