@@ -1115,6 +1115,7 @@ export default async function decorate(block) {
       label: 'Spring', emoji: '🌸',
       eyebrow: '🌸 Spring Menu 2026 · Now Open',
       variation: 'spring',
+      photo: 'media/spring-gnocchi.jpg',
       dish: {
         tag: '✦ Spring Special',
         title: 'Wild Garlic Gnudi & Brown Butter',
@@ -1127,6 +1128,7 @@ export default async function decorate(block) {
       label: 'Summer', emoji: '☀️',
       eyebrow: '☀️ Summer Menu 2026 · Now Open',
       variation: 'summer',
+      photo: 'media/saffron-scallops.jpg',
       dish: {
         tag: '✦ Tonight\'s Feature',
         title: 'Seared Hand-Dived Scallops',
@@ -1139,6 +1141,7 @@ export default async function decorate(block) {
       label: 'Autumn', emoji: '🍂',
       eyebrow: '🍂 Autumn Menu 2026 · Now Open',
       variation: 'fall',
+      photo: 'media/autumn-risotto.jpg',
       dish: {
         tag: '✦ Autumn Feature',
         title: 'Roasted Cep & Chestnut Risotto',
@@ -1151,6 +1154,7 @@ export default async function decorate(block) {
       label: 'Winter', emoji: '❄️',
       eyebrow: '❄️ Winter Menu 2026 · Now Open',
       variation: 'winter',
+      photo: 'media/winter-shortrib.jpg',
       dish: {
         tag: '✦ Winter Highlight',
         title: 'Slow-Braised Beef Short Rib',
@@ -1204,6 +1208,10 @@ export default async function decorate(block) {
     var cfPills = document.querySelectorAll('.cf-pill');
     dish.pills.forEach(function (p, i) { if (cfPills[i]) cfPills[i].textContent = p; });
 
+    // CF dish photo
+    var cfImgFill = document.querySelector('.cf-img-fill');
+    if (cfImgFill) cfImgFill.style.backgroundImage = 'url(\'' + seasonData.photo + '\')';
+
     // Update CF data-source-code to reflect correct variation in the overlay
     var cfSection = document.querySelector('[data-source="cf"]');
     if (cfSection && cfSection.dataset.sourceCode) {
@@ -1211,15 +1219,28 @@ export default async function decorate(block) {
         .replace(/variation=[a-z]+/g, 'variation=' + seasonData.variation);
     }
 
-    // Season pill in BYOM badge
+    // Season cycle button in BYOM badge — emoji only, no text, click to advance season
     var controls = document.querySelector('.byom-controls');
     if (controls && !document.getElementById('season-pill')) {
-      var pill = document.createElement('span');
+      var pill = document.createElement('button');
       pill.id = 'season-pill';
-      pill.title = 'Active: ' + seasonData.label + ' (auto-detected from date)\nOverride: ?menu=spring|summer|fall|winter\nSimulate: ?date=YYYYMMDD';
-      pill.style.cssText = 'background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:2px 8px;font-size:10px;cursor:default;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;';
-      pill.innerHTML = seasonData.emoji + '<span style="opacity:.75;letter-spacing:.04em">' + seasonData.label.toUpperCase() + '</span>';
+      pill.title = 'Season: ' + seasonData.label + ' (click to cycle)\nAuto-detected from date. Override: ?menu=spring|summer|fall|winter  ?date=YYYYMMDD';
+      pill.style.cssText = 'background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:8px;width:26px;height:20px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;line-height:1;';
+      pill.textContent = seasonData.emoji;
+      pill.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var order = ['spring','summer','fall','winter'];
+        var next = order[(order.indexOf(activeSeason) + 1) % 4];
+        activeSeason = next;
+        seasonData = SEASONS[next];
+        pill.textContent = seasonData.emoji;
+        pill.title = 'Season: ' + seasonData.label + ' (click to cycle)\nAuto-detected from date. Override: ?menu=spring|summer|fall|winter  ?date=YYYYMMDD';
+        applySeasonalContent();
+      });
       controls.insertBefore(pill, controls.firstChild);
+    } else if (document.getElementById('season-pill')) {
+      // update emoji if pill already exists (re-apply call)
+      document.getElementById('season-pill').textContent = seasonData.emoji;
     }
   }
 
