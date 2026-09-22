@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WKND Winter 2026 — Ad Creative Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --y:#FFEA00;--k:#0a0a0a;--w:#fff;
+      --ig-grad:linear-gradient(135deg,#833ab4 0%,#fd1d1d 50%,#fcb045 100%);
+      --li:#0A66C2;--fb:#1877F2;
+      --img:url('https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png');
+    }
+    html{scroll-behavior:smooth}
+    body{background:#141414;color:var(--w);font-family:'Inter',sans-serif}
+
+    /* ── PAGE NAV ── */
+    .page-nav{
+      position:sticky;top:0;z-index:200;
+      background:rgba(10,10,10,.92);backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 48px;gap:16px
+    }
+    .page-nav-logo{font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;letter-spacing:.15em;color:var(--y);text-decoration:none}
+    .page-nav-title{font-size:12px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+    .page-nav-links{display:flex;gap:8px}
+    .page-nav-links a{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(255,255,255,.2);border-radius:2px;color:rgba(255,255,255,.55);text-decoration:none;transition:all .2s}
+    .page-nav-links a:hover{border-color:var(--y);color:var(--y)}
+
+    /* ── PAGE HERO ── */
+    .page-hero{padding:64px 48px 56px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .page-hero-ey{font-size:11px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:var(--y);margin-bottom:14px}
+    .page-hero h1{font-family:'Oswald',sans-serif;font-size:clamp(40px,5vw,72px);font-weight:700;text-transform:uppercase;line-height:.95;margin-bottom:20px}
+    .page-hero-sub{font-size:15px;font-weight:300;color:rgba(255,255,255,.6);max-width:560px;line-height:1.65;margin-bottom:32px}
+    .format-pills{display:flex;flex-wrap:wrap;gap:8px}
+    .pill{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border:1px solid rgba(255,255,255,.12);border-radius:20px;font-size:11px;color:rgba(255,255,255,.5)}
+    .pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .pill-ig .pill-dot{background:var(--ig-grad)}
+    .pill-ig .pill-dot{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
+    .pill-li .pill-dot{background:var(--li)}
+    .pill-fb .pill-dot{background:var(--fb)}
+
+    /* ── SMART CROP REFERENCE ── */
+    .smart-crop-section{padding:64px 48px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .sc-header{margin-bottom:32px}
+    .sc-ey{font-size:11px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px}
+    .sc-title{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;text-transform:uppercase}
+    .sc-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:8px}
+    .sc-canvas{position:relative;width:100%;max-width:900px;user-select:none}
+    .sc-img{width:100%;display:block;border-radius:4px;opacity:.88}
+    /* Crop rectangles overlay */
+    .sc-rect{position:absolute;border:2px solid;pointer-events:none}
+    .sc-label{position:absolute;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;white-space:nowrap}
+
+    /* Square 1:1 crop guide — skier at ~72% x, 58% y
+       On 900×506 display: crop height=506, width=506 → clips 394px wide
+       Center x=72%×900=648 → left=648-253=395, right=648+253=901(→900)
+       Center y=58%×506=293 → top=293-253=40, bottom=293+253=546(→506)
+    */
+    .sc-sq{
+      left:39.4%;top:7.9%;width:56.1%;height:88.3%;
+      border-color:#FFEA00
+    }
+    .sc-sq-lbl{left:39.4%;top:7.9%;background:#FFEA00;color:#000}
+
+    /* Landscape 1.91:1 — center 55% y
+       Height=900/1.91=471px crop at 55%: top=(506-471)×.55=19px, bot=490px
+    */
+    .sc-ls{
+      left:0;top:3.8%;width:100%;height:93%;
+      border-color:#4FC3F7
+    }
+    .sc-ls-lbl{left:0;top:3.8%;background:#4FC3F7;color:#000}
+
+    /* Portrait 9:16 — at x=72%
+       Width=506×(9/16)=284px → left=648-142=506, right=648+142=790
+    */
+    .sc-pt{
+      left:56.2%;top:0%;width:31.5%;height:100%;
+      border-color:#CE93D8
+    }
+    .sc-pt-lbl{left:56.2%;top:0;background:#CE93D8;color:#000}
+
+    .sc-legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px}
+    .sc-leg-item{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.55)}
+    .sc-leg-swatch{width:14px;height:14px;border:2px solid;border-radius:2px;flex-shrink:0}
+
+    /* ── PLATFORM SECTIONS ── */
+    .plat-section{padding:72px 48px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .plat-section:last-of-type{border-bottom:none}
+    .plat-header{display:flex;align-items:center;gap:16px;margin-bottom:48px}
+    .plat-badge{display:inline-flex;align-items:center;gap:10px;padding:8px 18px 8px 14px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+    .plat-badge-ig{background:var(--ig-grad);color:#fff}
+    .plat-badge-li{background:var(--li);color:#fff}
+    .plat-badge-fb{background:var(--fb);color:#fff}
+    .plat-badge svg{width:18px;height:18px;fill:currentColor;flex-shrink:0}
+    .plat-formats{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.08em}
+
+    .ad-grid{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start}
+    .ad-unit{display:flex;flex-direction:column;gap:12px}
+    .ad-spec{font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+    .ad-spec strong{color:rgba(255,255,255,.6)}
+
+    /* Social media frame wrapper */
+    .frame{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.6)}
+
+    /* ── CREATIVE BASE ── */
+    .creative{position:relative;overflow:hidden;flex-shrink:0}
+    /* Gradient overlays — same PSD-layer approach as landing pages */
+    .creative::before{content:'';position:absolute;inset:0;z-index:1;
+      background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.72) 100%),
+                linear-gradient(to right,rgba(0,0,0,.38) 0%,rgba(0,0,0,0) 55%)}
+    .creative-img{width:100%;height:100%;object-fit:cover;display:block}
+    .creative-overlay{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 18px}
+    .co-logo{font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;letter-spacing:.18em;color:var(--y);line-height:1}
+    .co-ey{font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-top:6px;margin-bottom:4px}
+    .co-h1{font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;text-transform:uppercase;color:#fff;line-height:1.0}
+    .co-sub{font-size:10px;color:rgba(255,255,255,.7);margin-top:6px;line-height:1.4}
+    .co-tag{display:inline-block;background:var(--y);color:#000;font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:4px 10px;border-radius:2px;margin-top:10px}
+
+    /* aspect ratio helpers */
+    .r-1-1{width:340px;height:340px}
+    .r-9-16{width:228px;height:405px}
+    .r-191-1{width:480px;height:251px}
+    .r-li-ls{width:480px;height:251px}
+    .r-li-sq{width:270px;height:270px}
+    .r-rc{width:254px;height:133px} /* Right Column — real size */
+
+    /* ── STORY creative ── */
+    .creative-story{display:flex;flex-direction:column;justify-content:space-between;padding:0}
+    /* Story overlays differently — stronger center */
+    .creative.story::before{
+      background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.15) 35%,rgba(0,0,0,.15) 65%,rgba(0,0,0,.75) 100%)
+    }
+    .story-top{position:absolute;top:0;left:0;right:0;z-index:3;padding:14px 16px;display:flex;align-items:center;gap:8px}
+    .story-bars{display:flex;gap:3px;flex:1}
+    .story-bar{height:2px;border-radius:2px;background:rgba(255,255,255,.4);flex:1}
+    .story-bar.active{background:#fff}
+    .story-avatar{width:28px;height:28px;border-radius:50%;background:var(--y);flex-shrink:0;border:2px solid rgba(255,255,255,.6)}
+    .story-user{font-size:11px;font-weight:600;color:#fff;flex:1}
+    .story-close{font-size:18px;color:rgba(255,255,255,.8)}
+    .story-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);z-index:3;text-align:center;width:90%}
+    .story-center .co-logo{font-size:24px;margin-bottom:6px}
+    .story-center .co-ey{margin-bottom:8px;font-size:10px}
+    .story-center .co-h1{font-size:32px;line-height:.95}
+    .story-center .co-sub{font-size:12px;max-width:200px;margin:10px auto 0}
+    .story-swipe{position:absolute;bottom:0;left:0;right:0;z-index:3;text-align:center;padding:16px;display:flex;flex-direction:column;align-items:center;gap:4px}
+    .story-swipe-icon{font-size:20px;color:#fff;animation:sw .8s ease-in-out infinite alternate}
+    @keyframes sw{0%{transform:translateY(0)}100%{transform:translateY(-4px)}}
+    .story-swipe-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+    .story-sponsored{position:absolute;top:50px;right:16px;z-index:3;font-size:10px;color:rgba(255,255,255,.55)}
+
+    /* ── INSTAGRAM UI CHROME ── */
+    .ig-top{padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f0f0}
+    .ig-avatar{width:32px;height:32px;border-radius:50%;background:var(--ig-grad);flex-shrink:0;border:1.5px solid rgba(255,255,255,.3)}
+    .ig-meta{flex:1}
+    .ig-username{font-size:12px;font-weight:700;color:#262626;display:block}
+    .ig-sponsored-lbl{font-size:11px;color:#737373}
+    .ig-dots{font-size:18px;color:#262626;letter-spacing:2px;line-height:1}
+    .ig-bot{padding:10px 14px}
+    .ig-actions{display:flex;align-items:center;margin-bottom:8px}
+    .ig-actions-left{display:flex;gap:14px;flex:1}
+    .ig-action-icon{font-size:22px;cursor:pointer}
+    .ig-likes{font-size:12px;font-weight:700;color:#262626;margin-bottom:4px}
+    .ig-caption{font-size:12px;color:#262626;margin-bottom:4px;line-height:1.4}
+    .ig-caption span{font-weight:700}
+    .ig-cta-bar{display:flex;align-items:center;justify-content:space-between;background:#fafafa;border:1px solid #ebebeb;border-radius:4px;padding:9px 12px;margin-top:8px}
+    .ig-cta-text{font-size:12px;color:#262626;font-weight:500}
+    .ig-cta-btn{font-size:12px;font-weight:700;color:#0095f6;text-decoration:none}
+
+    /* ── LINKEDIN UI CHROME ── */
+    .li-top{padding:12px 16px;display:flex;align-items:flex-start;gap:10px}
+    .li-co-avatar{width:40px;height:40px;border-radius:4px;background:var(--k);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:var(--y);letter-spacing:.1em}
+    .li-meta{flex:1}
+    .li-co-name{font-size:13px;font-weight:700;color:#000;display:block}
+    .li-promoted{font-size:11px;color:#666;display:flex;align-items:center;gap:4px}
+    .li-promoted::before{content:'•';font-size:8px}
+    .li-degree{font-size:11px;color:#666}
+    .li-more{font-size:18px;color:#666;cursor:pointer;line-height:1;margin-left:auto}
+    .li-body{padding:0 16px 12px;font-size:13px;color:#000;line-height:1.5}
+    .li-bot{border-top:1px solid #e0e0e0;margin:0 16px;padding:10px 0}
+    .li-headline{font-size:14px;font-weight:700;color:#000;margin-bottom:2px}
+    .li-desc{font-size:12px;color:#666;margin-bottom:10px}
+    .li-cta-row{display:flex;align-items:center;justify-content:space-between}
+    .li-cta-btn{padding:6px 16px;border:1.5px solid var(--li);border-radius:16px;font-size:13px;font-weight:700;color:var(--li);background:none;cursor:pointer}
+    .li-engagement{padding:8px 16px;font-size:12px;color:#666;border-top:1px solid #e0e0e0;display:flex;gap:16px}
+    .li-eng-item{display:flex;align-items:center;gap:4px;cursor:pointer}
+    .li-eng-item:hover{color:var(--li)}
+
+    /* ── FACEBOOK/META UI CHROME ── */
+    .fb-top{padding:12px 16px;display:flex;align-items:center;gap:10px}
+    .fb-avatar{width:40px;height:40px;border-radius:50%;background:#1877F2;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:#fff;letter-spacing:.08em}
+    .fb-meta{flex:1}
+    .fb-page-name{font-size:13px;font-weight:700;color:#050505;display:block}
+    .fb-sponsored-row{font-size:11px;color:#606770;display:flex;align-items:center;gap:4px}
+    .fb-globe{font-size:10px}
+    .fb-dots{font-size:18px;color:#606770;cursor:pointer;line-height:1;margin-left:auto}
+    .fb-primary-text{padding:0 16px 10px;font-size:13px;color:#050505;line-height:1.5}
+    .fb-headline-box{border-top:1px solid #e4e6eb;background:#f0f2f5;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    .fb-hl-text{flex:1}
+    .fb-hl-title{font-size:14px;font-weight:700;color:#050505;display:block;margin-bottom:2px}
+    .fb-hl-sub{font-size:12px;color:#606770}
+    .fb-hl-btn{padding:8px 14px;background:#e4e6eb;border-radius:6px;font-size:13px;font-weight:700;color:#050505;cursor:pointer;white-space:nowrap;margin-left:12px;border:none}
+    .fb-reactions{padding:8px 16px;border-top:1px solid #e4e6eb;display:flex;gap:0;font-size:12px;color:#606770}
+    .fb-react-btn{flex:1;padding:8px 0;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;border-radius:4px;font-weight:600}
+    .fb-react-btn:hover{background:#f0f2f5}
+
+    /* Right Column small unit */
+    .rc-frame{background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+    .rc-creative{position:relative;width:254px;height:133px;overflow:hidden}
+    .rc-creative-img{width:100%;height:100%;object-fit:cover;object-position:60% 55%}
+    .rc-creative::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(to right,rgba(0,0,0,.5),rgba(0,0,0,0))}
+    .rc-overlay{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:12px}
+    .rc-logo{font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;letter-spacing:.15em;color:var(--y)}
+    .rc-h{font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1;margin-top:3px}
+    .rc-bot{padding:8px 12px;background:#f7f7f7;border-top:1px solid #e8e8e8;display:flex;align-items:center;justify-content:space-between}
+    .rc-domain{font-size:10px;color:#999}
+    .rc-btn{padding:5px 10px;background:#0a0a0a;border-radius:3px;font-size:10px;font-weight:700;color:var(--y);text-decoration:none;letter-spacing:.08em;text-transform:uppercase}
+
+    /* ── OBJECT POSITIONS per crop ── */
+    /* Square (1:1): skier sits at ~72% x, 58% y */
+    .crop-sq{object-position:72% 58%}
+    /* Portrait (9:16): narrow vertical slice centred on skier at 72% x */
+    .crop-pt{object-position:72% 54%}
+    /* Landscape (1.91:1): slight lower crop to get more mid-scene */
+    .crop-ls{object-position:55% 58%}
+
+    /* ── FOOTER ── */
+    .page-footer{padding:48px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+    .ft-logo{font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;letter-spacing:.15em;color:var(--y)}
+    .ft-copy{font-size:12px;color:rgba(255,255,255,.28)}
+    .ft-links{display:flex;gap:20px}
+    .ft-links a{font-size:12px;color:rgba(255,255,255,.38);text-decoration:none;transition:color .2s}
+    .ft-links a:hover{color:var(--w)}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="page-nav">
+  <a class="page-nav-logo" href="#">WKND</a>
+  <span class="page-nav-title">Ad Creative Library · Winter 2026</span>
+  <div class="page-nav-links">
+    <a href="en.html">EN Landing</a>
+    <a href="de.html">DE Landing</a>
+    <a href="es.html">ES Landing</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-ey">Campaign Assets · Social Media</div>
+  <h1>Ad Creative<br>Library</h1>
+  <p class="page-hero-sub">Winter 2026 · Properly cropped ad units for every major social platform — matching the Dynamic Media template spec for each format's safe zones and aspect ratios.</p>
+  <div class="format-pills">
+    <span class="pill pill-ig"><span class="pill-dot"></span>Instagram · 1:1 · 9:16 · 1.91:1</span>
+    <span class="pill pill-li"><span class="pill-dot"></span>LinkedIn · 1.91:1 · 1:1</span>
+    <span class="pill pill-fb"><span class="pill-dot"></span>Facebook/Meta · 1:1 · 1.91:1 · 9:16 · Right Column</span>
+  </div>
+</div>
+
+<!-- SMART CROP REFERENCE -->
+<section class="smart-crop-section">
+  <div class="sc-header">
+    <div class="sc-ey">Dynamic Media Smart Crop</div>
+    <div class="sc-title">Source Image · Crop Zones</div>
+    <div class="sc-sub">Base asset: WKND-Hero-Artwork-Brand-2026-Skiing.png · 4873×2742px · Automated crop anchors at subject focal point</div>
+  </div>
+  <div class="sc-canvas">
+    <img class="sc-img" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 hero — crop zone reference">
+    <!-- Landscape 1.91:1 crop zone -->
+    <div class="sc-rect sc-ls"></div>
+    <div class="sc-label sc-ls-lbl">1.91:1 · Landscape</div>
+    <!-- Square 1:1 crop zone — centred on skier -->
+    <div class="sc-rect sc-sq"></div>
+    <div class="sc-label sc-sq-lbl">1:1 · Square</div>
+    <!-- Portrait 9:16 crop zone -->
+    <div class="sc-rect sc-pt"></div>
+    <div class="sc-label sc-pt-lbl">9:16 · Portrait</div>
+  </div>
+  <div class="sc-legend">
+    <div class="sc-leg-item"><div class="sc-leg-swatch" style="border-color:#4FC3F7"></div>Landscape 1.91:1 · 1200×628 · 1080×566 · 1200×627</div>
+    <div class="sc-leg-item"><div class="sc-leg-swatch" style="border-color:#FFEA00"></div>Square 1:1 · 1080×1080 · 1200×1200</div>
+    <div class="sc-leg-item"><div class="sc-leg-swatch" style="border-color:#CE93D8"></div>Portrait 9:16 · 1080×1920 · Story/Reels</div>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     INSTAGRAM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="plat-section">
+  <div class="plat-header">
+    <div class="plat-badge plat-badge-ig">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      Instagram
+    </div>
+    <span class="plat-formats">3 formats · Square Feed · Story/Reels · Landscape Feed</span>
+  </div>
+
+  <div class="ad-grid">
+
+    <!-- 1. SQUARE FEED 1:1 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>Square Feed</strong> · 1080×1080 · 1:1</div>
+      <div class="frame" style="width:340px">
+        <!-- IG top chrome -->
+        <div class="ig-top">
+          <div class="ig-avatar"></div>
+          <div class="ig-meta">
+            <span class="ig-username">wknd</span>
+            <span class="ig-sponsored-lbl">Sponsored</span>
+          </div>
+          <span class="ig-dots">···</span>
+        </div>
+        <!-- Creative -->
+        <div class="creative r-1-1">
+          <img class="creative-img crop-sq" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 Square">
+          <div class="creative-overlay">
+            <div class="co-logo">WKND</div>
+            <div class="co-ey">Winter 2026</div>
+            <div class="co-h1">The Mountain<br>Awaits</div>
+            <div class="co-sub">Zermatt · Aspen · Niseko</div>
+            <div class="co-tag">From $1,299</div>
+          </div>
+        </div>
+        <!-- IG bottom chrome -->
+        <div class="ig-bot">
+          <div class="ig-actions">
+            <div class="ig-actions-left">
+              <span class="ig-action-icon">🤍</span>
+              <span class="ig-action-icon">💬</span>
+              <span class="ig-action-icon">✈️</span>
+            </div>
+            <span class="ig-action-icon">🔖</span>
+          </div>
+          <div class="ig-likes">17,482 likes</div>
+          <div class="ig-caption"><span>wknd</span> The slopes are calling. Winter 2026 packages now open — limited places available. ⛷️🏔️</div>
+          <div class="ig-cta-bar">
+            <span class="ig-cta-text">wknd.com</span>
+            <a class="ig-cta-btn" href="#">Plan Your Adventure →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. STORY / REELS 9:16 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>Story / Reels</strong> · 1080×1920 · 9:16</div>
+      <div class="frame" style="width:228px">
+        <!-- Story creative (no separate top/bot chrome — full bleed) -->
+        <div class="creative story r-9-16">
+          <img class="creative-img crop-pt" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 Story">
+          <!-- Story UI: progress bars + user row -->
+          <div class="story-top">
+            <div class="story-bars">
+              <div class="story-bar"></div>
+              <div class="story-bar active" style="flex:0.4"></div>
+              <div class="story-bar"></div>
+            </div>
+          </div>
+          <div class="story-top" style="top:18px;background:none;padding:8px 14px">
+            <div class="story-avatar"></div>
+            <span class="story-user" style="font-size:10px;font-weight:600">wknd</span>
+            <span style="font-size:10px;color:rgba(255,255,255,.6)">Sponsored</span>
+            <span class="story-close" style="font-size:16px;margin-left:8px">✕</span>
+          </div>
+          <!-- Centre copy -->
+          <div class="story-center">
+            <div class="co-logo" style="font-size:28px;letter-spacing:.2em">WKND</div>
+            <div class="co-ey" style="font-size:10px;margin:8px 0 10px">Winter 2026</div>
+            <div class="co-h1" style="font-size:34px">The Mountain<br>Awaits</div>
+            <div class="co-sub" style="font-size:11px;color:rgba(255,255,255,.75);margin:10px auto 0">Zermatt · Aspen · Niseko<br>From $1,299 per person</div>
+          </div>
+          <!-- Swipe up -->
+          <div class="story-swipe">
+            <span class="story-swipe-icon">↑</span>
+            <span class="story-swipe-label">Plan Your Adventure</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. LANDSCAPE 1.91:1 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>Landscape Feed</strong> · 1080×566 · 1.91:1</div>
+      <div class="frame" style="width:480px">
+        <div class="ig-top">
+          <div class="ig-avatar"></div>
+          <div class="ig-meta">
+            <span class="ig-username">wknd</span>
+            <span class="ig-sponsored-lbl">Sponsored</span>
+          </div>
+          <span class="ig-dots">···</span>
+        </div>
+        <div class="creative r-191-1">
+          <img class="creative-img crop-ls" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 Landscape">
+          <div class="creative-overlay">
+            <div class="co-logo">WKND</div>
+            <div class="co-ey">Winter 2026 Campaign</div>
+            <div class="co-h1" style="font-size:26px">The Mountain Awaits</div>
+            <div class="co-sub">Zermatt · Aspen · Niseko · From $1,299</div>
+          </div>
+        </div>
+        <div class="ig-bot">
+          <div class="ig-actions">
+            <div class="ig-actions-left">
+              <span class="ig-action-icon">🤍</span>
+              <span class="ig-action-icon">💬</span>
+              <span class="ig-action-icon">✈️</span>
+            </div>
+            <span class="ig-action-icon">🔖</span>
+          </div>
+          <div class="ig-likes">9,214 likes</div>
+          <div class="ig-caption"><span>wknd</span> Three destinations. Endless powder. Winter 2026 — your adventure awaits. 🎿</div>
+          <div class="ig-cta-bar">
+            <span class="ig-cta-text">wknd.com</span>
+            <a class="ig-cta-btn" href="#">Learn More →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ad-grid -->
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     LINKEDIN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="plat-section">
+  <div class="plat-header">
+    <div class="plat-badge plat-badge-li">
+      <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      LinkedIn
+    </div>
+    <span class="plat-formats">2 formats · Sponsored Content Landscape · Sponsored Content Square</span>
+  </div>
+
+  <div class="ad-grid">
+
+    <!-- 4. LINKEDIN LANDSCAPE 1.91:1 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>Sponsored Content</strong> · 1200×627 · 1.91:1</div>
+      <div class="frame" style="width:480px">
+        <!-- LinkedIn top chrome -->
+        <div class="li-top">
+          <div class="li-co-avatar">W</div>
+          <div class="li-meta">
+            <span class="li-co-name">WKND</span>
+            <span class="li-promoted">Promoted</span>
+            <span class="li-degree">Adventure Travel · Ski &amp; Mountain</span>
+          </div>
+          <span class="li-more">···</span>
+        </div>
+        <div class="li-body" style="padding-bottom:10px">The winter season of a lifetime starts here. WKND Winter 2026 — now open for reservations.</div>
+        <!-- Creative -->
+        <div class="creative r-li-ls">
+          <img class="creative-img crop-ls" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 LinkedIn">
+          <div class="creative-overlay">
+            <div class="co-logo">WKND</div>
+            <div class="co-ey">Winter 2026 · Exclusive Packages</div>
+            <div class="co-h1" style="font-size:24px">Elite Ski Experiences<br>From $1,299</div>
+          </div>
+        </div>
+        <!-- LinkedIn bottom -->
+        <div style="padding:0 16px">
+          <div class="li-bot">
+            <div class="li-headline">The Mountain Awaits — WKND Winter 2026</div>
+            <div class="li-desc">wknd.com · Exclusive ski packages across Zermatt, Aspen and Niseko</div>
+            <div class="li-cta-row">
+              <div></div>
+              <button class="li-cta-btn">Learn More</button>
+            </div>
+          </div>
+        </div>
+        <div class="li-engagement">
+          <div class="li-eng-item">👍 <span>147</span></div>
+          <div class="li-eng-item">💬 <span>23 comments</span></div>
+          <div class="li-eng-item">↗ <span>Share</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. LINKEDIN SQUARE 1:1 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>Sponsored Content Square</strong> · 1200×1200 · 1:1</div>
+      <div class="frame" style="width:300px">
+        <div class="li-top">
+          <div class="li-co-avatar">W</div>
+          <div class="li-meta">
+            <span class="li-co-name">WKND</span>
+            <span class="li-promoted">Promoted</span>
+          </div>
+          <span class="li-more">···</span>
+        </div>
+        <div class="creative r-li-sq">
+          <img class="creative-img crop-sq" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 LinkedIn Square">
+          <div class="creative-overlay">
+            <div class="co-logo">WKND</div>
+            <div class="co-ey">Winter 2026</div>
+            <div class="co-h1" style="font-size:20px">The Mountain Awaits</div>
+            <div class="co-sub">Zermatt · Aspen · Niseko</div>
+            <div class="co-tag">From $1,299</div>
+          </div>
+        </div>
+        <div style="padding:0 14px">
+          <div class="li-bot" style="margin:0;padding:10px 0">
+            <div class="li-headline" style="font-size:13px">WKND Winter 2026 — Elite Ski Experiences</div>
+            <div class="li-desc">Exclusive packages from $1,299 per person</div>
+            <div class="li-cta-row" style="margin-top:8px">
+              <div></div>
+              <button class="li-cta-btn" style="font-size:12px;padding:5px 14px">Learn More</button>
+            </div>
+          </div>
+        </div>
+        <div class="li-engagement" style="font-size:11px">
+          <div class="li-eng-item">👍 <span>89</span></div>
+          <div class="li-eng-item">💬 <span>12</span></div>
+          <div class="li-eng-item">↗ <span>Share</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     FACEBOOK / META
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="plat-section">
+  <div class="plat-header">
+    <div class="plat-badge plat-badge-fb">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Facebook / Meta
+    </div>
+    <span class="plat-formats">4 formats · News Feed Square · News Feed Landscape · Stories · Right Column</span>
+  </div>
+
+  <div class="ad-grid">
+
+    <!-- 6. FACEBOOK SQUARE FEED 1:1 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>News Feed Square</strong> · 1080×1080 · 1:1</div>
+      <div class="frame" style="width:340px">
+        <div class="fb-top">
+          <div class="fb-avatar">W</div>
+          <div class="fb-meta">
+            <span class="fb-page-name">WKND</span>
+            <div class="fb-sponsored-row"><span>Sponsored</span><span class="fb-globe">🌐</span></div>
+          </div>
+          <span class="fb-dots">···</span>
+        </div>
+        <div class="fb-primary-text">⛷️ The slopes are calling. Winter 2026 — three legendary destinations, one extraordinary season. Limited places available.</div>
+        <div class="creative r-1-1">
+          <img class="creative-img crop-sq" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 Facebook">
+          <div class="creative-overlay">
+            <div class="co-logo">WKND</div>
+            <div class="co-ey">Winter 2026</div>
+            <div class="co-h1">The Mountain<br>Awaits</div>
+            <div class="co-sub">Zermatt · Aspen · Niseko</div>
+            <div class="co-tag">From $1,299</div>
+          </div>
+        </div>
+        <div class="fb-headline-box">
+          <div class="fb-hl-text">
+            <span class="fb-hl-title">The Mountain Awaits</span>
+            <span class="fb-hl-sub">wknd.com · Ski packages from $1,299</span>
+          </div>
+          <div class="fb-hl-btn">Book Now</div>
+        </div>
+        <div class="fb-reactions">
+          <div class="fb-react-btn">👍 Like</div>
+          <div class="fb-react-btn">💬 Comment</div>
+          <div class="fb-react-btn">↗ Share</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. FACEBOOK LANDSCAPE 1.91:1 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>News Feed Landscape</strong> · 1200×628 · 1.91:1</div>
+      <div class="frame" style="width:480px">
+        <div class="fb-top">
+          <div class="fb-avatar">W</div>
+          <div class="fb-meta">
+            <span class="fb-page-name">WKND</span>
+            <div class="fb-sponsored-row"><span>Sponsored</span><span class="fb-globe">🌐</span></div>
+          </div>
+          <span class="fb-dots">···</span>
+        </div>
+        <div class="fb-primary-text">Winter 2026 is here. Discover WKND's curated ski getaways — Zermatt, Aspen, Niseko. Packages from $1,299 per person.</div>
+        <div class="creative r-191-1">
+          <img class="creative-img crop-ls" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 Facebook Landscape">
+          <div class="creative-overlay">
+            <div class="co-logo">WKND</div>
+            <div class="co-ey">Winter 2026</div>
+            <div class="co-h1" style="font-size:26px">The Mountain Awaits</div>
+            <div class="co-sub">Ski. Explore. Thrive.</div>
+          </div>
+        </div>
+        <div class="fb-headline-box">
+          <div class="fb-hl-text">
+            <span class="fb-hl-title">The Mountain Awaits — WKND Winter 2026</span>
+            <span class="fb-hl-sub">wknd.com · Exclusive ski packages across 3 destinations</span>
+          </div>
+          <div class="fb-hl-btn">Book Now</div>
+        </div>
+        <div class="fb-reactions">
+          <div class="fb-react-btn">👍 Like</div>
+          <div class="fb-react-btn">💬 Comment</div>
+          <div class="fb-react-btn">↗ Share</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. FACEBOOK STORY 9:16 -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>Stories</strong> · 1080×1920 · 9:16</div>
+      <div class="frame" style="width:228px">
+        <div class="creative story r-9-16">
+          <img class="creative-img crop-pt" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Winter 2026 Facebook Story">
+          <!-- Story chrome -->
+          <div class="story-top">
+            <div class="story-bars">
+              <div class="story-bar active"></div>
+              <div class="story-bar" style="flex:0.6"></div>
+            </div>
+          </div>
+          <div class="story-top" style="top:18px;background:none;padding:8px 14px">
+            <div class="fb-avatar" style="width:28px;height:28px;font-size:11px;border-radius:50%">W</div>
+            <span class="story-user" style="font-size:10px">WKND · Sponsored</span>
+            <span class="story-close" style="font-size:16px;margin-left:8px">✕</span>
+          </div>
+          <div class="story-center">
+            <div class="co-logo" style="font-size:26px;letter-spacing:.2em">WKND</div>
+            <div class="co-ey" style="font-size:10px;margin:8px 0 10px">Winter 2026</div>
+            <div class="co-h1" style="font-size:32px">The Mountain<br>Awaits</div>
+            <div class="co-sub" style="font-size:11px;color:rgba(255,255,255,.75);margin:10px auto 0">Zermatt · Aspen · Niseko</div>
+          </div>
+          <div class="story-swipe">
+            <span class="story-swipe-icon">↑</span>
+            <span class="story-swipe-label">Book Now</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. FACEBOOK RIGHT COLUMN 1.91:1 small -->
+    <div class="ad-unit">
+      <div class="ad-spec"><strong>Right Column</strong> · 254×133 · Display size</div>
+      <div class="rc-frame">
+        <div class="rc-creative">
+          <img class="rc-creative-img crop-ls" src="https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png" alt="WKND Right Column">
+          <div class="rc-overlay">
+            <div class="rc-logo">WKND</div>
+            <div class="rc-h">The Mountain<br>Awaits</div>
+          </div>
+        </div>
+        <div class="rc-bot">
+          <span class="rc-domain">wknd.com</span>
+          <a class="rc-btn" href="#">Book Now</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ad-grid -->
+</section>
+
+<!-- FOOTER -->
+<footer class="page-footer">
+  <div class="ft-logo">WKND</div>
+  <div class="ft-links">
+    <a href="en.html">EN Landing</a>
+    <a href="de.html">DE Landing</a>
+    <a href="es.html">ES Landing</a>
+    <a href="en/email.html">EN Email</a>
+  </div>
+  <div class="ft-copy">© 2026 WKND · Ad Creative Library · Winter Campaign</div>
+</footer>
+
+</body>
+</html>
