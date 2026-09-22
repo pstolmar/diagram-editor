@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WKND Winter 2026 — Der Berg ruft</title>
+  <meta name="description" content="Erleben Sie das ultimative Skiabenteuer mit WKND Winter 2026. Zermatt, Aspen, Niseko — Ihr außergewöhnlichster Winter beginnt hier.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--y:#FFEA00;--k:#0a0a0a;--w:#ffffff;--g:#888;--l:#f5f4f2;--m:#1e1e1e}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',system-ui,sans-serif;color:var(--k);background:var(--k)}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:24px 48px;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,transparent 100%)}
+    .nav-logo{font-family:'Oswald',sans-serif;font-weight:700;font-size:28px;letter-spacing:.15em;color:var(--y);text-decoration:none}
+    .nav-links{display:flex;gap:32px;list-style:none;align-items:center}
+    .nav-links a{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.8);text-decoration:none;transition:color .2s}
+    .nav-links a:hover{color:var(--y)}
+    .lang-sw{display:flex;gap:5px;align-items:center}
+    .lang-sw a{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:2px;color:rgba(255,255,255,.6);text-decoration:none;transition:all .2s}
+    .lang-sw a.on{background:var(--y);border-color:var(--y);color:var(--k)}
+    .lang-sw a:not(.on):hover{border-color:rgba(255,255,255,.7);color:var(--w)}
+    .hero{position:relative;height:100vh;min-height:620px;overflow:hidden;display:flex;align-items:flex-end}
+    .hero-img{position:absolute;inset:0;background:url('https://publish-p138879-e1741192.adobeaemcloud.com/content/dam/wknd-campaigns/dynamic-media/WKND-Hero-Artwork-Brand-2026-Skiing.png') center/cover no-repeat}
+    .hero-grad1{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,.6) 75%,rgba(0,0,0,.88) 100%)}
+    .hero-grad2{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.5) 0%,rgba(0,0,0,0) 55%)}
+    .hero-content{position:relative;z-index:3;padding:80px 48px;max-width:700px}
+    .eyebrow{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:var(--y);padding:5px 14px;border:1px solid var(--y);border-radius:2px;margin-bottom:22px}
+    .hero h1{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(54px,7.5vw,100px);line-height:.93;letter-spacing:-.01em;text-transform:uppercase;color:var(--w);margin-bottom:24px}
+    .hero-sub{font-size:16px;font-weight:300;line-height:1.65;color:rgba(255,255,255,.82);max-width:470px;margin-bottom:40px}
+    .btn-y{display:inline-flex;align-items:center;gap:10px;background:var(--y);color:var(--k);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;padding:16px 32px;border-radius:3px;transition:all .2s}
+    .btn-y:hover{background:var(--w);transform:translateY(-2px)}
+    .btn-y svg,.btn-k svg{width:15px;height:15px;flex-shrink:0}
+    .scroll-hint{position:absolute;bottom:32px;right:48px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,.45);font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+    .scroll-hint::after{content:'';display:block;width:1px;height:44px;background:rgba(255,255,255,.3);animation:sl 2s ease-in-out infinite}
+    @keyframes sl{0%,100%{opacity:.3}50%{opacity:1}}
+    .band{background:var(--y);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
+    .band-text{font-family:'Oswald',sans-serif;font-size:21px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--k)}
+    .stats{display:flex;gap:40px;flex-wrap:wrap}
+    .stat-n{font-family:'Oswald',sans-serif;font-size:34px;font-weight:700;color:var(--k);line-height:1}
+    .stat-l{font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(0,0,0,.55);margin-top:3px}
+    .sec{padding:96px 48px}
+    .sec-ey{font-size:11px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:var(--y);margin-bottom:12px}
+    .sec-ti{font-family:'Oswald',sans-serif;font-size:clamp(34px,4vw,54px);font-weight:700;text-transform:uppercase;line-height:1;margin-bottom:56px}
+    .sec-dest{background:var(--k)}
+    .sec-dest .sec-ti{color:var(--w)}
+    .dest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+    .dc{position:relative;height:480px;overflow:hidden;cursor:pointer}
+    .dc-bg{position:absolute;inset:0;transition:transform .5s ease}
+    .dc:hover .dc-bg{transform:scale(1.05)}
+    .dc-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.15) 60%,transparent 100%)}
+    .zermatt .dc-bg{background:linear-gradient(135deg,#0d2137 0%,#1a4a7a 45%,#2d7ab0 80%)}
+    .aspen .dc-bg{background:linear-gradient(135deg,#1a0d2e 0%,#3d1f6b 45%,#6b3fa0 80%)}
+    .niseko .dc-bg{background:linear-gradient(135deg,#0a1f2e 0%,#0d3d5c 45%,#1a6b8a 80%)}
+    .dc-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:36px 32px}
+    .dc-tag{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--y);margin-bottom:10px}
+    .dc-name{font-family:'Oswald',sans-serif;font-size:38px;font-weight:700;text-transform:uppercase;color:var(--w);line-height:1;margin-bottom:5px}
+    .dc-region{font-size:11px;font-weight:400;letter-spacing:.12em;color:rgba(255,255,255,.55);text-transform:uppercase;margin-bottom:16px}
+    .dc-desc{font-size:13px;line-height:1.65;color:rgba(255,255,255,.72)}
+    .dc-lnk{display:inline-flex;align-items:center;gap:7px;margin-top:18px;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--y);text-decoration:none}
+    .sec-exp{background:var(--l)}
+    .sec-exp .sec-ey{color:#666}
+    .sec-exp .sec-ti{color:var(--k)}
+    .exp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+    .ec{background:var(--w);padding:40px;border-radius:3px;position:relative;overflow:hidden}
+    .ec::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--y)}
+    .ec-n{font-family:'Oswald',sans-serif;font-size:60px;font-weight:700;color:rgba(0,0,0,.05);line-height:1;position:absolute;top:20px;right:28px}
+    .ec-ico{font-size:30px;margin-bottom:18px}
+    .ec-ti{font-family:'Oswald',sans-serif;font-size:26px;font-weight:600;text-transform:uppercase;color:var(--k);margin-bottom:12px}
+    .ec-desc{font-size:14px;line-height:1.7;color:#555}
+    .sec-pkg{background:var(--m)}
+    .sec-pkg .sec-ey{color:rgba(255,234,0,.8)}
+    .sec-pkg .sec-ti{color:var(--w)}
+    .pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+    .pc{background:rgba(255,255,255,.04);padding:48px 40px;border:1px solid rgba(255,255,255,.07);transition:background .25s}
+    .pc:not(.hot):hover{background:rgba(255,255,255,.09)}
+    .pc.hot{background:var(--y);border-color:var(--y)}
+    .pc-lbl{font-size:10px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--y);margin-bottom:22px}
+    .pc.hot .pc-lbl{color:var(--k)}
+    .pc-name{font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;text-transform:uppercase;color:var(--w);margin-bottom:8px}
+    .pc.hot .pc-name{color:var(--k)}
+    .pc-dur{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:30px}
+    .pc.hot .pc-dur{color:rgba(0,0,0,.55)}
+    .pc-price{font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:var(--w);line-height:1}
+    .pc.hot .pc-price{color:var(--k)}
+    .pc-psub{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px;margin-bottom:30px}
+    .pc.hot .pc-psub{color:rgba(0,0,0,.5)}
+    .pc-feats{list-style:none;margin-bottom:36px}
+    .pc-feats li{font-size:13px;color:rgba(255,255,255,.65);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+    .pc.hot .pc-feats li{color:rgba(0,0,0,.72);border-bottom-color:rgba(0,0,0,.1)}
+    .pc-feats li::before{content:'✓';color:var(--y);font-weight:700}
+    .pc.hot .pc-feats li::before{color:var(--k)}
+    .pc-btn{display:block;text-align:center;padding:14px 24px;border:1px solid rgba(255,255,255,.25);color:var(--w);font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;transition:all .2s}
+    .pc.hot .pc-btn{background:var(--k);border-color:var(--k);color:var(--w)}
+    .pc-btn:hover{background:var(--y);border-color:var(--y);color:var(--k)}
+    .cta-band{position:relative;padding:112px 48px;text-align:center;background:var(--y);overflow:hidden}
+    .cta-band::before{content:'WKND';position:absolute;font-family:'Oswald',sans-serif;font-size:300px;font-weight:700;color:rgba(0,0,0,.055);top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none}
+    .cta-band h2{font-family:'Oswald',sans-serif;font-size:clamp(36px,5vw,64px);font-weight:700;text-transform:uppercase;color:var(--k);margin-bottom:14px;position:relative}
+    .cta-band p{font-size:16px;color:rgba(0,0,0,.6);margin-bottom:40px;position:relative}
+    .btn-k{display:inline-flex;align-items:center;gap:10px;background:var(--k);color:var(--w);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;padding:18px 40px;border-radius:3px;transition:all .2s;position:relative}
+    .btn-k:hover{background:#1a1a1a;transform:translateY(-2px)}
+    footer{background:var(--k);padding:40px 48px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);flex-wrap:wrap;gap:16px}
+    .ft-logo{font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;letter-spacing:.15em;color:var(--y)}
+    .ft-links{display:flex;gap:24px;list-style:none}
+    .ft-links a{font-size:12px;color:rgba(255,255,255,.38);text-decoration:none;transition:color .2s}
+    .ft-links a:hover{color:var(--w)}
+    .ft-copy{font-size:12px;color:rgba(255,255,255,.28)}
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="#">WKND</a>
+  <ul class="nav-links">
+    <li><a href="#destinations">Reiseziele</a></li>
+    <li><a href="#experiences">Erlebnisse</a></li>
+    <li><a href="#packages">Pakete</a></li>
+  </ul>
+  <div class="lang-sw">
+    <a href="en.html">EN</a>
+    <a href="de.html" class="on">DE</a>
+    <a href="es.html">ES</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-img"></div>
+  <div class="hero-grad1"></div>
+  <div class="hero-grad2"></div>
+  <div class="hero-content">
+    <span class="eyebrow">Winterkampagne 2026</span>
+    <h1>Der Berg<br>ruft</h1>
+    <p class="hero-sub">Entdecken Sie WKNDs ultimative Skireisen. Von den Pulverhängen Nisekos bis zu den legendären Gipfeln Zermatts — Ihr außergewöhnlichstes Winterabenteuer beginnt hier.</p>
+    <a href="#packages" class="btn-y">
+      Abenteuer planen
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+    </a>
+  </div>
+  <div class="scroll-hint">Scroll</div>
+</section>
+
+<div class="band">
+  <div class="band-text">Skifahren. Erkunden. Erleben. — Winter 2026</div>
+  <div class="stats">
+    <div><div class="stat-n">3</div><div class="stat-l">Reiseziele</div></div>
+    <div><div class="stat-n">500+</div><div class="stat-l">Pisten</div></div>
+    <div><div class="stat-n">15m</div><div class="stat-l">Jahresschneefall</div></div>
+    <div><div class="stat-n">12</div><div class="stat-l">Saisonwochen</div></div>
+  </div>
+</div>
+
+<section class="sec sec-dest" id="destinations">
+  <div class="sec-ey">Wo Wir Hinfahren</div>
+  <div class="sec-ti">Ausgewählte Reiseziele</div>
+  <div class="dest-grid">
+    <div class="dc zermatt">
+      <div class="dc-bg"></div>
+      <div class="dc-inner">
+        <div class="dc-tag">✦ Top-Ziel 2026</div>
+        <div class="dc-name">Zermatt</div>
+        <div class="dc-region">Wallis · Schweiz</div>
+        <p class="dc-desc">360 km präparierte Pisten unter dem Matterhorn. WKNDs Spitzenziel für Winter 2026 — autofrei, erstklassig, unvergesslich.</p>
+        <a href="#" class="dc-lnk">Entdecken →</a>
+      </div>
+    </div>
+    <div class="dc aspen">
+      <div class="dc-bg"></div>
+      <div class="dc-inner">
+        <div class="dc-tag">✦ Amerika-Klassiker</div>
+        <div class="dc-name">Aspen</div>
+        <div class="dc-region">Colorado · USA</div>
+        <p class="dc-desc">Vier Berge, eine legendäre Stadt. Aspens Weltklasse-Skifahren und lebendige Kultur schaffen das amerikanische Skierlebnis schlechthin.</p>
+        <a href="#" class="dc-lnk">Entdecken →</a>
+      </div>
+    </div>
+    <div class="dc niseko">
+      <div class="dc-bg"></div>
+      <div class="dc-inner">
+        <div class="dc-tag">✦ Powder-Paradies</div>
+        <div class="dc-name">Niseko</div>
+        <div class="dc-region">Hokkaido · Japan</div>
+        <p class="dc-desc">Der feinste Pulverschnee der Welt. Nisekos 15 Meter Saisonschnee schafft außergewöhnliche Bedingungen für fortgeschrittene Skifahrer und Snowboarder.</p>
+        <a href="#" class="dc-lnk">Entdecken →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-exp" id="experiences">
+  <div class="sec-ey">Was Wir Tun</div>
+  <div class="sec-ti">Bergerlebnisse</div>
+  <div class="exp-grid">
+    <div class="ec"><div class="ec-n">01</div><div class="ec-ico">⛷️</div><div class="ec-ti">Alpinski</div><p class="ec-desc">Perfekt präparierte Pisten für alle Könnerstufen — von sanften Anfängerhängen bis zu anspruchsvollen Schwarzen. Unsere WKND-Guides machen jeden Schwung unvergesslich.</p></div>
+    <div class="ec"><div class="ec-n">02</div><div class="ec-ico">🏔️</div><div class="ec-ti">Geländetouren</div><p class="ec-desc">Verlassen Sie die Piste mit WKNDs zertifizierten Bergführern. Abenteuer im unberührten Tiefschnee — für alle, die das Außergewöhnliche suchen.</p></div>
+    <div class="ec"><div class="ec-n">03</div><div class="ec-ico">🥂</div><div class="ec-ti">Après-Ski</div><p class="ec-desc">Feuerstellen, Cocktails, alpine Gastronomie. WKND kuratiert die besten Après-Ski-Erlebnisse — denn das Abenteuer endet nicht, wenn die Lifte schließen.</p></div>
+    <div class="ec"><div class="ec-n">04</div><div class="ec-ico">🏂</div><div class="ec-ti">Snowparks</div><p class="ec-desc">Weltklasse-Halfpipes, Kicker und Rails an jedem Ziel. Ob Aufsteiger oder Profi — WKNDs Parks liefern Top-Bedingungen für jeden.</p></div>
+  </div>
+</section>
+
+<section class="sec sec-pkg" id="packages">
+  <div class="sec-ey">Was Enthalten Ist</div>
+  <div class="sec-ti">Winterpakete</div>
+  <div class="pkg-grid">
+    <div class="pc">
+      <div class="pc-lbl">Entdecker</div>
+      <div class="pc-name">Einsteiger</div>
+      <div class="pc-dur">5 Tage · 4 Nächte</div>
+      <div class="pc-price">1.299 €</div>
+      <div class="pc-psub">pro Person</div>
+      <ul class="pc-feats">
+        <li>Liftpass inklusive</li>
+        <li>Unterkunft (4★)</li>
+        <li>Flughafentransfer</li>
+        <li>WKND Willkommenspaket</li>
+      </ul>
+      <a href="#" class="pc-btn">Entdecker buchen</a>
+    </div>
+    <div class="pc hot">
+      <div class="pc-lbl">Beliebtestes Paket</div>
+      <div class="pc-name">Gipfel</div>
+      <div class="pc-dur">7 Tage · 6 Nächte</div>
+      <div class="pc-price">2.499 €</div>
+      <div class="pc-psub">pro Person</div>
+      <ul class="pc-feats">
+        <li>Liftpass + Skiverleih</li>
+        <li>Unterkunft (5★)</li>
+        <li>Geführter Bergtag</li>
+        <li>Après-Ski-Erlebnis</li>
+        <li>Flughafentransfer</li>
+      </ul>
+      <a href="#" class="pc-btn">Gipfel buchen</a>
+    </div>
+    <div class="pc">
+      <div class="pc-lbl">Elite</div>
+      <div class="pc-name">Vollzugang</div>
+      <div class="pc-dur">10 Tage · 9 Nächte</div>
+      <div class="pc-price">4.999 €</div>
+      <div class="pc-psub">pro Person</div>
+      <ul class="pc-feats">
+        <li>Unbegrenzter Liftzugang</li>
+        <li>Luxus-Chalet (5★)</li>
+        <li>Privatführer (3 Tage)</li>
+        <li>Helikoptertagesausflug</li>
+        <li>Fine-Dining-Erlebnisse</li>
+      </ul>
+      <a href="#" class="pc-btn">Elite buchen</a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <h2>Ihre Wintergeschichte<br>Beginnt Jetzt</h2>
+  <p>Begrenzte Plätze für Winter 2026. Sichern Sie sich Ihr Bergabenteuer noch heute.</p>
+  <a href="#packages" class="btn-k">
+    Platz reservieren
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+  </a>
+</section>
+
+<footer>
+  <div class="ft-logo">WKND</div>
+  <ul class="ft-links">
+    <li><a href="#">Datenschutz</a></li>
+    <li><a href="#">AGB</a></li>
+    <li><a href="#">Kontakt</a></li>
+    <li><a href="de/email.html">E-Mail Vorschau</a></li>
+  </ul>
+  <div class="ft-copy">© 2026 WKND. Alle Rechte vorbehalten.</div>
+</footer>
+
+</body>
+</html>
